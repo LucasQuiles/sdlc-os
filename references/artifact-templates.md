@@ -1,0 +1,378 @@
+# Artifact Templates
+
+Copy-paste templates for wave artifacts. Each template uses YAML frontmatter where applicable followed by markdown sections.
+
+---
+
+## 1. state.md — Task State
+
+```markdown
+---
+task-id: ""
+description: ""
+current-wave:
+  number: 0
+  name: ""
+team-roster:
+  - role: Orchestrator
+    model: opus
+    agent: ""
+  - role: Producer
+    model: sonnet
+    agent: ""
+  - role: Verifier
+    model: haiku
+    agent: ""
+created-at: ""
+decisions:
+  - wave: 0
+    decision: ""
+    rationale: ""
+    timestamp: ""
+---
+
+# Task State: {task-id}
+
+_Managed by Orchestrator. Updated at each wave transition._
+```
+
+---
+
+## 2. wave-2-clarify.md — Mission Brief
+
+```markdown
+---
+wave: 2
+artifact: mission-brief
+task-id: ""
+created-at: ""
+---
+
+# Mission Brief
+
+## Objective
+<!-- One or two sentences stating what must be true when this task is done. -->
+
+## Scope
+
+### In Scope
+-
+
+### Out of Scope
+-
+
+## Constraints
+-
+
+## Risks
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|-----------|--------|------------|
+|      |            |        |            |
+
+## Success Criteria
+<!-- Each criterion must be testable — someone must be able to verify it pass/fail. -->
+1.
+2.
+
+## Assumptions
+
+| Assumption | Confidence |
+|------------|-----------|
+|            | Assumed   |
+```
+
+---
+
+## 3. wave-3-discover.md — Discovery Brief
+
+```markdown
+---
+wave: 3
+artifact: discovery-brief
+task-id: ""
+created-at: ""
+---
+
+# Discovery Brief
+
+## Investigation Scope
+<!-- What was examined and what was explicitly not examined. -->
+
+## Findings
+
+1. **Finding** — [Confidence: Verified/Likely/Assumed/Unknown]
+   <!-- Description, supporting reasoning or evidence. -->
+
+## Evidence Items
+
+1. **Evidence** — Type: file/log/test/trace
+   <!-- Path, reference, or description. -->
+
+## Assumptions
+
+| Assumption | Confidence |
+|------------|-----------|
+|            | Assumed   |
+
+## Open Questions
+
+1.
+
+## Impact Areas
+<!-- Systems, components, or flows affected by the findings above. -->
+-
+```
+
+---
+
+## 4. wave-4-design.md — Design Decision Record
+
+```markdown
+---
+wave: 4
+artifact: design-decision-record
+task-id: ""
+created-at: ""
+---
+
+# Design Decision Record
+
+## Problem Statement
+<!-- What decision must be made and why it matters. -->
+
+## Options
+
+### Option A: {name}
+**Pros:**
+-
+
+**Cons:**
+-
+
+### Option B: {name}
+**Pros:**
+-
+
+**Cons:**
+-
+
+## Tradeoff Matrix
+
+| Criterion | Option A | Option B |
+|-----------|---------|---------|
+|           |         |         |
+
+## Recommendation
+<!-- State the chosen option. -->
+
+### Justification
+<!-- Why this option over the alternatives. -->
+
+## Validation Strategy
+<!-- How will we know the design is correct before full build? -->
+
+## Risks
+-
+
+## Edge Cases
+-
+```
+
+---
+
+## 5. wave-5-gate.md — Gate Decision
+
+```markdown
+---
+wave: 5
+artifact: gate-decision
+task-id: ""
+created-at: ""
+---
+
+# Gate Decision
+
+## Readiness Checklist
+
+- [ ] Mission Brief complete and agreed
+- [ ] Discovery findings have sufficient confidence
+- [ ] Design decision record produced with at least two options evaluated
+- [ ] No unresolved Unknown-confidence blockers
+- [ ] Team roster confirmed and agents available
+
+## Decision
+
+> **GO / NO-GO / LOOP-BACK / ESCALATE**
+
+_(Delete all but one)_
+
+## Rationale
+<!-- Why this decision. Reference specific checklist items or findings. -->
+
+## Open Risks Accepted
+<!-- Risks known at gate time that the team accepts proceeding with. -->
+-
+
+## Conditions
+<!-- Required only for conditional GO or LOOP-BACK. -->
+-
+```
+
+---
+
+## 6. wave-6-build.md — Change Set
+
+```markdown
+---
+wave: 6
+artifact: change-set
+task-id: ""
+created-at: ""
+---
+
+# Change Set
+
+## Implementation Increments
+
+### Increment 1: {description}
+
+**Files Changed:**
+-
+
+**Tests Written:**
+-
+
+**Validation Result:** [Confidence: Verified/Likely/Assumed/Unknown]
+<!-- What was run and what was observed. -->
+
+### Increment 2: {description}
+
+**Files Changed:**
+-
+
+**Tests Written:**
+-
+
+**Validation Result:** [Confidence: Verified/Likely/Assumed/Unknown]
+
+## Deviations from Design
+<!-- List any deviations from the wave-4 Design Decision Record with rationale. -->
+- None / {deviation and reason}
+
+## Intermediate Validation Notes
+<!-- Notes from validation runs during build — errors encountered, fixes applied. -->
+```
+
+---
+
+## 7. wave-7-verify.md — Verification Report
+
+```markdown
+---
+wave: 7
+artifact: verification-report
+task-id: ""
+created-at: ""
+---
+
+# Verification Report
+
+## Criteria Checklist
+
+| Criterion (from Mission Brief) | Result | Evidence |
+|-------------------------------|--------|---------|
+|                               | PASS/FAIL/PARTIAL | |
+
+## Regressions Checked
+<!-- List what was checked for regression and the outcome. -->
+-
+
+## Residual Uncertainty
+<!-- What remains unknown or unverified after this wave. -->
+-
+
+## Confidence Level
+[Verified/Likely/Assumed/Unknown] — _brief justification_
+
+## Verdict
+
+> **PASS / PARTIAL / FAIL**
+
+_(Delete all but one)_
+```
+
+---
+
+## 8. wave-8-review.md — Review Memo
+
+```markdown
+---
+wave: 8
+artifact: review-memo
+task-id: ""
+created-at: ""
+---
+
+# Review Memo
+
+## Issues
+
+| Severity | Description | Recommendation |
+|----------|-------------|---------------|
+| Critical/Major/Minor | | |
+
+## Strengths
+<!-- What was done well that should be preserved or replicated. -->
+-
+
+## Concerns
+<!-- Issues that are not blockers but warrant attention going forward. -->
+-
+
+## Decision
+
+> **Approve / Revise / Escalate**
+
+_(Delete all but one)_
+
+### Rationale
+<!-- Specific basis for the decision. Reference issues table or criteria checklist. -->
+```
+
+---
+
+## 9. wave-10-handoff.md — Delivery Summary
+
+```markdown
+---
+wave: 10
+artifact: delivery-summary
+task-id: ""
+created-at: ""
+---
+
+# Delivery Summary
+
+## Objective
+<!-- Restate the original objective from the Mission Brief. -->
+
+## What Changed
+<!-- Enumerate what was built, modified, or removed. Be concrete. -->
+-
+
+## How We Know
+<!-- Evidence that the objective was met. Reference test results, logs, diffs. -->
+-
+
+## What's Uncertain
+<!-- Residual unknowns or assumptions that persist into production. -->
+-
+
+## Risks and Caveats
+<!-- Known limitations, edge cases not covered, or conditions under which this may fail. -->
+-
+
+## Next Action
+<!-- What the recipient of this handoff should do next. -->
+```
