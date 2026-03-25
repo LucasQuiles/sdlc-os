@@ -9,16 +9,21 @@ The system is loops all the way down. Every role, every bead, every phase runs a
 
 ## The Fractal Loop
 
-The same pattern repeats at every level:
+The same pattern repeats at every level. Every iteration is **falsifiable** — a hypothesis tested against evidence, not a vibe checked against intuition.
 
 ```
 LOOP (budget: N attempts):
-  1. Read state
-  2. Hypothesize / Act
-  3. Measure against metric
-  4. PASS → advance. FAIL → try again.
-  5. Budget exhausted → backpressure to parent loop
+  1. Read state + prior evidence
+  2. Form hypothesis (what will change, why it should work)
+  3. Act (implement the hypothesis)
+  4. Measure against metric (collect observable evidence)
+  5. PASS → advance. FAIL → record what was tried, form new hypothesis.
+  6. Budget exhausted → backpressure to parent loop with full evidence trail
 ```
+
+**One variable at a time.** Each iteration changes ONE thing and measures the result. Shotgun changes that modify three things at once produce uninterpretable evidence — you cannot know which change caused the result.
+
+**Evidence over argument.** Confidence upgrades require new evidence, not reasoning. "I believe this is correct" is not evidence. "The test passes" is.
 
 ### Level 0: Runner Loop (innermost — tightest)
 
@@ -266,6 +271,30 @@ Beads now track loop state:
   - [timestamp] L2: oracle correction — {finding}
   - [timestamp] L2.5: AQS finding — {domain}: {finding}
 ```
+
+## Evidence Accumulation Across Loops
+
+The loop system tracks evidence trajectories, not just pass/fail states. Each correction cycle produces evidence that informs the next cycle — the system gets smarter as it iterates.
+
+**Within a bead:** The correction history (L0 → L1 → L2 → L2.5) forms an evidence chain. Each level's findings become the next level's prior context. A runner that self-corrected on a null check (L0) should not have that same null check flagged by the Sentinel (L1) — the correction history prevents redundant work.
+
+**Across beads in a task:** If AQS finds security issues in beads 1 and 2, the Conductor should increase the security domain's default priority for beads 3+. The system learns from its own engagement history:
+
+```markdown
+## Task-Level Prior Adjustments
+| Domain | Beads with findings | Default priority adjustment |
+|--------|--------------------|-----------------------------|
+| security | 2 of 3 beads | Upgrade to HIGH for remaining beads |
+| functionality | 0 of 3 beads | Keep at Conductor judgment |
+```
+
+**Confidence direction tracking:** Every finding carries not just a confidence level but a direction — is confidence upgrading or degrading across cycles?
+
+- `↑ upgraded` — New evidence strengthened the claim (e.g., Assumed → Verified via reproduction)
+- `→ stable` — Same evidence, same confidence
+- `↓ degraded` — New evidence weakened the claim (e.g., Likely → Dismissed via rebuttal)
+
+Findings with `↑ upgraded` trajectories across cycles are the most trustworthy. Findings that remain `→ stable` at `Assumed` after two cycles should be closed — if no evidence emerged in two cycles, the claim is not actionable.
 
 ## Anti-Patterns
 
