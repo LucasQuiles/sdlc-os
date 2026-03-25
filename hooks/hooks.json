@@ -1,0 +1,27 @@
+{
+  "description": "SDLC OS enforcement hooks — schema validation, status guards, and vocabulary linting for AQS artifacts",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/validate-aqs-artifact.sh\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-bead-status.sh\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/lint-domain-vocabulary.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
