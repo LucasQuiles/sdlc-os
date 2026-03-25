@@ -92,7 +92,9 @@ Phases are orientation markers, not approval gates. The Conductor flows through 
 **Runner:** `sonnet-implementer` (model: sonnet) — one bead per runner, disposable
 **Sentinel:** `haiku-verifier` (model: haiku) — continuous patrol, checks each bead output as it arrives
 
-**Output:** Updated bead files with implementation output, test results, validation notes
+**Adversarial Quality (after Oracle):** Red/blue team cycle via `sdlc-os:sdlc-adversarial` — recon burst, directed strike, blue team response, arbiter on disputes. Beads marked `hardened` after cycle completes. Skip for trivial beads.
+
+**Output:** Updated bead files with implementation output, test results, validation notes, adversarial quality reports per bead
 
 **Parallelize:** Yes — any beads with non-overlapping scopes and no dependency chain.
 

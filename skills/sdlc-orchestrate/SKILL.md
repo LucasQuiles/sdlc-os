@@ -18,6 +18,7 @@ Conductor (Opus)
 ├── Swarm: dispatch guppy swarms (Haiku) for breadth-first investigation
 ├── Supervise: sentinel (Haiku) watches continuously, not at checkpoints
 ├── Prove: oracle council verifies test integrity and behavioral claims
+├── Harden: AQS red/blue teams probe for functionality, security, usability, resilience weaknesses
 ├── Synthesize: merge results, resolve conflicts, deliver
 └── Recover: when sentinel or oracle flags a problem, re-dispatch or escalate
 ```
@@ -76,13 +77,25 @@ Conductor (Opus)
 - **Security/financial beads:** Always all three layers regardless of complexity.
 - The Conductor assigns bead complexity. Beads can be ESCALATED to higher complexity if inner loops fail.
 
+**Adversarial Quality System (AQS — red/blue/arbiter):**
+- Continuous adversarial shadow during Execute phase. Complements the Oracle — separate review channel, different failure modes.
+- Red team commanders (4 Sonnet agents): `red-functionality`, `red-security`, `red-usability`, `red-resilience` — command high-volume guppy swarms to probe completed beads.
+- Blue team defenders (4 Sonnet agents): `blue-functionality`, `blue-security`, `blue-usability`, `blue-resilience` — triage red team findings with accept/rebut/dispute responses.
+- Arbiter (Opus): `arbiter` — resolves disputes via Kahneman adversarial collaboration protocol. Fires only on disputed findings.
+- See `sdlc-os:sdlc-adversarial` for orchestration details.
+- **Complexity-Based Activation:**
+  - **Trivial beads:** Skip AQS entirely. Beads go `proven → merged`.
+  - **Moderate beads:** Recon burst + Conductor selects 1-2 domains.
+  - **Complex beads:** All four domains active.
+  - **Security-sensitive beads:** All four domains, security always HIGH.
+
 ## Work Units (Beads)
 
 Every piece of work is tracked as an atomic unit:
 
 ```markdown
 # Bead: {id}
-**Status:** pending | running | submitted | verified | merged | blocked
+**Status:** pending | running | submitted | verified | proven | hardened | merged | blocked
 **Type:** investigate | design | implement | verify | review
 **Runner:** [agent name or "unassigned"]
 **Dependencies:** [list of bead IDs that must complete first]
@@ -128,7 +141,16 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
    - `haiku-verifier` checks acceptance criteria
    - `drift-detector` checks DRY/SSOT/SoC/pattern/boundary violations
    - Oracle audits test integrity (L2)
-4. Corrections flow through the L0-L5 loop system (`sdlc-os:sdlc-loop`).
+4. After Oracle proves the bead, run the **Adversarial Quality System** (`sdlc-os:sdlc-adversarial`):
+   - Recon burst (8 guppies across 4 domains) + Conductor domain selection → cross-reference priorities
+   - Deploy domain-specialized red team commanders (`red-functionality`, `red-security`, `red-usability`, `red-resilience`) for HIGH/MED domains
+   - Red team commanders fire guppy swarms (machine gun volume) at specific attack vectors
+   - Deploy domain-matched blue team defenders to respond to findings
+   - Dispatch `arbiter` (Opus) for any disputed findings — Kahneman protocol, binding verdicts
+   - Update bead with hardening changes, mark status `hardened`
+   - See `sdlc-os:sdlc-adversarial` for full cycle details
+   - **Skip for trivial beads.** See `skills/sdlc-adversarial/scaling-heuristics.md`
+5. Corrections flow through the L0-L5 loop system (`sdlc-os:sdlc-loop`).
 **Output:** Code changes, tests, validation notes, reuse reports per bead.
 **Recovery:** Handled by loop mechanics. See `sdlc-os:sdlc-loop`.
 
@@ -264,7 +286,7 @@ After each runner completes:
 3. If sentinel flagged issues, record in bead's sentinel notes
 
 ### Complete
-When all beads are verified and merged:
+When all beads are proven, hardened (or AQS-skipped), and merged:
 1. Write `delivery.md` — the final handoff summary
 2. Move task directory from `active/` to `completed/` (optional)
 
