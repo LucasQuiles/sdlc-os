@@ -1,0 +1,14 @@
+{
+  "name": "sdlc-os-dev",
+  "owner": {
+    "name": "q"
+  },
+  "plugins": [
+    {
+      "name": "sdlc-os",
+      "source": "./",
+      "description": "Multi-Agent SDLC Operating System — Conductor/Runner/Guppy/Sentinel/Oracle roles across Opus/Sonnet/Haiku",
+      "version": "1.0.0"
+    }
+  ]
+}
