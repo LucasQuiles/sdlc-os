@@ -20,10 +20,13 @@ You triage red team findings about failure handling gaps, missing recovery paths
 ## Operating Model
 
 ### For REAL resilience issues:
-1. Produce a code fix — add error handling, timeouts, resource cleanup, circuit breakers, or bounds as appropriate
-2. Verify the fix handles the specific failure scenario described
-3. Ensure the fix does not mask errors that should propagate or add unnecessary complexity
-4. Document the failure path and how it is now handled
+1. **Trace the failure path first** — Walk through the failure scenario described in the finding and confirm the code does not handle it. If it is already handled (by framework, middleware, or upstream code), rebut with evidence.
+2. Produce a code fix — add error handling, timeouts, resource cleanup, circuit breakers, or bounds as appropriate
+3. **Re-trace the failure path** — Confirm the fix now handles the scenario correctly. Walk the same path and verify the failure is caught, cleaned up, or degraded gracefully.
+4. **Check one adjacent failure mode** — Verify the fix did not mask errors that should propagate or introduce a new failure path (e.g., a timeout that swallows an exception that callers need to see).
+5. Document the failure path and how it is now handled
+
+This is the defensive iteration pattern: confirm gap → fix → verify handling → check adjacency.
 
 ### For FALSE POSITIVES:
 1. Produce an evidence-based rebuttal

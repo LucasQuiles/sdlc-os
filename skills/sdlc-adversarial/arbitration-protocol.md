@@ -18,12 +18,12 @@ The Arbiter does NOT fire on:
 
 ## The Protocol
 
-### Step 1: Dispute Intake
+### Step 1: Dispute Intake and Pre-Registration
 
-Assemble the complete dispute package before doing any analysis:
+Assemble the complete dispute package AND lock the dispute contract before doing any analysis:
 
 ```
-## Dispute Package: {Finding ID}
+## Dispute Contract: {Finding ID}
 
 ### Red Team Finding
 {Full finding: claim, minimal reproduction, impact, evidence, confidence}
@@ -31,11 +31,29 @@ Assemble the complete dispute package before doing any analysis:
 ### Blue Team Dispute
 {Full dispute: contested claim, what evidence would resolve this}
 
+### Pre-Registered Commitments
+
+**Red team — "what would change my mind":**
+{Specific observable outcome that, if produced, would cause red team to withdraw the finding}
+
+**Blue team — "what would change my mind":**
+{Specific observable outcome that, if produced, would cause blue team to accept the finding}
+
+**Pass/fail criterion (agreed before test runs):**
+{Unambiguous statement: "If X is observed, the finding is sustained. If Y is observed, the finding is dismissed."}
+
+**Timebox:**
+{Maximum time/token budget for this arbitration — default: one guppy dispatch + one file read. Complex disputes may get two rounds.}
+
 ### Bead Context
 {Bead objective, scope, affected files — enough to understand the domain}
 ```
 
-Do not begin position extraction until the complete package is in hand. Missing context produces unfair tests.
+The pre-registered commitments are locked before the test is designed. Neither side may revise their "what would change my mind" after seeing the test result. This prevents post-hoc rationalization.
+
+**Timebox enforcement:** The arbiter owns the evidence bundle and the clock. If the timebox expires without a clear result, the arbiter issues the best verdict available from evidence collected so far — it does not extend indefinitely. Deadlines reduce hindsight drift (Mellers protocol).
+
+Do not begin position extraction until the complete contract is locked. Missing commitments produce unfair or unresolvable arbitration.
 
 ### Step 2: Position Extraction
 
@@ -44,6 +62,7 @@ Extract each side's position precisely. Use a table:
 | | Red Team | Blue Team |
 |---|---|---|
 | **Claim** | {What red team asserts is true} | {What blue team asserts is true} |
+| **What would change their mind** | {Pre-registered from contract} | {Pre-registered from contract} |
 | **Evidence that would confirm their position** | {What red team said would prove the issue is real} | {What blue team said would prove the issue is not real} |
 
 Then identify the **core disagreement type**. This determines the test design:
@@ -90,7 +109,15 @@ Issue a binding verdict using the format in the next section. The verdict is one
 - **DISMISSED** — The test confirmed the blue team's position. The issue does not exist, is not exploitable, or is not relevant in this context. Finding is closed.
 - **MODIFIED** — The test revealed a partial truth. The issue exists but at a different scope or severity than claimed. Red team's severity or scope is adjusted. Blue team must fix the adjusted finding.
 
-The verdict cannot be "inconclusive." If the test produced ambiguous results, redesign and rerun before issuing a verdict. If no executable test can produce a clear result, escalate (see Escalation section).
+**Inconclusive results:** If the test produces ambiguous results that do not clearly match either side's pre-registered pass/fail criterion:
+
+1. The arbiter declares **INCONCLUSIVE** (not a final verdict — a procedural state)
+2. Each side gets **one additional experiment proposal** — a single follow-up test they believe would resolve the ambiguity
+3. The arbiter selects the more informative proposal (or combines elements of both) and runs it
+4. After the follow-up test, the arbiter **must** issue a binding verdict (SUSTAINED / DISMISSED / MODIFIED) — a second INCONCLUSIVE is not permitted
+5. If the follow-up also fails to resolve: issue the best verdict from available evidence + document residual uncertainty in the verdict's reasoning field
+
+This two-round maximum prevents infinite arbitration loops while acknowledging that adversarial collaboration outcomes are often "integration and deeper understanding" rather than a clean winner (Kahneman-Klein collaboration pattern). The goal is to narrow the disagreement, not necessarily eliminate it.
 
 ---
 
@@ -101,9 +128,14 @@ The verdict cannot be "inconclusive." If the test produced ambiguous results, re
 
 **Decision:** SUSTAINED | DISMISSED | MODIFIED
 
+**Dispute contract locked:** {timestamp}
+**Timebox:** {budget used} of {budget allocated}
+
 **Red team claim:** {One-sentence summary of what red team asserted}
+**Red team pre-commitment:** {What they said would change their mind}
 
 **Blue team position:** {One-sentence summary of what blue team contested}
+**Blue team pre-commitment:** {What they said would change their mind}
 
 **Core disagreement:** existence | severity | exploitability | relevance
 
@@ -113,8 +145,17 @@ why this test addresses the core disagreement}
 **Test result:** {Raw output or direct observation from the test execution —
 not a summary, the actual evidence}
 
+**Follow-up round (if needed):**
+- Proposed by: {red | blue | arbiter}
+- Test: {what was run}
+- Result: {evidence}
+
 **Reasoning:** {Why this evidence resolves the dispute — connect the test
-result to the verdict. Show the logical chain: evidence X means Y because Z.}
+result to the pre-registered pass/fail criterion and each side's
+pre-commitment. Show the logical chain: evidence X means Y because Z.}
+
+**Residual uncertainty:** {Any remaining ambiguity after verdict — "None" if
+clean resolution, or specific description of what remains unknown}
 
 **If MODIFIED — adjusted scope/severity:** {What the finding becomes after
 adjustment. Include the revised severity level and the narrowed or expanded
