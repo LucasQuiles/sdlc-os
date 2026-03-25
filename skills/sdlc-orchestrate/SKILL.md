@@ -108,14 +108,27 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 
 ### Phase 4: Execute
 **What:** Build the thing. This is where most time is spent.
-**How:** Dispatch `sonnet-implementer` runners — one per bead. Parallel when beads are independent. Sentinel watches continuously.
-**Output:** Code changes, tests, validation notes per bead.
-**Recovery:** When sentinel detects a problem, Conductor re-dispatches a fresh runner with the sentinel's findings as additional context.
+**How:**
+1. For each implementation bead, run the **reuse-first protocol** (`sdlc-os:sdlc-reuse`):
+   - Dispatch `reuse-scout` (haiku) — runs the 6-layer analysis chain (episodic → Pinecone → grep → LSP symbols → LSP calls → synthesis)
+   - Inject scout report into runner context as "Existing Solutions"
+2. Dispatch `sonnet-implementer` runners — one per bead, with scout report. Parallel when independent.
+3. After each runner submits, sentinel loop runs:
+   - `haiku-verifier` checks acceptance criteria
+   - `drift-detector` checks DRY/SSOT/SoC/pattern/boundary violations
+   - Oracle audits test integrity (L2)
+4. Corrections flow through the L0-L5 loop system (`sdlc-os:sdlc-loop`).
+**Output:** Code changes, tests, validation notes, reuse reports per bead.
+**Recovery:** Handled by loop mechanics. See `sdlc-os:sdlc-loop`.
 
 ### Phase 5: Synthesize
 **What:** Merge all runner outputs. Resolve conflicts. Verify the whole.
-**How:** Conductor reviews bead outputs. Dispatch `sonnet-reviewer` for critical assessment. Sentinel does final sweep.
-**Output:** Delivery summary with what changed, evidence, uncertainty, next actions.
+**How:**
+1. Run **fitness check** (`sdlc-os:sdlc-fitness`) across all changed files — full report
+2. Dispatch `sonnet-reviewer` for critical assessment of the integrated result
+3. Dispatch `drift-detector` for final cross-bead duplication check
+4. `haiku-handoff` packages delivery summary
+**Output:** Delivery summary with fitness report, evidence, uncertainty, next actions.
 
 ## How to Dispatch Runners
 
@@ -255,10 +268,10 @@ When all beads are verified and merged:
 
 ## Quick Reference
 
-| Phase | Runners | Sentinel | Oracle | Conductor |
-|-------|---------|----------|--------|-----------|
-| Frame | sonnet-investigator | haiku-evidence | — | Define mission, scope, criteria |
-| Scout | sonnet-investigator (parallel OK) | haiku-evidence | — | Gather context, label assumptions |
-| Architect | sonnet-designer | haiku-verifier | — | Choose approach, create bead manifest |
-| Execute | sonnet-implementer (parallel OK) | haiku-verifier (continuous) | oracle-test-integrity + oracle-behavioral-prover (per bead) | Distribute beads, recover failures |
-| Synthesize | sonnet-reviewer | haiku-handoff | oracle-behavioral-prover (integration) | Merge results, deliver |
+| Phase | Runners | Sentinel | Oracle | Reuse/Fitness | Conductor |
+|-------|---------|----------|--------|---------------|-----------|
+| Frame | sonnet-investigator | haiku-evidence | — | — | Define mission, scope, criteria |
+| Scout | sonnet-investigator (parallel OK) | haiku-evidence | — | — | Gather context, label assumptions |
+| Architect | sonnet-designer | haiku-verifier | — | — | Choose approach, create bead manifest |
+| Execute | sonnet-implementer (parallel OK) | haiku-verifier + drift-detector | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
+| Synthesize | sonnet-reviewer | haiku-handoff | oracle L1+L2+L3 (integration) | fitness report (full) | Merge results, deliver |
