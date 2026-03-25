@@ -376,3 +376,83 @@ created-at: ""
 ## Next Action
 <!-- What the recipient of this handoff should do next. -->
 ```
+
+---
+
+## 10. AQS Finding — Red Team
+
+```markdown
+## Finding: {ID}
+**Domain:** functionality | security | usability | resilience
+**Severity:** critical | high | medium | low
+**Claim:** {One sentence: what is wrong}
+**Minimal reproduction:** {The smallest possible demonstration}
+**Impact:** {What goes wrong if unaddressed}
+**Evidence:** {file:line, guppy output, or test result}
+**Confidence:** Verified | Likely | Assumed
+```
+
+---
+
+## 11. AQS Response — Blue Team
+
+```markdown
+## Response: {Finding ID}
+**Action:** accepted | rebutted | disputed
+
+### If accepted:
+- **Fix:** {what was changed, file:line}
+- **Verification:** {how fix was confirmed}
+
+### If rebutted:
+- **Reasoning:** {why not a real issue}
+- **Evidence:** {proof}
+
+### If disputed:
+- **Contested claim:** {what is disagreed}
+- **Proposed test:** {what evidence would resolve}
+```
+
+---
+
+## 12. AQS Verdict — Arbiter
+
+```markdown
+## Verdict: {Finding ID}
+**Decision:** SUSTAINED | DISMISSED | MODIFIED
+**Red team claim:** {summary}
+**Blue team position:** {summary}
+**Test designed:** {fair test description}
+**Test result:** {observable evidence}
+**Reasoning:** {why this resolves the dispute}
+**If MODIFIED:** {adjusted scope/severity}
+```
+
+---
+
+## 13. AQS Report — Per Bead
+
+```markdown
+## Adversarial Quality Report: Bead {id}
+
+### Engagement Summary
+- **Domains activated:** {list}
+- **Priority:** {per domain}
+- **Recon guppies fired:** {count}
+- **Strike guppies fired:** {count}
+- **Cycle:** {N} of 2
+
+### Findings
+| ID | Domain | Severity | Claim | Status |
+|----|--------|----------|-------|--------|
+| F1 | {domain} | {severity} | {claim} | {accepted/rebutted/disputed → verdict} |
+
+### Hardening Changes
+- {file}:{line} — {description} ({finding ID})
+
+### Residual Risk
+- {any unresolved findings, or "None"}
+
+### Verdict
+> **[HARDENED | PARTIALLY_HARDENED | DEFERRED]**
+```

@@ -19,6 +19,7 @@ The handoff separates four categories of knowledge that must never be merged: wh
 **Evidence collected:** [list of specific findings, test results, or observations — cite sources]
 **Open questions:** [unresolved items that the next wave must be aware of — if none, state "none"]
 **Risks / caveats:** [items that could affect the next wave, each labeled with a confidence class]
+**Adversarial quality:** [AQS engagement summary — domains tested, findings by status (accepted/rebutted/disputed with verdicts), hardening changes applied, residual risk. If AQS was skipped, state "Skipped — trivial complexity"]
 **Confidence:** [Verified | Likely | Assumed | Unknown — one label per line item in Risks/caveats]
 **Next action for:** [role] — [specific action the next wave or party must take]
 ```
@@ -114,6 +115,7 @@ Generic instructions ("proceed with implementation", "review the findings") are 
   - `jsonwebtoken@8.5.1` has a known CVE patched in v9.0.0; upgrade may require API changes — Likely (CVE confirmed, API impact assumed)
   - Redis session store is configured via environment variable not present in `.env.example` — Assumed (not verified in all environments)
 **Confidence:** Likely (CVE item), Assumed (Redis config item)
+**Adversarial quality:** AQS engaged — security (HIGH), usability (MED). 3 findings: 2 accepted (parameterized auth query, stripped stack trace from error response), 1 rebutted (CORS config handled by middleware — verified at `src/middleware/cors.ts:12`). No residual risk.
 **Next action for:** sonnet-designer — evaluate both refactor options against the `jsonwebtoken` version constraint; Option A (in-place refactor) may not be viable if v9 upgrade is required. See `wave-03-discovery.md` section: Dependency Deviations.
 ```
 
