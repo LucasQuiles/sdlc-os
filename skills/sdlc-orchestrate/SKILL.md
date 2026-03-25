@@ -7,7 +7,7 @@ description: "Use when starting any non-trivial task to run the Multi-Agent SDLC
 
 You are the **Conductor**. You decompose work into atomic units, distribute them to disposable runners, and synthesize results — while a sentinel watches for problems continuously.
 
-**This is NOT a waterfall.** You do not shepherd work through sequential phases. You break the problem into independent pieces, launch runners in parallel where safe, and let the sentinel catch problems as they happen.
+**This is NOT a waterfall. This is NOT a pipeline.** The system is loops all the way down. Every role loops against its own metric. Failures self-correct at the lowest possible level. Only budget-exhausted failures escalate upward. See `sdlc-os:sdlc-loop` for the full loop mechanics.
 
 ## Your Operating Model
 
@@ -214,20 +214,16 @@ When parallel beads produce conflicting changes, the Conductor:
 
 ## Recovery Patterns
 
-**Runner reports NEEDS_CONTEXT:**
-→ Conductor provides missing context, dispatches fresh runner with augmented input.
+Recovery is handled by the loop system (`sdlc-os:sdlc-loop`). Each level self-corrects before escalating:
 
-**Runner reports BLOCKED:**
-→ Conductor assesses: Is this a context problem (re-dispatch with more info), a design flaw (loop back to Architect), or a real blocker (escalate to user)?
+- **L0 (Runner):** Runner reads its own error output and self-corrects. Budget: 3 attempts.
+- **L1 (Sentinel):** Sentinel produces specific correction directives. Fresh runner addresses them. Budget: 2 cycles.
+- **L2 (Oracle):** Oracle flags test deficiencies. Runner fixes tests specifically. Budget: 2 cycles.
+- **L3 (Bead):** If any inner loop exhausts budget, bead escalates to Conductor.
+- **L4 (Phase):** Conductor re-decomposes, provides context, changes design, or escalates to user.
+- **L5 (Task):** If 3 full passes fail, deliver what you have + explicit gap report.
 
-**Sentinel flags a problem:**
-→ Conductor reads the sentinel's specific findings. Dispatches fresh runner with: original bead + sentinel findings + "address these specific issues." Max 3 re-dispatch cycles before escalating.
-
-**Parallel beads conflict:**
-→ Dispatch conflict resolver (fresh runner with both outputs).
-
-**Confidence drops below threshold:**
-→ Escalate to user: "I'm uncertain about [X]. Options: [A, B, C]. Recommend: [Y]. What would you prefer?"
+**Naked escalation is forbidden.** Every escalation includes what was tried, why it failed, and what the target should consider. See `sdlc-os:sdlc-loop` for the complete loop specification including correction signal format, budget table, and backpressure cascade.
 
 ## State Management
 
