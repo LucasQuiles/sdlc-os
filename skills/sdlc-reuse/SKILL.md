@@ -73,6 +73,31 @@ After the runner submits, the drift-detector runs as part of the L1 sentinel loo
 - Flags any case where the scout found an existing solution but the runner created new code anyway
 - Flags any new creation that lacks justification
 
+
+## Consume Prior Findings
+
+If Phase 2 (Scout) already ran and explored the bead's scope, the reuse-scout should NOT re-search from scratch. Instead:
+
+1. Read the Scout phase discovery brief
+2. Extract relevant findings for this specific bead
+3. Run ONLY the layers that the Scout phase didn't cover (e.g., LSP call hierarchy on specific functions)
+4. Supplement, don't duplicate
+
+This prevents the Scout → reuse-scout redundancy without losing per-bead precision.
+
+## Alternate Paths (No Skipping)
+
+If a layer in the analysis chain is unavailable, the system works HARDER through other means — it does not lower the bar.
+
+| Layer Down | Alternate Path |
+|------------|---------------|
+| Episodic memory unavailable | Query Pinecone for prior patterns + grep git log for related commits |
+| Pinecone unavailable | Broader grep sweep + LSP workspaceSymbol with more patterns |
+| LSP unavailable | Deeper grep + read actual file contents + dispatch guppy swarm for targeted checks |
+| Grep fails (no matches) | This is information, not failure. Document the absence. Proceed to LSP. |
+
+The principle: if one path to truth is blocked, find another. Never accept reduced rigor.
+
 ## When to Skip
 
 - **Investigation beads**: Read-only, no code creation — skip reuse scout

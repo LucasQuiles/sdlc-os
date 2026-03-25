@@ -54,16 +54,27 @@ Conductor (Opus)
 - Agent variants: `haiku-verifier`, `haiku-evidence`, `haiku-handoff`
 - Does NOT gate advancement — the Conductor decides. Sentinel advises.
 
-**Oracle (council — three models, defense in depth):**
-- Test integrity council. The truth-telling device. Ensures tests are honest, not theatrical.
-- Three members across three model tiers — no single model can fool all three:
-  - `oracle-test-integrity` (model: **sonnet**) — **Layer 1: Static analysis.** Audits test code for lying tests, vacuous assertions, over-mocking, unverifiable patterns. Reads the tests.
-  - `oracle-behavioral-prover` (model: **haiku**) — **Layer 2: Runtime proof.** Runs tests independently, captures output, produces reproducible commands. Proves behavior matches claims.
-  - `oracle-adversarial-auditor` (model: **opus**) — **Layer 3: Attack surface.** Tries to break tests, mutation analysis, finds gaps where passing tests hide real bugs. Dispatched for moderate/complex tasks only.
-- Dispatched during **Execute** (Layer 1 + 2 per bead) and **Synthesize** (all three layers for integration).
-- The Oracle's VORP standard: every test must be **V**erifiable, **O**bservable, **R**epeatable, **P**rovable.
-- Oracle findings override Runner self-reports about test quality. If a Runner says "tests pass" and the Oracle says "tests lie," the Oracle wins.
+**Oracle (council — three models, truth across all work):**
+- The truth-telling device. Ensures ALL claims are honest — not just tests, but evidence, findings, design rationale, and implementation correctness.
+- Three members across three model tiers — escalating capability for escalating complexity:
+  - `oracle-test-integrity` (model: **sonnet**) — **Layer 1: Static analysis.** Reads code and claims. Checks for structural problems: vacuous assertions, unsupported conclusions, pattern violations, logical gaps.
+  - `oracle-behavioral-prover` (model: **haiku**) — **Layer 2: Runtime proof.** Executes commands. Produces reproducible evidence. Proves claims match reality through observation, not inference.
+  - `oracle-adversarial-auditor` (model: **opus**) — **Layer 3: Adversarial challenge.** Actively tries to break claims. Mutation analysis on implementations. Finds scenarios where "passing" hides real problems. The most expensive check, reserved for complex and high-risk work.
+- **Scope: ALL bead types, not just tests.**
+  - Investigation beads: Oracle verifies findings are supported by evidence, not inference
+  - Design beads: Oracle challenges tradeoff analysis — are the "cons" real? Were alternatives genuine?
+  - Implementation beads: Oracle verifies tests + checks that code does what the bead claimed
+  - Review beads: Oracle verifies review findings are substantive, not ceremonial
+- **VORP standard applies to all claims:** every claim must be **V**erifiable, **O**bservable, **R**epeatable, **P**rovable.
+- Oracle findings override Runner self-reports. If a Runner says "done" and the Oracle says "not proven," the Oracle wins.
 - The council does NOT need consensus — any single member can flag a problem. The Conductor resolves disagreements.
+
+**Complexity-Based Model Escalation:**
+- **Trivial beads:** Oracle Layer 1 only (Sonnet static check). Cheap, fast.
+- **Moderate beads:** Oracle Layers 1 + 2 (Sonnet static + Haiku runtime proof). Standard rigor.
+- **Complex beads:** All three layers (Sonnet + Haiku + Opus adversarial). Maximum rigor.
+- **Security/financial beads:** Always all three layers regardless of complexity.
+- The Conductor assigns bead complexity. Beads can be ESCALATED to higher complexity if inner loops fail.
 
 ## Work Units (Beads)
 
