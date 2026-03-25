@@ -313,3 +313,81 @@ The multi-layer chain integrates into the L0-L5 loop system:
 - **L2 (Oracle):** Oracle uses LSP documentSymbol to verify test files actually test the right functions
 - **Reuse Scout:** Full 4-layer chain before every implementation dispatch
 - **Drift Detector:** Layers 1-3 to detect semantic duplication, Layer 4 for classification
+
+---
+
+## Addendum: Pinecone Vector Search as Layer 0
+
+The codebase and documentation are indexed in Pinecone. This adds a semantic memory layer that operates BEFORE all other layers — finding related code and documentation by meaning, not just by keyword or symbol name.
+
+### Why This Matters for Reuse-First
+
+Grep finds exact matches. LSP finds typed symbols. Pinecone finds **semantic neighbors** — code and documentation that is related by meaning even when the names are completely different.
+
+Example: A bead asks to "validate email addresses." 
+- Grep finds: nothing (no function named "validate email")
+- LSP finds: nothing (no symbol matches)
+- Pinecone finds: `lib/validation/schemas.ts` has `z.string().email()` patterns used across 15 routes; `lib/utils/zod-preprocess.ts` has `safeParseBoundary`; docs describe the validation boundary pattern
+
+The reuse scout would have missed this without Pinecone. With it, the runner gets injected with the existing validation patterns before it starts.
+
+### Updated Five-Layer Chain
+
+```
+Layer 0 — Semantic Memory (Pinecone)
+  Query: "What existing code/docs relate to {bead objective}?"
+  Tool: mcp__pinecone__search-records or mcp__pinecone__search-docs
+  Returns: related functions, patterns, documentation with similarity scores
+  Cost: one API call
+
+Layer 1 — Broad Scan (Guppies + Grep)
+  Now INFORMED by Layer 0 hits — guppies grep for specific files/patterns Pinecone flagged
+  Cost: cheap (Haiku guppies)
+
+Layer 2 — Symbol Resolution (LSP)
+  Use workspaceSymbol + documentSymbol on files identified by Layers 0-1
+  Cost: zero (local LSP)
+
+Layer 3 — Semantic Tracing (LSP Call Hierarchy)
+  goToDefinition + findReferences + incomingCalls on symbols from Layer 2
+  Cost: zero (local LSP)
+
+Layer 4 — Deep Analysis (Sonnet)
+  Full context from all prior layers — makes informed reuse/extend/create decisions
+  Cost: one Sonnet invocation
+```
+
+### Pinecone Integration Points
+
+**Reuse Scout — Pre-dispatch:**
+1. Query Pinecone with bead objective as natural language
+2. Get back related code snippets, file paths, documentation
+3. Feed Pinecone results into Layer 1 grep targets (focused, not blind)
+4. Include Pinecone matches in the Existing Solutions report
+
+**Drift Detector — Post-submission:**
+1. For each new function the runner created, query Pinecone: "does similar code already exist?"
+2. Pinecone returns semantic neighbors — even with different names
+3. Detector compares: is this genuinely new or a semantic clone?
+
+**Runners — Context enrichment:**
+1. Before starting work, runner can query Pinecone for relevant documentation
+2. Framework docs, API references, project conventions — all searchable by meaning
+3. Reduces "I didn't know that existed" failures
+
+### Pinecone MCP Tools Available
+
+| Tool | Use |
+|------|-----|
+| `search-records` | Search code vectors by semantic similarity |
+| `search-docs` | Search documentation vectors |
+| `cascading-search` | Search across multiple indexes/namespaces |
+| `rerank-documents` | Re-rank search results for relevance |
+
+### Cost Model Update
+
+Adding Pinecone to the chain:
+- Layer 0: 1 Pinecone API call per bead (~$0.001)
+- Layers 1-3: Same as before (guppies + free LSP)
+- Layer 4: Same as before (1 Sonnet)
+- Net: ~$0.001 additional cost per bead for dramatically better context
