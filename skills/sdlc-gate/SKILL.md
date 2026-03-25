@@ -10,9 +10,12 @@ Run a lightweight health check on the current phase. This is NOT an approval gat
 ## What to Check
 
 ### Bead Health
-- Are all beads for the current phase in a terminal state (submitted/verified/blocked)?
+- Are all beads for the current phase in a terminal state (submitted/verified/hardened/blocked)?
 - Are any beads stuck (running for too long without output)?
 - Are any beads blocked with unresolved blockers?
+
+### Readiness Checklist
+- [ ] AQS engaged for non-trivial beads (or explicitly skipped with justification)
 
 ### Sentinel Status
 - Has the sentinel flagged any unresolved issues?
@@ -30,8 +33,9 @@ Rate overall confidence: **High** / **Medium** / **Low**
 ```markdown
 ## Health Check: Phase {N} — {name}
 
-**Beads:** {completed}/{total} verified | {blocked} blocked | {running} in progress
+**Beads:** {completed}/{total} verified/hardened | {blocked} blocked | {running} in progress
 **Sentinel:** {clean/flags pending/alerts active}
+**AQS:** {engaged/skipped (trivial)/pending}
 **Confidence:** {High/Medium/Low}
 
 ### Issues (if any)

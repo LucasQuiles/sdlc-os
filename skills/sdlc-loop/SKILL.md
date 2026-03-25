@@ -81,6 +81,26 @@ LOOP (budget: 2 cycles):
 **Budget:** 2 oracle-runner correction cycles.
 **Key:** Oracle findings flow INTO the runner's next attempt. The runner learns what the Oracle catches.
 
+### Level 2.5: AQS Loop (wraps adversarial quality)
+
+After Oracle proves the bead, the Adversarial Quality System probes it across four domains.
+
+```
+Bead proven by Oracle.
+LOOP (budget: 2 cycles):
+  1. Recon burst (8 guppies, 2 per domain) + Conductor domain selection → cross-reference priorities
+  2. Red team commanders dispatch guppy swarms at HIGH/MED/LOW domains
+  3. Blue team triages findings: accept (fix), rebut (evidence), or dispute
+  4. Disputed findings → Arbiter (Kahneman protocol, binding verdict)
+  5. CLEAN (no findings) → bead status = hardened. EXIT loop.
+  6. Cycle 1 produced fixes → Cycle 2: re-attack fixed code to verify hardening
+  7. Budget exhausted → bead status = hardened + residual risk documented. EXIT loop.
+```
+
+**Metric:** Residual risk after adversarial engagement.
+**Budget:** 2 red/blue/arbiter cycles.
+**Key:** AQS is skipped for trivial beads (beads go `proven → merged` directly). See `sdlc-os:sdlc-adversarial` for full cycle details.
+
 ### Level 3: Bead Loop (wraps the full bead lifecycle)
 
 The complete lifecycle of a single bead, containing all inner loops.
@@ -91,11 +111,12 @@ LOOP (budget: 1 full cycle — inner loops handle retries):
   1. Runner executes (Level 0 loop: up to 3 self-corrections)
   2. Sentinel verifies (Level 1 loop: up to 2 correction cycles)
   3. Oracle audits (Level 2 loop: up to 2 correction cycles)
-  4. ALL PASS → bead = merged. EXIT.
-  5. ANY inner loop exhausted budget → bead = escalated to Conductor.
+  4. AQS engages (Level 2.5 loop: up to 2 red/blue/arbiter cycles) — skipped for trivial beads
+  5. ALL PASS → bead = merged. EXIT.
+  6. ANY inner loop exhausted budget → bead = escalated to Conductor.
 ```
 
-**Max agent invocations per bead:** Runner (3) × Sentinel cycles (2) × Oracle cycles (2) = worst case ~12 cheap invocations. Typical case: Runner(1) + Sentinel(1) + Oracle(1) = 3.
+**Max agent invocations per bead:** Runner (3) × Sentinel cycles (2) × Oracle cycles (2) × AQS cycles (2) = worst case ~24 invocations. Typical case: Runner(1) + Sentinel(1) + Oracle(1) + AQS(1) = 4.
 
 ### Level 4: Phase Loop (wraps all beads in a phase)
 
@@ -137,6 +158,8 @@ When an inner loop exhausts its budget, pressure flows outward — never inward.
 ```
 Runner stuck (L0 budget: 3) → Sentinel takes over correction (L1)
 Sentinel stuck (L1 budget: 2) → Conductor re-decomposes or re-designs (L3/L4)
+Oracle stuck (L2 budget: 2) → Conductor re-decomposes or re-designs (L3/L4)
+AQS stuck (L2.5 budget: 2) → Conductor reviews residual risk, decides accept or re-dispatch (L3)
 Phase stuck (L4) → Conductor re-enters earlier phase (L5)
 Task stuck (L5 budget: 3) → User gets explicit gap report
 ```
@@ -155,12 +178,13 @@ Task stuck (L5 budget: 3) → User gets explicit gap report
 | L0 | Runner self-correction | 3 attempts | L1 (Sentinel) |
 | L1 | Sentinel-runner correction | 2 cycles | L3 (Conductor via bead) |
 | L2 | Oracle-runner correction | 2 cycles | L3 (Conductor via bead) |
+| L2.5 | AQS red/blue/arbiter cycle | 2 cycles | L3 (Conductor via bead) |
 | L3 | Full bead lifecycle | 1 pass (inner loops retry) | L4 (Phase) |
 | L4 | Phase completion | All beads resolved | L5 (Task) |
 | L5 | Task completion | 3 full passes | User |
 
-**Total worst-case per bead:** 3 (L0) × 2 (L1) × 2 (L2) = 12 invocations.
-**Typical case per bead:** 1 + 1 + 1 = 3 invocations.
+**Total worst-case per bead:** 3 (L0) × 2 (L1) × 2 (L2) × 2 (L2.5) = 24 invocations.
+**Typical case per bead:** 1 + 1 + 1 + 1 = 4 invocations.
 **Cost control:** Haiku agents (Sentinel, Oracle L2, Guppies) are cheap. Sonnet runners are the main cost. Hard budgets prevent runaway.
 
 ## Correction Signal Format
@@ -230,15 +254,17 @@ Beads now track loop state:
 
 ```markdown
 # Bead: {id}
-**Status:** pending | running | submitted | verified | proven | merged | stuck | escalated
+**Status:** pending | running | submitted | verified | proven | hardened | merged | stuck | escalated
 **Loop state:**
   - L0 attempts: {N}/3
   - L1 cycles: {N}/2
   - L2 cycles: {N}/2
+  - L2.5 cycles: {N}/2
 **Correction history:**
   - [timestamp] L0: self-corrected — {what changed}
   - [timestamp] L1: sentinel correction — {finding}
   - [timestamp] L2: oracle correction — {finding}
+  - [timestamp] L2.5: AQS finding — {domain}: {finding}
 ```
 
 ## Anti-Patterns
