@@ -391,3 +391,65 @@ Adding Pinecone to the chain:
 - Layers 1-3: Same as before (guppies + free LSP)
 - Layer 4: Same as before (1 Sonnet)
 - Net: ~$0.001 additional cost per bead for dramatically better context
+
+---
+
+## Addendum: Episodic Memory as Layer -1
+
+The episodic-memory plugin stores conversation history across sessions with semantic search. This adds institutional memory — agents can recall past decisions, failed approaches, refactoring rationale, and user preferences from prior sessions.
+
+### Why This Matters
+
+Layer 0 (Pinecone) knows what code exists. Layer -1 (Episodic Memory) knows **why** it exists, what was tried before, and what the user decided.
+
+Example: A bead asks to "add caching to the API."
+- Pinecone finds: existing cache patterns in the codebase
+- Episodic Memory finds: "In session 3 weeks ago, we discussed adding Redis caching but the user decided against it because the SQLite DB is fast enough. We added in-memory LRU caching instead."
+
+Without episodic memory, the runner might propose Redis again. With it, the runner knows to use the LRU pattern.
+
+### Updated Six-Layer Chain
+
+```
+Layer -1 — Episodic Memory (conversation history)
+  Query: "What past decisions/sessions relate to {bead objective}?"
+  Tool: episodic-memory:search-conversations agent
+  Returns: relevant conversation excerpts, past decisions, failed approaches
+  Cost: one agent dispatch
+
+Layer 0 — Semantic Memory (Pinecone)
+  [unchanged]
+
+Layer 1-4 — [unchanged]
+```
+
+### Integration Points
+
+**Reuse Scout — Pre-dispatch (enhanced):**
+1. Query episodic memory: "Have we worked on {objective} before? What was decided?"
+2. Query Pinecone: "What existing code/docs relate to this?"
+3. Layers 1-3: LSP-based analysis
+4. Inject ALL findings into runner context
+
+**Drift Detector — Post-submission (enhanced):**
+1. Query episodic memory: "Were there any past decisions about how {pattern} should be implemented?"
+2. Compare runner output against historical decisions
+3. Flag violations of past architectural decisions, not just current code patterns
+
+**Conductor — Task decomposition (enhanced):**
+1. Before decomposing, query episodic memory: "Have we done something similar before?"
+2. Reuse prior bead decomposition patterns that worked
+3. Avoid repeating decomposition mistakes from prior sessions
+
+### Episodic Memory Tool
+
+The `episodic-memory:search-conversations` agent searches conversation history. Dispatch it like any other agent:
+
+```
+Agent tool:
+  subagent_type: episodic-memory:search-conversations
+  description: "Recall prior sessions about {topic}"
+  prompt: "Search for conversations about {bead objective}. 
+           What decisions were made? What approaches were tried?
+           What failed and why? What does the user prefer?"
+```
