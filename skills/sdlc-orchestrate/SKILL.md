@@ -95,7 +95,7 @@ Every piece of work is tracked as an atomic unit:
 
 ```markdown
 # Bead: {id}
-**Status:** pending | running | submitted | verified | proven | hardened | merged | blocked
+**Status:** pending | running | submitted | verified | proven | hardened | merged | blocked | stuck | escalated
 **Type:** investigate | design | implement | verify | review
 **Runner:** [agent name or "unassigned"]
 **Dependencies:** [list of bead IDs that must complete first]

@@ -28,7 +28,7 @@ Status flow: `pending → running → submitted → verified → proven → hard
 (Trivial beads skip AQS: `proven → merged` directly)
 
 ### AQS Summary (non-trivial beads)
-- **Domains tested:** {e.g., security, correctness, robustness, performance}
+- **Domains tested:** {e.g., security, functionality, usability, resilience}
 - **Findings count:** {N accepted / N rebutted / N disputed}
 - **Arbiter verdicts:** {N binding verdicts issued}
 - **Residual risk:** {none / documented}

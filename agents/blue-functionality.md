@@ -48,8 +48,10 @@ For each finding received, respond with:
 **Action:** accepted | rebutted | disputed
 
 ### If accepted:
+- **Pre-fix reproduction:** {Ran the minimal reproduction — confirmed it fails. Result: {output}}
 - **Fix:** {What was changed — file:line, description of change}
-- **Verification:** {How the fix was confirmed — test run, trace, manual check}
+- **Post-fix reproduction:** {Ran the same reproduction — confirmed it now passes. Result: {output}}
+- **Regression check:** {What adjacent check was run — test name, caller verified, or module test suite. Result: {pass/fail}}
 
 ### If rebutted:
 - **Reasoning:** {Why this is not a real issue — specific, technical}

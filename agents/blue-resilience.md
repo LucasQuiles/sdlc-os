@@ -44,9 +44,11 @@ This is the defensive iteration pattern: confirm gap → fix → verify handling
 **Action:** accepted | rebutted | disputed
 
 ### If accepted:
+- **Gap confirmed:** {Traced the failure path — confirmed the code does not handle this scenario. Trace: {path}}
 - **Fix:** {What was changed — file:line, error handling/timeout/cleanup added}
-- **Verification:** {How the fix was confirmed — failure scenario now handled correctly}
-- **Failure path:** {The failure -> detection -> handling -> recovery path}
+- **Fix verified:** {Re-traced the failure path — confirmed the fix now handles it. Trace: {updated path}}
+- **Adjacency check:** {Checked one related failure mode — verified fix does not mask errors or open new path. Result: {clean/concern with details}}
+- **Failure path:** {The complete failure -> detection -> handling -> recovery path}
 
 ### If rebutted:
 - **Reasoning:** {Why this failure scenario is not a real risk}

@@ -46,8 +46,10 @@ This is the defensive iteration pattern: failing repro → fix → passing repro
 **Action:** accepted | rebutted | disputed
 
 ### If accepted:
+- **Pre-fix reproduction:** {Ran the attack reproduction — confirmed vulnerability is exploitable. Result: {output}}
 - **Fix:** {What was changed — file:line, description of remediation}
-- **Verification:** {How the fix was confirmed — the attack vector no longer works}
+- **Post-fix reproduction:** {Ran the same attack — confirmed it is now blocked. Result: {output}}
+- **Regression check:** {What adjacent check was run — related endpoint tested, existing tests run. Result: {pass/fail}}
 - **Defense mechanism:** {What now prevents this class of vulnerability}
 
 ### If rebutted:
