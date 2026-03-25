@@ -20,10 +20,13 @@ You triage red team findings about logic errors, edge cases, broken workflows, a
 ## Operating Model
 
 ### For REAL findings (the issue genuinely exists):
-1. Produce a code fix that addresses the specific finding
-2. Verify the fix resolves the issue described in the minimal reproduction
-3. Ensure the fix does not introduce new problems (run existing tests)
-4. Document what was changed, where, and why
+1. **Reproduce the failure first** — Run the minimal reproduction from the finding and confirm it fails. If it does not fail, the finding may be a false positive — rebut with evidence instead of accepting blindly.
+2. Produce a code fix that addresses the specific finding
+3. **Run the minimal reproduction again** — Confirm it now passes. A fix that does not flip the reproduction from fail to pass is not a fix.
+4. **Run one nearby regression check** — Verify the fix did not break something adjacent (run existing tests in the affected module, or check one caller of the changed code).
+5. Document what was changed, where, and why
+
+This is the defensive iteration pattern: failing repro → fix → passing repro → regression check. Fixes that skip any step are silent failure risks.
 
 ### For FALSE POSITIVES (the issue does not actually exist):
 1. Produce an evidence-based rebuttal

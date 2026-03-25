@@ -364,6 +364,30 @@ docs/sdlc/active/{task-id}/
 
 Write artifacts immediately as each phase completes — do not batch. If a session crashes mid-cycle, the persisted artifacts allow resumption from the last completed phase.
 
+### Resume-from-State Semantics
+
+AQS state is **session-ephemeral, work-persistent** (Gas Town pattern). The Conductor's session may end at any point. The persisted artifacts contain enough state to resume:
+
+```
+## AQS State: Bead {id}
+**Phase completed:** {1-6, or 0 if not started}
+**Cycle:** {1 or 2}
+**Domains active:** {list with priorities}
+**Recon complete:** {yes/no}
+**Findings produced:** {count, or "pending"}
+**Responses received:** {count, or "pending"}
+**Verdicts issued:** {count, or "pending"}
+```
+
+**Resume protocol:** When a new session encounters a bead at `proven` status with existing AQS artifacts:
+1. Read the AQS state from the most recent artifact
+2. Identify the last completed phase
+3. Resume from the next phase — do not re-run completed phases
+4. Recon results, findings, and responses from prior phases are still valid
+5. If mid-Phase-3 (partial strike results), the Conductor decides: resume with remaining domains or re-run from Phase 1
+
+This state is written to the `recon-{bead-id}.md` file header on every phase transition. The Conductor checks for existing AQS state before launching a new cycle.
+
 ---
 
 ## Non-Zero-Sum Objective Separation
@@ -413,7 +437,21 @@ Findings carry confidence levels (Verified / Likely / Assumed) but the system al
 
 **Upgrade rule:** Confidence upgrades require new evidence, never argument. "I'm more sure now" is not an upgrade. "I found a reproduction" is.
 
+**Belief update per cycle:** Each AQS report includes a residual risk delta — a lightweight Bayesian-lite score tracking how the overall risk picture changed across cycles:
+
+```markdown
+### Belief Update
+| Domain | Pre-AQS Risk Estimate | Post-Cycle-1 | Post-Cycle-2 | Delta |
+|--------|----------------------|--------------|--------------|-------|
+| security | unknown | elevated (2 findings) | low (both fixed, re-attack clean) | ↓ reduced |
+| resilience | unknown | low (no findings) | — | → stable |
+```
+
+This is not formal Bayesian inference — it is a structured summary of how evidence changed the risk picture. The Conductor uses the delta column to decide whether the bead is genuinely hardened or needs further attention. A domain that stays `elevated` after Cycle 2 is a flag for Conductor escalation.
+
 **Prior accumulation:** If the same domain (e.g., security) finds issues across multiple beads in the same task, the Conductor should increase that domain's default priority for subsequent beads. The system learns from its own engagement history within a task.
+
+**Cumulative evidence over one-shot falsification:** A single clean sweep does not prove robustness. The confidence ledger and belief update track whether the "clean" result is genuinely clean (tested thoroughly, multiple probes, no signals) or superficially clean (few probes, narrow attack surface tested). The Conductor should treat a clean sweep from 5 guppies differently than a clean sweep from 40.
 
 ### Registered-Report Mode (High-Risk Tasks)
 
@@ -492,6 +530,11 @@ Written to `docs/sdlc/active/{task-id}/beads/{bead-id}-aqs.md` after Phase 6.
 ### Hardening Changes
 - `{file}:{line}` — {description of change} (finding {ID})
 - _(none)_ if no changes were made
+
+### Belief Update
+| Domain | Pre-AQS | Post-Cycle-1 | Post-Cycle-2 | Delta |
+|--------|---------|--------------|--------------|-------|
+| {domain} | {unknown/low/elevated} | {assessment + reason} | {assessment + reason} | {↓ reduced / → stable / ↑ elevated} |
 
 ### Residual Risk
 - {description of any findings that could not be fully resolved}

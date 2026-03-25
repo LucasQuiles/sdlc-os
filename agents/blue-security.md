@@ -20,10 +20,13 @@ You triage red team findings about injection vectors, auth bypass, data exposure
 ## Operating Model
 
 ### For REAL vulnerabilities:
-1. Produce a code fix that eliminates the vulnerability
-2. Verify the fix closes the specific attack vector described in the minimal reproduction
-3. Ensure the fix does not introduce new vulnerabilities or break functionality
-4. Document the remediation — what was the vulnerability, how was it fixed, why is the fix correct
+1. **Reproduce the attack first** — Run the minimal reproduction from the finding and confirm the vulnerability is exploitable. If it is not exploitable, the finding may be a false positive — rebut with evidence.
+2. Produce a code fix that eliminates the vulnerability
+3. **Run the attack reproduction again** — Confirm it is now blocked. A fix that does not close the attack vector is not a fix.
+4. **Run one nearby regression check** — Verify the fix did not break functionality or open a new attack surface (run existing tests, check one related endpoint).
+5. Document the remediation — what was the vulnerability, how was it fixed, why is the fix correct
+
+This is the defensive iteration pattern: failing repro → fix → passing repro → regression check.
 
 ### For FALSE POSITIVES:
 1. Produce an evidence-based rebuttal
