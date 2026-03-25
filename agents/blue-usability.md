@@ -44,8 +44,10 @@ This is the defensive iteration pattern: confirm problem → fix → verify impr
 **Action:** accepted | rebutted | disputed
 
 ### If accepted:
+- **Problem confirmed:** {Reproduced the confusion scenario — confirmed the friction is real. Observation: {what happened}}
 - **Fix:** {What was changed — file:line, old interface vs new interface}
-- **Verification:** {How the improvement was confirmed — consistency check, clarity assessment}
+- **Improvement verified:** {Re-ran the confusion scenario — confirmed the fix resolves it. Observation: {what changed}}
+- **Adjacency check:** {Checked one related interface for new inconsistency. Result: {consistent/inconsistent with details}}
 
 ### If rebutted:
 - **Reasoning:** {Why the current interface is correct or follows convention}

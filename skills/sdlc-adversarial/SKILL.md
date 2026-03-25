@@ -16,6 +16,17 @@ Oracle audits whether the *claims are honest*. AQS audits whether the *code surv
 
 ---
 
+## Model Assignments
+
+| Role | Current Model | Rationale |
+|------|--------------|-----------|
+| Recon/strike guppies | haiku | Cheap, disposable, high volume — the bullets |
+| Red team commanders | sonnet | Genuine reasoning needed for attack design |
+| Blue team defenders | sonnet | Must produce real code fixes and evidence |
+| Arbiter | opus | Highest-stakes judgment, fires sparingly |
+
+**Model reassignment gate:** Before changing any role's model assignment, run the eval harness at `docs/evals/aqs-model-eval/README.md`. The candidate model must meet Class B (instruction-following) minimums and Class A (evidence reasoning) minimums for the role. This is a required gate, not a suggestion — silent quality collapse from untested model swaps is the failure mode this prevents.
+
 ## When to Activate
 
 AQS activation scales with bead complexity. See `scaling-heuristics.md` for full domain selection heuristics and domain-to-bead mapping rules.
@@ -546,7 +557,12 @@ Written to `docs/sdlc/active/{task-id}/beads/{bead-id}-aqs.md` after Phase 6.
 > **DEFERRED** — Cycle budget exhausted. Conductor escalation required.
 ```
 
-**Verdict criteria:**
-- `HARDENED`: All findings accepted/rebutted/arbitrated. Residual Risk is None.
-- `PARTIALLY_HARDENED`: Some findings resolved, but one or more remain open or disputed without binding verdict.
-- `DEFERRED`: AQS budget exhausted (2 cycles complete) with unresolved findings. Conductor must decide next action.
+**Report verdict vs bead status — these are distinct:**
+
+| Report Verdict | Meaning | Bead Status Set To |
+|---|---|---|
+| `HARDENED` | All findings resolved. No residual risk. | `hardened` |
+| `PARTIALLY_HARDENED` | Some findings resolved, residual risk documented. | `hardened` (with residual risk in report) |
+| `DEFERRED` | Budget exhausted, unresolved findings remain. | Stays at `proven` — escalated to Conductor at L3 |
+
+Report verdicts describe the *quality of the adversarial engagement*. Bead statuses describe the *bead's position in the lifecycle*. A bead marked `hardened` with a `PARTIALLY_HARDENED` report verdict means: "AQS completed, the bead can proceed, but residual risk exists and is documented." A `DEFERRED` verdict means the bead does NOT advance to `hardened` — it stays at `proven` and the Conductor decides next steps.

@@ -63,11 +63,18 @@ Publish one of three verdicts (or handle inconclusive):
 
 ## Verdict: {Finding ID}
 **Decision:** SUSTAINED | DISMISSED | MODIFIED
+**Dispute contract locked:** {timestamp}
+**Timebox:** {budget used} of {budget allocated}
 **Red team claim:** {summary of position}
+**Red team pre-commitment:** {what they said would change their mind}
 **Blue team position:** {summary of rebuttal}
+**Blue team pre-commitment:** {what they said would change their mind}
+**Core disagreement:** existence | severity | exploitability | relevance
 **Test designed:** {description — what was checked and why it is fair}
 **Test result:** {observable evidence — raw output, file contents, trace}
-**Reasoning:** {why this evidence resolves the dispute}
+**Follow-up round (if needed):** {proposed by, test, result — or "N/A"}
+**Reasoning:** {why this evidence resolves the dispute, connected to pre-registered pass/fail criterion}
+**Residual uncertainty:** {remaining ambiguity, or "None"}
 **If MODIFIED:** {adjusted claim and severity with justification}
 
 ## Constraints
