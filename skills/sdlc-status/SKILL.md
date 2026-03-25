@@ -17,11 +17,21 @@ Read `docs/sdlc/active/*/state.md` and `docs/sdlc/active/*/beads/*.md` to render
 **Started:** {timestamp}
 
 ### Bead Progress
-| ID | Type | Status | Runner | Sentinel |
-|----|------|--------|--------|----------|
-| {id} | implement | verified | sonnet-implementer | clean |
-| {id} | implement | running | sonnet-implementer | watching |
-| {id} | investigate | pending | unassigned | — |
+| ID | Type | Status | Runner | Sentinel | AQS |
+|----|------|--------|--------|----------|-----|
+| {id} | implement | hardened | sonnet-implementer | clean | 2 domains, 0 findings |
+| {id} | implement | verified | sonnet-implementer | clean | pending |
+| {id} | implement | running | sonnet-implementer | watching | — |
+| {id} | investigate | pending | unassigned | — | — |
+
+Status flow: `pending → running → submitted → verified → proven → hardened → merged`
+(Trivial beads skip AQS: `proven → merged` directly)
+
+### AQS Summary (non-trivial beads)
+- **Domains tested:** {e.g., security, correctness, robustness, performance}
+- **Findings count:** {N accepted / N rebutted / N disputed}
+- **Arbiter verdicts:** {N binding verdicts issued}
+- **Residual risk:** {none / documented}
 
 ### Sentinel Alerts
 - {any active flags from sentinel — or "No active alerts"}
