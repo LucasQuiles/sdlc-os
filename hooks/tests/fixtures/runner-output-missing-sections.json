@@ -1,0 +1,6 @@
+{
+  "session_id": "test",
+  "hook_event_name": "SubagentStop",
+  "agent_name": "runner-b2",
+  "output": "I made some changes to the code.\n\nHere are the files I touched:\n- lib/storage/users-storage.ts\n"
+}

@@ -1,0 +1,9 @@
+{
+  "session_id": "test",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "docs/sdlc/feature-matrix.md",
+    "content": "# Feature Matrix\n\n## Findings\n\n| ID | Signal | Category | Location | Description | Completion % | Severity | Status | Type | Effort | Recommendation | Dependencies | Found | Last Seen | Owner | Notes |\n|----|--------|----------|----------|-------------|--------------|----------|--------|------|--------|----------------|--------------|-------|-----------|-------|-------|\n| BADID | code | stub | `lib/x.ts:1` | Bad | 50 | INVALID_SEV | BOGUS_STATUS | TBD | TBD | TBD | TBD | 2026-03-25 | 2026-03-25 | finder | bad row |\n"
+  }
+}

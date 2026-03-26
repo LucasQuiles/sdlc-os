@@ -1,0 +1,9 @@
+{
+  "session_id": "test",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "node_modules/some-package/index.js",
+    "content": "module.exports = {};"
+  }
+}
