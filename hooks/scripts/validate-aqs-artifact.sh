@@ -2,6 +2,9 @@
 # AQS Artifact Schema Validator
 # Runs as PostToolUse hook on Write|Edit targeting docs/sdlc/active/*/adversarial/*
 # Exit 0 = valid, Exit 2 = invalid (blocks with feedback to Claude)
+#
+# Validates per-block (each ## Finding / ## Response independently),
+# not aggregate counts. Portable — no grep -P.
 
 set -euo pipefail
 
@@ -30,110 +33,155 @@ fi
 
 ERRORS=""
 
-# Detect artifact type from filename and content
-if [[ "$FILE_PATH" =~ findings- ]]; then
-  # RED TEAM FINDINGS — validate required fields per finding
-  # Required: Domain, Severity, Claim, Minimal reproduction, Impact, Evidence, Confidence
+# Helper: split content into blocks by ## header, validate each independently
+validate_finding_block() {
+  local block="$1"
+  local block_num="$2"
+  local block_id="$3"
 
-  FINDING_COUNT=$(echo "$CONTENT" | grep -c "^## Finding:" || true)
-  if [[ "$FINDING_COUNT" -gt 0 ]]; then
-    # Check each required field exists at least once
-    for FIELD in "Domain:" "Severity:" "Claim:" "Minimal reproduction:" "Impact:" "Evidence:" "Confidence:"; do
-      FIELD_COUNT=$(echo "$CONTENT" | grep -c "\*\*${FIELD}\*\*" || true)
-      if [[ "$FIELD_COUNT" -lt "$FINDING_COUNT" ]]; then
-        ERRORS="${ERRORS}Finding missing required field: ${FIELD} (found ${FIELD_COUNT} of ${FINDING_COUNT} findings)\n"
-      fi
-    done
-
-    # Validate domain vocabulary
-    if echo "$CONTENT" | grep -qiE '\*\*Domain:\*\*.*\b(correctness|robustness|performance)\b'; then
-      ERRORS="${ERRORS}Non-canonical domain name detected. Use: functionality | security | usability | resilience\n"
+  for field in "Domain:" "Severity:" "Claim:" "Minimal reproduction:" "Impact:" "Evidence:" "Confidence:"; do
+    if ! echo "$block" | grep -q "\*\*${field}\*\*"; then
+      ERRORS="${ERRORS}Finding #${block_num} (${block_id}) missing required field: ${field}\n"
     fi
+  done
 
-    # Validate severity vocabulary
-    if echo "$CONTENT" | grep -qiE '\*\*Severity:\*\*' && ! echo "$CONTENT" | grep -qE '\*\*Severity:\*\*.*(critical|high|medium|low)'; then
-      ERRORS="${ERRORS}Invalid severity. Use: critical | high | medium | low\n"
-    fi
-
-    # Validate confidence vocabulary
-    if echo "$CONTENT" | grep -qiE '\*\*Confidence:\*\*' && ! echo "$CONTENT" | grep -qE '\*\*Confidence:\*\*.*(Verified|Likely|Assumed)'; then
-      ERRORS="${ERRORS}Invalid confidence label. Use: Verified | Likely | Assumed\n"
+  # Validate domain vocabulary
+  local domain_line
+  domain_line=$(echo "$block" | grep "\*\*Domain:\*\*" || true)
+  if [[ -n "$domain_line" ]]; then
+    if echo "$domain_line" | grep -qiE '\b(correctness|robustness|performance)\b'; then
+      ERRORS="${ERRORS}Finding #${block_num}: non-canonical domain. Use: functionality | security | usability | resilience\n"
     fi
   fi
+
+  # Validate severity
+  local severity_line
+  severity_line=$(echo "$block" | grep "\*\*Severity:\*\*" || true)
+  if [[ -n "$severity_line" ]]; then
+    if ! echo "$severity_line" | grep -qE '(critical|high|medium|low)'; then
+      ERRORS="${ERRORS}Finding #${block_num}: invalid severity. Use: critical | high | medium | low\n"
+    fi
+  fi
+
+  # Validate confidence
+  local confidence_line
+  confidence_line=$(echo "$block" | grep "\*\*Confidence:\*\*" || true)
+  if [[ -n "$confidence_line" ]]; then
+    if ! echo "$confidence_line" | grep -qE '(Verified|Likely|Assumed)'; then
+      ERRORS="${ERRORS}Finding #${block_num}: invalid confidence. Use: Verified | Likely | Assumed\n"
+    fi
+  fi
+}
+
+validate_response_block() {
+  local block="$1"
+  local block_num="$2"
+  local block_id="$3"
+
+  # Check Action field
+  if ! echo "$block" | grep -q "\*\*Action:\*\*"; then
+    ERRORS="${ERRORS}Response #${block_num} (${block_id}) missing required field: Action\n"
+    return
+  fi
+
+  # If accepted, check defensive iteration fields
+  if echo "$block" | grep -q "\*\*Action:\*\* accepted"; then
+    local has_fix has_pre has_post has_regression
+    has_fix=$(echo "$block" | grep -c "\*\*Fix:\*\*" || true)
+    has_pre=$(echo "$block" | grep -cE "(Pre-fix reproduction|Gap confirmed|Problem confirmed|Pre-fix repro)" || true)
+    has_post=$(echo "$block" | grep -cE "(Post-fix reproduction|Fix verified|Improvement verified|Post-fix repro)" || true)
+    has_regression=$(echo "$block" | grep -cE "(Regression check|Adjacency check)" || true)
+
+    [[ "$has_fix" -eq 0 ]] && ERRORS="${ERRORS}Response #${block_num} (${block_id}) accepted but missing: Fix\n"
+    [[ "$has_pre" -eq 0 ]] && ERRORS="${ERRORS}Response #${block_num} (${block_id}) accepted but missing: pre-fix reproduction\n"
+    [[ "$has_post" -eq 0 ]] && ERRORS="${ERRORS}Response #${block_num} (${block_id}) accepted but missing: post-fix verification\n"
+    [[ "$has_regression" -eq 0 ]] && ERRORS="${ERRORS}Response #${block_num} (${block_id}) accepted but missing: regression/adjacency check\n"
+  fi
+
+  # If rebutted, check evidence
+  if echo "$block" | grep -q "\*\*Action:\*\* rebutted"; then
+    if ! echo "$block" | grep -q "\*\*Evidence:\*\*\|\*\*Reasoning:\*\*"; then
+      ERRORS="${ERRORS}Response #${block_num} (${block_id}) rebutted but missing: Reasoning or Evidence\n"
+    fi
+  fi
+
+  # If disputed, check contested claim and proposed test
+  if echo "$block" | grep -q "\*\*Action:\*\* disputed"; then
+    if ! echo "$block" | grep -q "\*\*Contested claim:\*\*"; then
+      ERRORS="${ERRORS}Response #${block_num} (${block_id}) disputed but missing: Contested claim\n"
+    fi
+    if ! echo "$block" | grep -q "\*\*Proposed test:\*\*"; then
+      ERRORS="${ERRORS}Response #${block_num} (${block_id}) disputed but missing: Proposed test\n"
+    fi
+  fi
+}
+
+validate_verdict_block() {
+  local block="$1"
+  local block_num="$2"
+  local block_id="$3"
+
+  for field in "Decision:" "Red team claim:" "Blue team position:" "Test designed:" "Test result:" "Reasoning:" "Dispute contract locked:" "Red team pre-commitment:" "Blue team pre-commitment:" "Residual uncertainty:"; do
+    if ! echo "$block" | grep -q "\*\*${field}\*\*"; then
+      ERRORS="${ERRORS}Verdict #${block_num} (${block_id}) missing required field: ${field}\n"
+    fi
+  done
+
+  # Validate decision vocabulary
+  local decision_line
+  decision_line=$(echo "$block" | grep "\*\*Decision:\*\*" || true)
+  if [[ -n "$decision_line" ]]; then
+    if ! echo "$decision_line" | grep -qE '(SUSTAINED|DISMISSED|MODIFIED)'; then
+      ERRORS="${ERRORS}Verdict #${block_num}: invalid decision. Use: SUSTAINED | DISMISSED | MODIFIED\n"
+    fi
+  fi
+}
+
+# Generic block splitter — calls a validation function per block
+process_blocks() {
+  local content="$1"
+  local header_pattern="$2"
+  local validator="$3"
+
+  local block_num=0
+  local in_block=false
+  local current_block=""
+  local block_id=""
+
+  while IFS= read -r line; do
+    if echo "$line" | grep -q "^## ${header_pattern}"; then
+      if [[ "$in_block" == "true" ]] && [[ -n "$current_block" ]]; then
+        block_num=$((block_num + 1))
+        "$validator" "$current_block" "$block_num" "$block_id"
+      fi
+      in_block=true
+      current_block="$line"
+      block_id=$(echo "$line" | sed "s/^## ${header_pattern}[[:space:]]*//" | head -1)
+    elif [[ "$in_block" == "true" ]]; then
+      current_block="${current_block}
+${line}"
+    fi
+  done <<< "$content"
+
+  # Process last block
+  if [[ "$in_block" == "true" ]] && [[ -n "$current_block" ]]; then
+    block_num=$((block_num + 1))
+    "$validator" "$current_block" "$block_num" "$block_id"
+  fi
+}
+
+# Detect artifact type and validate
+if [[ "$FILE_PATH" =~ findings- ]]; then
+  process_blocks "$CONTENT" "Finding:" "validate_finding_block"
 
 elif [[ "$FILE_PATH" =~ responses- ]]; then
-  # BLUE TEAM RESPONSES — validate required fields
-
-  RESPONSE_COUNT=$(echo "$CONTENT" | grep -c "^## Response:" || true)
-  if [[ "$RESPONSE_COUNT" -gt 0 ]]; then
-    # Check action field
-    ACTION_COUNT=$(echo "$CONTENT" | grep -c "\*\*Action:\*\*" || true)
-    if [[ "$ACTION_COUNT" -lt "$RESPONSE_COUNT" ]]; then
-      ERRORS="${ERRORS}Response missing required field: Action (found ${ACTION_COUNT} of ${RESPONSE_COUNT} responses)\n"
-    fi
-
-    # Check accepted responses have defensive iteration fields
-    ACCEPTED_COUNT=$(echo "$CONTENT" | grep -c "accepted" || true)
-    if [[ "$ACCEPTED_COUNT" -gt 0 ]]; then
-      for FIELD in "Pre-fix reproduction:" "Post-fix reproduction:" "Regression check:" "Fix:"; do
-        if ! echo "$CONTENT" | grep -q "${FIELD}\|pre-fix repro\|Pre-fix repro\|Gap confirmed:\|Problem confirmed:\|Attack reproduction:\|Pre-fix reproduction:"; then
-          # Only error if there are accepted findings and the field pattern is completely missing
-          if echo "$CONTENT" | grep -q "\*\*Action:\*\* accepted"; then
-            FIELD_FOUND=$(echo "$CONTENT" | grep -c "${FIELD}" || true)
-            if [[ "$FIELD_FOUND" -eq 0 ]] && [[ "$FIELD" == "Fix:" ]]; then
-              ERRORS="${ERRORS}Accepted response missing required field: ${FIELD}\n"
-            fi
-          fi
-        fi
-      done
-
-      # Check for defensive iteration pattern (any variant)
-      if echo "$CONTENT" | grep -q "\*\*Action:\*\* accepted"; then
-        HAS_PRE=$(echo "$CONTENT" | grep -cE "(Pre-fix reproduction|Gap confirmed|Problem confirmed|Reproduce the)" || true)
-        HAS_POST=$(echo "$CONTENT" | grep -cE "(Post-fix reproduction|Fix verified|Improvement verified|Re-trace)" || true)
-        HAS_REGRESSION=$(echo "$CONTENT" | grep -cE "(Regression check|Adjacency check|adjacent)" || true)
-
-        if [[ "$HAS_PRE" -eq 0 ]]; then
-          ERRORS="${ERRORS}Accepted response missing defensive iteration: pre-fix reproduction step\n"
-        fi
-        if [[ "$HAS_POST" -eq 0 ]]; then
-          ERRORS="${ERRORS}Accepted response missing defensive iteration: post-fix verification step\n"
-        fi
-        if [[ "$HAS_REGRESSION" -eq 0 ]]; then
-          ERRORS="${ERRORS}Accepted response missing defensive iteration: regression/adjacency check step\n"
-        fi
-      fi
-    fi
-  fi
+  process_blocks "$CONTENT" "Response:" "validate_response_block"
 
 elif [[ "$FILE_PATH" =~ verdicts- ]]; then
-  # ARBITER VERDICTS — validate required fields
-
-  VERDICT_COUNT=$(echo "$CONTENT" | grep -c "^## Verdict:" || true)
-  if [[ "$VERDICT_COUNT" -gt 0 ]]; then
-    for FIELD in "Decision:" "Red team claim:" "Blue team position:" "Test designed:" "Test result:" "Reasoning:"; do
-      FIELD_COUNT=$(echo "$CONTENT" | grep -c "\*\*${FIELD}\*\*" || true)
-      if [[ "$FIELD_COUNT" -lt "$VERDICT_COUNT" ]]; then
-        ERRORS="${ERRORS}Verdict missing required field: ${FIELD}\n"
-      fi
-    done
-
-    # Check for pre-registration fields (new Kahneman protocol)
-    for FIELD in "Dispute contract locked:" "Red team pre-commitment:" "Blue team pre-commitment:" "Residual uncertainty:"; do
-      if ! echo "$CONTENT" | grep -q "\*\*${FIELD}\*\*"; then
-        ERRORS="${ERRORS}Verdict missing Kahneman protocol field: ${FIELD}\n"
-      fi
-    done
-
-    # Validate decision vocabulary
-    if echo "$CONTENT" | grep -qE '\*\*Decision:\*\*' && ! echo "$CONTENT" | grep -qE '\*\*Decision:\*\*.*(SUSTAINED|DISMISSED|MODIFIED)'; then
-      ERRORS="${ERRORS}Invalid verdict decision. Use: SUSTAINED | DISMISSED | MODIFIED\n"
-    fi
-  fi
+  process_blocks "$CONTENT" "Verdict:" "validate_verdict_block"
 
 elif [[ "$FILE_PATH" =~ -aqs\.md$ ]]; then
   # AQS REPORT — validate required sections
-
   if echo "$CONTENT" | grep -q "Adversarial Quality Report"; then
     for SECTION in "Engagement Summary" "Findings" "Hardening Changes" "Belief Update" "Residual Risk" "Verdict"; do
       if ! echo "$CONTENT" | grep -q "### ${SECTION}\|## ${SECTION}"; then
@@ -141,10 +189,7 @@ elif [[ "$FILE_PATH" =~ -aqs\.md$ ]]; then
       fi
     done
 
-    # Validate report verdict vocabulary
-    if echo "$CONTENT" | grep -qE '^\*\*\[?HARDENED|PARTIALLY_HARDENED|DEFERRED'; then
-      : # Valid
-    elif echo "$CONTENT" | grep -q "### Verdict\|## Verdict"; then
+    if echo "$CONTENT" | grep -q "### Verdict\|## Verdict"; then
       if ! echo "$CONTENT" | grep -qE 'HARDENED|PARTIALLY_HARDENED|DEFERRED'; then
         ERRORS="${ERRORS}AQS report verdict must be: HARDENED | PARTIALLY_HARDENED | DEFERRED\n"
       fi
@@ -152,8 +197,6 @@ elif [[ "$FILE_PATH" =~ -aqs\.md$ ]]; then
   fi
 
 elif [[ "$FILE_PATH" =~ recon- ]]; then
-  # RECON RESULTS — validate signal format
-
   PROBE_COUNT=$(echo "$CONTENT" | grep -cE "(SIGNAL|NO_SIGNAL)" || true)
   if [[ "$PROBE_COUNT" -eq 0 ]] && echo "$CONTENT" | grep -qi "recon"; then
     ERRORS="${ERRORS}Recon results must contain SIGNAL or NO_SIGNAL responses\n"
@@ -162,7 +205,7 @@ fi
 
 # Output result
 if [[ -n "$ERRORS" ]]; then
-  echo -e "AQS Schema Validation Failed for $(basename "$FILE_PATH"):\n${ERRORS}\nFix these issues and retry the write." >&2
+  printf "AQS Schema Validation Failed for %s:\n%b\nFix these issues and retry the write.\n" "$(basename "$FILE_PATH")" "$ERRORS" >&2
   exit 2
 else
   exit 0

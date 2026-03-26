@@ -28,8 +28,8 @@ if [[ -z "$CONTENT" ]]; then
   exit 0
 fi
 
-# Extract current status
-CURRENT_STATUS=$(echo "$CONTENT" | grep -oP '^\*\*Status:\*\*\s*\K\S+' | head -1 || true)
+# Extract current status — portable (no grep -P)
+CURRENT_STATUS=$(echo "$CONTENT" | sed -n 's/^\*\*Status:\*\*[[:space:]]*\([a-z_]*\).*/\1/p' | head -1 || true)
 
 if [[ -z "$CURRENT_STATUS" ]]; then
   exit 0
@@ -43,12 +43,28 @@ fi
 # But verified -> merged is NEVER valid (must go through proven)
 # And verified -> hardened is NEVER valid (must go through proven)
 
+# Normalize FILE_PATH to repo-relative for git show
+REPO_ROOT=""
+REL_PATH=""
+if command -v git &> /dev/null && git rev-parse --git-dir &> /dev/null 2>&1; then
+  REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || true)
+fi
+
+if [[ -n "$REPO_ROOT" ]]; then
+  # Strip repo root prefix to get repo-relative path
+  if [[ "$FILE_PATH" == /* ]]; then
+    REL_PATH="${FILE_PATH#"$REPO_ROOT"/}"
+  else
+    REL_PATH="$FILE_PATH"
+  fi
+fi
+
 # Check for the previous status in git to detect the transition
 PREVIOUS_STATUS=""
-if command -v git &> /dev/null && git rev-parse --git-dir &> /dev/null 2>&1; then
-  PREVIOUS_CONTENT=$(git show HEAD:"$FILE_PATH" 2>/dev/null || true)
+if [[ -n "$REL_PATH" ]]; then
+  PREVIOUS_CONTENT=$(git show HEAD:"$REL_PATH" 2>/dev/null || true)
   if [[ -n "$PREVIOUS_CONTENT" ]]; then
-    PREVIOUS_STATUS=$(echo "$PREVIOUS_CONTENT" | grep -oP '^\*\*Status:\*\*\s*\K\S+' | head -1 || true)
+    PREVIOUS_STATUS=$(echo "$PREVIOUS_CONTENT" | sed -n 's/^\*\*Status:\*\*[[:space:]]*\([a-z_]*\).*/\1/p' | head -1 || true)
   fi
 fi
 
