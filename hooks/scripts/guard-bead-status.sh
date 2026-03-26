@@ -44,8 +44,8 @@ fi
 # And verified -> hardened is NEVER valid (must go through proven)
 
 # Normalize FILE_PATH to repo-relative for git show
-# Both paths must be canonicalized to physical paths to handle symlinks
-# (e.g., /var/folders/... vs /private/var/folders/... on macOS)
+source "$(dirname "$0")/../lib/common.sh"
+
 REPO_ROOT=""
 REL_PATH=""
 if command -v git &> /dev/null && git rev-parse --git-dir &> /dev/null 2>&1; then
@@ -53,29 +53,14 @@ if command -v git &> /dev/null && git rev-parse --git-dir &> /dev/null 2>&1; the
 fi
 
 if [[ -n "$REPO_ROOT" ]]; then
-  # Canonicalize both paths to resolve symlinks before stripping
-  CANON_ROOT=""
+  CANON_ROOT=$(canonicalize_path "$REPO_ROOT")
   CANON_FILE=""
-  if command -v realpath &> /dev/null; then
-    CANON_ROOT=$(realpath "$REPO_ROOT" 2>/dev/null || true)
-    if [[ "$FILE_PATH" == /* ]]; then
-      CANON_FILE=$(realpath "$FILE_PATH" 2>/dev/null || true)
-    fi
-  fi
-  # Fall back to pwd -P based resolution if realpath unavailable or failed
-  if [[ -z "$CANON_ROOT" ]]; then
-    CANON_ROOT=$(cd "$REPO_ROOT" 2>/dev/null && pwd -P || echo "$REPO_ROOT")
-  fi
-  if [[ -z "$CANON_FILE" ]] && [[ "$FILE_PATH" == /* ]]; then
-    # Resolve the directory part, keep the filename
-    FILE_DIR=$(dirname "$FILE_PATH")
-    FILE_BASE=$(basename "$FILE_PATH")
-    CANON_FILE=$(cd "$FILE_DIR" 2>/dev/null && pwd -P || echo "$FILE_DIR")/"$FILE_BASE"
+  if [[ "$FILE_PATH" == /* ]]; then
+    CANON_FILE=$(canonicalize_path "$FILE_PATH")
   fi
 
   if [[ -n "$CANON_FILE" ]]; then
     REL_PATH="${CANON_FILE#"$CANON_ROOT"/}"
-    # If stripping failed (path doesn't start with root), fall back to original
     if [[ "$REL_PATH" == "$CANON_FILE" ]]; then
       REL_PATH="${FILE_PATH#"$REPO_ROOT"/}"
     fi
