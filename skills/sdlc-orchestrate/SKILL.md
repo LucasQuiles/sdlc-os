@@ -117,6 +117,16 @@ Beads are written to `docs/sdlc/active/{task-id}/beads/` as individual markdown 
 
 Phases exist for orientation, not approval. The Conductor flows through them as fast as the work allows.
 
+### Phase 0: Normalize (mandatory, auto-depth)
+**What:** Assess session entry state. Detect existing work, recover SDLC state, or confirm clean start.
+**How:** Dispatch `normalizer` agent. See `sdlc-os:sdlc-normalize` for full protocol.
+**Depth detection:**
+  - Clean state → no-op (&lt;5 seconds), proceed to Phase 1
+  - Partial SDLC artifacts → resume protocol: read state.md + beads, recover Cynefin assignments and quality budget, recommend re-entry phase
+  - Unstructured changes → full normalization: check/create Convention Map via `convention-scanner`, assess changes against Convention Map + code-constitution, produce normalization directives (require user approval), dispatch `gap-analyst` Finder mode on existing work
+**Output:** Normalization report (or no-op confirmation). Directives require user approval before execution.
+**Skip when:** Never. Always fires, but self-limits depth based on state detection.
+
 ### Phase 1: Frame
 **What:** Understand the task. Clarify ambiguity. Define done.
 **How:** Dispatch `sonnet-investigator` to analyze requirements. Sentinel checks for gaps. **Conductor assigns Cynefin domain to each bead** using the signals in `skills/sdlc-adversarial/scaling-heuristics.md`. Chaotic beads skip directly to Execute with a single runner. Confusion beads are blocked until decomposed.
@@ -124,11 +134,15 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 **Skip when:** Task is trivial and well-specified.
 
 ### Phase 2: Scout
-**What:** Gather evidence about the codebase and problem space.
-**How:** Dispatch `sonnet-investigator` to explore. Sentinel validates evidence quality.
-**Output:** Discovery brief with findings, evidence, assumptions labeled.
-**Skip when:** You already have sufficient context (e.g., from prior conversation).
-**Parallelize:** Multiple investigators can scout different areas simultaneously.
+**What:** Gather evidence about the codebase and problem space. Map conventions. Identify gaps.
+**How:**
+1. Dispatch `sonnet-investigator` to explore. Sentinel validates evidence quality.
+2. Dispatch `convention-scanner` if Convention Map (`docs/sdlc/convention-map.md`) is missing or older than 30 days. Convention Map becomes required context for all subsequent phases.
+3. Dispatch `gap-analyst` in Finder mode — compare requirements against codebase to produce a Completeness Map. See `sdlc-os:sdlc-gap-analysis` for full protocol.
+**Output:** Discovery brief + Convention Map + Completeness Map (EXISTS/PARTIAL/MISSING per requirement).
+**Key constraint:** Phase 3 (Architect) only creates beads for MISSING and PARTIAL items from the Completeness Map. EXISTS items get no beads.
+**Skip when:** You already have sufficient context (e.g., from prior conversation). Convention scan and gap analysis still run even when investigation is skipped.
+**Parallelize:** Investigator, convention-scanner, and gap-analyst can run in parallel — they read different things.
 
 ### Phase 3: Architect
 **What:** Choose an approach. Define the bead decomposition.
@@ -146,7 +160,9 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 3. After each runner submits, sentinel loop runs:
    - `haiku-verifier` checks acceptance criteria
    - `drift-detector` checks DRY/SSOT/SoC/pattern/boundary violations
+   - `convention-enforcer` checks naming/structure/style against Convention Map (see `references/convention-dimensions.md`)
    - Oracle audits test integrity (L2)
+   Convention-enforcer BLOCKING violations trigger L1 correction same as drift-detector. `CONVENTION_DRIFT` signal → Conductor reviews Convention Map for staleness, may dispatch `convention-scanner` to refresh.
 4. After Oracle proves the bead, run the **Adversarial Quality System** (`sdlc-os:sdlc-adversarial`):
    - Recon burst (8 guppies across 4 domains) + Conductor domain selection → cross-reference priorities
    - Deploy domain-specialized red team commanders (`red-functionality`, `red-security`, `red-usability`, `red-resilience`) for HIGH/MED domains
@@ -166,7 +182,9 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 1. Run **fitness check** (`sdlc-os:sdlc-fitness`) across all changed files — full report
 2. Dispatch `sonnet-reviewer` for critical assessment of the integrated result
 3. Dispatch `drift-detector` for final cross-bead duplication check
-3.5. Dispatch `losa-observer` on a random sample of merged beads (20% sample rate when error budget healthy, 50% when depleted). LOSA observations feed into error budget tracking — if LOSA reports uncaught errors, the error budget depletes regardless of SLI metrics.
+3.25. Dispatch `gap-analyst` in Finisher mode — compare delivery against mission brief success criteria + codebase inference. See `sdlc-os:sdlc-gap-analysis`. If GAPS found: minor → Conductor creates follow-up beads; significant → present to user.
+3.5. Dispatch `normalizer` in Final Pass mode — cross-bead convention consistency sweep. Checks for naming drift between parallel beads, unmapped conventions, and Convention Map update needs.
+3.75. Dispatch `losa-observer` on a random sample of merged beads (20% sample rate when error budget healthy, 50% when depleted). LOSA observations feed into error budget tracking — if LOSA reports uncaught errors, the error budget depletes regardless of SLI metrics.
 4. `haiku-handoff` packages delivery summary
 **Output:** Delivery summary with fitness report, evidence, uncertainty, next actions.
 
@@ -312,10 +330,11 @@ When all beads are proven, hardened (or AQS-skipped), and merged:
 
 ## Quick Reference
 
-| Phase | Runners | Sentinel | Oracle | Reuse/Fitness | Conductor |
-|-------|---------|----------|--------|---------------|-----------|
+| Phase | Runners | Sentinel | Oracle | Reuse/Fitness/Convention | Conductor |
+|-------|---------|----------|--------|-------------------------|-----------|
+| Normalize | normalizer | — | — | convention-scanner (if needed) | Detect state, approve directives |
 | Frame | sonnet-investigator | haiku-evidence | — | — | Define mission, scope, criteria |
-| Scout | sonnet-investigator (parallel OK) | haiku-evidence | — | — | Gather context, label assumptions |
+| Scout | sonnet-investigator + convention-scanner + gap-analyst (Finder) | haiku-evidence | — | — | Gather context, map conventions, find gaps |
 | Architect | sonnet-designer | haiku-verifier | — | — | Choose approach, create bead manifest |
-| Execute | sonnet-implementer (parallel OK) | haiku-verifier + drift-detector | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
-| Synthesize | sonnet-reviewer + losa-observer | haiku-handoff | oracle L1+L2+L3 (integration) | fitness report (full) | Merge results, deliver |
+| Execute | sonnet-implementer (parallel OK) | haiku-verifier + drift-detector + convention-enforcer | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
+| Synthesize | sonnet-reviewer + gap-analyst (Finisher) + normalizer (Final Pass) + losa-observer | haiku-handoff | oracle L1+L2+L3 (integration) | fitness report (full, includes Conventions) | Merge results, deliver |
