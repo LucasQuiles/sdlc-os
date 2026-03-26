@@ -10,6 +10,7 @@ Dispatch all 8 recon guppies in parallel at the start of Phase 1. Use the Agent 
 
 - `subagent_type: general-purpose`
 - `model: haiku`
+- `mode: auto`
 - `name: recon-{domain}-{n}-{bead-id}` (e.g., `recon-functionality-1-bead-042`)
 
 Each guppy produces exactly one output: `SIGNAL: {one-line description}` or `NO_SIGNAL`.

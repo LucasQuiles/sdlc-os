@@ -59,6 +59,7 @@ Launch guppies in parallel using the Agent tool:
 Agent tool:
   subagent_type: general-purpose
   model: haiku
+  mode: auto
   name: "guppy-{N}"
   description: "Guppy: {short directive summary}"
   prompt: |

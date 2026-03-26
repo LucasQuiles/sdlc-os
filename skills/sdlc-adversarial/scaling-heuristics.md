@@ -4,33 +4,46 @@ Rules for when to activate AQS, which domains to select, how to allocate guppy b
 
 ---
 
-## Complexity Assessment
+## Cynefin Domain Assessment
 
-Map each bead to a complexity tier before activating any domains. The tier determines the overall AQS behavior.
+Map each bead to a Cynefin domain before activating any AQS domains. The domain determines the overall AQS behavior and process depth.
 
-| Tier | AQS Behavior | Rationale |
+| Domain | AQS Behavior | Process Adjustments |
 |---|---|---|
-| **Trivial** | Skip entirely — bead goes `proven → merged` directly | Cost of AQS exceeds value for minimal-risk changes. Oracle coverage is sufficient. |
-| **Moderate** | Recon burst fires (all 8 guppies). Conductor selects 1–2 most relevant domains. Only HIGH/MED priority domains get directed strike. | Right-sized investment. Catches the most likely failure mode without full engagement. |
-| **Complex** | All four domains active. Full directed strike on HIGH/MED. Light sweep on LOW. Cycle 2 mandatory if Cycle 1 produced accepted or sustained fixes. | High change surface justifies full adversarial coverage. |
-| **Security-sensitive** | All four domains active regardless of file count or complexity. Security domain always HIGH. Cycle 2 mandatory. | Security failures compound — incomplete hardening is worse than no hardening because it creates false confidence. |
+| **Clear** | Skip AQS entirely — bead goes `proven → merged` directly. | L0 runner only. Auto-merge if tests pass. No Sentinel needed if error budget is healthy. |
+| **Complicated** | Recon burst fires (all 8 guppies). Conductor selects 1–2 most relevant domains. Only HIGH/MED priority domains get directed strike. | Standard loop depth (L0-L2 + AQS). Expert review by domain-specific agents. |
+| **Complex** | All four domains active. Full directed strike on HIGH/MED. Light sweep on LOW. Cycle 2 governed by convergence assessment. | Bead spec MUST include safe-to-fail section (rollback plan). Feature flags recommended for new behavior. Full adversarial engagement. |
+| **Chaotic** | Skip AQS entirely. Act-first single runner. Fast-path approval. | Emergency process: single runner, L0 only, no Sentinel during execution. MANDATORY postmortem bead auto-created after merge — this bead goes through full Complicated-level review retroactively. |
+| **Confusion** | Block. Bead cannot be created until reclassifiable. | Force decomposition. The Conductor must break the work down until each piece is classifiable as Clear, Complicated, or Complex. If decomposition fails, escalate to user for clarification. |
 
-Security-sensitive overrides all other tier assessments. A 1-line change that touches auth is security-sensitive. A 50-file refactor that touches only internal types is Moderate.
+Security-sensitive overrides ALL domain assessments. A 1-line change that touches auth is security-sensitive regardless of Cynefin domain.
 
 ---
 
-## Complexity Signals
+## Cynefin Domain Signals
 
-Use these signals to assign the complexity tier. Check top-down — security-sensitive signals override everything else.
+Use these signals to assign the Cynefin domain. Check top-down — security-sensitive signals override everything. Chaotic/Confusion signals override Clear/Complicated/Complex.
 
-### Trivial signals (ALL must be true — one exception lifts the tier)
+### Chaotic signals (any one — act first, review later)
+- Production incident requiring immediate fix
+- Security vulnerability with evidence of active exploitation
+- Data corruption or loss currently in progress
+- User explicitly flags as emergency with time pressure
+
+### Confusion signals (any one — stop, decompose, reclassify)
+- Requirements contain contradictions that cannot be resolved without user input
+- Success criteria cannot be stated in observable, testable terms
+- Multiple valid interpretations exist with no way to choose between them
+- Bead scope cannot be bounded — it's unclear what is in and out of scope
+
+### Clear signals (ALL must be true — one exception lifts to Complicated)
 - Single file changed
 - Fewer than 50 lines changed
 - No new I/O operations introduced (no new database calls, HTTP calls, file reads/writes)
 - Internal refactor only — no changes to public API or exported interface
 - Documentation-only changes (comments, README, docstrings with no behavioral impact)
 
-### Moderate signals (any one is sufficient)
+### Complicated signals (any one is sufficient)
 - 2–5 files changed
 - New function or module introduced that is not externally exposed
 - New error handling paths added to existing code
@@ -39,11 +52,11 @@ Use these signals to assign the complexity tier. Check top-down — security-sen
 ### Complex signals (any one is sufficient)
 - 5 or more files changed
 - New external integration introduced (new HTTP client, new database, new third-party service)
-- Changes to authentication or authorization logic
 - Changes to data model (new tables, new schema fields, new serialization format)
 - New asynchronous patterns introduced (new queues, new event emitters, new background jobs)
+- Cross-service refactoring affecting multiple module boundaries
 
-### Security-sensitive overrides (any one forces security-sensitive tier regardless of file count)
+### Security-sensitive overrides (any one forces security-sensitive tier regardless of domain)
 - Any user-supplied input reaches a new code path (new route, new parameter, new field)
 - Changes to authentication logic (login, token validation, session management)
 - Changes to authorization logic (permission checks, role validation, ownership checks)

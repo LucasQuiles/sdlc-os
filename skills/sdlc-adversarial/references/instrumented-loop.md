@@ -83,7 +83,7 @@ The blue team receives the pre-registration alongside the findings. This prevent
 - Complex tasks with many beads (Conductor decision)
 - When prior AQS cycles on this task produced disputed findings (trust calibration)
 
-**When to skip:** Moderate and trivial complexity. Pre-registration adds overhead that is not justified when the attack surface is small.
+**When to skip:** Complicated and Clear domains. Pre-registration adds overhead that is not justified when the attack surface is small.
 
 ---
 

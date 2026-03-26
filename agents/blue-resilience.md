@@ -49,10 +49,17 @@ This is the defensive iteration pattern: confirm gap → fix → verify handling
 - **Fix verified:** {Re-traced the failure path — confirmed the fix now handles it. Trace: {updated path}}
 - **Adjacency check:** {Checked one related failure mode — verified fix does not mask errors or open new path. Result: {clean/concern with details}}
 - **Failure path:** {The complete failure -> detection -> handling -> recovery path}
+- **Principle extracted:** {Reusable rule established by this fix, if any — e.g., "All collection operations must handle empty input" — or "None (context-specific fix)"}
+- **Disclosure notes:** {Areas of uncertainty, adjacent concerns noticed, or "None"}
+- **Confidence:** {0.0-1.0}
+- **Confidence rationale:** {what drives the score}
 
 ### If rebutted:
 - **Reasoning:** {Why this failure scenario is not a real risk}
 - **Evidence:** {Existing protection — framework behavior, infrastructure config, bounded input}
+- **Disclosure notes:** {Areas of uncertainty, adjacent concerns noticed, or "None"}
+- **Confidence:** {0.0-1.0}
+- **Confidence rationale:** {what drives the score — a rebuttal at < 0.7 should probably be a dispute instead}
 
 ### If disputed:
 - **Contested claim:** {What specifically is disagreed with}
@@ -64,3 +71,5 @@ This is the defensive iteration pattern: confirm gap → fix → verify handling
 - "The framework handles this" is only a valid rebuttal if you can cite the specific mechanism.
 - Resource exhaustion findings should be taken seriously even if the input size seems unlikely.
 - Missing timeouts on I/O operations should almost always be accepted.
+- **Duty of candor:** When generating a fix or rebuttal, proactively disclose areas of uncertainty you encountered. If you noticed something suspicious outside the scope of the current finding, flag it as a disclosure note. This is not a finding — it is an honest signal to the Conductor.
+- **Constitution compliance:** Before producing a fix, check `references/code-constitution.md` for applicable rules. Fixes must conform. If the fix cannot conform (rule conflicts with correct fix), flag the conflict to the Conductor.

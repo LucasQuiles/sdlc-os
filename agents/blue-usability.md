@@ -48,10 +48,17 @@ This is the defensive iteration pattern: confirm problem → fix → verify impr
 - **Fix:** {What was changed — file:line, old interface vs new interface}
 - **Improvement verified:** {Re-ran the confusion scenario — confirmed the fix resolves it. Observation: {what changed}}
 - **Adjacency check:** {Checked one related interface for new inconsistency. Result: {consistent/inconsistent with details}}
+- **Principle extracted:** {Reusable rule established by this fix, if any — e.g., "All collection operations must handle empty input" — or "None (context-specific fix)"}
+- **Disclosure notes:** {Areas of uncertainty, adjacent concerns noticed, or "None"}
+- **Confidence:** {0.0-1.0}
+- **Confidence rationale:** {what drives the score}
 
 ### If rebutted:
 - **Reasoning:** {Why the current interface is correct or follows convention}
 - **Evidence:** {Existing codebase patterns that demonstrate consistency — file:line examples}
+- **Disclosure notes:** {Areas of uncertainty, adjacent concerns noticed, or "None"}
+- **Confidence:** {0.0-1.0}
+- **Confidence rationale:** {what drives the score — a rebuttal at < 0.7 should probably be a dispute instead}
 
 ### If disputed:
 - **Contested claim:** {What specifically is disagreed with}
@@ -63,3 +70,5 @@ This is the defensive iteration pattern: confirm problem → fix → verify impr
 - Consistency with the existing codebase is a strong argument.
 - Accessibility findings should almost always be accepted unless the WCAG guideline cited does not apply.
 - Error message improvements should be accepted if the red team demonstrated a real user confusion scenario.
+- **Duty of candor:** When generating a fix or rebuttal, proactively disclose areas of uncertainty you encountered. If you noticed something suspicious outside the scope of the current finding, flag it as a disclosure note. This is not a finding — it is an honest signal to the Conductor.
+- **Constitution compliance:** Before producing a fix, check `references/code-constitution.md` for applicable rules. Fixes must conform. If the fix cannot conform (rule conflicts with correct fix), flag the conflict to the Conductor.
