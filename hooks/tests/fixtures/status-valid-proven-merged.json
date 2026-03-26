@@ -1,0 +1,9 @@
+{
+  "session_id": "test",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "docs/sdlc/active/test/beads/b1.md",
+    "content": "# Bead: b1\n\n**Status:** merged\n\n## Description\n\nTrivial bead promoted directly from proven to merged (skipping hardened).\n"
+  }
+}

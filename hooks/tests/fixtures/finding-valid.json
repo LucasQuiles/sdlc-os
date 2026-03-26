@@ -1,0 +1,9 @@
+{
+  "session_id": "test",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "docs/sdlc/active/test/adversarial/findings-b1.md",
+    "content": "# Findings: b1\n\n## Finding: F1\n\n**Domain:** security\n**Severity:** high\n**Claim:** The authentication token is not rotated after privilege escalation, enabling session fixation attacks.\n**Minimal reproduction:** Log in, escalate privilege, reuse the original token to access admin endpoints.\n**Impact:** Attacker with pre-escalation token can maintain admin access indefinitely.\n**Evidence:** Manual test confirmed token reuse across privilege boundary in staging environment.\n**Confidence:** Verified\n"
+  }
+}

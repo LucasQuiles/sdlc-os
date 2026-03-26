@@ -1,0 +1,9 @@
+{
+  "session_id": "test",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "docs/sdlc/active/test/beads/b1.md",
+    "content": "# Bead: b1\n\n**Status:** hardened\n\n## Description\n\nThis fixture documents the intent to test the verified->hardened transition guard.\nThe transition verified->hardened is NEVER valid; the bead must pass through proven first.\nNote: in the test environment, git has no previous version of this file, so the\nguard exits 0 (cannot determine previous status). The fixture records the design intent.\n"
+  }
+}
