@@ -1,9 +1,9 @@
 # SDLC-OS Enforcement Hooks v2 — Design Spec
 
 **Date:** 2026-03-25
-**Status:** Approved (pending implementation)
+**Status:** Implemented (commit c1b8e6c)
 **Plugin:** sdlc-os v4+
-**Scope:** 3 new hook scripts, 1 shared library, 11 test fixtures, 2 updated files
+**Scope:** 3 new hook scripts, 1 shared library, 11 test fixtures, 4 updated files (hooks.json, guard-bead-status.sh, convention-scanner.md, test-hooks.sh)
 
 ---
 
@@ -456,19 +456,10 @@ The contract:
 5. Section ends at the next `###` heading, `---` separator, or EOF
 6. The `## Inconsistencies` section at the bottom may use table format for conflicts — this is the only table in the map
 
-**Convention-scanner update required:** The scanner agent's output template must be updated to produce `**Convention:**` and `**Scope:**` fields instead of the current `**Pattern:**` free-form text. This is a prerequisite for the hooks to work reliably.
+**Convention-scanner update:** The scanner agent's output template was updated to produce `**Convention:**` and `**Scope:**` fields (commit `24be911`). This is a prerequisite for the hooks and is now complete.
 
 ---
 
-## Implementation Order
+## Implementation Status
 
-1. Update `agents/convention-scanner.md` — change output template from `**Pattern:**` to `**Convention:**` + `**Scope:**` fields (prerequisite for hooks)
-2. `hooks/lib/common.sh` — shared library (no dependencies)
-3. `hooks/scripts/check-naming-convention.sh` — PreToolUse hook (depends on common.sh + scanner update)
-4. `hooks/scripts/validate-consistency-artifacts.sh` — PostToolUse hook (depends on common.sh)
-5. `hooks/scripts/validate-runner-output.sh` — SubagentStop hook (depends on common.sh)
-6. Refactor `hooks/scripts/guard-bead-status.sh` — source common.sh for canonicalize_path (depends on step 2)
-7. Update `hooks/hooks.json` — register new hooks
-8. Create 11 test fixtures
-9. Update `hooks/tests/test-hooks.sh` — add `run_test_advisory` + 11 new test cases
-10. Run full test suite — verify 32/32 pass (21 existing + 11 new)
+All steps completed. See `docs/superpowers/plans/2026-03-26-enforcement-hooks-v2.md` for the full implementation plan and commit history. Test suite: 32/32 PASS.
