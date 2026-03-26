@@ -100,7 +100,7 @@ When a dimension is Inconsistent:
 
 Before writing the Convention Map, check two sources:
 
-1. **`docs/sdlc/reuse-patterns.md`** — If it exists, verify that canonical sources identified there are consistent with your findings. Note any divergence.
+1. **`references/reuse-patterns.md`** — If it exists, verify that canonical sources identified there are consistent with your findings. Note any divergence.
 2. **`docs/sdlc/code-constitution.md`** — If it exists, this document contains human-approved overrides. Conventions declared there take precedence over observed patterns for their stated dimensions. Mark those dimensions as `[Constitution override]` in the map.
 
 ## Required Output Format

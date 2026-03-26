@@ -121,7 +121,7 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 **What:** Assess session entry state. Detect existing work, recover SDLC state, or confirm clean start.
 **How:** Dispatch `normalizer` agent. See `sdlc-os:sdlc-normalize` for full protocol.
 **Depth detection:**
-  - Clean state → no-op (&lt;5 seconds), proceed to Phase 1
+  - Clean state → no-op (<5 seconds), proceed to Phase 1
   - Partial SDLC artifacts → resume protocol: read state.md + beads, recover Cynefin assignments and quality budget, recommend re-entry phase
   - Unstructured changes → full normalization: check/create Convention Map via `convention-scanner`, assess changes against Convention Map + code-constitution, produce normalization directives (require user approval), dispatch `gap-analyst` Finder mode on existing work
 **Output:** Normalization report (or no-op confirmation). Directives require user approval before execution.
