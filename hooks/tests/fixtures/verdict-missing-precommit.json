@@ -1,0 +1,9 @@
+{
+  "session_id": "test",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "docs/sdlc/active/test/adversarial/verdicts-b1.md",
+    "content": "# Verdicts: b1\n\n## Verdict: F1\n\n**Decision:** SUSTAINED\n**Red team claim:** Authentication tokens are not rotated after privilege escalation, enabling session fixation.\n**Blue team position:** Token rotation was not implemented because the session handler was considered out of scope.\n**Test designed:** Automated test: escalate privilege, reuse original token, assert 401.\n**Test result:** Test confirmed finding — original token accepted post-escalation.\n**Reasoning:** The finding is valid and confirmed by the designed test.\n**Dispute contract locked:** Yes\n**Residual uncertainty:** None\n"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "session_id": "test",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "src/index.ts",
+    "content": "export default {}"
+  }
+}

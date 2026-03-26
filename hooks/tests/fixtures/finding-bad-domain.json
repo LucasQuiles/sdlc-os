@@ -1,0 +1,9 @@
+{
+  "session_id": "test",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "docs/sdlc/active/test/adversarial/findings-b1.md",
+    "content": "# Findings: b1\n\n## Finding: F1\n\n**Domain:** correctness\n**Severity:** medium\n**Claim:** The output calculation produces incorrect results for edge-case inputs.\n**Minimal reproduction:** Pass input value 0 to the compute function and observe wrong result.\n**Impact:** Incorrect outputs silently propagate through downstream processing.\n**Evidence:** Unit test demonstrates incorrect result for zero-valued input.\n**Confidence:** Verified\n"
+  }
+}

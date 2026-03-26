@@ -1,0 +1,9 @@
+{
+  "session_id": "test",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "docs/sdlc/active/test/adversarial/findings-b1.md",
+    "content": "# Findings: b1\n\n## Finding: F1\n\n**Domain:** security\n**Severity:** high\n**Claim:** The authentication token is not rotated after privilege escalation.\n**Minimal reproduction:** Log in, escalate privilege, reuse original token to access admin endpoints.\n**Impact:** Attacker maintains admin access using pre-escalation token.\n**Evidence:** Manual test confirmed token reuse across privilege boundary.\n**Confidence:** Verified\n\n## Finding: F2\n\n**Domain:** functionality\n**Severity:** medium\n**Claim:** Search results are not paginated, causing memory exhaustion on large datasets.\n**Minimal reproduction:** Execute a search query that returns more than 10,000 results.\n"
+  }
+}

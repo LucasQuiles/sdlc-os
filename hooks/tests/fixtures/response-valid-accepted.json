@@ -1,0 +1,9 @@
+{
+  "session_id": "test",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "docs/sdlc/active/test/adversarial/responses-b1.md",
+    "content": "# Responses: b1\n\n## Response: F1\n\n**Action:** accepted\n**Pre-fix reproduction:** Confirmed token reuse: logged in, escalated to admin, used original token — admin endpoint returned 200.\n**Fix:** Added token rotation in the privilege escalation handler; new token issued and old token invalidated on escalation.\n**Post-fix reproduction:** After fix, reusing the original token after escalation returns 401 Unauthorized.\n**Regression check:** Existing session management tests all pass; no adjacent token-handling paths affected.\n"
+  }
+}

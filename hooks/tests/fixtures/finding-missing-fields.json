@@ -1,0 +1,9 @@
+{
+  "session_id": "test",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "docs/sdlc/active/test/adversarial/findings-b1.md",
+    "content": "# Findings: b1\n\n## Finding: F1\n\n**Domain:** security\n**Severity:** high\n**Claim:** The authentication token is not rotated after privilege escalation.\n**Evidence:** Manual test confirmed token reuse in staging.\n**Confidence:** Verified\n"
+  }
+}
