@@ -117,7 +117,8 @@ _Status: [Draft — pending Conductor review | Approved]_
 ## Scanned Dimensions
 
 ### [Dimension Name]
-- **Pattern:** [description of dominant pattern]
+- **Convention:** [keyword from fixed vocabulary: kebab-case | PascalCase | camelCase | snake_case | UPPER_SNAKE_CASE]
+- **Scope:** [comma-separated directory prefixes, e.g., lib/storage/, lib/utils/]
 - **Confidence:** [label, e.g., Verified 5/5]
 - **Evidence:**
   - `path/to/file.ts:42` — [symbol or line excerpt]
