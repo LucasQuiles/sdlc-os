@@ -29,6 +29,41 @@ run_test() {
   fi
 }
 
+run_test_advisory() {
+  local test_name="$1"
+  local hook_script="$2"
+  local fixture_file="$3"
+  local expect_warning="$4"  # "yes" or "no"
+
+  local actual_exit=0
+  local stderr_output
+  stderr_output=$(cat "$fixture_file" | bash "$hook_script" 2>&1 1>/dev/null) || actual_exit=$?
+
+  if [[ "$actual_exit" -ne 0 ]]; then
+    echo "  FAIL: $test_name (advisory hook exited $actual_exit, must be 0)"
+    FAIL=$((FAIL + 1))
+    return
+  fi
+
+  if [[ "$expect_warning" == "yes" ]]; then
+    if echo "$stderr_output" | grep -q "HOOK_WARNING:"; then
+      echo "  PASS: $test_name (exit 0, warning emitted)"
+      PASS=$((PASS + 1))
+    else
+      echo "  FAIL: $test_name (exit 0, but expected HOOK_WARNING not found)"
+      FAIL=$((FAIL + 1))
+    fi
+  else
+    if echo "$stderr_output" | grep -q "HOOK_WARNING:"; then
+      echo "  FAIL: $test_name (exit 0, but unexpected HOOK_WARNING: $stderr_output)"
+      FAIL=$((FAIL + 1))
+    else
+      echo "  PASS: $test_name (exit 0, no warning)"
+      PASS=$((PASS + 1))
+    fi
+  fi
+}
+
 echo "=== Bead Status Guard Tests ==="
 
 run_test "valid: pending->running" \
@@ -231,6 +266,59 @@ JSON
 }
 
 run_integration_guard_test
+
+echo ""
+echo "=== Naming Convention Hook Tests (advisory) ==="
+
+run_test_advisory "valid: kebab-case in mapped dir" \
+  "$HOOKS_DIR/check-naming-convention.sh" \
+  "$FIXTURES_DIR/naming-valid-create.json" "no"
+
+run_test_advisory "warning: camelCase in kebab-case dir" \
+  "$HOOKS_DIR/check-naming-convention.sh" \
+  "$FIXTURES_DIR/naming-violation-create.json" "yes"
+
+run_test_advisory "warning: unmapped source directory" \
+  "$HOOKS_DIR/check-naming-convention.sh" \
+  "$FIXTURES_DIR/naming-unmapped-dir.json" "yes"
+
+run_test_advisory "skip: vendor path (node_modules)" \
+  "$HOOKS_DIR/check-naming-convention.sh" \
+  "$FIXTURES_DIR/naming-vendor-skip.json" "no"
+
+echo ""
+echo "=== Consistency Artifact Validation Tests (advisory) ==="
+
+run_test_advisory "valid: feature matrix with correct row" \
+  "$HOOKS_DIR/validate-consistency-artifacts.sh" \
+  "$FIXTURES_DIR/artifact-valid-matrix.json" "no"
+
+run_test_advisory "warning: feature matrix with invalid ID/severity/status" \
+  "$HOOKS_DIR/validate-consistency-artifacts.sh" \
+  "$FIXTURES_DIR/artifact-invalid-matrix.json" "yes"
+
+run_test_advisory "valid: convention report with required sections" \
+  "$HOOKS_DIR/validate-consistency-artifacts.sh" \
+  "$FIXTURES_DIR/artifact-valid-convention-report.json" "no"
+
+run_test_advisory "warning: convention report missing sections" \
+  "$HOOKS_DIR/validate-consistency-artifacts.sh" \
+  "$FIXTURES_DIR/artifact-invalid-convention-report.json" "yes"
+
+echo ""
+echo "=== Runner Output Validation Tests (advisory) ==="
+
+run_test_advisory "valid: runner output with all sections" \
+  "$HOOKS_DIR/validate-runner-output.sh" \
+  "$FIXTURES_DIR/runner-output-valid.json" "no"
+
+run_test_advisory "warning: runner output missing sections" \
+  "$HOOKS_DIR/validate-runner-output.sh" \
+  "$FIXTURES_DIR/runner-output-missing-sections.json" "yes"
+
+run_test_advisory "warning: runner output with convention signal" \
+  "$HOOKS_DIR/validate-runner-output.sh" \
+  "$FIXTURES_DIR/runner-output-convention-signal.json" "yes"
 
 echo ""
 echo "=== Results ==="
