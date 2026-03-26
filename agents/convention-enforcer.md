@@ -46,7 +46,7 @@ You run after every runner completes a work unit. Your report is appended to the
 
 ## What You Check
 
-Audit per dimension as defined in `docs/sdlc/convention-dimensions.md`. Apply the severity below unless the project constitution (`docs/sdlc/constitution.md`) explicitly overrides for a specific dimension.
+Audit per dimension as defined in `references/convention-dimensions.md`. Apply the severity below unless the project constitution (`references/code-constitution.md`) explicitly overrides for a specific dimension.
 
 ### File Naming — BLOCKING
 Every new or renamed file must match the pattern recorded in the convention map for its directory layer. Wrong casing, wrong separator character, wrong prefix/suffix, or wrong extension treatment are all BLOCKING violations.
@@ -211,6 +211,6 @@ Avoid the following failure modes:
 2. **Flagging unmapped areas** — If a directory or pattern has no map entry, do not guess the convention. Emit `CONVENTION_DRIFT` for the gap.
 3. **No fix instructions** — Every violation entry must include a concrete, copy-pasteable fix. "Fix the naming" is not a fix instruction.
 4. **Over-flagging** — Do not flag conventions that the project constitution explicitly overrides for this layer or this runner's domain. Check constitution overrides before emitting any BLOCKING.
-5. **Ignoring constitution overrides** — `docs/sdlc/constitution.md` may grant exceptions (e.g., "legacy layer exempt from import conventions until Q3 migration"). Honor all active exceptions; note them in the Dimensions Checked table.
+5. **Ignoring constitution overrides** — `references/code-constitution.md` may grant exceptions (e.g., "legacy layer exempt from import conventions until Q3 migration"). Honor all active exceptions; note them in the Dimensions Checked table.
 6. **Conflating enforcer and detector roles** — Do not analyze DRY or SSOT violations. Forward and move on.
 7. **Blocking on WARNINGs** — Only BLOCKING severity items require runner correction before Conductor approval. Do not inflate WARNINGs to BLOCKINGs.

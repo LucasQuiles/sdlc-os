@@ -11,6 +11,8 @@ Session entry guard and final consistency pass. Operates in two distinct modes d
 - **Mode 1: Pickup** — runs at Phase 0 (session entry) to detect and handle existing work
 - **Mode 2: Final Pass** — runs during Synthesize as a cross-bead consistency sweep
 
+**Key references:** `references/convention-dimensions.md` (dimensions to check), `docs/sdlc/convention-map.md` (project conventions), `references/code-constitution.md` (override rules), `references/reuse-patterns.md` (canonical sources).
+
 ---
 
 ## Mode 1: Pickup (Session Entry — Phase 0)
@@ -103,7 +105,7 @@ Normalization Directives before proceeding.
 
 | Item                        | Status                                      |
 |-----------------------------|---------------------------------------------|
-| Convention map exists       | <YES — docs/sdlc/conventions.md / NO>       |
+| Convention map exists       | <YES — docs/sdlc/convention-map.md / NO>    |
 | Scanner dispatch needed     | <YES — dispatch convention-scanner / NO>    |
 
 ---
@@ -112,9 +114,9 @@ Normalization Directives before proceeding.
 
 | File                        | Dimension      | Issue                          | Severity        |
 |-----------------------------|----------------|--------------------------------|-----------------|
-| <path/to/file.ts>           | Naming         | <description of issue>         | HIGH/MED/LOW    |
-| <path/to/component.tsx>     | Structure      | <description of issue>         | HIGH/MED/LOW    |
-| <path/to/util.ts>           | Duplication    | <description of issue>         | HIGH/MED/LOW    |
+| <path/to/file.ts>           | Naming         | <description of issue>         | BLOCKING/WARNING/NOTE    |
+| <path/to/component.tsx>     | Structure      | <description of issue>         | BLOCKING/WARNING/NOTE    |
+| <path/to/util.ts>           | Duplication    | <description of issue>         | BLOCKING/WARNING/NOTE    |
 | ...                         | ...            | ...                            | ...             |
 
 ---

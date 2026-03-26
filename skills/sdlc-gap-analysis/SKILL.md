@@ -32,7 +32,7 @@ Produce a completeness map that tells the Architect exactly which beads are need
 
    ```
    Agent tool:
-     subagent_type: general-purpose
+     subagent_type: sdlc-os:gap-analyst
      mode: auto
      name: "gap-analyst-finder"
      description: "Feature Finder: map requirements against codebase before implementation"
@@ -87,7 +87,7 @@ Verify that the delivered code actually satisfies the original requirements. Cat
 
    ```
    Agent tool:
-     subagent_type: general-purpose
+     subagent_type: sdlc-os:gap-analyst
      mode: auto
      name: "gap-analyst-finisher"
      description: "Feature Finisher: verify delivery completeness after all beads merged"
@@ -147,7 +147,7 @@ Gap analysis findings feed directly into the quality error budget.
 
 - **NOT_DELIVERED criteria** (MISSING or INCOMPLETE in the Finisher Report) count against the delivery quality SLO. Each unmet criterion is a quality debit.
 - **HIGH-severity inferred gaps** may trigger an error budget warning if the count exceeds the session threshold. The Conductor flags this to the user before proceeding.
-- **Closing Checklist items** that are deferred (not resolved) are logged as known debt in `references/known-debt.md`. Known debt is surfaced at the next session start and tracked across tasks.
+- **Closing Checklist items** that are deferred (not resolved) are logged as known debt in the task's delivery summary (`docs/sdlc/active/{task-id}/delivery.md`). Known debt is surfaced by the normalizer at the next session start.
 
 ---
 
