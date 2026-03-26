@@ -1,0 +1,9 @@
+{
+  "session_id": "test",
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "docs/sdlc/active/test/beads/b1-convention-report.md",
+    "content": "## Convention Enforcement Report: Bead b1\n\nSome text but no required sections.\n"
+  }
+}

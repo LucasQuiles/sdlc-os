@@ -1,0 +1,6 @@
+{
+  "session_id": "test",
+  "hook_event_name": "SubagentStop",
+  "agent_name": "runner-b1",
+  "output": "## Implementation Summary\n\nImplemented payment processing.\n\n## Files Changed\n- `lib/storage/payments-storage.ts`\n\n## Status\n**Status:** DONE\n\n## Reuse Report\n### Reused\n- formatCurrency from lib/utils/currency-utils.ts\n### Created New\n- processRefund — Justification: no existing refund logic\n"
+}

@@ -1,0 +1,6 @@
+{
+  "session_id": "test",
+  "hook_event_name": "SubagentStop",
+  "agent_name": "runner-b3",
+  "output": "## Implementation Summary\n\nAdded user ID generation.\n\n## Files Changed\n- `lib/storage/users-storage.ts`\n\nCode:\n```typescript\nconst id = Math.random().toString(36);\n```\n\n## Status\n**Status:** DONE\n"
+}
