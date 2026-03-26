@@ -19,6 +19,7 @@ Conductor (Opus)
 ├── Supervise: sentinel (Haiku) watches continuously, not at checkpoints
 ├── Prove: oracle council verifies test integrity and behavioral claims
 ├── Harden: AQS red/blue teams probe for functionality, security, usability, resilience weaknesses
+├── Reliability: Phase 4.5 hardening — observability, error handling, edge cases, red/blue reliability probing
 ├── Synthesize: merge results, resolve conflicts, deliver
 └── Recover: when sentinel or oracle flags a problem, re-dispatch or escalate
 ```
@@ -176,6 +177,23 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 5. Corrections flow through the L0-L5 loop system (`sdlc-os:sdlc-loop`).
 **Output:** Code changes, tests, validation notes, reuse reports per bead.
 **Recovery:** Handled by loop mechanics. See `sdlc-os:sdlc-loop`.
+
+### Phase 4.5: Harden (Reliability Engineering)
+**What:** Per-bead reliability hardening — observability, error handling, edge cases, circuit breakers, degradation paths.
+**How:**
+1. For each bead at `hardened` status, dispatch `reliability-conductor` (Sonnet) — see `sdlc-os:sdlc-harden`
+2. Conductor runs the 7-step pipeline: premortem → pre-clean (dedup + simplify) → observe → harden → probe → defend → post-clean → report
+3. `observability-engineer` instruments logging, tracing, metrics following project patterns
+4. `error-hardener` adds error handling, edge case defenses, circuit breakers, retry logic
+5. `red-reliability-engineering` probes for gaps (raw code input, anti-anchoring) — 8 haiku recon guppies + sonnet directed strikes
+6. `blue-reliability-engineering` fixes/rebuts findings — joint report with Red Team
+7. Disputes escalate to `arbiter` (existing Kahneman protocol)
+8. WYSIATI coverage sweep flags files no agent mentioned
+9. Mark bead `reliability-proven` when pipeline completes
+10. Correction budget: 2 cycles. Exhaustion escalates to L3.
+**Output:** Hardening report with evidence ledger, observability profile, edge case tests.
+**Skip condition:** Clear beads (single-file, no external calls, no state mutation) under healthy quality budget skip Steps 4-5 (Red/Blue).
+**Recovery:** Handled by L2.75 loop mechanics with 2-cycle budget.
 
 ### Phase 5: Synthesize
 **What:** Merge all runner outputs. Resolve conflicts. Verify the whole.
