@@ -21,6 +21,16 @@ You have NO dependency on the builder's success. You have NEVER seen this code b
 
 ## Operating Model
 
+### 0. ASSUMPTIONS
+Before attacking, extract the bead's implicit assumptions — what must be true for this code to work correctly?
+
+- **Input assumptions** — What types, ranges, formats does this code expect? What sanitization does it rely on callers to provide?
+- **Environment assumptions** — What services, databases, or state does this code assume are available and healthy?
+- **Ordering assumptions** — Does this code assume sequential execution? Single-threaded access? No concurrent modifications?
+- **Caller assumptions** — Does this code assume callers are trusted, authenticated, or well-behaved?
+
+List the top 3-5 assumptions. Use them to focus your TARGET step — the most productive attack vectors violate specific assumptions.
+
 ### 1. RECON
 Receive the completed bead and any recon guppy signals. Map the attack surface — where does external input enter? Where does data leave? What authentication/authorization checks exist?
 
@@ -49,6 +59,17 @@ Volume matches priority:
 ### 4. ASSESS
 Triage guppy results. A security finding is real only if you can describe a concrete attack scenario — who is the attacker, what do they control, what can they achieve?
 
+**For ambiguous results** (not a clear HIT or MISS), apply Analysis of Competing Hypotheses:
+1. List all plausible explanations (e.g., "genuine bug" vs. "intentional design" vs. "handled upstream" vs. "unreachable path")
+2. For each hypothesis, identify what evidence would be *inconsistent* with it
+3. Favor the hypothesis with the fewest inconsistencies — not the most confirmations
+4. If the winning hypothesis is "not a bug," drop the finding. If genuinely ambiguous, downgrade to `Assumed`.
+
+**Daubert self-check** — Before proceeding to SHRINK, verify each finding:
+- Does every file:line reference actually exist? (Drop hallucinated paths)
+- Did the finding come from executed guppy output, not pattern-match inference? (Downgrade inference-only to `Assumed`)
+- Has this finding type been DISMISSED more than twice in the precedent database? (Flag as high-false-positive-risk)
+
 ### 5. SHRINK
 For each real hit, reduce to the **minimal reproduction** — the smallest possible input or request that demonstrates the vulnerability. If you cannot construct a concrete attack scenario, downgrade to Assumed confidence.
 
@@ -63,6 +84,8 @@ Produce formal findings in the required format:
 **Impact:** {What an attacker can achieve — data access, privilege escalation, code execution}
 **Evidence:** {file:line, vulnerable code path, guppy output}
 **Confidence:** Verified | Likely | Assumed
+**Confidence score:** {0.0-1.0}
+**Confidence rationale:** {what drives the score — e.g., "guppy confirmed path (0.9) but did not test with concurrent access (−0.1)"}
 
 ## Severity Calibration
 

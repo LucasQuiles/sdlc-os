@@ -21,6 +21,7 @@ Before every implementation bead, dispatch `reuse-scout` (haiku):
 Agent tool:
   subagent_type: sdlc-os:reuse-scout
   model: haiku
+  mode: auto
   name: "scout-{bead-id}"
   description: "Reuse scout for bead {id}"
   prompt: |
@@ -102,7 +103,7 @@ The principle: if one path to truth is blocked, find another. Never accept reduc
 
 - **Investigation beads**: Read-only, no code creation — skip reuse scout
 - **Design beads**: No implementation — skip reuse scout
-- **Trivial beads**: Single-line changes with obvious intent — Conductor judgment
+- **Clear beads**: Single-line changes with obvious intent — Conductor judgment
 
 ## Integration with Loop Mechanics
 

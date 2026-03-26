@@ -18,6 +18,28 @@ The Arbiter does NOT fire on:
 
 ## The Protocol
 
+### Step 0: Precedent Lookup
+
+Before engaging the full Kahneman protocol, check for prior rulings on substantially similar disputes.
+
+1. Search `references/precedent-system.md` for entries matching: domain + finding type + core disagreement type
+2. **Match found — Follow or Distinguish:**
+   - If the current dispute is substantially similar to the precedent: apply the same ruling. Issue a verdict citing the precedent. Format: `**Precedent applied:** {verdict-id} — {rule established}`. No test design, no execution needed. This resolves the dispute immediately.
+   - If the current dispute differs materially: document what is different (`**Precedent distinguished:** {verdict-id} — differs because {reason}`). Proceed to Step 1.
+3. **No match found:** Proceed to Step 1.
+
+**What constitutes "substantially similar":**
+- Same domain (e.g., both security findings)
+- Same finding type (e.g., both about missing input validation)
+- Same core disagreement (e.g., both existence disputes)
+- Similar code context (e.g., both involve REST endpoints handling user input)
+
+**What justifies distinguishing:**
+- Different deployment context (e.g., internal tool vs. public-facing API)
+- Different trust boundary (e.g., authenticated users vs. anonymous)
+- Code has been architecturally restructured since precedent was set
+- The precedent's reasoning relied on a defense that no longer exists
+
 ### Step 1: Dispute Intake and Pre-Registration
 
 Assemble the complete dispute package AND lock the dispute contract before doing any analysis:
@@ -44,6 +66,9 @@ Assemble the complete dispute package AND lock the dispute contract before doing
 
 **Timebox:**
 {Maximum time/token budget for this arbitration — default: one guppy dispatch + one file read. Complex disputes may get two rounds.}
+
+**Precedent applied:** {verdict-id and rule — or "None (no matching precedent)"}
+**Precedent distinguished:** {verdict-id and reason — or "N/A"}
 
 ### Bead Context
 {Bead objective, scope, affected files — enough to understand the domain}
@@ -103,6 +128,17 @@ Capture the raw output. Do not editorialize the result before writing the verdic
 
 ### Step 5: Verdict
 
+**Mediating Assessments Protocol (MAP):** Before writing the holistic verdict, score four dimensions independently. Score each dimension BEFORE considering the others — do not let one dimension bias another.
+
+| Dimension | What it measures | 1 | 3 | 5 |
+|-----------|-----------------|---|---|---|
+| **Evidence strength** | How concrete is the red team's demonstration? | Theoretical only — no code trace | Partial trace — some code paths verified | Full reproduction — end-to-end demonstration |
+| **Impact severity** | If real, how bad is the consequence? | Cosmetic — no functional effect | Degraded functionality — some users affected | Data loss, security breach, or service outage |
+| **Fix proportionality** | Is the cost of fixing proportional to the risk? | Massive refactor for minor issue | Moderate effort for moderate risk | Simple targeted fix for significant risk |
+| **Confidence in test** | How informative was the designed test? | Ambiguous — result could mean either | Suggestive — leans one way but not conclusive | Deterministic — clear pass/fail with unambiguous meaning |
+
+Record scores in the verdict. These scores inform but do not mechanically determine the verdict — they structure reasoning and prevent halo effects where one strong dimension biases assessment of others.
+
 Issue a binding verdict using the format in the next section. The verdict is one of:
 
 - **SUSTAINED** — The test confirmed the red team's claim. The issue is real. Blue team must produce a fix.
@@ -160,6 +196,14 @@ clean resolution, or specific description of what remains unknown}
 **If MODIFIED — adjusted scope/severity:** {What the finding becomes after
 adjustment. Include the revised severity level and the narrowed or expanded
 scope. Blue team must fix this adjusted version.}
+
+**Dimension scores:**
+- Evidence strength: {1-5}
+- Impact severity: {1-5}
+- Fix proportionality: {1-5}
+- Confidence in test: {1-5}
+
+**Precedent rule established:** {One reusable sentence — the principle this verdict establishes for future similar disputes}
 ```
 
 The verdict is written to `docs/sdlc/active/{task-id}/adversarial/verdicts-{bead-id}.md` immediately after it is issued. It does not wait for batch processing.

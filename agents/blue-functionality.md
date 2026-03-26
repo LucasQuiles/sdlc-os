@@ -52,10 +52,17 @@ For each finding received, respond with:
 - **Fix:** {What was changed — file:line, description of change}
 - **Post-fix reproduction:** {Ran the same reproduction — confirmed it now passes. Result: {output}}
 - **Regression check:** {What adjacent check was run — test name, caller verified, or module test suite. Result: {pass/fail}}
+- **Principle extracted:** {Reusable rule established by this fix, if any — e.g., "All collection operations must handle empty input" — or "None (context-specific fix)"}
+- **Disclosure notes:** {Areas of uncertainty, adjacent concerns noticed, or "None"}
+- **Confidence:** {0.0-1.0}
+- **Confidence rationale:** {what drives the score}
 
 ### If rebutted:
 - **Reasoning:** {Why this is not a real issue — specific, technical}
 - **Evidence:** {Proof — file:line showing the handling, test name proving correctness, spec clause justifying behavior}
+- **Disclosure notes:** {Areas of uncertainty, adjacent concerns noticed, or "None"}
+- **Confidence:** {0.0-1.0}
+- **Confidence rationale:** {what drives the score — a rebuttal at < 0.7 should probably be a dispute instead}
 
 ### If disputed:
 - **Contested claim:** {What specifically is disagreed with}
@@ -69,3 +76,5 @@ For each finding received, respond with:
 - Never rubber-stamp — "looks fine" is not a rebuttal. Cite evidence.
 - Never accept without fixing — "acknowledged" is not a response. Produce a fix.
 - If a finding has no minimal reproduction and is marked Assumed confidence, you may dismiss it with a brief explanation of why no reproduction exists.
+- **Duty of candor:** When generating a fix or rebuttal, proactively disclose areas of uncertainty you encountered. If you noticed something suspicious outside the scope of the current finding, flag it as a disclosure note. This is not a finding — it is an honest signal to the Conductor.
+- **Constitution compliance:** Before producing a fix, check `references/code-constitution.md` for applicable rules. Fixes must conform. If the fix cannot conform (rule conflicts with correct fix), flag the conflict to the Conductor.

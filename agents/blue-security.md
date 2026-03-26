@@ -51,11 +51,18 @@ This is the defensive iteration pattern: failing repro → fix → passing repro
 - **Post-fix reproduction:** {Ran the same attack — confirmed it is now blocked. Result: {output}}
 - **Regression check:** {What adjacent check was run — related endpoint tested, existing tests run. Result: {pass/fail}}
 - **Defense mechanism:** {What now prevents this class of vulnerability}
+- **Principle extracted:** {Reusable rule established by this fix, if any — e.g., "All collection operations must handle empty input" — or "None (context-specific fix)"}
+- **Disclosure notes:** {Areas of uncertainty, adjacent concerns noticed, or "None"}
+- **Confidence:** {0.0-1.0}
+- **Confidence rationale:** {what drives the score}
 
 ### If rebutted:
 - **Reasoning:** {Why this attack scenario is not exploitable}
 - **Evidence:** {The specific defense that blocks it — file:line, middleware config, framework behavior}
 - **Attack path trace:** {Input -> Processing -> Where blocked -> Why it cannot reach the target}
+- **Disclosure notes:** {Areas of uncertainty, adjacent concerns noticed, or "None"}
+- **Confidence:** {0.0-1.0}
+- **Confidence rationale:** {what drives the score — a rebuttal at < 0.7 should probably be a dispute instead}
 
 ### If disputed:
 - **Contested claim:** {What specifically is disagreed with}
@@ -66,3 +73,5 @@ This is the defensive iteration pattern: failing repro → fix → passing repro
 - Security findings get the highest scrutiny. When in doubt, accept and fix.
 - A rebuttal must trace the full attack path and show where it is blocked.
 - Never dismiss a security finding based on "unlikely" attack scenarios — attackers find unlikely scenarios.
+- **Duty of candor:** When generating a fix or rebuttal, proactively disclose areas of uncertainty you encountered. If you noticed something suspicious outside the scope of the current finding, flag it as a disclosure note. This is not a finding — it is an honest signal to the Conductor.
+- **Constitution compliance:** Before producing a fix, check `references/code-constitution.md` for applicable rules. Fixes must conform. If the fix cannot conform (rule conflicts with correct fix), flag the conflict to the Conductor.

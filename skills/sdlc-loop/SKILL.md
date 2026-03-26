@@ -156,6 +156,33 @@ LOOP (budget: 3 full passes):
   5. Budget exhausted → deliver what you have + explicit gap report to user.
 ```
 
+### Level 6: Calibration Loop (outermost — wraps multiple tasks)
+
+The calibration loop monitors system health across sessions. Unlike L0-L5 which run within tasks, L6 runs between tasks.
+
+```
+CALIBRATION LOOP (cadence: every 5th task or on Conductor suspicion):
+  1. Inject a calibration bead — known code with 3-5 planted defects across 2+ domains
+  2. Run through L1 (Sentinel) + L2 (Oracle) + L2.5 (AQS)
+  3. Compare detection results against known-planted defects
+  4. DETECTION RATE >= baseline → system is calibrated. Log and continue.
+  5. DETECTION RATE < baseline → system is drifting. Trigger investigation:
+     a. Which defect types were missed? (update regression watchlist)
+     b. Which agents failed to detect? (review agent prompts)
+     c. Has the constitution drifted? (rule review)
+  6. After recalibration, re-run calibration bead to verify improvement.
+```
+
+**Metric:** Detection rate of planted defects vs. established baseline.
+**Budget:** 1 calibration run. If the first run passes, no further action needed. If it fails, recalibrate and re-run once.
+**Key:** This is a system health check, not a task. It does not produce deliverable output — it produces confidence that the system is still working correctly.
+
+See `references/calibration-protocol.md` for full procedures including:
+- Drift signal detection (semantic, coordination, behavioral)
+- Regression watchlist maintenance
+- Noise audit protocol (consistency measurement)
+- LOSA observer integration
+
 ## Backpressure Cascade
 
 When an inner loop exhausts its budget, pressure flows outward — never inward.
@@ -228,6 +255,7 @@ The runner dispatch template now includes loop awareness:
 
 ```
 Agent tool:
+  mode: auto
   prompt: |
     You are a Runner executing one atomic work unit.
 

@@ -43,6 +43,8 @@ Bead proven -> Parallel Launch -> Cross-Reference -> Directed Strike -> Blue Tea
 **Impact:** {what goes wrong if unaddressed}
 **Evidence:** {file:line, guppy output, or test result}
 **Confidence:** Verified | Likely | Assumed
+**Confidence score:** {0.0-1.0}
+**Confidence rationale:** {what drives the score up/down}
 ```
 
 Note: If `Minimal reproduction` cannot be filled in, `Confidence` must be set to `Assumed`. Blue team may dismiss `Assumed` findings without rebuttal.
@@ -63,9 +65,23 @@ Note: If `Minimal reproduction` cannot be filled in, `Confidence` must be set to
 **If disputed:**
   - Contested claim: {what specifically is disagreed}
   - Proposed test: {what evidence would resolve this}
+**Confidence score:** {0.0-1.0}
+**Confidence rationale:** {what drives the score up/down}
 ```
 
 "Acknowledged" is not a response. "Looks fine" is not a rebuttal. Every response must produce evidence.
+
+### Fast-Track Response Format
+
+For uncontested medium/low severity findings (see SKILL.md Phase 4 for eligibility):
+
+```
+## Response: {Finding ID}
+**Action:** accepted-fast-track
+**Fix:** {file:line — one-line description}
+**Verification:** {one-line confirmation}
+**Confidence:** {0.0-1.0 with rationale}
+```
 
 ---
 
@@ -113,7 +129,7 @@ pending -> running -> submitted -> verified -> proven -> hardened -> merged
 
 - `verified` — Sentinel confirmed acceptance criteria are met
 - `proven` — Oracle confirmed claims are VORP-compliant
-- `hardened` — AQS confirmed code survives adversarial attack (or trivial bead skipped)
+- `hardened` — AQS confirmed code survives adversarial attack (or Clear bead skipped)
 - `merged` — Bead output incorporated into delivery
 
-Trivial beads skip AQS entirely: `proven -> merged`
+Clear beads skip AQS entirely: `proven -> merged`

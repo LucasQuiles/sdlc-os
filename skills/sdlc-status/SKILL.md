@@ -25,7 +25,7 @@ Read `docs/sdlc/active/*/state.md` and `docs/sdlc/active/*/beads/*.md` to render
 | {id} | investigate | pending | unassigned | — | — |
 
 Status flow: `pending → running → submitted → verified → proven → hardened → merged`
-(Trivial beads skip AQS: `proven → merged` directly)
+(Clear beads skip AQS: `proven → merged` directly)
 
 ### AQS Summary (non-trivial beads)
 - **Domains tested:** {e.g., security, functionality, usability, resilience}

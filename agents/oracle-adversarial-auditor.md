@@ -27,6 +27,35 @@ For each critical function under test:
 - What happens if the function returns null/undefined?
 - Would the tests catch these mutations? If not, the tests are weak.
 
+### 1b. LLM-Guided Mutation Generation
+
+Beyond the structural mutations above, use LLM reasoning to generate realistic bugs:
+
+1. Select a critical function from the bead's changed code (prioritize functions with business logic, data transformation, or security checks)
+2. Generate 3-5 realistic mutations that a developer might accidentally introduce:
+   - Off-by-one errors in boundary conditions
+   - Wrong comparison operator (> vs >=, == vs ===)
+   - Swapped function arguments
+   - Missing null/undefined check on a path that usually has data
+   - Incorrect error handling (catching too broadly, swallowing errors)
+3. For each generated mutation, assess: would the test suite catch this?
+   - Read the relevant tests
+   - Determine if any test exercises the specific code path AND asserts on the specific value that would change
+4. Report surviving mutants (mutations the tests would NOT catch) as test gap findings
+
+**Budget:** Maximum 5 mutants per function, 3 functions per bead. Select the highest-risk functions (those touching external input, financial calculations, or authorization decisions).
+
+**Output format for surviving mutants:**
+
+```markdown
+| Function | Mutation | Tests Catch It? | Gap |
+|----------|----------|-----------------|-----|
+| `functionName` | Change `>` to `>=` on line N | NO | No test exercises the boundary value |
+| `functionName` | Remove null check on line M | NO | Tests always pass non-null input |
+```
+
+Surviving mutants are HIGH-priority findings — they represent concrete scenarios where bugs could hide behind passing tests.
+
 ### 2. Boundary Probing
 - What are the edge cases the tests don't cover?
 - What inputs would cause different code paths to execute?

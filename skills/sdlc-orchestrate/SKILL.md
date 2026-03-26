@@ -71,8 +71,8 @@ Conductor (Opus)
 - The council does NOT need consensus — any single member can flag a problem. The Conductor resolves disagreements.
 
 **Complexity-Based Model Escalation:**
-- **Trivial beads:** Oracle Layer 1 only (Sonnet static check). Cheap, fast.
-- **Moderate beads:** Oracle Layers 1 + 2 (Sonnet static + Haiku runtime proof). Standard rigor.
+- **Clear beads:** Oracle Layer 1 only (Sonnet static check). Cheap, fast.
+- **Complicated beads:** Oracle Layers 1 + 2 (Sonnet static + Haiku runtime proof). Standard rigor.
 - **Complex beads:** All three layers (Sonnet + Haiku + Opus adversarial). Maximum rigor.
 - **Security/financial beads:** Always all three layers regardless of complexity.
 - The Conductor assigns bead complexity. Beads can be ESCALATED to higher complexity if inner loops fail.
@@ -84,10 +84,12 @@ Conductor (Opus)
 - Arbiter (Opus): `arbiter` — resolves disputes via Kahneman adversarial collaboration protocol. Fires only on disputed findings.
 - See `sdlc-os:sdlc-adversarial` for orchestration details.
 - **Complexity-Based Activation:**
-  - **Trivial beads:** Skip AQS entirely. Beads go `proven → merged`.
-  - **Moderate beads:** Recon burst + Conductor selects 1-2 domains.
-  - **Complex beads:** All four domains active.
-  - **Security-sensitive beads:** All four domains, security always HIGH.
+  - **Clear beads:** Skip AQS entirely. Beads go `proven → merged`.
+  - **Complicated beads:** Recon burst + Conductor selects 1-2 domains.
+  - **Complex beads:** All four domains active. Safe-to-fail required.
+  - **Chaotic beads:** Skip AQS. Postmortem bead auto-created after merge.
+  - **Confusion beads:** Blocked until decomposed and reclassified.
+  - **Security-sensitive beads:** All four domains, security always HIGH. Overrides Cynefin domain.
 
 ## Work Units (Beads)
 
@@ -103,6 +105,10 @@ Every piece of work is tracked as an atomic unit:
 **Input:** [what context the runner needs]
 **Output:** [what the runner must produce]
 **Sentinel notes:** [anything the sentinel flagged]
+**Cynefin domain:** clear | complicated | complex | chaotic | confusion
+**Assumptions:** [explicit list of what must be true for this bead to work — populated by runner]
+**Safe-to-fail:** [rollback plan — REQUIRED for Complex domain beads, optional otherwise]
+**Confidence:** [runner's self-assessed confidence 0.0-1.0 with rationale — populated after execution]
 ```
 
 Beads are written to `docs/sdlc/active/{task-id}/beads/` as individual markdown files. They persist in Git — surviving agent sessions, crashes, and context resets.
@@ -113,7 +119,7 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 
 ### Phase 1: Frame
 **What:** Understand the task. Clarify ambiguity. Define done.
-**How:** Dispatch `sonnet-investigator` to analyze requirements. Sentinel checks for gaps.
+**How:** Dispatch `sonnet-investigator` to analyze requirements. Sentinel checks for gaps. **Conductor assigns Cynefin domain to each bead** using the signals in `skills/sdlc-adversarial/scaling-heuristics.md`. Chaotic beads skip directly to Execute with a single runner. Confusion beads are blocked until decomposed.
 **Output:** Mission brief with objective, scope, constraints, success criteria.
 **Skip when:** Task is trivial and well-specified.
 
@@ -160,6 +166,7 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 1. Run **fitness check** (`sdlc-os:sdlc-fitness`) across all changed files — full report
 2. Dispatch `sonnet-reviewer` for critical assessment of the integrated result
 3. Dispatch `drift-detector` for final cross-bead duplication check
+3.5. Dispatch `losa-observer` on a random sample of merged beads (20% sample rate when error budget healthy, 50% when depleted). LOSA observations feed into error budget tracking — if LOSA reports uncaught errors, the error budget depletes regardless of SLI metrics.
 4. `haiku-handoff` packages delivery summary
 **Output:** Delivery summary with fitness report, evidence, uncertainty, next actions.
 
@@ -171,6 +178,7 @@ Each runner gets a precisely crafted context packet — never your full session 
 Agent tool:
   subagent_type: general-purpose
   model: sonnet
+  mode: auto
   name: "runner-{bead-id}"
   description: "Bead {id}: {short description}"
   prompt: |
@@ -193,11 +201,14 @@ Agent tool:
     {format from the agent definition — varies by agent type}
 ```
 
+**IMPORTANT: Always set `mode: auto`** for runners and sentinels. Without this, subagents start with an empty allow list under dontAsk mode — even when the parent session allows Write/Edit/Bash. `auto` inherits the parent's allow/deny lists and auto-approves without prompting. Do NOT use `bypassPermissions` — it skips deny lists and may skip hooks.
+
 For Sentinel dispatch:
 ```
 Agent tool:
   subagent_type: general-purpose
   model: haiku
+  mode: auto
   name: "sentinel-{bead-id}"
   description: "Sentinel sweep: {what to check}"
   prompt: |
@@ -241,11 +252,11 @@ When parallel beads produce conflicting changes, the Conductor:
 
 ## Complexity Scaling
 
-**Trivial** (< 5 min, single file, obvious approach):
+**Clear** (< 5 min, single file, obvious approach):
 - Skip Frame/Scout/Architect. Go straight to Execute with one bead.
 - Sentinel does a quick post-check. Synthesize is just the delivery summary.
 
-**Moderate** (multi-file, some ambiguity):
+**Complicated** (multi-file, some ambiguity):
 - Light Frame + Scout (one investigator, one sentinel sweep).
 - Architect produces bead decomposition.
 - Execute with parallel runners where possible.
@@ -307,4 +318,4 @@ When all beads are proven, hardened (or AQS-skipped), and merged:
 | Scout | sonnet-investigator (parallel OK) | haiku-evidence | — | — | Gather context, label assumptions |
 | Architect | sonnet-designer | haiku-verifier | — | — | Choose approach, create bead manifest |
 | Execute | sonnet-implementer (parallel OK) | haiku-verifier + drift-detector | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
-| Synthesize | sonnet-reviewer | haiku-handoff | oracle L1+L2+L3 (integration) | fitness report (full) | Merge results, deliver |
+| Synthesize | sonnet-reviewer + losa-observer | haiku-handoff | oracle L1+L2+L3 (integration) | fitness report (full) | Merge results, deliver |

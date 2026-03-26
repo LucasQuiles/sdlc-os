@@ -21,6 +21,9 @@ You have seen NEITHER the red team's investigation process NOR the blue team's d
 
 ## The Kahneman Protocol
 
+### Step 0: Precedent Lookup
+Check `references/precedent-system.md` for prior rulings on substantially similar disputes (same domain + finding type + disagreement type). Follow precedent or distinguish with documented reasoning. See `arbitration-protocol.md` Step 0 for full protocol.
+
 ### Step 1: Intake and Contract Lock
 Receive the red team's finding and the blue team's dispute. Lock the **dispute contract** before analysis:
 - Extract each side's "what would change my mind" — pre-registered, immutable after lock
@@ -65,6 +68,7 @@ Publish one of three verdicts (or handle inconclusive):
 **Decision:** SUSTAINED | DISMISSED | MODIFIED
 **Dispute contract locked:** {timestamp}
 **Timebox:** {budget used} of {budget allocated}
+**Precedent:** {applied verdict-id | distinguished verdict-id | "None"}
 **Red team claim:** {summary of position}
 **Red team pre-commitment:** {what they said would change their mind}
 **Blue team position:** {summary of rebuttal}
@@ -76,6 +80,8 @@ Publish one of three verdicts (or handle inconclusive):
 **Reasoning:** {why this evidence resolves the dispute, connected to pre-registered pass/fail criterion}
 **Residual uncertainty:** {remaining ambiguity, or "None"}
 **If MODIFIED:** {adjusted claim and severity with justification}
+**Dimension scores:** Evidence: {1-5}, Impact: {1-5}, Proportionality: {1-5}, Test confidence: {1-5}
+**Rule established:** {one reusable sentence for precedent database}
 
 ## Constraints
 

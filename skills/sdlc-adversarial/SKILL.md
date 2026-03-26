@@ -31,11 +31,12 @@ Oracle audits whether the *claims are honest*. AQS audits whether the *code surv
 
 AQS activation scales with bead complexity. See `scaling-heuristics.md` for full domain selection heuristics and domain-to-bead mapping rules.
 
-| Complexity | AQS Behavior |
+| Cynefin Domain | AQS Behavior |
 |------------|-------------|
-| **Trivial** | Skip entirely. Bead goes `proven → merged` directly. |
-| **Moderate** | Recon burst fires (all 4 domains, 8 guppies). Conductor selects 1–2 most relevant domains. Only HIGH/MED priority domains get directed strike. |
-| **Complex** | All four domains active. Full strike on HIGH/MED. Light sweep on LOW. Cycle 2 mandatory if Cycle 1 produced accepted/sustained fixes. |
+| **Clear** | Skip entirely. Bead goes `proven → merged` directly. |
+| **Complicated** | Recon burst fires (all 4 domains, 8 guppies). Conductor selects 1–2 most relevant domains. Only HIGH/MED priority domains get directed strike. |
+| **Complex** | All four domains active. Full strike on HIGH/MED. Light sweep on LOW. Cycle 2 governed by convergence assessment. |
+| **Chaotic** | Skip entirely. Act-first single runner. Mandatory postmortem bead after merge. |
 | **Security-sensitive** | All four domains active regardless of complexity. Security domain always HIGH priority. Cycle 2 mandatory. |
 
 **Domain selection heuristics (Conductor applies these during Phase 1):**
@@ -72,6 +73,22 @@ Conductor combines its preliminary selections with recon guppy results to produc
 
 Domains at SKIP receive no further action. Domains at LOW get a light sweep only; if clean, they close.
 
+### Phase 2.5: Pretrial Filter
+
+After cross-reference produces final domain priorities but before directed strike fires, the Conductor screens recon signals against three dismissal criteria. This is not a separate agent dispatch — the Conductor applies these filters as part of cross-reference processing.
+
+**Dismissal criteria:**
+
+1. **Scope exclusion** — The recon signal concerns code not changed in this bead. Recon guppies sometimes flag pre-existing issues in surrounding code — these are out of scope for this bead's AQS engagement. Log the signal for future reference but do not strike.
+
+2. **Category exclusion** — The recon signal is about style, formatting, or naming conventions when the domain under review is functionality or security. Style concerns belong to the usability domain. If usability is not active for this bead, the signal is dismissed. If usability IS active, redirect the signal there.
+
+3. **Prior resolution (res judicata)** — The recon signal matches a finding that was previously ruled DISMISSED in the precedent database (`references/precedent-system.md`). Match on: domain + finding type + same code path. If an exact match exists, the signal is precluded from re-litigation. Log: "Precluded — matches precedent {verdict-id}."
+
+**Logging:** Every pretrial dismissal is logged in the recon artifact (`recon-{bead-id}.md`) with the dismissal criterion and reasoning. This creates an audit trail and prevents silent filtering.
+
+**Override:** If the Conductor believes a pretrial dismissal is wrong (e.g., a prior DISMISSED precedent may no longer apply due to changed context), the Conductor can override the dismissal and allow the signal through. Overrides must be documented with reasoning.
+
 ### Phase 3: Directed Strike
 
 For each HIGH/MED/LOW domain, dispatch the corresponding red team Sonnet commander agent. Each commander:
@@ -81,6 +98,13 @@ For each HIGH/MED/LOW domain, dispatch the corresponding red team Sonnet command
 3. Fires guppy swarms — **machine gun volume, narrow focus** — each guppy gets one probe
 4. Analyzes guppy results; separates genuine hits from noise
 5. Applies mandatory shrinking: every hit must be reduced to minimal reproduction
+5.5. **Applies Daubert evidence gate:** Before submitting findings, the red team commander self-checks each finding against three reliability criteria:
+
+   - **Factual basis** — Every file:line reference in the finding must exist. The red team commander verifies by reading the cited locations. Findings citing non-existent code paths are hallucinations and must be dropped.
+   - **Methodological reliability** — The finding must come from executed probe output (a guppy returned HIT with evidence), not from pattern-match inference ("this looks like it could be vulnerable"). Inference-only findings are downgraded to `Assumed` confidence.
+   - **Known false-positive pattern** — Cross-reference the finding type against the precedent database. If this finding type has been DISMISSED more than twice on similar code patterns, flag it as high-false-positive-risk in the finding. This does not block submission but alerts the blue team and arbiter.
+
+   Findings that fail the factual basis check are dropped entirely (not submitted). Findings that fail methodological reliability are downgraded to `Assumed`. The Daubert gate is a self-check, not an external review — the red team commander applies it to its own output before delivery.
 6. Produces formal findings in the required format
 
 RED commanders: `red-functionality`, `red-security`, `red-usability`, `red-resilience` (all Sonnet).
@@ -94,6 +118,27 @@ Domain-matched blue team Sonnet agents receive the findings from Phase 3. For ea
 - **Accepted** — produce a code fix and verification evidence
 - **Rebutted** — produce an evidence-based rebuttal (cite code, tests, or specifications)
 - **Disputed** — escalate to Arbiter, stating what evidence would resolve the question
+
+**Fast-track resolution (plea bargaining):** For uncontested findings where both sides agree, a streamlined path is available:
+
+**Eligibility:** A finding qualifies for fast-track when ALL of:
+- Red team confidence is `Verified` (not Likely or Assumed)
+- Blue team immediately recognizes the issue as real (no analysis needed to confirm)
+- Severity is `medium` or `low` (high and critical always get full response)
+- Fix is straightforward (single-site change, no architectural implications)
+
+**Fast-track response format:**
+```
+## Response: {Finding ID}
+**Action:** accepted-fast-track
+**Fix:** {file:line — one-line description of change}
+**Verification:** {one-line confirmation that the fix addresses the finding}
+**Confidence:** {0.0-1.0 with brief rationale}
+```
+
+Fast-track responses skip the full reproduction cycle, regression narrative, and principle extraction. They are logged in the adversarial report identically to `accepted` findings but marked as fast-tracked. The arbiter is never involved.
+
+**Do not abuse fast-track.** If the blue team is uncertain about whether the issue is real, it is not a fast-track candidate — use the full `accepted` flow with reproduction. Fast-track is for cases where the finding is obviously correct and the fix is obviously right.
 
 BLUE defenders: `blue-functionality`, `blue-security`, `blue-usability`, `blue-resilience` (all Sonnet).
 
@@ -136,17 +181,29 @@ Consult **`references/dispatch-patterns.md`** for complete Agent tool templates 
 | Blue defender | sonnet | `blue-{domain}-{bead-id}` | Bead + red team findings |
 | Arbiter | opus | `arbiter-{bead-id}-{finding-id}` | Disputed finding + blue team dispute |
 
-All dispatches use `subagent_type: general-purpose` with the model specified above.
+All dispatches use `subagent_type: general-purpose` with the model specified above. **Always set `mode: auto`** to ensure subagents inherit the parent's allow/deny lists and can Write/Edit in dontAsk mode.
 
 ---
 
-## Cycle Budget
+### Cycle Budget
 
 AQS runs a maximum of **2 full cycles per bead**.
 
-- **Cycle 1:** Red team attacks → blue team responds → accepted/sustained fixes applied
-- **Cycle 2:** Fires only if Cycle 1 produced accepted or arbiter-sustained fixes. Re-attacks the hardened code to verify fixes hold and no new attack surface was introduced.
-- **Immediate completion:** If Cycle 1 produces no findings (all domains return clean), AQS completes immediately without Cycle 2.
+- **Cycle 1:** Always runs when AQS is active. Red team attacks → blue team responds → accepted/sustained fixes applied.
+
+- **Cycle 2 — Convergence Assessment:** After Cycle 1 completes, the Conductor assesses whether the finding space has converged. Cycle 2 fires only if the space has NOT converged.
+
+  **Convergence indicators (all three must be true to skip Cycle 2):**
+  1. **Low diversity** — Cycle 1 findings were concentrated in a single domain
+  2. **Low severity** — All Cycle 1 fixes were `medium` or `low` severity
+  3. **Low volume** — Cycle 1 produced fewer than 3 total findings
+
+  If all three convergence indicators are true → skip Cycle 2. Log the convergence decision with reasoning in the AQS report.
+
+  If ANY indicator is false (findings span multiple domains, any `high`/`critical` fix was applied, or 3+ findings were produced) → Cycle 2 is **mandatory**. The attack surface has been meaningfully changed and needs re-verification.
+
+- **Immediate completion:** If Cycle 1 produces no findings (all domains return clean), AQS completes immediately without Cycle 2. No convergence assessment needed.
+
 - **Budget exhausted:** If 2 cycles complete and residual risk remains unresolved, escalate to Conductor with the adversarial report. Report verdict as `PARTIALLY_HARDENED` or `DEFERRED` as appropriate.
 
 ---
@@ -175,7 +232,7 @@ AQS introduces the `hardened` bead status. The canonical flow for non-trivial be
 pending → running → submitted → verified (L1) → proven (L2) → hardened (L2.5) → merged
 ```
 
-Trivial beads skip AQS entirely:
+Clear beads skip AQS entirely:
 
 ```
 pending → running → submitted → verified (L1) → proven (L2) → merged
@@ -325,10 +382,15 @@ For detailed patterns and protocols, consult:
 - **`recon-directives.md`** — 8 copy-paste-ready guppy directive templates for recon burst
 - **`arbitration-protocol.md`** — Full Kahneman adversarial collaboration protocol with pre-registered dispute contracts
 - **`scaling-heuristics.md`** — Complexity assessment, domain selection, budget management, cross-reference matrix
+- **`references/code-constitution.md`** — Living rules distilled from adversarial findings. Blue team checks before fixing; Conductor accumulates after Phase 6.
+- **`references/precedent-system.md`** — Arbiter verdict database. Precedent lookup before arbitration; res judicata in pretrial filter.
+- **`references/quality-slos.md`** — Error budget definitions and policy governing system velocity.
+- **`references/calibration-protocol.md`** — Drift monitoring, noise audits, regression watchlist, LOSA integration.
 
 ### Related Plugin Components
 
 - **Agents:** `agents/red-*.md` (4 domain commanders), `agents/blue-*.md` (4 domain defenders), `agents/arbiter.md` (dispute resolver)
+- **Agents:** `agents/losa-observer.md` (random-sample quality observer — Haiku tier)
 - **Hooks:** `hooks/hooks.json` — Code-enforced schema validation, status guards, vocabulary linting
 - **Quick reference:** `references/adversarial-quality.md` — One-page summary of domains, formats, priorities
 - **Model eval:** `docs/evals/aqs-model-eval/README.md` — Required gate before changing role model assignments
