@@ -22,7 +22,9 @@ if [[ "$FILE_PATH" == *"feature-matrix.md" ]]; then
   fi
   if [[ -z "$CONTENT" ]]; then exit 0; fi
 
-  TABLE_ROWS=$(echo "$CONTENT" | grep -E '^\|[[:space:]]*FF-' 2>/dev/null || true)
+  # Match all data rows in the Findings table (rows starting with | that aren't header or separator)
+  # Use fixed-string grep to avoid | being treated as ERE alternation
+  TABLE_ROWS=$(echo "$CONTENT" | grep '^|' 2>/dev/null | grep -v '^| ID ' | grep -v '^|---' || true)
   if [[ -z "$TABLE_ROWS" ]]; then exit 0; fi
 
   VALID_SEVERITIES="CRITICAL|HIGH|MEDIUM|LOW"
