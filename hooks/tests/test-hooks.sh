@@ -270,21 +270,93 @@ run_integration_guard_test
 echo ""
 echo "=== Naming Convention Hook Tests (advisory) ==="
 
-run_test_advisory "valid: kebab-case in mapped dir" \
+# Naming tests need a Convention Map in a git repo to produce warnings.
+# Tests without a map correctly produce no warnings (by design).
+run_test_advisory "skip: no convention map (no warning)" \
   "$HOOKS_DIR/check-naming-convention.sh" \
-  "$FIXTURES_DIR/naming-valid-create.json" "no"
-
-run_test_advisory "warning: camelCase in kebab-case dir" \
-  "$HOOKS_DIR/check-naming-convention.sh" \
-  "$FIXTURES_DIR/naming-violation-create.json" "yes"
-
-run_test_advisory "warning: unmapped source directory" \
-  "$HOOKS_DIR/check-naming-convention.sh" \
-  "$FIXTURES_DIR/naming-unmapped-dir.json" "yes"
+  "$FIXTURES_DIR/naming-violation-create.json" "no"
 
 run_test_advisory "skip: vendor path (node_modules)" \
   "$HOOKS_DIR/check-naming-convention.sh" \
   "$FIXTURES_DIR/naming-vendor-skip.json" "no"
+
+# Integration test: create a repo with a Convention Map and test naming enforcement
+run_naming_integration_test() {
+  local TMPDIR_BASE
+  TMPDIR_BASE=$(mktemp -d)
+  trap "rm -rf '$TMPDIR_BASE'" RETURN
+
+  local REPO="$TMPDIR_BASE/repo"
+  mkdir -p "$REPO/lib/storage" "$REPO/docs/sdlc"
+
+  (cd "$REPO" && git init -q && git config user.email "test@test" && git config user.name "test")
+
+  # Create a Convention Map with lib/storage/ -> kebab-case
+  cat > "$REPO/docs/sdlc/convention-map.md" <<'MAP'
+# Convention Map
+
+## Scanned Dimensions
+
+### File Naming
+- **Convention:** kebab-case
+- **Scope:** lib/storage/, lib/utils/
+- **Confidence:** Verified 5/5
+MAP
+  (cd "$REPO" && git add -A && git commit -q -m "add convention map")
+
+  # Test: valid kebab-case file in mapped dir — no warning
+  local FIXTURE_VALID
+  FIXTURE_VALID=$(cat <<JSON
+{
+  "session_id": "test",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "${REPO}/lib/storage/payments-storage.ts",
+    "content": "export function getPayments() { return []; }"
+  }
+}
+JSON
+  )
+
+  local exit_code=0
+  local stderr_output
+  stderr_output=$(echo "$FIXTURE_VALID" | (cd "$REPO" && bash "$HOOKS_DIR/check-naming-convention.sh") 2>&1 1>/dev/null) || exit_code=$?
+  if [[ "$exit_code" -eq 0 ]] && ! echo "$stderr_output" | grep -q "HOOK_WARNING:"; then
+    echo "  PASS: valid: kebab-case in mapped dir (exit 0, no warning)"
+    PASS=$((PASS + 1))
+  else
+    echo "  FAIL: valid: kebab-case in mapped dir (exit $exit_code, stderr: $stderr_output)"
+    FAIL=$((FAIL + 1))
+  fi
+
+  # Test: camelCase violation in mapped dir — should warn
+  local FIXTURE_VIOLATION
+  FIXTURE_VIOLATION=$(cat <<JSON
+{
+  "session_id": "test",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "${REPO}/lib/storage/userPayments.ts",
+    "content": "export function getPayments() { return []; }"
+  }
+}
+JSON
+  )
+
+  exit_code=0
+  stderr_output=$(echo "$FIXTURE_VIOLATION" | (cd "$REPO" && bash "$HOOKS_DIR/check-naming-convention.sh") 2>&1 1>/dev/null) || exit_code=$?
+  if [[ "$exit_code" -eq 0 ]] && echo "$stderr_output" | grep -q "HOOK_WARNING:.*naming violation"; then
+    echo "  PASS: warning: camelCase in kebab-case dir (exit 0, warning emitted)"
+    PASS=$((PASS + 1))
+  else
+    echo "  FAIL: warning: camelCase in kebab-case dir (exit $exit_code, stderr: $stderr_output)"
+    FAIL=$((FAIL + 1))
+  fi
+}
+
+run_naming_integration_test
 
 echo ""
 echo "=== Consistency Artifact Validation Tests (advisory) ==="
