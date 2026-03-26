@@ -139,10 +139,11 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 1. Dispatch `sonnet-investigator` to explore. Sentinel validates evidence quality.
 2. Dispatch `convention-scanner` if Convention Map (`docs/sdlc/convention-map.md`) is missing or older than 30 days. Convention Map becomes required context for all subsequent phases.
 3. Dispatch `gap-analyst` in Finder mode — compare requirements against codebase to produce a Completeness Map. See `sdlc-os:sdlc-gap-analysis` for full protocol.
-**Output:** Discovery brief + Convention Map + Completeness Map (EXISTS/PARTIAL/MISSING per requirement).
+4. Dispatch `feature-finder` in archaeology mode — scan for neglected feature work across code/structural/git/documentation signals and update `docs/sdlc/feature-matrix.md`. See `sdlc-os:sdlc-feature-sweep`.
+**Output:** Discovery brief + Convention Map + Completeness Map (EXISTS/PARTIAL/MISSING per requirement) + Feature Matrix delta (new/updated findings).
 **Key constraint:** Phase 3 (Architect) only creates beads for MISSING and PARTIAL items from the Completeness Map. EXISTS items get no beads.
 **Skip when:** You already have sufficient context (e.g., from prior conversation). Convention scan and gap analysis still run even when investigation is skipped.
-**Parallelize:** Investigator, convention-scanner, and gap-analyst can run in parallel — they read different things.
+**Parallelize:** Investigator, convention-scanner, gap-analyst, and feature-finder can run in parallel — they read different slices of state.
 
 ### Phase 3: Architect
 **What:** Choose an approach. Define the bead decomposition.
@@ -183,10 +184,11 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 2. Dispatch `sonnet-reviewer` for critical assessment of the integrated result
 3. Dispatch `drift-detector` for final cross-bead duplication check
 3.25. Dispatch `gap-analyst` in Finisher mode — compare delivery against mission brief success criteria + codebase inference. See `sdlc-os:sdlc-gap-analysis`. If GAPS found: minor → Conductor creates follow-up beads; significant → present to user.
+3.375. Dispatch `feature-finisher` — triage unresolved Feature Matrix rows, assign type/effort/recommendation, and write completion specs for findings at 50%+ completion. See `sdlc-os:sdlc-feature-sweep`.
 3.5. Dispatch `normalizer` in Final Pass mode — cross-bead convention consistency sweep. Checks for naming drift between parallel beads, unmapped conventions, and Convention Map update needs.
 3.75. Dispatch `losa-observer` on a random sample of merged beads (20% sample rate when error budget healthy, 50% when depleted). LOSA observations feed into error budget tracking — if LOSA reports uncaught errors, the error budget depletes regardless of SLI metrics.
 4. `haiku-handoff` packages delivery summary
-**Output:** Delivery summary with fitness report, evidence, uncertainty, next actions.
+**Output:** Delivery summary with fitness report, evidence, uncertainty, next actions, and Feature Matrix triage updates.
 
 ## How to Dispatch Runners
 
