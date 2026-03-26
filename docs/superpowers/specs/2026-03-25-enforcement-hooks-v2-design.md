@@ -63,47 +63,66 @@ Output `HOOK_WARNING: ${message}` to stderr. Always return 0. This is the single
 **`is_vendor_path(path)`**
 Return 0 (true) if path matches skip patterns: `node_modules/`, `dist/`, `build/`, `.git/`, `__pycache__/`, `.next/`, `vendor/`, `.cache/`. Called early in every hook to short-circuit.
 
-**`read_convention_map_section(section_name)`**
-Parse `docs/sdlc/convention-map.md` for a `### {section_name}` section. The scanner produces bullet-format sections:
+**`read_convention_map_patterns()`**
+Parse ALL dimension sections from the Convention Map. The scanner produces bullet-format sections with explicit machine-parseable fields:
 ```
 ### File Naming
-- **Pattern:** kebab-case-storage.ts in lib/storage/
+- **Convention:** kebab-case
+- **Scope:** lib/storage/, lib/utils/
 - **Confidence:** Verified 5/5
 - **Evidence:**
   - `lib/storage/payments-storage.ts`
 ```
-The function reads lines from `### {section_name}` until the next `###`, `---`, or EOF. Extracts the `**Pattern:**` value. Returns the pattern string on stdout. Returns empty if map doesn't exist or section not found.
+The function:
+1. Reads `docs/sdlc/convention-map.md`
+2. For each `### {Dimension}` section, extracts `**Convention:**` and `**Scope:**` values
+3. Returns a list of `scope_directory|convention_keyword` pairs (one per line)
+4. Convention keywords are from a fixed vocabulary: `kebab-case`, `PascalCase`, `camelCase`, `snake_case`, `UPPER_SNAKE_CASE`
+5. Returns empty if map doesn't exist or no parseable entries found
 
-**`read_convention_map_patterns()`**
-Parse ALL dimension sections from the Convention Map. Returns a list of `directory|convention` pairs (one per line), extracted from `**Pattern:**` values that mention a directory path. Used by the naming hook to build a lookup table.
+Used by the naming hook to build the directory→convention lookup table.
 
 **`get_repo_root()`**
 Canonicalized repo root via `git rev-parse --show-toplevel` + `canonicalize_path`.
 
-### Advisory Trap (opt-in, not automatic)
+### Advisory Script Pattern (explicit control flow, no ERR trap)
 
-`common.sh` provides a function that advisory scripts call explicitly. It is NOT installed automatically on source — blocking scripts (guard-bead-status.sh) source common.sh for utilities without getting fail-open behavior.
+Advisory scripts use explicit control flow with a guaranteed `exit 0` at the end. No `trap 'exit 0' ERR` — that hides useful failures and makes debugging impossible. Instead:
 
+1. Do NOT use `set -e` (no errexit — handle errors explicitly)
+2. Use `set -uo pipefail` (catch unset vars and pipe failures for debugging)
+3. Wrap risky operations in `if/then` or `|| true` explicitly at the call site
+4. If a parse error or unexpected state occurs, `emit_warning` describing the issue and continue
+5. Script ends with `exit 0` unconditionally
+
+**Advisory script template:**
 ```bash
-install_advisory_trap() {
-  trap 'exit 0' ERR
-  set +e  # Disable errexit so the trap catches errors instead of propagating
+#!/bin/bash
+set -uo pipefail
+
+source "$(dirname "$0")/../lib/common.sh"
+
+# Parse input — if jq fails, warn and exit clean
+INPUT=$(cat)
+FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null) || {
+  emit_warning "Failed to parse hook input JSON — skipping"
+  exit 0
 }
+
+# ... check logic with explicit error handling ...
+
+exit 0
 ```
 
-**New advisory scripts** call `install_advisory_trap` after sourcing common.sh:
+**Existing blocking scripts** source common.sh for utilities and keep their own `set -euo pipefail` + `exit 2` behavior unchanged:
 ```bash
+#!/bin/bash
+set -euo pipefail
 source "$(dirname "$0")/../lib/common.sh"
-install_advisory_trap
+# ... blocking logic, exit 2 on violation ...
 ```
 
-**Existing blocking scripts** source common.sh but do NOT call `install_advisory_trap`:
-```bash
-source "$(dirname "$0")/../lib/common.sh"
-set -euo pipefail  # Blocking behavior preserved
-```
-
-This ensures advisory semantics never leak into blocking hooks.
+This keeps advisory hooks debuggable (warnings on unexpected states instead of silent swallowing) while guaranteeing they never block.
 
 ---
 
@@ -119,9 +138,10 @@ This ensures advisory semantics never leak into blocking hooks.
 1. Parse file_path from hook input JSON (jq -r '.tool_input.file_path // empty')
 2. If empty or is_vendor_path → exit 0 (silent skip)
 3. Check if docs/sdlc/convention-map.md exists → if not, exit 0 (no map = no enforcement)
-4. Parse File Naming section from Convention Map via read_convention_map_section
+4. Build directory→convention lookup via read_convention_map_patterns
+   (returns lines of "scope_directory|convention_keyword" pairs)
 5. Extract file's directory and basename
-6. Look up directory in Convention Map table:
+6. Match file's directory against lookup (longest prefix match):
    a. FOUND → strip known suffixes first, then check stem against convention regex:
       **Suffix stripping:** Remove known multi-dot suffixes before checking the stem:
       `.test.ts`, `.test.tsx`, `.spec.ts`, `.spec.tsx`, `.d.ts`, `.stories.tsx`,
@@ -401,11 +421,12 @@ All 21 existing tests continue to pass unchanged. The `guard-bead-status.sh` ref
 
 ## Convention Map Stable Markers Contract
 
-The `convention-scanner` agent produces bullet-format sections. For `read_convention_map_section` and `read_convention_map_patterns` to parse reliably, the Convention Map must follow this format:
+The `convention-scanner` agent produces bullet-format sections with explicit machine-parseable fields. For `read_convention_map_patterns` to parse reliably, the Convention Map must use `**Convention:**` and `**Scope:**` fields (not free-form prose in `**Pattern:**`):
 
 ```markdown
 ### File Naming
-- **Pattern:** kebab-case-storage.ts in lib/storage/
+- **Convention:** kebab-case
+- **Scope:** lib/storage/, lib/utils/, lib/services/
 - **Confidence:** Verified 5/5
 - **Evidence:**
   - `lib/storage/payments-storage.ts`
@@ -413,32 +434,41 @@ The `convention-scanner` agent produces bullet-format sections. For `read_conven
 - **Notes:** optional
 
 ### Function/Variable Naming
-- **Pattern:** camelCase for exported functions in lib/
+- **Convention:** camelCase
+- **Scope:** lib/
 - **Confidence:** Verified 8/8
 - **Evidence:**
   - `generateId()` in lib/utils/id-generator.ts
+
+### Component Structure
+- **Convention:** PascalCase
+- **Scope:** components/, app/
+- **Confidence:** Verified 12/12
+- **Evidence:**
+  - `components/UserProfile.tsx`
 ```
 
 The contract:
 1. Section headers are `### {Dimension Name}` (exact match after `### `)
-2. Pattern is on a line starting with `- **Pattern:**` followed by the convention description
-3. The pattern description should include the directory scope (e.g., "in lib/storage/") when directory-specific
-4. Evidence items are indented bullets with backtick-wrapped paths
+2. **`Convention:`** field is REQUIRED — must be one of the fixed vocabulary keywords: `kebab-case`, `PascalCase`, `camelCase`, `snake_case`, `UPPER_SNAKE_CASE`. This is what hooks match against. No free-form text.
+3. **`Scope:`** field is REQUIRED — comma-separated list of directory prefixes this convention applies to. Trailing `/` optional. This is what hooks use for directory lookup.
+4. `Confidence:` and `Evidence:` are informational — hooks do not parse them
 5. Section ends at the next `###` heading, `---` separator, or EOF
 6. The `## Inconsistencies` section at the bottom may use table format for conflicts — this is the only table in the map
 
-The `read_convention_map_patterns` function extracts directory→convention pairs from `**Pattern:**` lines that mention a directory path. Pattern lines without a directory (e.g., "camelCase for exported functions") are matched against the dimension name to infer scope.
+**Convention-scanner update required:** The scanner agent's output template must be updated to produce `**Convention:**` and `**Scope:**` fields instead of the current `**Pattern:**` free-form text. This is a prerequisite for the hooks to work reliably.
 
 ---
 
 ## Implementation Order
 
-1. `hooks/lib/common.sh` — shared library (no dependencies)
-2. `hooks/scripts/check-naming-convention.sh` — PreToolUse hook (depends on common.sh)
-3. `hooks/scripts/validate-consistency-artifacts.sh` — PostToolUse hook (depends on common.sh)
-4. `hooks/scripts/validate-runner-output.sh` — SubagentStop hook (depends on common.sh)
-5. Refactor `hooks/scripts/guard-bead-status.sh` — source common.sh (depends on step 1)
-6. Update `hooks/hooks.json` — register new hooks
-7. Create 11 test fixtures
-8. Update `hooks/tests/test-hooks.sh` — add `run_test_advisory` + 11 new test cases
-9. Run full test suite — verify 32/32 pass (21 existing + 11 new)
+1. Update `agents/convention-scanner.md` — change output template from `**Pattern:**` to `**Convention:**` + `**Scope:**` fields (prerequisite for hooks)
+2. `hooks/lib/common.sh` — shared library (no dependencies)
+3. `hooks/scripts/check-naming-convention.sh` — PreToolUse hook (depends on common.sh + scanner update)
+4. `hooks/scripts/validate-consistency-artifacts.sh` — PostToolUse hook (depends on common.sh)
+5. `hooks/scripts/validate-runner-output.sh` — SubagentStop hook (depends on common.sh)
+6. Refactor `hooks/scripts/guard-bead-status.sh` — source common.sh for canonicalize_path (depends on step 2)
+7. Update `hooks/hooks.json` — register new hooks
+8. Create 11 test fixtures
+9. Update `hooks/tests/test-hooks.sh` — add `run_test_advisory` + 11 new test cases
+10. Run full test suite — verify 32/32 pass (21 existing + 11 new)
