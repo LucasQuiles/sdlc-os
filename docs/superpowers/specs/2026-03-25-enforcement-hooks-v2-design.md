@@ -17,11 +17,11 @@ The SDLC-OS plugin has 6 new agents (convention-scanner, convention-enforcer, no
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Enforcement mode | **Advisory (non-blocking)** — all hooks exit 0, emit `HOOK_WARNING:` on stderr | Avoids false-positive frustration; agents see warnings and act on them |
+| Enforcement mode | **Advisory (non-blocking) for NEW hooks only** — new hooks exit 0, emit `HOOK_WARNING:` on stderr. Existing blocking hooks (AQS validator, bead guard, vocab linter) retain their exit 2 behavior. | Avoids false-positive frustration for new enforcement while preserving existing strict guards |
 | Script split | **3 scripts by event type** + shared lib | One per event boundary (PreToolUse, PostToolUse, SubagentStop); shared lib for DRY |
 | Convention Map parsing | **Markdown SSOT with stable markers** | No JSON sidecar; stable table headers (`\| Directory \|`) make bash parsing deterministic |
 | Scope filtering | **Mapped dirs + known source dirs** for naming; vendor paths always skipped | Reduces noise while catching real issues |
-| Error handling | **Trap/fallback to exit 0** on parse errors | Advisory guarantee — even malformed input never blocks |
+| Error handling | **Trap/fallback to exit 0 in advisory scripts only** — common.sh provides `install_advisory_trap` function that new scripts call explicitly. Existing blocking scripts do NOT call it. | Advisory guarantee for new hooks; existing blocking semantics unchanged |
 
 ---
 
@@ -64,21 +64,46 @@ Output `HOOK_WARNING: ${message}` to stderr. Always return 0. This is the single
 Return 0 (true) if path matches skip patterns: `node_modules/`, `dist/`, `build/`, `.git/`, `__pycache__/`, `.next/`, `vendor/`, `.cache/`. Called early in every hook to short-circuit.
 
 **`read_convention_map_section(section_name)`**
-Parse `docs/sdlc/convention-map.md` for a `### {section_name}` table. Reads lines from the header until the next `###` or EOF, filtering for table data rows (lines starting with `|` that aren't the header separator `|---|`). Returns rows as lines on stdout. Returns empty if map doesn't exist or section not found.
+Parse `docs/sdlc/convention-map.md` for a `### {section_name}` section. The scanner produces bullet-format sections:
+```
+### File Naming
+- **Pattern:** kebab-case-storage.ts in lib/storage/
+- **Confidence:** Verified 5/5
+- **Evidence:**
+  - `lib/storage/payments-storage.ts`
+```
+The function reads lines from `### {section_name}` until the next `###`, `---`, or EOF. Extracts the `**Pattern:**` value. Returns the pattern string on stdout. Returns empty if map doesn't exist or section not found.
+
+**`read_convention_map_patterns()`**
+Parse ALL dimension sections from the Convention Map. Returns a list of `directory|convention` pairs (one per line), extracted from `**Pattern:**` values that mention a directory path. Used by the naming hook to build a lookup table.
 
 **`get_repo_root()`**
 Canonicalized repo root via `git rev-parse --show-toplevel` + `canonicalize_path`.
 
-### Advisory Guarantee
+### Advisory Trap (opt-in, not automatic)
 
-All scripts that source `common.sh` get a trap installed:
+`common.sh` provides a function that advisory scripts call explicitly. It is NOT installed automatically on source — blocking scripts (guard-bead-status.sh) source common.sh for utilities without getting fail-open behavior.
 
 ```bash
-trap 'exit 0' ERR
-set -uo pipefail  # Note: -e intentionally omitted; trap handles errors
+install_advisory_trap() {
+  trap 'exit 0' ERR
+  set +e  # Disable errexit so the trap catches errors instead of propagating
+}
 ```
 
-This ensures that even on parse errors, malformed JSON, or missing files, the hook exits 0 with no output rather than blocking.
+**New advisory scripts** call `install_advisory_trap` after sourcing common.sh:
+```bash
+source "$(dirname "$0")/../lib/common.sh"
+install_advisory_trap
+```
+
+**Existing blocking scripts** source common.sh but do NOT call `install_advisory_trap`:
+```bash
+source "$(dirname "$0")/../lib/common.sh"
+set -euo pipefail  # Blocking behavior preserved
+```
+
+This ensures advisory semantics never leak into blocking hooks.
 
 ---
 
@@ -97,12 +122,26 @@ This ensures that even on parse errors, malformed JSON, or missing files, the ho
 4. Parse File Naming section from Convention Map via read_convention_map_section
 5. Extract file's directory and basename
 6. Look up directory in Convention Map table:
-   a. FOUND → check basename against recorded convention via regex:
-      - kebab-case: ^[a-z][a-z0-9]*(-[a-z0-9]+)*\.[a-z]+$
-      - PascalCase: ^[A-Z][a-zA-Z0-9]*\.[a-z]+$
-      - camelCase: ^[a-z][a-zA-Z0-9]*\.[a-z]+$
-      - snake_case: ^[a-z][a-z0-9]*(_[a-z0-9]+)*\.[a-z]+$
-      If mismatch → emit_warning "File naming violation — {file} uses {detected} but {directory} convention is {expected}"
+   a. FOUND → strip known suffixes first, then check stem against convention regex:
+      **Suffix stripping:** Remove known multi-dot suffixes before checking the stem:
+      `.test.ts`, `.test.tsx`, `.spec.ts`, `.spec.tsx`, `.d.ts`, `.stories.tsx`,
+      `.module.css`, `.module.scss`, `.config.ts`, `.config.js`
+      If none match, strip the final `.ext` only.
+      The CHECK applies to the remaining stem (e.g., `payments-storage` from `payments-storage.test.ts`).
+
+      **Stem regexes (anchored):**
+      - kebab-case: `^[a-z][a-z0-9]*(-[a-z0-9]+)*$`
+      - PascalCase: `^[A-Z][a-zA-Z0-9]*$`
+      - camelCase: `^[a-z][a-zA-Z0-9]*$`
+      - snake_case: `^[a-z][a-z0-9]*(_[a-z0-9]+)*$`
+
+      **Special cases that always pass (no warning):**
+      - `index.ts`, `index.js`, `index.d.ts` — universal entry point convention
+      - `README.md`, `CHANGELOG.md`, `LICENSE` — standard repo files
+      - Files starting with `.` (dotfiles) — config conventions vary
+      - `__tests__/`, `__mocks__/` directory contents — framework conventions override project conventions
+
+      If mismatch → emit_warning "File naming violation — {file} stem '{stem}' uses {detected} but {directory} convention is {expected}"
    b. NOT FOUND but directory is a known source directory (lib/, app/, components/,
       src/, hooks/, services/, pages/, routes/, api/) →
       emit_warning "Unmapped source directory — {directory} has no Convention Map entry. Consider running /normalize."
@@ -123,13 +162,16 @@ To determine what casing a filename uses, test against the regex patterns above 
 
 ### Path Routing
 
-Routes to the correct validator by file path and content:
+Routes to the correct validator by file path first, then content fallback:
 
-| Pattern | Validator |
-|---------|-----------|
-| `docs/sdlc/feature-matrix.md` | Feature Matrix schema |
-| Content contains `## Convention Enforcement Report` | Convention Report schema |
-| Neither matches | exit 0 (skip) |
+| Priority | Pattern | Validator |
+|----------|---------|-----------|
+| 1 | `file_path` ends with `feature-matrix.md` | Feature Matrix schema |
+| 2 | `file_path` contains `convention-report` or ends with `-convention-report.md` | Convention Report schema |
+| 3 | Content (from `tool_input.content` for Write, or read from disk for Edit) contains `## Convention Enforcement Report` | Convention Report schema |
+| 4 | Neither matches | exit 0 (skip) |
+
+**Edit event handling:** For Edit tool calls, `tool_input.content` may be absent (Edit provides `old_string`/`new_string` instead). In this case, read the file from disk at `file_path` to check content markers. If the file doesn't exist yet or can't be read, fall back to path-only routing.
 
 ### Feature Matrix Validation
 
@@ -319,11 +361,12 @@ run_test_advisory() {
   local fixture_file="$3"
   local expect_warning="$4"  # "yes" or "no"
 
+  # Capture exit code AND stderr separately — don't mask with || true
+  local actual_exit=0
   local stderr_output
-  stderr_output=$(cat "$fixture_file" | bash "$hook_script" 2>&1 1>/dev/null || true)
-  local actual_exit=$?
+  stderr_output=$(cat "$fixture_file" | bash "$hook_script" 2>&1 1>/dev/null) || actual_exit=$?
 
-  # Advisory hooks must always exit 0
+  # Advisory hooks must ALWAYS exit 0 — a non-zero exit is a test failure
   if [[ "$actual_exit" -ne 0 ]]; then
     echo "  FAIL: $test_name (advisory hook exited $actual_exit, must be 0)"
     FAIL=$((FAIL + 1))
@@ -358,23 +401,33 @@ All 21 existing tests continue to pass unchanged. The `guard-bead-status.sh` ref
 
 ## Convention Map Stable Markers Contract
 
-For `read_convention_map_section` to parse reliably, the Convention Map must follow this format:
+The `convention-scanner` agent produces bullet-format sections. For `read_convention_map_section` and `read_convention_map_patterns` to parse reliably, the Convention Map must follow this format:
 
 ```markdown
 ### File Naming
-| Directory | Convention | Evidence | Confidence |
-|-----------|-----------|----------|------------|
-| lib/storage/ | kebab-case-storage.ts | payments-storage.ts, users-storage.ts | Verified (5/5 files) |
+- **Pattern:** kebab-case-storage.ts in lib/storage/
+- **Confidence:** Verified 5/5
+- **Evidence:**
+  - `lib/storage/payments-storage.ts`
+  - `lib/storage/users-storage.ts`
+- **Notes:** optional
+
+### Function/Variable Naming
+- **Pattern:** camelCase for exported functions in lib/
+- **Confidence:** Verified 8/8
+- **Evidence:**
+  - `generateId()` in lib/utils/id-generator.ts
 ```
 
 The contract:
 1. Section headers are `### {Dimension Name}` (exact match after `### `)
-2. Tables start with a header row containing `| Directory |` (for File Naming) or the relevant first column name
-3. Separator row `|---|` immediately follows the header
-4. Data rows follow the separator, one per line starting with `|`
-5. Section ends at the next `###` heading or EOF
+2. Pattern is on a line starting with `- **Pattern:**` followed by the convention description
+3. The pattern description should include the directory scope (e.g., "in lib/storage/") when directory-specific
+4. Evidence items are indented bullets with backtick-wrapped paths
+5. Section ends at the next `###` heading, `---` separator, or EOF
+6. The `## Inconsistencies` section at the bottom may use table format for conflicts — this is the only table in the map
 
-The `convention-scanner` agent already produces this format. This contract is documented here so both the scanner and the hook parser agree on the structure.
+The `read_convention_map_patterns` function extracts directory→convention pairs from `**Pattern:**` lines that mention a directory path. Pattern lines without a directory (e.g., "camelCase for exported functions") are matched against the dimension name to infer scope.
 
 ---
 
