@@ -8,7 +8,7 @@
       "name": "sdlc-os",
       "source": "./",
       "description": "Multi-Agent SDLC Operating System — Conductor/Runner/Guppy/Sentinel/Oracle roles across Opus/Sonnet/Haiku",
-      "version": "1.0.0"
+      "version": "4.0.0"
     }
   ]
 }
