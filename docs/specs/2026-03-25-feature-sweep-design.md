@@ -48,6 +48,6 @@ Action rule:
 - No automatic code edits by finder/finisher
 - No replacement of existing `gap-analyst` requirement-completeness workflow
 
-## Known Risk
+## Hook Status
 
-Hook layer still has an absolute-path normalization edge case in bead-status guard for symlinked path forms (`/var/...` vs `/private/var/...`). Track separately as infrastructure debt.
+Symlinked absolute-path normalization in `guard-bead-status.sh` is fixed in `226dbb7`, with integration coverage in `hooks/tests/test-hooks.sh`.

@@ -79,6 +79,6 @@ Rules:
 - Synthesize phase: run Finisher wave alongside reviewer, gap-analyst finisher, and normalizer final pass.
 - Command entry: `/feature-sweep` for on-demand execution.
 
-## Known Risk (Current Hook Layer)
+## Hook Status Note
 
-Bead status guard has an absolute-path normalization edge case on symlinked path forms (`/var/...` vs `/private/var/...`). This is a separate infrastructure fix and does not block feature-sweep rollout, but should be tracked as system debt.
+Bead status guard symlink-path normalization is fixed in commit `226dbb7` and covered by integration tests (`hooks/tests/test-hooks.sh`).
