@@ -14,7 +14,7 @@ Fitness functions are automated checks that validate architectural properties ([
 | **DRY** | No duplicated logic across files | Pinecone semantic search, jscpd, grep |
 | **SSOT** | Constants/config defined in one place | LSP workspaceSymbol, grep for literals |
 | **SoC** | Each file has one concern | LSP documentSymbol, file path conventions |
-| **Conventions** | Follows established patterns | Pattern matching against reuse-patterns.md |
+| **Conventions** | Naming, structure, style match Convention Map + established patterns | convention-enforcer report + pattern matching against reuse-patterns.md |
 | **Boundaries** | Import graph respects layers | LSP incomingCalls/outgoingCalls |
 | **Coverage** | New code has tests | File existence checks, VORP audit |
 
@@ -29,7 +29,7 @@ Fitness functions are automated checks that validate architectural properties ([
 ## How to Run
 
 ### Quick Check (per-bead)
-Dispatch `drift-detector` (sonnet) with runner output. Get violations + fitness score.
+Dispatch `drift-detector` (sonnet) + `convention-enforcer` (sonnet) with runner output. Drift-detector produces DRY/SSOT/SoC/Boundaries scores. Convention-enforcer produces Conventions score from Convention Map audit.
 
 ### Full Report (per-phase or on-demand)
 1. Swarm guppies — one per fitness dimension per file group
