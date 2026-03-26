@@ -36,6 +36,11 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate-consistency-artifacts.sh\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate-hardening-report.sh\"",
+            "timeout": 10
           }
         ]
       }

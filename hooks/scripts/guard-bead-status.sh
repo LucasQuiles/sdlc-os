@@ -36,10 +36,11 @@ if [[ -z "$CURRENT_STATUS" ]]; then
 fi
 
 # Canonical status flow:
-# pending -> running -> submitted -> verified -> proven -> hardened -> merged
+# pending -> running -> submitted -> verified -> proven -> hardened -> reliability-proven -> merged
 # Also valid: blocked, stuck, escalated (from any state)
 #
-# Trivial beads may skip: proven -> merged (skipping hardened)
+# Trivial beads may skip: proven -> merged (skipping hardened and reliability-proven)
+# Beads may skip reliability: hardened -> merged (when Phase 4.5 is not active)
 # But verified -> merged is NEVER valid (must go through proven)
 # And verified -> hardened is NEVER valid (must go through proven)
 
@@ -110,6 +111,10 @@ case "$PREVIOUS_STATUS" in
     [[ "$CURRENT_STATUS" =~ ^(hardened|merged|blocked|stuck|escalated)$ ]] && VALID=true
     ;;
   hardened)
+    # hardened -> reliability-proven (normal with Phase 4.5) or hardened -> merged (skip Phase 4.5)
+    [[ "$CURRENT_STATUS" =~ ^(reliability-proven|merged|blocked|stuck|escalated)$ ]] && VALID=true
+    ;;
+  reliability-proven)
     [[ "$CURRENT_STATUS" =~ ^(merged|blocked|stuck|escalated)$ ]] && VALID=true
     ;;
   blocked|stuck|escalated)
@@ -121,7 +126,7 @@ esac
 if [[ "$VALID" == "false" ]]; then
   echo "Illegal bead status transition: ${PREVIOUS_STATUS} -> ${CURRENT_STATUS}" >&2
   echo "" >&2
-  echo "Canonical flow: pending -> running -> submitted -> verified -> proven -> hardened -> merged" >&2
+  echo "Canonical flow: pending -> running -> submitted -> verified -> proven -> hardened -> reliability-proven -> merged" >&2
   echo "Trivial beads may skip AQS: proven -> merged" >&2
   echo "But verified -> merged and verified -> hardened are NEVER valid (must pass through proven first)" >&2
   echo "" >&2
