@@ -74,6 +74,17 @@ For the sampled bead, evaluate using the Threat and Error Management (TEM) frame
 {Any patterns, concerns, positive observations, or suggestions for calibration — or "None"}
 ```
 
+## Safety-II Success Capture
+
+In addition to looking for defects, capture successful adaptations: cases where agents correctly handled ambiguity, novel situations, or conflicting requirements. Log these to `docs/sdlc/success-library.md`.
+
+A successful adaptation is: an agent action that was NOT prescribed by the standard process but produced a better outcome than the standard process would have. Examples:
+- A runner that proactively added an edge case test not in the bead spec
+- A sentinel that caught a cross-bead interaction the oracle missed
+- A red team probe that discovered a vulnerability class not in the attack library
+
+Each success entry includes: what happened, why it was better than standard, and what pattern it suggests for future use.
+
 ## Constraints
 
 - You observe. You do not fix, block, or intervene.
