@@ -1,9 +1,9 @@
 # SDLC-OS Plugin — Handoff Document
 
-**Date:** 2026-03-26
-**Plugin version:** 7.0.0
+**Date:** 2026-03-27
+**Plugin version:** 8.0.0
 **Location:** `~/.claude/plugins/sdlc-os/`
-**Git:** 3 commits this session on `main`
+**Git:** 4 commits on `main`
 
 ---
 
@@ -11,14 +11,14 @@
 
 A multi-agent SDLC orchestration system for Claude Code. The Conductor (Opus) decomposes tasks into atomic beads, dispatches Sonnet runners in parallel, Haiku sentinels patrol continuously, an Oracle council verifies claims, and adversarial red/blue teams probe for defects. Every Conductor decision is routed through Fast-and-Frugal Decision Trees (Gigerenzer). A safety control layer (Leveson/Reason/Dekker) monitors system integrity.
 
-## Current State (v7.0.0)
+## Current State (v8.0.0)
 
 | Component | Count |
 |-----------|-------|
-| Agents | 38 |
+| Agents | 41 |
 | Skills | 14 |
 | Hook scripts | 9 |
-| Reference docs | 15 |
+| Reference docs | 18 |
 | Commands | 11 |
 | Research docs | 10 (4,898 lines) |
 | Design specs | 8 |
@@ -31,10 +31,15 @@ A multi-agent SDLC orchestration system for Claude Code. The Conductor (Opus) de
 | `8032d04` | v5.0.0 | Phase 4.5 Reliability Hardening — 5 agents, 1 skill, 1 hook |
 | `b5575d2` | v6.0.0 | FFT Decision Architecture — 12 FFTs, 4 profiles, Evolve skill, HRO constraints |
 | `33d0df3` | v7.0.0 | Safety Control Layer — 4 agents, 15 mechanisms, STPA model |
+| _pending_ | v8.0.0 | Reliability Telemetry (Phase C) — 3 agents, 3 references, 3 skill updates |
 
 ### Architecture Layers (Bottom to Top)
 
 ```
+Layer 7: Reliability Telemetry (Phase C — v8.0.0)
+  March of Nines reliability ledger, common/special cause classification, slopacolypse defense
+  Karpathy (March of Nines, Slopacolypse), Deming (SPC, Funnel Rules, PDSA)
+
 Layer 6: Safety Control (Phase B — v7.0.0)
   STPA control structure, 15 safety mechanisms, 4 safety agents
   Leveson (STAMP), Reason (Swiss Cheese), Dekker (Drift)
@@ -95,7 +100,7 @@ STPA control structure with 6 interfaces and process models. 15 safety mechanism
 
 **Spec:** `docs/specs/2026-03-26-safety-control-layer-design.md` (619 lines)
 
-### Phase C: Reliability Telemetry — NEXT
+### Phase C: Reliability Telemetry — DONE (v8.0.0)
 
 Three capabilities that measure the backbone:
 
