@@ -41,7 +41,8 @@ fi
 #
 # Trivial beads may skip: proven -> merged (skipping hardened and reliability-proven)
 # Beads may skip reliability: hardened -> merged (when Phase 4.5 is not active)
-# But verified -> merged is NEVER valid (must go through proven)
+# Evolve beads: verified -> merged (no code to prove/harden)
+# But verified -> merged is NEVER valid for non-evolve beads (must go through proven)
 # And verified -> hardened is NEVER valid (must go through proven)
 
 # Normalize FILE_PATH to repo-relative for git show
@@ -104,7 +105,13 @@ case "$PREVIOUS_STATUS" in
     [[ "$CURRENT_STATUS" =~ ^(verified|blocked|stuck|escalated)$ ]] && VALID=true
     ;;
   verified)
-    [[ "$CURRENT_STATUS" =~ ^(proven|blocked|stuck|escalated)$ ]] && VALID=true
+    # Check if this is an evolve bead (verified -> merged is valid for evolve beads)
+    BEAD_TYPE=$(echo "$CONTENT" | sed -n 's/^\*\*Type:\*\*[[:space:]]*\([a-z]*\).*/\1/p' | head -1 || true)
+    if [[ "$BEAD_TYPE" == "evolve" ]]; then
+      [[ "$CURRENT_STATUS" =~ ^(proven|merged|blocked|stuck|escalated)$ ]] && VALID=true
+    else
+      [[ "$CURRENT_STATUS" =~ ^(proven|blocked|stuck|escalated)$ ]] && VALID=true
+    fi
     ;;
   proven)
     # proven -> hardened (normal) or proven -> merged (trivial bead skip)
