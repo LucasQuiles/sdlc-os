@@ -98,8 +98,8 @@ Every piece of work is tracked as an atomic unit:
 
 ```markdown
 # Bead: {id}
-**Status:** pending | running | submitted | verified | proven | hardened | merged | blocked | stuck | escalated
-**Type:** investigate | design | implement | verify | review
+**Status:** pending | running | submitted | verified | proven | hardened | reliability-proven | merged | blocked | stuck | escalated
+**Type:** investigate | design | implement | verify | review | evolve
 **Runner:** [agent name or "unassigned"]
 **Dependencies:** [list of bead IDs that must complete first]
 **Scope:** [files/areas this bead touches — used for conflict detection]
@@ -107,6 +107,15 @@ Every piece of work is tracked as an atomic unit:
 **Output:** [what the runner must produce]
 **Sentinel notes:** [anything the sentinel flagged]
 **Cynefin domain:** clear | complicated | complex | chaotic | confusion
+**Security sensitive:** true | false
+**Complexity source:** essential | accidental
+**Profile:** BUILD | INVESTIGATE | REPAIR | EVOLVE
+**Decision trace:** [path to {bead-id}-decision-trace.md]
+**Deterministic checks:** [list of checks routed to scripts per FFT-08]
+**Turbulence:** {L0: 0, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
+**Control actions:** [Phase B — not yet populated]
+**Unsafe control actions:** [Phase B — not yet populated]
+**Latent condition trace:** [Phase B — not yet populated]
 **Assumptions:** [explicit list of what must be true for this bead to work — populated by runner]
 **Safe-to-fail:** [rollback plan — REQUIRED for Complex domain beads, optional otherwise]
 **Confidence:** [runner's self-assessed confidence 0.0-1.0 with rationale — populated after execution]
@@ -125,12 +134,20 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
   - Clean state → no-op (<5 seconds), proceed to Phase 1
   - Partial SDLC artifacts → resume protocol: read state.md + beads, recover Cynefin assignments and quality budget, recommend re-entry phase
   - Unstructured changes → full normalization: check/create Convention Map via `convention-scanner`, assess changes against Convention Map + code-constitution, produce normalization directives (require user approval), dispatch `gap-analyst` Finder mode on existing work
+
+**Evolve auto-trigger check (runs during every Phase 0):**
+- If quality budget is WARNING or DEPLETED AND no user task is pending → auto-set profile to EVOLVE via FFT-01 Cue 3
+- If this is the Nth task where N mod 20 == 0 → schedule an Evolve cycle after the current task completes (do not interrupt the user's task; queue it)
+- Evolve cycles triggered by budget WARNING are immediate (before user task). Periodic Evolve cycles are deferred (after user task).
+- Manual `/evolve` always takes priority over queued periodic cycles.
 **Output:** Normalization report (or no-op confirmation). Directives require user approval before execution.
 **Skip when:** Never. Always fires, but self-limits depth based on state detection.
 
 ### Phase 1: Frame
 **What:** Understand the task. Clarify ambiguity. Define done.
 **How:** Dispatch `sonnet-investigator` to analyze requirements. Sentinel checks for gaps. **Conductor assigns Cynefin domain to each bead** using the signals in `skills/sdlc-adversarial/scaling-heuristics.md`. Chaotic beads skip directly to Execute with a single runner. Confusion beads are blocked until decomposed.
+
+**FFT routing:** The Conductor applies FFT-01 (Task Profile) and FFT-02 (Cynefin Domain) from `references/fft-decision-trees.md` to each bead. All FFT traversals are recorded in the bead's decision trace. See `references/fft-decision-trees.md` for the complete decision tree definitions.
 **Output:** Mission brief with objective, scope, constraints, success criteria.
 **Skip when:** Task is trivial and well-specified.
 
@@ -149,6 +166,15 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 ### Phase 3: Architect
 **What:** Choose an approach. Define the bead decomposition.
 **How:** Dispatch `sonnet-designer` to produce options. Conductor selects.
+
+**Complexity Source Classification (FFT-10):** For each bead in the manifest, the Conductor applies FFT-10 from `references/fft-decision-trees.md` to classify complexity as ESSENTIAL or ACCIDENTAL:
+
+- **ESSENTIAL** (novel business logic, new state machines, new domain models): Full AQS + hardening. This is where real bugs live.
+- **ACCIDENTAL** (framework boilerplate, config, migrations, build tooling): Skip AQS adversarial, run deterministic checks only (FFT-08). Simplify, don't scrutinize.
+- **Security override:** If `security_sensitive == true`, classification is forced to ESSENTIAL regardless of content. Security-sensitive config/auth/CORS changes look "accidental" but carry real risk.
+- **Refactoring:** Refactoring beads are classified ACCIDENTAL — behavioral equivalence proof is needed, not adversarial probing. Use `sdlc-os:sdlc-refactor` skill.
+
+The classification is recorded in the bead's `Complexity source` field and the decision trace.
 **Output:** Design decision + bead manifest (list of all work units with dependencies).
 **Skip when:** The implementation path is obvious and low-risk.
 
@@ -206,6 +232,15 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 3.5. Dispatch `normalizer` in Final Pass mode — cross-bead convention consistency sweep. Checks for naming drift between parallel beads, unmapped conventions, and Convention Map update needs.
 3.75. Dispatch `losa-observer` on a random sample of merged beads (20% sample rate when error budget healthy, 50% when depleted). LOSA observations feed into error budget tracking — if LOSA reports uncaught errors, the error budget depletes regardless of SLI metrics.
 4. `haiku-handoff` packages delivery summary
+5. **HRO Structural Constraints** (Weick — non-negotiable):
+
+   **5a. Preoccupation with failure:** Every all-clean bead (zero findings across ALL loop layers) gets a mandatory "Why was this clean?" note in the decision trace. Clean results are suspicious until explained.
+
+   **5b. Reluctance to simplify:** The delivery summary MUST contain at least one uncertainty, unknown, or open question. If the summary contains zero unknowns, flag as "suspiciously clean — reluctance-to-simplify gate failed." The Conductor cannot deliver a summary with zero unknowns.
+
+   **5c. Sensitivity to operations:** Every 3rd bead, the Conductor reads raw sentinel logs, not just summaries. Logged in decision trace.
+
+   **5d. Deference to expertise:** When a domain-specialist agent flags a finding, the Conductor CANNOT dismiss it — it MUST proceed to the corresponding Blue Team regardless of Conductor judgment. Conductor disagreement is logged in the decision trace for retrospective analysis, not used as a filter. Applies to ALL specialist agents: `red-functionality`, `red-security`, `red-usability`, `red-resilience`, `red-reliability-engineering`, `observability-engineer`, `error-hardener`.
 **Output:** Delivery summary with fitness report, evidence, uncertainty, next actions, and Feature Matrix triage updates.
 
 ## How to Dispatch Runners
@@ -271,17 +306,14 @@ Agent tool:
 
 ## Parallelization Rules
 
-**Safe to parallelize:**
-- Beads touching different files/modules
-- Investigation beads (read-only)
-- Independent test authoring
+Parallelization is determined via **FFT-12** from `references/fft-decision-trees.md`:
 
-**Must serialize:**
-- Beads modifying the same file
-- Implementation that depends on a design decision
-- Beads with explicit dependency links
+- Beads modifying the same file → **SERIALIZE**
+- Bead B depends on bead A's output (explicit dependency) → **SERIALIZE**
+- Both beads are read-only (investigation, audit, evolve) → **PARALLELIZE**
+- Default → **PARALLELIZE** (independent beads run in parallel)
 
-**Conflict resolution:**
+**Conflict resolution** (unchanged):
 When parallel beads produce conflicting changes, the Conductor:
 1. Reads both outputs
 2. Dispatches a fresh runner with both outputs + conflict description
@@ -306,6 +338,21 @@ When parallel beads produce conflicting changes, the Conductor:
 - Execute with careful serialization of dependent beads.
 - Sentinel patrols every bead output.
 - Synthesize with reviewer + final sentinel sweep.
+
+## Task Profiles
+
+The Conductor assigns a task profile via FFT-01 before any other routing. The profile determines which phases run and at what depth. See `references/fft-decision-trees.md` FFT-01 and FFT-04 for the full decision trees.
+
+| Profile | When | Phases Active | AQS | Hardening | Bead Type |
+|---------|------|---------------|-----|-----------|-----------|
+| BUILD | Default — new features, enhancements | All | Per Cynefin | Per FFT-09 | implement |
+| INVESTIGATE | Research, codebase understanding, no code changes | Frame + Heavy Scout + Read-Only Execute | SKIP | SKIP | investigate |
+| REPAIR | Targeted bug fix, failing test, specific defect | Minimal Scout + Execute + Harden | Resilience only | Full | implement |
+| EVOLVE | System self-improvement, quality budget recovery | Evolution beads only | SKIP | SKIP | evolve |
+
+Evolve beads follow a shortened status flow: `pending → running → submitted → verified → merged` (skip proven/hardened/reliability-proven — no user code to verify adversarially).
+
+See `sdlc-os:sdlc-evolve` for the full Evolve profile specification.
 
 ## Recovery Patterns
 

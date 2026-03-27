@@ -41,6 +41,11 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate-hardening-report.sh\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate-decision-trace.sh\"",
+            "timeout": 10
           }
         ]
       }

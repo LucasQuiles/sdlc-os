@@ -6,7 +6,14 @@ Rules for when to activate AQS, which domains to select, how to allocate guppy b
 
 ## Cynefin Domain Assessment
 
-Map each bead to a Cynefin domain before activating any AQS domains. The domain determines the overall AQS behavior and process depth.
+Bead domain classification is performed via **FFT-02** from `references/fft-decision-trees.md`. The Conductor traverses the FFT and records the traversal in the bead's decision trace.
+
+FFT-02 replaces the previous signal checklists with a single-cue binary decision tree. Key behaviors:
+- Cue 3 absorbs the security-sensitive override — auth touch = Complex + security_sensitive immediately
+- 90% of classifications resolve with one cue (Gigerenzer ecological rationality)
+- The traversal is auditable via the decision trace
+
+The domain-to-AQS behavior table remains unchanged:
 
 | Domain | AQS Behavior | Process Adjustments |
 |---|---|---|
@@ -16,107 +23,19 @@ Map each bead to a Cynefin domain before activating any AQS domains. The domain 
 | **Chaotic** | Skip AQS entirely. Act-first single runner. Fast-path approval. | Emergency process: single runner, L0 only, no Sentinel during execution. MANDATORY postmortem bead auto-created after merge — this bead goes through full Complicated-level review retroactively. |
 | **Confusion** | Block. Bead cannot be created until reclassifiable. | Force decomposition. The Conductor must break the work down until each piece is classifiable as Clear, Complicated, or Complex. If decomposition fails, escalate to user for clarification. |
 
-Security-sensitive overrides ALL domain assessments. A 1-line change that touches auth is security-sensitive regardless of Cynefin domain.
-
 ---
 
-## Cynefin Domain Signals
+## Domain Selection and Priority
 
-Use these signals to assign the Cynefin domain. Check top-down — security-sensitive signals override everything. Chaotic/Confusion signals override Clear/Complicated/Complex.
+Domain activation and priority are determined via **FFT-03** from `references/fft-decision-trees.md`, applied per domain after the recon burst completes.
 
-### Chaotic signals (any one — act first, review later)
-- Production incident requiring immediate fix
-- Security vulnerability with evidence of active exploitation
-- Data corruption or loss currently in progress
-- User explicitly flags as emergency with time pressure
+FFT-03 formalizes the cross-reference matrix:
+- Conductor + Recon agree → HIGH (20-40 guppies)
+- Recon only (Conductor blind spot) → MED (10-20 guppies) — the most important case
+- Conductor only (unconfirmed intuition) → LOW (5-10 guppies)
+- Neither → SKIP
 
-### Confusion signals (any one — stop, decompose, reclassify)
-- Requirements contain contradictions that cannot be resolved without user input
-- Success criteria cannot be stated in observable, testable terms
-- Multiple valid interpretations exist with no way to choose between them
-- Bead scope cannot be bounded — it's unclear what is in and out of scope
-
-### Clear signals (ALL must be true — one exception lifts to Complicated)
-- Single file changed
-- Fewer than 50 lines changed
-- No new I/O operations introduced (no new database calls, HTTP calls, file reads/writes)
-- Internal refactor only — no changes to public API or exported interface
-- Documentation-only changes (comments, README, docstrings with no behavioral impact)
-
-### Complicated signals (any one is sufficient)
-- 2–5 files changed
-- New function or module introduced that is not externally exposed
-- New error handling paths added to existing code
-- New API endpoint or function exported for use by other modules
-
-### Complex signals (any one is sufficient)
-- 5 or more files changed
-- New external integration introduced (new HTTP client, new database, new third-party service)
-- Changes to data model (new tables, new schema fields, new serialization format)
-- New asynchronous patterns introduced (new queues, new event emitters, new background jobs)
-- Cross-service refactoring affecting multiple module boundaries
-
-### Security-sensitive overrides (any one forces security-sensitive tier regardless of domain)
-- Any user-supplied input reaches a new code path (new route, new parameter, new field)
-- Changes to authentication logic (login, token validation, session management)
-- Changes to authorization logic (permission checks, role validation, ownership checks)
-- New credential handling (storing, transmitting, or validating passwords, API keys, tokens)
-- New data exposure paths (new API response fields, new log statements touching sensitive data)
-- New filesystem or command execution operations
-- New cross-origin request handling (CORS configuration, postMessage handlers)
-
----
-
-## Domain Selection Heuristics
-
-The Conductor applies these heuristics to assign preliminary domain priority before recon results are available. Recon results may override the Conductor's judgment in either direction.
-
-### Functionality
-**Activate when:**
-- Bead implements business logic (calculations, state transitions, workflow steps)
-- Bead changes the behavior of an existing function (not just its implementation)
-- Bead introduces new conditional paths (new if/else, new switch cases, new state branches)
-- Bead changes how data is transformed, validated, or processed
-
-**Do not activate when:**
-- Bead is infrastructure-only (logging, monitoring, config) with no business logic
-- Bead is documentation or comment-only
-
-### Security
-**Activate when:**
-- Bead touches any external input path (user input, API parameters, file uploads)
-- Bead changes authentication or authorization logic
-- Bead introduces new data persistence or retrieval
-- Bead adds or modifies API endpoints or public interfaces
-- Security-sensitive override was triggered (always active)
-
-**Do not activate when:**
-- Bead is internal-only refactor with no change to input handling or data access
-
-### Usability
-**Activate when:**
-- Bead creates or modifies a user-facing interface (UI component, API contract, CLI)
-- Bead changes error messages, response shapes, or status codes
-- Bead introduces a new public API (function signatures, method names, parameter names)
-- Bead changes developer-facing documentation, types, or interfaces
-
-**Do not activate when:**
-- Bead has no user-facing or developer-facing interface changes (pure internal logic)
-
-### Resilience
-**Activate when:**
-- Bead touches error handling code (try/catch, error callbacks, error middleware)
-- Bead introduces new I/O operations (database, HTTP, filesystem, queue)
-- Bead changes retry logic, timeout configuration, or circuit breaker settings
-- Bead adds new external service dependencies
-- Bead changes resource lifecycle management (connection pools, file handles, event listeners)
-
-**Do not activate when:**
-- Bead has no I/O operations and no error handling changes
-
-### Multi-Domain Activation Patterns
-
-Common bead types and their expected domain activation:
+The Multi-Domain Activation Patterns table remains as a reference for the Conductor's initial domain selection before recon:
 
 | Bead Type | Functionality | Security | Usability | Resilience |
 |---|---|---|---|---|
@@ -130,20 +49,22 @@ Common bead types and their expected domain activation:
 | Third-party integration | MED | HIGH | MED | HIGH |
 | Error handling improvement | LOW | LOW | MED | HIGH |
 
-These are starting points, not rules. Recon signals and bead content override the pattern.
-
 ---
 
 ## Budget Management
 
 ### Guppy Budget by Priority
 
-| Domain Priority | Strike Guppies | Notes |
+Budget allocation follows **FFT-11** from `references/fft-decision-trees.md`, implementing Taleb's barbell strategy:
+
+| Priority | Guppies | Barbell Position |
 |---|---|---|
-| **HIGH** | 20–40 | Full attack across all applicable attack vectors in the domain library |
-| **MED** | 10–20 | Focused on the specific signals raised by recon |
-| **LOW** | 5–10 | Light sweep; close immediately if clean |
-| **SKIP** | 0 | No strike |
+| **HIGH** | 20-40 | Maximum scrutiny (barbell extreme) |
+| **MED** (recon blind spot) | 10-20 | Justified middle — recon surfaced something unexpected |
+| **LOW** | 5-10 | Light sweep |
+| **SKIP** or **ACCIDENTAL** (non-security) | 0 | Minimum scrutiny (barbell extreme) |
+
+Note: security_sensitive == true overrides ACCIDENTAL → guppies are never zero for security-sensitive beads regardless of complexity source.
 
 ### Arbiter Budget
 
@@ -153,12 +74,14 @@ Each arbiter invocation uses Opus. Budget accordingly — Opus invocations are e
 
 ### Cycle Budget
 
-**Maximum 2 full cycles per bead.**
+Cycle 2 decision is determined via **FFT-06** from `references/fft-decision-trees.md`.
 
-- Cycle 1 always runs when AQS is active.
-- Cycle 2 runs only if Cycle 1 produced at least one accepted or arbiter-sustained fix (i.e., code was changed). Re-attacks the hardened code to verify fixes hold and no new attack surface was introduced.
-- If Cycle 1 produces no findings (all domains clean), AQS completes immediately without Cycle 2.
-- After 2 cycles, any unresolved findings are escalated to the Conductor with the adversarial report. The bead is marked `DEFERRED` or `PARTIALLY_HARDENED`.
+Key behaviors:
+- Any CRITICAL finding in Cycle 1 → Cycle 2 MANDATORY. If bead was CLEAR, auto-escalate to COMPLICATED (Kahneman certainty effect — zero-to-one threshold).
+- Any accepted fix that changed code → Cycle 2 fires (verify fix holds)
+- Stable process with no findings → Cycle 2 SKIP (Deming Funnel Rule 1: do not adjust a stable process)
+
+**Maximum 2 full cycles per bead.** After 2 cycles, unresolved findings escalate to Conductor.
 
 ---
 

@@ -67,6 +67,12 @@ LOOP (budget: 2 cycles):
 **Key:** The correction is SPECIFIC. Not "this is wrong." Instead: "line 45 doesn't handle null, the test on line 80 is vacuous, scope drifted into payments-storage, file naming violates convention (camelCase, should be kebab-case)."
 **Convention-enforcer in L1:** Runs alongside drift-detector after each runner submission. BLOCKING convention violations trigger the same L1 correction path as drift-detector findings. `CONVENTION_DRIFT` signals are reported to the Conductor for Convention Map review but do NOT trigger L1 correction (the map may be stale, not the runner).
 
+### Deterministic Check Routing (FFT-08)
+
+Before dispatching LLM-based sentinel checks, the Conductor applies **FFT-08** from `references/fft-decision-trees.md` to classify each verification check. Checks answerable by running a command (type-check, lint, test, file-exists, schema validation) are routed to shell scripts, not LLM agents. See `references/deterministic-checks.md` for the full catalog.
+
+This directly improves pipeline reliability: replacing a p=0.95 LLM step with a p=1.0 script step contributes multiplicative improvement to end-to-end reliability (Karpathy March of Nines).
+
 ### Level 2: Oracle Loop (wraps test quality)
 
 After Sentinel passes, Oracle audits test integrity.
@@ -106,6 +112,16 @@ LOOP (budget: 2 cycles):
 **Metric:** Residual risk after adversarial engagement.
 **Budget:** 2 red/blue/arbiter cycles.
 **Key:** AQS is skipped for trivial beads (beads go `proven → merged` directly). See `sdlc-os:sdlc-adversarial` for full cycle details.
+
+### FFT-Driven Loop Depth
+
+Loop depth assignment is formalized via **FFT-05** from `references/fft-decision-trees.md`. Key behaviors:
+- CHAOTIC → L0 only (act-first, postmortem retroactively)
+- CONFUSION → BLOCKED (must decompose first)
+- CLEAR + healthy budget → L0 only
+- CLEAR + unhealthy budget → L0 + L1
+- COMPLICATED → L0 + L1 + L2 + L2.5
+- COMPLEX or security_sensitive → L0 + L1 + L2 + L2.5 + L2.75 (full pipeline)
 
 ### Level 3: Bead Loop (wraps the full bead lifecycle)
 
@@ -204,6 +220,14 @@ Task stuck (L5 budget: 3) → User gets explicit gap report
 
 **Naked escalation is forbidden.** "I'm stuck" without specifics is not escalation — it is abdication.
 
+### FFT-Driven Escalation
+
+Escalation strategy at L3+ is formalized via **FFT-07** from `references/fft-decision-trees.md`. Key behaviors:
+- Same error 3+ times across beads → ROOT_CAUSE_ANALYSIS (Dekker: fix the context, not the runner)
+- Already re-decomposed once → ESCALATE_TO_USER
+- Runner reported NEEDS_CONTEXT → ENRICH_AND_REDISPATCH
+- Sunk cost check: "If starting fresh, would I choose this design?" → If NO: REDESIGN_BEAD
+
 ## Budget Table
 
 | Loop Level | What | Budget | Escalates To |
@@ -300,6 +324,25 @@ Beads now track loop state:
   - [timestamp] L2: oracle correction — {finding}
   - [timestamp] L2.5: AQS finding — {domain}: {finding}
 ```
+
+### Turbulence Tracking
+
+Every bead tracks its loop cycle consumption in the `Turbulence` field:
+
+```
+**Turbulence:** {L0: 1, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
+```
+
+The Turbulence field is updated after each loop level completes:
+- L0: increment when runner self-corrects (each attempt counts)
+- L1: increment when sentinel flags and correction cycle runs
+- L2: increment when oracle flags and correction cycle runs
+- L2.5: increment per AQS cycle
+- L2.75: increment per Phase 4.5 hardening cycle
+
+**Turbulence Score** = total cycles consumed / expected cycles for beads of this Cynefin domain. Score near 1.0 = normal. Score > 2.0 = high turbulence (Kahneman duration neglect countermeasure — makes correction history visible even after bead reaches "hardened" status).
+
+High-turbulence beads are flagged in the Phase 5 delivery summary and may warrant additional monitoring in production.
 
 ## Evidence Accumulation Across Loops
 
