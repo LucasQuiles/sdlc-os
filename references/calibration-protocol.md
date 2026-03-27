@@ -15,11 +15,20 @@ Procedures for detecting and correcting agent drift, noise, and quality degradat
 2. Run the calibration bead through L1 (Sentinel) + L2 (Oracle) + L2.5 (AQS)
 3. Compare detection results against known-planted defects
 4. **Detection rate >= baseline** → System is calibrated. Log result and continue.
-5. **Detection rate < baseline** → System is drifting. Investigate:
-   - Which defect types were missed? → Update regression watchlist
-   - Which agents failed to detect? → Review agent prompts for decay
-   - Has the constitution grown rules that conflict with detection? → Constitution review
+5. **Detection rate < baseline** → System is drifting. **Classify before acting:**
+   a. Dispatch `variation-classifier` with: detection rate history (last 5+ calibration runs), current rate, baseline
+   b. **COMMON CAUSE** (within control limits) → Fix the SYSTEM, not individual agents:
+      - Improve planted defect diversity (maybe detection was never reliable for this type)
+      - Tighten rubric examples across all agents
+      - Review calibration bead design (are defects too subtle for current system maturity?)
+      - Do NOT adjust individual agent prompts — that is Tampering (Deming Funnel Rule 1)
+   c. **SPECIAL CAUSE** (outside control limits) → Investigate the specific signal:
+      - Which defect types were missed? → Update regression watchlist
+      - Which agents failed to detect? → Review THAT agent's prompt for decay
+      - Has the constitution grown rules that conflict with detection? → Constitution review
+   d. **STABLE PROCESS** (no signal, rate within limits) → Do NOT adjust. Funnel Rule 1.
 6. After recalibration changes, re-run the same calibration bead to verify improvement
+7. Log classification result and corrective action (or non-action) in decision trace
 
 ### Baseline
 The baseline detection rate is established by the first calibration run. Initial target: detect >= 80% of planted defects. The baseline may increase as the system matures.
@@ -76,3 +85,13 @@ Measures consistency of the system's judgment by re-running the same review and 
 | **Level noise** | Different model instances produce systematically different severity ratings | Model temperature, sampling variation | Standardize rubrics with concrete anchored examples per severity level |
 | **Pattern noise** | Same model weights some domains over others consistently | Training data skew, prompt emphasis | Rebalance domain emphasis in agent prompts; add calibration examples |
 | **Occasion noise** | Same model rates same code differently based on what it reviewed just before | Context pollution, ordering effects | Reset agent context between beads; randomize review order |
+
+### Variation Classification Before Action (Deming)
+
+Before applying ANY noise mitigation from the table above, dispatch `variation-classifier` with the noise overlap history:
+
+1. **COMMON CAUSE** (noise level within historical range) → The noise is inherent to the system's LLM-based architecture. Apply system-wide mitigations: standardize rubrics, add anchored examples, improve bead spec quality.
+2. **SPECIAL CAUSE** (noise level outside control limits) → Something specific changed. Investigate: model API update? New agent prompt? Changed temperature? Fix the specific cause.
+3. **STABLE PROCESS** (noise has always been at this level) → The system is operating as designed. Do NOT tighten rubrics reactively — that is Tampering. Instead, reassess whether the noise level is acceptable for the current quality budget.
+
+See `references/control-charts.md` for Western Electric rules and Funnel Rule details.

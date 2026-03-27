@@ -62,11 +62,21 @@ LOOP (budget: 2 cycles):
   7. Budget exhausted → bead status = escalated. Backpressure to Conductor.
 ```
 
-**Metric:** Sentinel's verification checklist (from `haiku-verifier`) + drift-detector violations + convention-enforcer violations + safety-constraints-guardian violations.
+**Metric:** Sentinel's verification checklist (from `haiku-verifier`) + drift-detector violations + convention-enforcer violations + safety-constraints-guardian violations + simplicity-auditor findings.
 **Budget:** 2 sentinel-runner correction cycles.
 **Key:** The correction is SPECIFIC. Not "this is wrong." Instead: "line 45 doesn't handle null, the test on line 80 is vacuous, scope drifted into payments-storage, file naming violates convention (camelCase, should be kebab-case)."
 **Convention-enforcer in L1:** Runs alongside drift-detector after each runner submission. BLOCKING convention violations trigger the same L1 correction path as drift-detector findings. `CONVENTION_DRIFT` signals are reported to the Conductor for Convention Map review but do NOT trigger L1 correction (the map may be stale, not the runner).
 **safety-constraints-guardian in L1:** Runs alongside drift-detector and convention-enforcer after each runner submission. Checks bead outputs against the Safety Constraints Registry (`references/safety-constraints.md`). Violations are BLOCKING — same correction signal as drift-detector.
+
+**simplicity-auditor in L1 (Karpathy Slopacolypse Defense):** Runs alongside the other L1 checks after each runner submission. Computes a simplicity coefficient (problem_complexity / solution_complexity) and flags disproportionately complex solutions. This catches a class of defect that correctness checks cannot see: code that passes all tests but is unnecessarily complex.
+
+- **PASS** (coefficient >= 0.5): Solution proportionate to problem. No action.
+- **WARNING** (0.3 <= coefficient < 0.5): Solution may be over-engineered. Runner must justify complexity or simplify. Non-blocking but logged.
+- **BLOCKING** (coefficient < 0.3): Solution is disproportionately complex. L1 correction directive issued with specific simplification targets.
+
+The audit also checks for specific slopacolypse indicators: factory patterns wrapping single functions, strategy patterns for two-branch conditionals, premature generalization (generics with single implementation), dead code paths, and copy-paste amplification. See `references/simplicity-metrics.md` for metric definitions and thresholds. See `agents/simplicity-auditor.md` for the full agent specification.
+
+ACCIDENTAL beads (FFT-10) are expected to have high coefficients — if they don't, something is wrong. ESSENTIAL beads get more latitude but coefficient < 0.3 still requires justification.
 
 ### Deterministic Check Routing (FFT-08)
 

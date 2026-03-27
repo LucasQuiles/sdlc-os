@@ -206,6 +206,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - See `sdlc-os:sdlc-adversarial` for full cycle details
    - **Skip for trivial beads.** See `skills/sdlc-adversarial/scaling-heuristics.md`
 5. Corrections flow through the L0-L5 loop system (`sdlc-os:sdlc-loop`).
+6. **Turbulence tracking (Karpathy March of Nines):** The Conductor updates the bead's `Turbulence` field after each correction cycle at any level. Increment the relevant counter: L0 for runner self-corrections, L1 for sentinel corrections, L2 for oracle findings, L2.5 for AQS findings, L2.75 for hardening findings. See `references/reliability-ledger.md` for population rules.
 **Output:** Code changes, tests, validation notes, reuse reports per bead.
 **Recovery:** Handled by loop mechanics. See `sdlc-os:sdlc-loop`.
 
@@ -236,6 +237,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
 3.375. Dispatch `feature-finisher` — triage unresolved Feature Matrix rows, assign type/effort/recommendation, and write completion specs for findings at 50%+ completion. See `sdlc-os:sdlc-feature-sweep`.
 3.5. Dispatch `normalizer` in Final Pass mode — cross-bead convention consistency sweep. Checks for naming drift between parallel beads, unmapped conventions, and Convention Map update needs.
 3.75. Dispatch `losa-observer` on a random sample of merged beads (20% sample rate when error budget healthy, 50% when depleted). LOSA observations feed into error budget tracking — if LOSA reports uncaught errors, the error budget depletes regardless of SLI metrics.
+3.875. Dispatch `reliability-ledger` — reads all bead turbulence fields, computes per-step first-pass rates (L0/L1/L2/L2.5/L2.75), identifies bottlenecks, compares against prior ledger entries. Appends results to `docs/sdlc/reliability-ledger.md`. See `references/reliability-ledger.md` for rate formulas and trend analysis rules.
 4. `haiku-handoff` packages delivery summary
 5. **HRO Structural Constraints** (Weick — non-negotiable):
 

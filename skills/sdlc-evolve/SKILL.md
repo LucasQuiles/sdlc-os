@@ -60,10 +60,13 @@ Apply the Plan-Do-Study-Act cycle to system parameters.
 **Protocol:**
 1. **Plan:** Identify a parameter to tune (e.g., guppy count thresholds, recon burst size, convergence threshold). Hypothesis: "changing X from A to B will improve Y."
 2. **Do:** Run the next calibration bead under the new parameter value
-3. **Study:** Compare detection rate, false positive rate, and cycle count against baseline
-4. **Act:** If improvement confirmed → adopt. If no improvement → abandon. If ambiguous → extend study.
+3. **Study:** Dispatch `variation-classifier` with the metric history. Compare detection rate, false positive rate, and cycle count against baseline using control chart analysis:
+   - Is the change within common-cause variation? → The parameter change had no real effect. Abandon.
+   - Is the change a special-cause signal (outside control limits)? → The parameter change had a genuine effect. Evaluate direction.
+   - Minimum data: need ≥3 calibration runs under the new parameter before classifying.
+4. **Act:** If improvement confirmed by variation-classifier as special cause → adopt. If common cause (no real effect) → abandon. If ambiguous (insufficient data) → extend study with more calibration runs.
 
-**Anti-pattern guard:** Tampering (Deming) — only tune parameters when control charts show a genuine shift, not in response to single data points.
+**Anti-pattern guard:** Tampering (Deming) — only tune parameters when `variation-classifier` confirms a genuine shift (special cause), not in response to common-cause variation. See `references/control-charts.md` for classification rules.
 
 ### 4. Precedent Coherence Audit
 
