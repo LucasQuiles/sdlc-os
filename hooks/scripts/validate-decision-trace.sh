@@ -82,6 +82,42 @@ if [[ ${#MISSING[@]} -gt 0 ]]; then
   exit 2
 fi
 
+# --- Phase B field enforcement (complex or security-sensitive beads) ---
+
+CYNEFIN_DOMAIN=$(echo "$CONTENT" | sed -n 's/^\*\*Cynefin:\*\*[[:space:]]*\([a-z_]*\).*/\1/p' | head -1 || true)
+SECURITY_SENSITIVE=$(echo "$CONTENT" | sed -n 's/^\*\*Security sensitive:\*\*[[:space:]]*\([a-z]*\).*/\1/p' | head -1 || true)
+PHASE_B_STATUS=$(echo "$CONTENT" | sed -n 's/^\*\*Status:\*\*[[:space:]]*\([a-z_]*\).*/\1/p' | head -1 || true)
+
+PHASE_B_REQUIRED=false
+if [[ "$CYNEFIN_DOMAIN" == "complex" ]] || [[ "$SECURITY_SENSITIVE" == "true" ]]; then
+  PHASE_B_REQUIRED=true
+fi
+
+if [[ "$PHASE_B_REQUIRED" == "true" ]] && [[ -n "$PHASE_B_STATUS" ]] && [[ "$PHASE_B_STATUS" != "pending" ]] && [[ "$PHASE_B_STATUS" != "submitted" ]]; then
+  CONTROL_ACTIONS=$(echo "$CONTENT" | sed -n 's/^\*\*Control actions:\*\*[[:space:]]*\(.*\)/\1/p' | head -1 | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//' || true)
+  UNSAFE_CONTROL_ACTIONS=$(echo "$CONTENT" | sed -n 's/^\*\*Unsafe control actions:\*\*[[:space:]]*\(.*\)/\1/p' | head -1 | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//' || true)
+
+  PHASE_B_ERRORS=()
+
+  if [[ -z "$CONTROL_ACTIONS" ]] || [[ "$CONTROL_ACTIONS" == "[]" ]] || [[ "$CONTROL_ACTIONS" == "Phase B" ]]; then
+    PHASE_B_ERRORS+=("control_actions field is empty or unpopulated")
+  fi
+
+  if [[ -z "$UNSAFE_CONTROL_ACTIONS" ]] || [[ "$UNSAFE_CONTROL_ACTIONS" == "[]" ]] || [[ "$UNSAFE_CONTROL_ACTIONS" == "Phase B" ]]; then
+    PHASE_B_ERRORS+=("unsafe_control_actions field is empty or unpopulated")
+  fi
+
+  if [[ ${#PHASE_B_ERRORS[@]} -gt 0 ]]; then
+    echo "Bead is complex or security-sensitive but is missing required Phase B safety fields:" >&2
+    for err in "${PHASE_B_ERRORS[@]}"; do
+      echo "  - ${err}" >&2
+    done
+    echo "" >&2
+    echo "For complex or security-sensitive beads, control_actions and unsafe_control_actions must be populated before advancing past 'submitted'." >&2
+    exit 2
+  fi
+fi
+
 # --- Trace artifact checks (run only when status transitions past pending) ---
 
 CURRENT_STATUS=$(echo "$CONTENT" | sed -n 's/^\*\*Status:\*\*[[:space:]]*\([a-z_]*\).*/\1/p' | head -1 || true)

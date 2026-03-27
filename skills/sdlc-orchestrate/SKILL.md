@@ -158,6 +158,7 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 2. Dispatch `convention-scanner` if Convention Map (`docs/sdlc/convention-map.md`) is missing or older than 30 days. Convention Map becomes required context for all subsequent phases.
 3. Dispatch `gap-analyst` in Finder mode — compare requirements against codebase to produce a Completeness Map. See `sdlc-os:sdlc-gap-analysis` for full protocol.
 4. Dispatch `feature-finder` in archaeology mode — scan for neglected feature work across code/structural/git/documentation signals and update `docs/sdlc/feature-matrix.md`. See `sdlc-os:sdlc-feature-sweep`.
+5. Dispatch `safety-constraints-guardian` to discover project-specific safety constraints from codebase analysis. Constraints are added to `references/safety-constraints.md`.
 **Output:** Discovery brief + Convention Map + Completeness Map (EXISTS/PARTIAL/MISSING per requirement) + Feature Matrix delta (new/updated findings).
 **Key constraint:** Phase 3 (Architect) only creates beads for MISSING and PARTIAL items from the Completeness Map. EXISTS items get no beads.
 **Skip when:** You already have sufficient context (e.g., from prior conversation). Convention scan and gap analysis still run even when investigation is skipped.
@@ -175,6 +176,9 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 - **Refactoring:** Refactoring beads are classified ACCIDENTAL — behavioral equivalence proof is needed, not adversarial probing. Use `sdlc-os:sdlc-refactor` skill.
 
 The classification is recorded in the bead's `Complexity source` field and the decision trace.
+
+For beads where the STPA skip rule applies (COMPLEX or security_sensitive), dispatch `safety-analyst` to enumerate control actions and derive UCAs. See `references/stpa-control-structure.md` for the system control structure model. UCAs populate the bead's `unsafe_control_actions` field and become automatic Red Team probe targets.
+
 **Output:** Design decision + bead manifest (list of all work units with dependencies).
 **Skip when:** The implementation path is obvious and low-risk.
 
@@ -189,6 +193,7 @@ The classification is recorded in the bead's `Complexity source` field and the d
    - `haiku-verifier` checks acceptance criteria
    - `drift-detector` checks DRY/SSOT/SoC/pattern/boundary violations
    - `convention-enforcer` checks naming/structure/style against Convention Map (see `references/convention-dimensions.md`)
+   - `safety-constraints-guardian` checks bead outputs against the Safety Constraints Registry (`references/safety-constraints.md`). Violations are BLOCKING — same correction signal as drift-detector.
    - Oracle audits test integrity (L2)
    Convention-enforcer BLOCKING violations trigger L1 correction same as drift-detector. `CONVENTION_DRIFT` signal → Conductor reviews Convention Map for staleness, may dispatch `convention-scanner` to refresh.
 4. After Oracle proves the bead, run the **Adversarial Quality System** (`sdlc-os:sdlc-adversarial`):
@@ -349,6 +354,8 @@ The Conductor assigns a task profile via FFT-01 before any other routing. The pr
 | INVESTIGATE | Research, codebase understanding, no code changes | Frame + Heavy Scout + Read-Only Execute | SKIP | SKIP | investigate |
 | REPAIR | Targeted bug fix, failing test, specific defect | Minimal Scout + Execute + Harden | Resilience only | Full | implement |
 | EVOLVE | System self-improvement, quality budget recovery | Evolution beads only | SKIP | SKIP | evolve |
+
+**REPAIR profile STPA note:** REPAIR beads skip Phase 3 (Architect). For REPAIR beads where the STPA skip rule applies (COMPLEX or security_sensitive), `safety-analyst` runs at pre-Execute as an inline mini-Architect step for safety analysis only — before runners are dispatched. This populates `control_actions` and `unsafe_control_actions` on the bead before execution begins.
 
 Evolve beads follow a shortened status flow: `pending → running → submitted → verified → merged` (skip proven/hardened/reliability-proven — no user code to verify adversarially).
 

@@ -93,6 +93,42 @@ Trend analysis on leading indicators of process drift.
 
 **Anti-pattern guard:** Normalization of Deviance (Dekker) — each individual relaxation looks rational, but the aggregate trajectory erodes standards.
 
+### 6. Verification Depth Assessment (D2)
+
+Check whether verification at each loop level is substantive or ritualistic. Flag sentinel checks that always pass, oracle audits with identical boilerplate, AQS cycles that converge in exactly one round every time.
+
+### 7. Work-as-Done vs Work-as-Prescribed Audit (D4)
+
+Compare decision traces (work-as-done) against skill prescriptions (work-as-prescribed). Detect systematic deviations — phases always skipped even when prescribed, FFT cues never checked, fields always empty.
+
+### 8. Safety-II Success Capture (D5)
+
+Review LOSA observations for successful adaptations — cases where agents correctly handled ambiguity, novel situations, or conflicting requirements. Add to `docs/sdlc/success-library.md`.
+
+### 9. Protection Erosion Monitor (R3)
+
+Track ratio of production beads to protection beads. Alert if protection ratio drops below 20% for 3 consecutive tasks.
+
+### 10. Safety Culture Health Check (R5)
+
+Verify Reason's 5 safety culture components: Informed (fitness functions covering all dimensions), Reporting (structured finding format), Just (failures traced to system factors), Learning (constitution growth), Flexible (Cynefin scaling producing different depths).
+
+### 11. Process Model Consistency Audit (L2)
+
+For each controller in the STPA map, check whether its process model matches current system state.
+
+### 12. Feedback Channel Health Monitor (L3)
+
+For each sensor/guard, check functioning. Use probe-based health checks for hooks (dispatch guppy to attempt invalid write, verify block).
+
+### 13. Latent Condition Aggregation
+
+Query resident pathogen registry for GROWING pathogens. Generate Evolve beads targeting the upstream layer with the most accumulated pathogens.
+
+### 14. Precedent Sunset Protocol (D3)
+
+Flag precedents unused for 20+ tasks, conflicting with newer architecture, or from before major refactoring. Apply Lindy-weighted trust.
+
 ## Output Format
 
 Phase 5 produces a system health report:

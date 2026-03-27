@@ -25,6 +25,7 @@ Quality governance for agent-generated code. The Conductor tracks these indicato
 | Test coverage delta | >= 0 | Never decrease coverage — new code must bring its own tests |
 | Cognitive complexity | <= 15 per function | Beyond 15, code becomes hard for both humans and LLMs to reason about |
 | AQS critical finding rate | < 1 per task | More than 1 critical finding per task indicates systemic generation issues |
+| Feedback channel health | >= 80% channels GREEN | All sensors/guards functioning; measured via safety-analyst probe-based health check per L3 mechanism; checked each Evolve cycle and post-L3-escalation |
 
 ---
 

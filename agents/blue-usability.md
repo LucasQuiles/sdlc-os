@@ -52,6 +52,7 @@ This is the defensive iteration pattern: confirm problem → fix → verify impr
 - **Disclosure notes:** {Areas of uncertainty, adjacent concerns noticed, or "None"}
 - **Confidence:** {0.0-1.0}
 - **Confidence rationale:** {what drives the score}
+- **Latent condition:** Which upstream layer should have caught this? (Select one: L0 Runner / L1 Sentinel / L2 Oracle / L2.5 AQS / L2.75 Hardening / Convention Map / Code Constitution / Safety Constraints / Hook-Guard / Other)
 
 ### If rebutted:
 - **Reasoning:** {Why the current interface is correct or follows convention}

@@ -93,7 +93,7 @@ After cross-reference produces final domain priorities but before directed strik
 
 For each HIGH/MED/LOW domain, dispatch the corresponding red team Sonnet commander agent. Each commander:
 
-1. Receives the bead code, recon guppy signals, and priority level
+1. Receives the bead code, recon guppy signals, and priority level. For COMPLEX and security-sensitive beads, red team commanders also receive the bead's `unsafe_control_actions` list from the safety-analyst's STPA analysis. UCAs provide systematic attack vectors — probe each UCA type rather than relying on heuristic attack selection alone.
 2. Designs attack vectors specific to its domain and the signals received
 3. Fires guppy swarms — **machine gun volume, narrow focus** — each guppy gets one probe
 4. Analyzes guppy results; separates genuine hits from noise
@@ -143,6 +143,22 @@ Fast-track responses skip the full reproduction cycle, regression narrative, and
 BLUE defenders: `blue-functionality`, `blue-security`, `blue-usability`, `blue-resilience` (all Sonnet).
 
 "Acknowledged" is not an accepted response. "Looks fine" is not a rebuttal. Every response must produce evidence.
+
+**Latent condition field (required for accepted and sustained findings):** For each accepted or sustained finding, the Blue Team response must include:
+
+```
+**Latent condition:** Which upstream layer should have caught this?
+- [ ] L0 Runner (prompt gap, spec ambiguity, missing context)
+- [ ] L1 Sentinel (drift-detector blind spot, convention gap)
+- [ ] L2 Oracle (VORP check missed this claim type)
+- [ ] L2.5 AQS (attack library gap, domain selection miss)
+- [ ] L2.75 Hardening (observability gap, error handling gap)
+- [ ] Convention Map (unmapped pattern)
+- [ ] Code Constitution (missing rule)
+- [ ] Safety Constraints (missing constraint)
+- [ ] Hook/Guard (validator didn't catch this pattern)
+- [ ] Other: {specify}
+```
 
 ### Phase 5: Arbiter (Disputes Only)
 
