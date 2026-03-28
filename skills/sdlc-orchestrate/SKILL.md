@@ -203,7 +203,9 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - Red team commanders fire guppy swarms (machine gun volume) at specific attack vectors
    - Deploy domain-matched blue team defenders to respond to findings
    - Dispatch `arbiter` (Opus) for any disputed findings — Kahneman protocol, binding verdicts
-   - Update bead with hardening changes, mark status `hardened`
+   - Update bead with hardening changes
+   - **Cross-model escalation (FFT-14):** After same-model AQS completes, the Conductor evaluates FFT-14 from `references/fft-decision-trees.md` using the AQS structured exit block (`aqs_exit`). If FFT-14 returns FULL or TARGETED: dispatch `crossmodel-supervisor` with bead context, FFT-14 outcome, and AQS structured exit block. The supervisor manages the full tmup session lifecycle (see `sdlc-os:sdlc-crossmodel`). Stage A findings route to existing blue team defenders. Stage B findings route to `crossmodel-triage`. All cross-model findings must be resolved before bead transitions to `hardened`. If FFT-14 returns SKIP or SKIP_UNAVAILABLE: proceed directly to `hardened`. Decision logged in bead decision trace.
+   - mark status `hardened`
    - See `sdlc-os:sdlc-adversarial` for full cycle details
    - **Skip for trivial beads.** See `skills/sdlc-adversarial/scaling-heuristics.md`
 5. Corrections flow through the L0-L5 loop system (`sdlc-os:sdlc-loop`).
@@ -422,5 +424,5 @@ When all beads are proven, hardened (or AQS-skipped), and merged:
 | Frame | sonnet-investigator | haiku-evidence | — | — | Define mission, scope, criteria |
 | Scout | sonnet-investigator + convention-scanner + gap-analyst (Finder) + standards-curator + safety-constraints-guardian | haiku-evidence | — | — | Gather context, map conventions, find gaps, discover standards |
 | Architect | sonnet-designer + safety-analyst (if STPA applies) | haiku-verifier | — | — | Choose approach, create bead manifest |
-| Execute | sonnet-implementer (parallel OK) | haiku-verifier + drift-detector + convention-enforcer + simplicity-auditor + safety-constraints-guardian | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
+| Execute | sonnet-implementer (parallel OK) + crossmodel-supervisor (if FFT-14) | haiku-verifier + drift-detector + convention-enforcer + simplicity-auditor + safety-constraints-guardian | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
 | Synthesize | sonnet-reviewer + gap-analyst (Finisher) + normalizer (Final Pass) + losa-observer + reliability-ledger + llm-self-security | haiku-handoff | oracle L1+L2+L3 (integration) | fitness report (full, includes Conventions) | Merge results, deliver |
