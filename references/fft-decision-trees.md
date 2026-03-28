@@ -399,3 +399,65 @@ FFT-12: parallelization
 ```
 
 **Trace log:** Per-bead-pair parallelization decision, reason.
+
+---
+
+## FFT-14: Cross-Model Escalation
+
+**Replaces:** Implicit "always same-model AQS only" assumption
+**Anti-pattern guarded:** Single-Model Blind Spot — same model family cannot catch its own systematic failure modes
+**Source:** Cross-model adversarial review spec (2026-03-28), Milvus research (53% → 80% detection with debate)
+
+```
+FFT-14: cross_model_escalation
+
+  Evaluated: after same-model AQS completes, BEFORE bead status → hardened
+  Input: AQS structured exit block (aqs_exit) from references/artifact-templates.md
+
+  Cue 0: Is tmup available and fully operational?
+    (crossmodel-preflight.sh: MCP reachable + codex in PATH + tmux
+     available + writable artifact path + no conflicting session)
+    → NO  → SKIP_UNAVAILABLE
+             Log: "tmup unavailable: {specific failure}, continuing Claude-only path"
+    → YES → continue
+
+  Cue 1: Is aqs_exit.aqs_verdict == DEFERRED?
+    → YES → ESCALATE_L3 (no cross-model — bead stays at proven,
+             escalates to Conductor per AQS protocol)
+    → NO  → continue
+
+  Cue 2: Is the bead COMPLEX domain or security_sensitive?
+    → YES → FULL CROSS-MODEL (4 domain investigators + 1 reviewer)
+    → NO  → continue
+
+  Cue 3: Is the quality budget DEPLETED?
+    → YES → FULL CROSS-MODEL (4 domain investigators + 1 reviewer)
+    → NO  → continue
+
+  Cue 4: Is the quality budget WARNING?
+    → YES → TARGETED CROSS-MODEL (1 domain investigator + 1 reviewer)
+    → NO  → continue
+
+  Cue 5: Is aqs_exit.arbiter_invoked == true?
+    → YES → TARGETED CROSS-MODEL (1 domain investigator + 1 reviewer)
+    → NO  → continue
+
+  Cue 6: Is aqs_exit.turbulence_sum > 3?
+    → YES → TARGETED CROSS-MODEL (1 domain investigator + 1 reviewer)
+    → NO  → continue
+
+  Cue 7: Is any aqs_exit.residual_risk_per_domain >= MEDIUM?
+    → YES → TARGETED CROSS-MODEL (1 domain investigator + 1 reviewer)
+    → NO  → continue
+
+  Default → SKIP CROSS-MODEL
+```
+
+**Outcomes:**
+- **FULL:** 5 Codex workers (4 domain investigators + 1 independent reviewer). Grid: 2×3 layout.
+- **TARGETED:** 2 Codex workers (1 investigator for `aqs_exit.dominant_residual_risk_domain` + 1 independent reviewer). Grid: 1×2 layout.
+- **SKIP_UNAVAILABLE:** Log in decision trace, continue Claude-only. Not a failure.
+- **SKIP:** No cross-model review needed. Bead proceeds directly to `hardened`.
+- **ESCALATE_L3:** AQS DEFERRED — no cross-model, standard L3 escalation.
+
+**TARGETED worker selection:** Domain investigator chosen from `aqs_exit.dominant_residual_risk_domain`. Tie-break order: security > functionality > resilience > usability (security wins ties because its failure modes are highest-consequence).
