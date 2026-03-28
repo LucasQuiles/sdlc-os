@@ -37,7 +37,7 @@ Add `sdlc-crossmodel` — an adapter skill that uses tmup to dispatch Codex CLI 
 | `references/fft-decision-trees.md` (FFT-14) | Reference update | — | Cross-model escalation routing |
 | `scripts/crossmodel-preflight.sh` | Script | — | Platform/tmup/codex availability check |
 | `scripts/crossmodel-grid-up.sh` | Script | — | tmux grid creation + pane verification. Must set `TMUP_NO_TERMINAL=1` to suppress tmup's auto-launch of GUI terminal emulators in autonomous SDLC path. |
-| `scripts/crossmodel-grid-down.sh` | Script | — | tmux grid teardown + residue cleanup |
+| `scripts/crossmodel-grid-down.sh` | Script | — | tmux grid teardown + residue cleanup. With `--force`: also deregisters session from tmup registry (`registry.json`) to prevent reattachment on retry. |
 | `scripts/crossmodel-verify-artifact.sh` | Script | — | Artifact existence, schema, checksum validation |
 | `scripts/crossmodel-health.sh` | Script | — | Session health computation from worker states |
 
@@ -122,7 +122,7 @@ FFT-14: cross_model_escalation
 |---|---|---|
 | `aqs_verdict` | enum: `HARDENED` \| `PARTIALLY_HARDENED` \| `DEFERRED` | AQS exit status |
 | `arbiter_invoked` | boolean | True if arbiter dispatched on this bead |
-| `residual_risk_per_domain` | map: `{functionality: NONE\|LOW\|MED\|HIGH, security: ..., usability: ..., resilience: ...}` | Per-domain residual risk from AQS report |
+| `residual_risk_per_domain` | map: `{functionality: NONE\|LOW\|MEDIUM\|HIGH, security: ..., usability: ..., resilience: ...}` | Per-domain residual risk from AQS report |
 | `dominant_residual_risk_domain` | enum: `functionality` \| `security` \| `usability` \| `resilience` | Domain with highest residual risk (tie-break: security > functionality > resilience > usability) |
 | `turbulence_sum` | integer | Sum of bead turbulence fields (L0+L1+L2+L2.5+L2.75) |
 
@@ -186,9 +186,9 @@ Reviewer produces independent assessment → goes to `crossmodel-triage` agent f
 
 Each worker task declares a unique `produces` artifact name at batch creation:
 - `{bead-id}-stage-a-{domain}-findings` (e.g., `bead-17-stage-a-security-findings`)
-- `{bead-id}-stage-b-review-findings`
+- `{bead-id}-stage-b-independent-review-findings`
 
-Workers write structured markdown to `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-{stage}-{domain}-{role}.md` and call `tmup-cli complete` with the matching artifact registration.
+Workers write structured markdown to `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-{stage}-{domain}-{role}.md` and call `tmup-cli complete` with the matching artifact registration. Stage B uses `independent` as the domain token (e.g., `bead-17-codex-b-independent-reviewer.md`).
 
 **Artifact format:**
 
@@ -304,7 +304,7 @@ DISABLED  DEGRADED → FALLBACK_CLAUDE_ONLY
 | Operation | Budget | On exhaustion |
 |---|---|---|
 | Preflight | 1 retry (2 attempts total) | DISABLED |
-| Fresh session (init + grid) | 1 retry with unique session_name `xm-{bead-id}-{retry}` to avoid reattach | DISABLED for this bead |
+| Fresh session (init + grid) | 1 retry. Sequence: `crossmodel-grid-down.sh --force` (deregisters from tmup registry + kills tmux) → `tmup_init` with unique session_name `xm-{bead-id}-r1`. Deregistration must happen first because tmup reattaches by project_dir before considering session_name. | DISABLED for this bead |
 | Worker launch (in-place) | 0 | Skip worker, continue |
 | Replacement worker | 1 | Accept loss, continue |
 | Idle worker reprompt | 1 | Timeout worker |
@@ -346,7 +346,7 @@ On breaker open:
 |---|---|
 | Preflight fails | Retry once. If still fails → DISABLED, log SKIP_UNAVAILABLE |
 | `tmup_init` fails | Log, DISABLED for this bead, Claude-only |
-| `crossmodel-grid-up.sh` fails | `tmup_teardown` to clean session. For retry: call `tmup_init` with an explicit unique `session_name` (e.g., `xm-{bead-id}-{retry-count}`) to avoid reattaching the poisoned session via tmup's canonical project-dir lookup. If retry also fails → DISABLED |
+| `crossmodel-grid-up.sh` fails | `crossmodel-grid-down.sh --force` (deregister from tmup registry + kill tmux residue). Then retry: `tmup_init` with unique session_name `xm-{bead-id}-r1`. Deregistration must precede retry because tmup reattaches by project_dir before considering session_name. If retry also fails → DISABLED |
 | Worker launch fails | Mark worker unavailable, skip, continue surviving workers |
 | Worker idle | `tmup_reprompt` once, then timeout |
 | Worker timeout (>10min) | `tmup_harvest` for forensics, mark TIMED_OUT, optional replacement once |
