@@ -420,7 +420,7 @@ When all beads are proven, hardened (or AQS-skipped), and merged:
 |-------|---------|----------|--------|-------------------------|-----------|
 | Normalize | normalizer | — | — | convention-scanner (if needed) | Detect state, approve directives |
 | Frame | sonnet-investigator | haiku-evidence | — | — | Define mission, scope, criteria |
-| Scout | sonnet-investigator + convention-scanner + gap-analyst (Finder) | haiku-evidence | — | — | Gather context, map conventions, find gaps |
-| Architect | sonnet-designer | haiku-verifier | — | — | Choose approach, create bead manifest |
-| Execute | sonnet-implementer (parallel OK) | haiku-verifier + drift-detector + convention-enforcer | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
-| Synthesize | sonnet-reviewer + gap-analyst (Finisher) + normalizer (Final Pass) + losa-observer | haiku-handoff | oracle L1+L2+L3 (integration) | fitness report (full, includes Conventions) | Merge results, deliver |
+| Scout | sonnet-investigator + convention-scanner + gap-analyst (Finder) + standards-curator + safety-constraints-guardian | haiku-evidence | — | — | Gather context, map conventions, find gaps, discover standards |
+| Architect | sonnet-designer + safety-analyst (if STPA applies) | haiku-verifier | — | — | Choose approach, create bead manifest |
+| Execute | sonnet-implementer (parallel OK) | haiku-verifier + drift-detector + convention-enforcer + simplicity-auditor + safety-constraints-guardian | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
+| Synthesize | sonnet-reviewer + gap-analyst (Finisher) + normalizer (Final Pass) + losa-observer + reliability-ledger + llm-self-security | haiku-handoff | oracle L1+L2+L3 (integration) | fitness report (full, includes Conventions) | Merge results, deliver |
