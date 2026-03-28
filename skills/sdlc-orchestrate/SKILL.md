@@ -132,7 +132,7 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 **How:** Dispatch `normalizer` agent. See `sdlc-os:sdlc-normalize` for full protocol.
 **Depth detection:**
   - Clean state → no-op (<5 seconds), proceed to Phase 1
-  - Partial SDLC artifacts → resume protocol: read state.md + beads, recover Cynefin assignments and quality budget, recommend re-entry phase
+  - Partial SDLC artifacts → resume protocol: read state.md + beads + standards-profile.md (if exists) + quality-budget.md (if exists), recover Cynefin assignments, quality budget, and standards context. Recommend re-entry phase
   - Unstructured changes → full normalization: check/create Convention Map via `convention-scanner`, assess changes against Convention Map + code-constitution, produce normalization directives (require user approval), dispatch `gap-analyst` Finder mode on existing work
 
 **Evolve auto-trigger check (runs during every Phase 0):**
@@ -239,7 +239,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
 3.5. Dispatch `normalizer` in Final Pass mode — cross-bead convention consistency sweep. Checks for naming drift between parallel beads, unmapped conventions, and Convention Map update needs.
 3.75. Dispatch `losa-observer` on a random sample of merged beads (20% sample rate when error budget healthy, 50% when depleted). LOSA observations feed into error budget tracking — if LOSA reports uncaught errors, the error budget depletes regardless of SLI metrics.
 3.875. Dispatch `reliability-ledger` — reads all bead turbulence fields, computes per-step first-pass rates (L0/L1/L2/L2.5/L2.75), identifies bottlenecks, compares against prior ledger entries. Appends results to `docs/sdlc/reliability-ledger.md`. See `references/reliability-ledger.md` for rate formulas and trend analysis rules.
-3.9. Dispatch `llm-self-security` — audits the SDLC-OS workflow itself against OWASP LLM Top 10. Checks: prompt injection exposure, excessive agency (scope bleed), unbounded consumption (turbulence anomalies), insecure output handling, cross-agent independence violations. **Auto-triggered** (skip step number) when any bead in the task modified files in `agents/`, `hooks/`, `commands/`, `skills/`, or `references/`. See `references/standards-checklist.md` LLM-001 through LLM-006.
+3.9. Dispatch `llm-self-security` — audits the SDLC-OS workflow itself against OWASP LLM Top 10. Checks: prompt injection exposure, excessive agency (scope bleed), unbounded consumption (turbulence anomalies), insecure output handling, cross-agent independence violations. **Auto-triggered** (skip step number) when any bead in the task modified files in `agents/`, `hooks/`, `commands/`, `skills/`, `references/`, or `plugin.json`. See `references/standards-checklist.md` LLM-001 through LLM-006.
 4. `haiku-handoff` packages delivery summary
 5. **HRO Structural Constraints** (Weick — non-negotiable):
 
