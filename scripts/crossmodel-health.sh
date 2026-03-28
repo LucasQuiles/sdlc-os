@@ -3,7 +3,7 @@
 # Computes session health from worker states in a session journal file.
 # Args: --session-journal PATH
 # Exit 0 + JSON with health field. Health values:
-#   RUNNING | DEGRADED | FALLBACK_CLAUDE_ONLY | COMPLETE | UNKNOWN
+#   READY | RUNNING | DEGRADED | FALLBACK_CLAUDE_ONLY | COMPLETE | DISABLED | UNKNOWN
 
 set -euo pipefail
 
@@ -60,8 +60,8 @@ if command -v jq &> /dev/null; then
     exit 0
   fi
 
-  # Extract worker array — support both .workers and .worker_states
-  WORKERS_JSON=$(printf '%s\n' "$JOURNAL_CONTENT" | jq -r '(.workers // .worker_states // []) | @json' 2>/dev/null || echo "[]")
+  # Extract worker array — canonical field is .worker_tasks (spec), with fallbacks
+  WORKERS_JSON=$(printf '%s\n' "$JOURNAL_CONTENT" | jq -r '(.worker_tasks // .workers // .worker_states // []) | @json' 2>/dev/null || echo "[]")
 
   TOTAL=$(printf '%s\n' "$WORKERS_JSON" | jq 'length' 2>/dev/null || echo "0")
   COMPLETED=$(printf '%s\n' "$WORKERS_JSON" | jq '[.[] | select(.status == "completed")] | length' 2>/dev/null || echo "0")
@@ -71,6 +71,7 @@ if command -v jq &> /dev/null; then
 
   VALIDATED_ARTIFACTS=$(printf '%s\n' "$JOURNAL_CONTENT" | jq '(.validated_artifacts // 0)' 2>/dev/null || echo "0")
   BREAKER_OPEN=$(printf '%s\n' "$JOURNAL_CONTENT" | jq '(.breaker_open // false)' 2>/dev/null || echo "false")
+  HEALTH_STATE=$(printf '%s\n' "$JOURNAL_CONTENT" | jq -r '(.health_state // "")' 2>/dev/null || echo "")
 
 else
   # --- grep fallback (approximate counts) ---
@@ -83,6 +84,7 @@ else
   VALIDATED_ARTIFACTS=$(printf '%s\n' "$JOURNAL_CONTENT" | grep -oE '"validated_artifacts"[[:space:]]*:[[:space:]]*[0-9]+' | grep -oE '[0-9]+$' | head -1 || echo "0")
   BREAKER_RAW=$(printf '%s\n' "$JOURNAL_CONTENT" | grep -oE '"breaker_open"[[:space:]]*:[[:space:]]*(true|false)' | grep -oE '(true|false)$' | head -1 || echo "false")
   BREAKER_OPEN="${BREAKER_RAW:-false}"
+  HEALTH_STATE=$(printf '%s\n' "$JOURNAL_CONTENT" | grep -oE '"health_state"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -oE '"[^"]*"$' | tr -d '"' | head -1 || echo "")
 
 fi
 
@@ -94,11 +96,26 @@ TIMED_OUT="${TIMED_OUT:-0}"
 NO_EVIDENCE="${NO_EVIDENCE:-0}"
 VALIDATED_ARTIFACTS="${VALIDATED_ARTIFACTS:-0}"
 BREAKER_OPEN="${BREAKER_OPEN:-false}"
+HEALTH_STATE="${HEALTH_STATE:-}"
 
-# --- Detect missing/unknown data ---
+# --- Check journal-declared DISABLED state (highest priority, checked before worker parsing) ---
+
+if [[ "$HEALTH_STATE" == "DISABLED" ]]; then
+  printf '{"health":"DISABLED","reason":"journal health_state is DISABLED","total":%d,"completed":0,"failed":0,"timed_out":0,"no_evidence":0,"validated_artifacts":%s,"breaker_open":%s}\n' \
+    "$TOTAL" "$VALIDATED_ARTIFACTS" "$BREAKER_OPEN"
+  exit 0
+fi
+
+# --- Detect READY: journal present and valid but no workers dispatched yet ---
 
 if [[ "$TOTAL" -eq 0 ]]; then
-  printf '{"health":"UNKNOWN","reason":"no workers found in journal","total":0,"completed":0,"failed":0,"timed_out":0,"no_evidence":0,"validated_artifacts":0,"breaker_open":false}\n'
+  if [[ "$BREAKER_OPEN" != "true" ]]; then
+    printf '{"health":"READY","reason":"journal valid with no workers dispatched","total":0,"completed":0,"failed":0,"timed_out":0,"no_evidence":0,"validated_artifacts":%s,"breaker_open":%s}\n' \
+      "${VALIDATED_ARTIFACTS:-0}" "$BREAKER_OPEN"
+  else
+    printf '{"health":"FALLBACK_CLAUDE_ONLY","reason":"breaker open with no workers","total":0,"completed":0,"failed":0,"timed_out":0,"no_evidence":0,"validated_artifacts":%s,"breaker_open":true}\n' \
+      "${VALIDATED_ARTIFACTS:-0}"
+  fi
   exit 0
 fi
 
@@ -118,8 +135,8 @@ elif [[ $(( COMPLETED + FAILED + TIMED_OUT + NO_EVIDENCE )) -eq "$TOTAL" ]]; the
     HEALTH="COMPLETE"
   fi
 
-# Still running workers, but problems already visible
-elif [[ "$FAILED" -gt 1 ]] || [[ "$NO_EVIDENCE" -gt 1 ]]; then
+# Still running workers, but any problem already visible → DEGRADED (spec §6.1: any worker loss/timeout/missing artifact)
+elif [[ "$FAILED" -gt 0 ]] || [[ "$NO_EVIDENCE" -gt 0 ]] || [[ "$TIMED_OUT" -gt 0 ]]; then
   HEALTH="DEGRADED"
 fi
 
