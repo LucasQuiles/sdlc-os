@@ -54,7 +54,7 @@ Check whether agents stay within their declared scope.
 - Did any agent make decisions that should have been escalated to the Conductor?
 - Did any runner modify files in `agents/`, `hooks/`, `references/`, or `skills/` without explicit authorization in the bead spec?
 
-**Detection:** For each bead file in `docs/sdlc/active/{task-id}/beads/`, read the `Scope` field. Then run `git diff --name-only` for the task's commits to get actual modified files. Compare declared scope against actual modifications. Also check bead `Sentinel notes` for any scope-drift flags already caught by haiku-verifier. Flag undetected discrepancies as EXCESSIVE_AGENCY findings.
+**Detection:** For each bead file in `docs/sdlc/active/{task-id}/beads/`, read the `Scope` field and the `Output` field (which lists files the runner reported modifying). Compare declared scope against reported modifications — both are persisted in bead files and do not require a commit boundary. Also check bead `Sentinel notes` for any scope-drift flags already caught by haiku-verifier. If git history is available and the task directory contains a base SHA (see state.md), cross-check against `git diff --name-only {base}..HEAD` — but treat this as supplementary, not required. Flag undetected discrepancies as EXCESSIVE_AGENCY findings.
 
 ### LLM07: System Prompt Leakage
 
@@ -120,8 +120,8 @@ Check whether information leaks between agents that should be independent.
 | Max bead turbulence sum | {N} | <= 6 | PASS/FLAG |
 | L0 budget exhaustions | {N} | 0 | PASS/FLAG |
 | L1 budget exhaustions | {N} | 0 | PASS/FLAG |
-| Total agent dispatches | {N} | <= {beads * 8} | PASS/FLAG |
-| Unnecessary AQS dispatches | {N} | 0 | PASS/FLAG |
+| Dispatch proportionality | {beads} beads × {profile ratio} | Estimated, not exact | PASS/FLAG |
+| Unnecessary AQS dispatches | {count from bead status flow} | 0 | PASS/FLAG |
 
 ### Verdict
 
