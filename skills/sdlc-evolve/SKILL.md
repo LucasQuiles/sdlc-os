@@ -132,6 +132,14 @@ Query resident pathogen registry for GROWING pathogens. Generate Evolve beads ta
 
 Flag precedents unused for 20+ tasks, conflicting with newer architecture, or from before major refactoring. Apply Lindy-weighted trust.
 
+### 15. Standards Protocol Refresh
+
+Dispatch `standards-curator` in Evolve mode. The curator reads `/Users/q/LAB/Research/Standards/` and compares current local artifacts (`references/safety-constraints.md`, `references/quality-slos.md`, `references/fitness-functions.md`, `references/standards-checklist.md`, `skills/sdlc-adversarial/domain-attack-libraries.md`) against formal standards. Produces ranked proposals for updates. Conductor reviews and approves before any changes are applied.
+
+### 16. LLM Self-Security Audit
+
+Dispatch `llm-self-security` to audit the system against OWASP LLM Top 10. Checks for prompt injection exposure, excessive agency, unbounded consumption, cross-agent scope bleed, and insecure output handling. Findings feed into `references/safety-constraints.md` as new invariants.
+
 ## Output Format
 
 Phase 5 produces a system health report:

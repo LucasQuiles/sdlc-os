@@ -1,7 +1,7 @@
 # SDLC-OS Plugin — Handoff Document
 
 **Date:** 2026-03-27
-**Plugin version:** 8.0.0
+**Plugin version:** 8.1.0
 **Location:** `~/.claude/plugins/sdlc-os/`
 **Git:** 4 commits on `main`
 
@@ -11,14 +11,14 @@
 
 A multi-agent SDLC orchestration system for Claude Code. The Conductor (Opus) decomposes tasks into atomic beads, dispatches Sonnet runners in parallel, Haiku sentinels patrol continuously, an Oracle council verifies claims, and adversarial red/blue teams probe for defects. Every Conductor decision is routed through Fast-and-Frugal Decision Trees (Gigerenzer). A safety control layer (Leveson/Reason/Dekker) monitors system integrity.
 
-## Current State (v8.0.0)
+## Current State (v8.1.0)
 
 | Component | Count |
 |-----------|-------|
-| Agents | 41 |
+| Agents | 43 |
 | Skills | 14 |
 | Hook scripts | 9 |
-| Reference docs | 18 |
+| Reference docs | 19 |
 | Commands | 11 |
 | Research docs | 10 (4,898 lines) |
 | Design specs | 8 |
@@ -36,6 +36,10 @@ A multi-agent SDLC orchestration system for Claude Code. The Conductor (Opus) de
 ### Architecture Layers (Bottom to Top)
 
 ```
+Layer 8: Standards Enforcement (v8.1.0)
+  LLM self-security (OWASP LLM Top 10), standards curation from /Research/Standards
+  OWASP, CISQ, CWE, CERT, SRE, SOLID, Clean Architecture, Testing Standards
+
 Layer 7: Reliability Telemetry (Phase C — v8.0.0)
   March of Nines reliability ledger, common/special cause classification, slopacolypse defense
   Karpathy (March of Nines, Slopacolypse), Deming (SPC, Funnel Rules, PDSA)
