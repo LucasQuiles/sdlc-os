@@ -37,6 +37,8 @@ The registry lives at `references/safety-constraints.md`. You are its maintainer
 
 **Project-specific constraints:** Discovered during Scout and added to the registry with a `PS-NNN` identifier.
 
+**Standards-derived constraints:** When `standards-curator` proposes new constraints from CERT, OWASP, or NIST standards during Evolve, approved additions are added with an `STD-NNN` identifier. Consult `references/standards-checklist.md` SEC-003 through SEC-010 and REL-007 through REL-008 for the formal standards backing universal constraints SC-001 through SC-005.
+
 ---
 
 ## Constraint Discovery During Phase 2 Scout

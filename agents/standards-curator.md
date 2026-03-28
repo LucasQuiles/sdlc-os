@@ -53,9 +53,12 @@ When dispatched during Scout, analyze the target project to determine which stan
    - Payment processing → PCI DSS
    - Multi-agent/LLM → OWASP LLM Top 10
 4. **Produce a project-specific standards profile** listing which checks from `references/standards-checklist.md` apply to this project
-5. The profile is injected into runner context during Execute phase
+5. Write the profile to `docs/sdlc/active/{task-id}/standards-profile.md`
+6. The Conductor references this file path in runner context packets during Execute phase
 
 ### Output (Scout Mode)
+
+Write to `docs/sdlc/active/{task-id}/standards-profile.md`:
 
 ```markdown
 ## Standards Profile — {project-name}
