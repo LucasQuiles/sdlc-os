@@ -172,6 +172,27 @@ The Arbiter (`arbiter` agent, Opus) fires only when blue team selects `disputed`
 
 The Arbiter has no stake in either side's outcome. If the Arbiter cannot design a fair test, it escalates to the Conductor with explanation. Disputes cannot remain open.
 
+### Structured AQS Exit (FFT-14 Input)
+
+Before transitioning the bead to `hardened`, emit the structured exit block as a YAML code fence in the AQS report:
+
+```yaml
+aqs_exit:
+  aqs_verdict: {HARDENED | PARTIALLY_HARDENED | DEFERRED}
+  arbiter_invoked: {true | false}
+  residual_risk_per_domain:
+    functionality: {NONE | LOW | MEDIUM | HIGH}
+    security: {NONE | LOW | MEDIUM | HIGH}
+    usability: {NONE | LOW | MEDIUM | HIGH}
+    resilience: {NONE | LOW | MEDIUM | HIGH}
+  dominant_residual_risk_domain: {domain with highest risk, tie-break: security > functionality > resilience > usability}
+  turbulence_sum: {integer from bead turbulence field}
+```
+
+This block is consumed by FFT-14 (cross-model escalation). If cross-model review is active, the `hardened` transition is gated by FFT-14 — the Conductor evaluates FFT-14 using these fields, and the bead only transitions to `hardened` after any cross-model findings are resolved.
+
+See `references/artifact-templates.md` "AQS Structured Exit Block" for field definitions.
+
 ### Phase 6: Bead Update
 
 After all domains complete Phase 4 (and Phase 5 where needed):

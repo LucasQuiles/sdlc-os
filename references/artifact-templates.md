@@ -456,3 +456,29 @@ created-at: ""
 ### Verdict
 > **[HARDENED | PARTIALLY_HARDENED | DEFERRED]**
 ```
+
+---
+
+### AQS Structured Exit Block
+
+Machine-readable fields emitted alongside the prose AQS report. Consumed by FFT-14 (cross-model escalation).
+
+```yaml
+aqs_exit:
+  aqs_verdict: HARDENED | PARTIALLY_HARDENED | DEFERRED
+  arbiter_invoked: true | false
+  residual_risk_per_domain:
+    functionality: NONE | LOW | MEDIUM | HIGH
+    security: NONE | LOW | MEDIUM | HIGH
+    usability: NONE | LOW | MEDIUM | HIGH
+    resilience: NONE | LOW | MEDIUM | HIGH
+  dominant_residual_risk_domain: functionality | security | usability | resilience
+  turbulence_sum: <integer>
+```
+
+**Field definitions:**
+- `aqs_verdict`: Final AQS determination. HARDENED = clean or all findings resolved. PARTIALLY_HARDENED = residual risk documented. DEFERRED = blocked, escalate to L3.
+- `arbiter_invoked`: True if the arbiter agent was dispatched during any AQS cycle on this bead.
+- `residual_risk_per_domain`: Per-domain risk after blue team resolution. NONE = no findings or all resolved. LOW/MEDIUM/HIGH = accepted findings with documented residual risk.
+- `dominant_residual_risk_domain`: Domain with highest residual risk. Tie-break order: security > functionality > resilience > usability.
+- `turbulence_sum`: Sum of bead turbulence fields (L0 + L1 + L2 + L2.5 + L2.75).
