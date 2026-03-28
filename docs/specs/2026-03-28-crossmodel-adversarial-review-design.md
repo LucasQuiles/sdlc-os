@@ -36,7 +36,7 @@ Add `sdlc-crossmodel` — an adapter skill that uses tmup to dispatch Codex CLI 
 | `agents/crossmodel-triage.md` | Agent | haiku | Deduplicates Stage B findings against existing AQS results, escalates net-new findings |
 | `references/fft-decision-trees.md` (FFT-14) | Reference update | — | Cross-model escalation routing |
 | `scripts/crossmodel-preflight.sh` | Script | — | Platform/tmup/codex availability check |
-| `scripts/crossmodel-grid-up.sh` | Script | — | tmux grid creation + pane verification |
+| `scripts/crossmodel-grid-up.sh` | Script | — | tmux grid creation + pane verification. Must set `TMUP_NO_TERMINAL=1` to suppress tmup's auto-launch of GUI terminal emulators in autonomous SDLC path. |
 | `scripts/crossmodel-grid-down.sh` | Script | — | tmux grid teardown + residue cleanup |
 | `scripts/crossmodel-verify-artifact.sh` | Script | — | Artifact existence, schema, checksum validation |
 | `scripts/crossmodel-health.sh` | Script | — | Session health computation from worker states |
@@ -122,16 +122,19 @@ FFT-14: cross_model_escalation
 |---|---|---|
 | `aqs_verdict` | enum: `HARDENED` \| `PARTIALLY_HARDENED` \| `DEFERRED` | AQS exit status |
 | `arbiter_invoked` | boolean | True if arbiter dispatched on this bead |
-| `residual_risk_max` | enum: `NONE` \| `LOW` \| `MEDIUM` \| `HIGH` | Highest residual risk across all domains |
+| `residual_risk_per_domain` | map: `{functionality: NONE\|LOW\|MED\|HIGH, security: ..., usability: ..., resilience: ...}` | Per-domain residual risk from AQS report |
+| `dominant_residual_risk_domain` | enum: `functionality` \| `security` \| `usability` \| `resilience` | Domain with highest residual risk (tie-break: security > functionality > resilience > usability) |
 | `turbulence_sum` | integer | Sum of bead turbulence fields (L0+L1+L2+L2.5+L2.75) |
 
 Plus existing deterministic bead fields: `cynefin_domain`, `security_sensitive`, quality budget state.
 
+**AQS schema update required:** The AQS exit artifact (`skills/sdlc-adversarial/SKILL.md` and `references/artifact-templates.md`) must emit these structured fields as a machine-readable block, not just prose. This is an explicit implementation requirement — see Section 7.2.
+
 **Outcomes:**
 - **FULL:** 5 Codex workers (4 domain investigators + 1 independent reviewer)
-- **TARGETED:** 2 Codex workers (1 investigator for highest-residual-risk domain + 1 independent reviewer)
+- **TARGETED:** 2 Codex workers (1 investigator for `dominant_residual_risk_domain` + 1 independent reviewer)
 
-**TARGETED worker selection:** The domain investigator is chosen from the domain with the highest `residual_risk_max` in the AQS report. Maps: functionality → investigator with functionality probe prompt, security → investigator with security probe prompt, usability → investigator with usability probe prompt, resilience → investigator with resilience probe prompt.
+**TARGETED worker selection:** The domain investigator is chosen from `dominant_residual_risk_domain`. Maps: functionality → investigator with functionality probe prompt, security → investigator with security probe prompt, usability → investigator with usability probe prompt, resilience → investigator with resilience probe prompt. Tie-break order: security > functionality > resilience > usability (security wins ties because its failure modes are highest-consequence).
 
 ## 5. sdlc-crossmodel Skill — Adapter Lifecycle
 
@@ -185,7 +188,7 @@ Each worker task declares a unique `produces` artifact name at batch creation:
 - `{bead-id}-stage-a-{domain}-findings` (e.g., `bead-17-stage-a-security-findings`)
 - `{bead-id}-stage-b-review-findings`
 
-Workers write structured markdown to `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-{stage}-{role}.md` and call `tmup-cli complete` with the matching artifact registration.
+Workers write structured markdown to `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-{stage}-{domain}-{role}.md` and call `tmup-cli complete` with the matching artifact registration.
 
 **Artifact format:**
 
@@ -301,7 +304,7 @@ DISABLED  DEGRADED → FALLBACK_CLAUDE_ONLY
 | Operation | Budget | On exhaustion |
 |---|---|---|
 | Preflight | 1 retry (2 attempts total) | DISABLED |
-| Fresh session (init + grid) | 1 retry | DISABLED for this bead |
+| Fresh session (init + grid) | 1 retry with unique session_name `xm-{bead-id}-{retry}` to avoid reattach | DISABLED for this bead |
 | Worker launch (in-place) | 0 | Skip worker, continue |
 | Replacement worker | 1 | Accept loss, continue |
 | Idle worker reprompt | 1 | Timeout worker |
@@ -343,7 +346,7 @@ On breaker open:
 |---|---|
 | Preflight fails | Retry once. If still fails → DISABLED, log SKIP_UNAVAILABLE |
 | `tmup_init` fails | Log, DISABLED for this bead, Claude-only |
-| `crossmodel-grid-up.sh` fails | `tmup_teardown` to clean session, one fresh-session retry, else DISABLED |
+| `crossmodel-grid-up.sh` fails | `tmup_teardown` to clean session. For retry: call `tmup_init` with an explicit unique `session_name` (e.g., `xm-{bead-id}-{retry-count}`) to avoid reattaching the poisoned session via tmup's canonical project-dir lookup. If retry also fails → DISABLED |
 | Worker launch fails | Mark worker unavailable, skip, continue surviving workers |
 | Worker idle | `tmup_reprompt` once, then timeout |
 | Worker timeout (>10min) | `tmup_harvest` for forensics, mark TIMED_OUT, optional replacement once |
@@ -397,7 +400,8 @@ Runner submits → L1 Sentinel → L2 Oracle → same-model AQS →
 | File | Change |
 |---|---|
 | `skills/sdlc-orchestrate/SKILL.md` | Add FFT-14 evaluation between AQS and hardened transition. Add crossmodel-supervisor dispatch. Update quick-reference table. |
-| `skills/sdlc-adversarial/SKILL.md` | Document that hardened transition is gated by FFT-14 when cross-model is active. |
+| `skills/sdlc-adversarial/SKILL.md` | (1) Document that hardened transition is gated by FFT-14 when cross-model is active. (2) Add structured AQS exit block emitting `aqs_verdict`, `arbiter_invoked`, `residual_risk_per_domain`, `dominant_residual_risk_domain`, `turbulence_sum` as machine-readable fields — not just prose. |
+| `references/artifact-templates.md` | Add AQS structured exit schema with the five deterministic fields FFT-14 consumes. |
 | `skills/sdlc-evolve/SKILL.md` | Add cross-model review to every Evolve cycle (Codex reviews system changes). |
 | `references/fft-decision-trees.md` | Add FFT-14 definition. |
 
@@ -418,7 +422,7 @@ Runner submits → L1 Sentinel → L2 Oracle → same-model AQS →
 | Agents | `agents/crossmodel-supervisor.md`, `agents/crossmodel-triage.md` |
 | Reference update | `references/fft-decision-trees.md` (FFT-14) |
 | Scripts | `scripts/crossmodel-preflight.sh`, `scripts/crossmodel-grid-up.sh`, `scripts/crossmodel-grid-down.sh`, `scripts/crossmodel-verify-artifact.sh`, `scripts/crossmodel-health.sh` |
-| Artifact template | `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-{stage}-{role}.md` |
+| Artifact template | `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-{stage}-{domain}-{role}.md` |
 | Session journal | `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-session.json` |
 
 ## 9. Acceptance Criteria
