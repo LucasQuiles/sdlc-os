@@ -74,6 +74,7 @@ Call `tmup_dispatch` per worker with role-appropriate prompts.
 Poll loop:
 - Normal cadence: every 15 seconds
 - Degraded cadence: every 5 seconds
+- **Global session timeout: 120 minutes.** If the session exceeds this limit, harvest any available artifacts, mark remaining workers as TIMED_OUT, transition to COMPLETE or FALLBACK_CLAUDE_ONLY, and proceed to TEARDOWN. This prevents unbounded consumption (OWASP LLM10).
 
 Each poll cycle: `tmup_status` → `tmup_inbox` → `tmup_next_action`
 

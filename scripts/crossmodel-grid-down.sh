@@ -35,6 +35,12 @@ if [[ -z "$SESSION_NAME" ]]; then
   exit 1
 fi
 
+# Validate session name (alphanumeric, hyphens, underscores only — prevent injection)
+if [[ "$SESSION_NAME" =~ [^a-zA-Z0-9_-] ]]; then
+  printf 'GRID_DOWN_FAIL: session name contains invalid characters: %s\n' "$SESSION_NAME" >&2
+  exit 2
+fi
+
 WARNINGS=0
 
 # --- Step 1: Kill tmux session ---
@@ -73,7 +79,7 @@ if [[ "$FORCE" == "true" ]]; then
       # Fallback: grep-based removal — remove lines containing the session name
       # Registry format is assumed to be one JSON object; we do line-level surgery
       TMP_REGISTRY="${REGISTRY_FILE}.tmp.$$"
-      if grep -v "\"${SESSION_NAME}\"" "$REGISTRY_FILE" > "$TMP_REGISTRY" 2>/dev/null; then
+      if grep -vF "\"${SESSION_NAME}\"" "$REGISTRY_FILE" > "$TMP_REGISTRY" 2>/dev/null; then
         mv "$TMP_REGISTRY" "$REGISTRY_FILE"
       else
         rm -f "$TMP_REGISTRY"
