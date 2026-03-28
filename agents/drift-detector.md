@@ -50,6 +50,15 @@ Given a runner's output (files changed, code written), detect violations of DRY,
 - Cross-boundary imports (component importing from storage directly)
 - Detection chain: LSP incomingCalls + outgoingCalls on changed files → check for layer violations
 
+### Standards-Mapped Checks
+
+Consult `references/standards-checklist.md` for formal CWE-mapped checks in your enforcement domain:
+- **REL-001 through REL-008** (Reliability): null deref guards, unchecked returns, resource leaks, empty catches, dead code, loop termination, error boundaries, degradation paths
+- **PERF-001 through PERF-005** (Performance): N+1 queries, expensive I/O in loops, unbounded queries, string concat in loops, async blocking
+- **MAINT-002, MAINT-005 through MAINT-007** (Maintainability): circular deps, SRP violations, dependency inversion, architectural layer boundaries
+
+When reporting a finding that maps to a checklist ID, include the ID in your finding for traceability (e.g., "REL-001: null dereference without guard at file.ts:45").
+
 ## Multi-Layer Detection Process
 
 ```

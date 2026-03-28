@@ -116,21 +116,29 @@ Source: Observability Methods (Golden Signals, RED, USE), SRE
 
 ## How to Use This Checklist
 
-### For enforcement agents (runtime)
+### For drift-detector (L1 — runtime)
 
-Read applicable sections during L1/L2 sentinel checks. Map findings to check IDs for traceability.
+Consult REL-*, PERF-*, and MAINT-002/005/006/007 during post-submission analysis. Include check IDs in findings for traceability. See `agents/drift-detector.md` "Standards-Mapped Checks" section.
 
-### For standards-curator (Evolve)
+### For red-security (AQS — runtime)
 
-Compare this checklist against the full Standards library. Propose additions when new standards or versions are released.
+Use SEC-001 through SEC-010 as CWE-mapped attack vector targets during the TARGET step. Include check IDs and CWE numbers in findings. See `agents/red-security.md` TARGET section.
 
-### For red-security (AQS probes)
+### For safety-constraints-guardian (L1 — runtime)
 
-Use SEC-* checks as attack vector targets. Each check ID maps to a specific CWE that can be probed.
+Universal constraints SC-001 through SC-005 are backed by SEC-003 through SEC-010 and REL-007/008. Standards-derived additions from Evolve use `STD-NNN` identifiers. See `agents/safety-constraints-guardian.md` Constraint Registry.
+
+### For llm-self-security (Synthesize — runtime)
+
+LLM-001 through LLM-006 are the meta-security checks. See `agents/llm-self-security.md`.
+
+### For standards-curator (Evolve — curation)
+
+Compare this checklist against the full Standards library at `/Users/q/LAB/Research/Standards/`. Propose additions when new standards or versions are released.
 
 ### For the Conductor (task planning)
 
-Use the project-specific standards profile (produced by standards-curator during Scout) to determine which sections of this checklist apply.
+Read the project-specific standards profile at `docs/sdlc/active/{task-id}/standards-profile.md` (produced by standards-curator during Scout) to determine which sections apply. Reference the profile path in runner context packets.
 
 ---
 

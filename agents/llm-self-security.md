@@ -32,7 +32,7 @@ Check whether processed content could inject instructions into agent prompts.
 - Could malicious content in source code files (comments, strings, docstrings) alter agent behavior when those files are read as context?
 - Are there agents that process user-provided content (bead specs from user, file contents from the target project) in a way that could override system instructions?
 
-**Detection:** Read the bead context packets from decision traces. Look for raw content concatenated with instructions without clear role separation or delimiters.
+**Detection:** Read agent markdown files in `agents/`. Check whether the dispatch templates in `skills/sdlc-orchestrate/SKILL.md` (the "How to Dispatch Runners" section) separate system instructions from external content using role boundaries. Read bead `Input` fields from bead files in `docs/sdlc/active/{task-id}/beads/` — check if raw file content is delimited from instructions. This is a structural audit of the prompt templates, not a runtime trace check.
 
 ### LLM05: Improper Output Handling
 
@@ -54,7 +54,7 @@ Check whether agents stay within their declared scope.
 - Did any agent make decisions that should have been escalated to the Conductor?
 - Did any runner modify files in `agents/`, `hooks/`, `references/`, or `skills/` without explicit authorization in the bead spec?
 
-**Detection:** Compare bead scope declarations against actual file modifications (from git diff or bead output). Flag discrepancies as EXCESSIVE_AGENCY findings.
+**Detection:** For each bead file in `docs/sdlc/active/{task-id}/beads/`, read the `Scope` field. Then run `git diff --name-only` for the task's commits to get actual modified files. Compare declared scope against actual modifications. Also check bead `Sentinel notes` for any scope-drift flags already caught by haiku-verifier. Flag undetected discrepancies as EXCESSIVE_AGENCY findings.
 
 ### LLM07: System Prompt Leakage
 
@@ -64,7 +64,7 @@ Check whether agent system prompts could be extracted through the target project
 - Could a specially crafted source file in the target project cause an agent to disclose its instructions?
 - Are canary strings or identifiable phrases present in agent markdown files that could be monitored for leakage?
 
-**Detection:** Grep agent outputs in decision traces for phrases that appear in `agents/*.md` system prompts but should not appear in code output.
+**Detection:** This is a structural audit, not a runtime trace check. Read agent markdown files in `agents/` and check for sensitive content that would be damaging if leaked (internal URLs, API patterns, business logic). Also check whether hook scripts in `hooks/scripts/` echo or log agent prompt content. For runtime detection, recommend canary strings be added to high-value agent prompts in a future Evolve cycle.
 
 ### LLM10: Unbounded Consumption
 

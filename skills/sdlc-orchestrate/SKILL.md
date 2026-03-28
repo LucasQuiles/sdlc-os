@@ -159,7 +159,7 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 3. Dispatch `gap-analyst` in Finder mode — compare requirements against codebase to produce a Completeness Map. See `sdlc-os:sdlc-gap-analysis` for full protocol.
 4. Dispatch `feature-finder` in archaeology mode — scan for neglected feature work across code/structural/git/documentation signals and update `docs/sdlc/feature-matrix.md`. See `sdlc-os:sdlc-feature-sweep`.
 5. Dispatch `safety-constraints-guardian` to discover project-specific safety constraints from codebase analysis. Constraints are added to `references/safety-constraints.md`.
-6. Dispatch `standards-curator` in Scout mode — analyzes the target project to determine which standards from `/Users/q/LAB/Research/Standards/` apply. Produces a project-specific standards profile listing applicable checks from `references/standards-checklist.md`. The profile is injected into runner context during Execute phase.
+6. Dispatch `standards-curator` in Scout mode — analyzes the target project to determine which standards from `/Users/q/LAB/Research/Standards/` apply. Produces a project-specific standards profile at `docs/sdlc/active/{task-id}/standards-profile.md` listing applicable checks from `references/standards-checklist.md`. The profile is referenced in runner context packets during Execute phase (by path, not inlined).
 **Output:** Discovery brief + Convention Map + Completeness Map (EXISTS/PARTIAL/MISSING per requirement) + Feature Matrix delta (new/updated findings) + Standards Profile (applicable checks per project type).
 **Key constraint:** Phase 3 (Architect) only creates beads for MISSING and PARTIAL items from the Completeness Map. EXISTS items get no beads.
 **Skip when:** You already have sufficient context (e.g., from prior conversation). Convention scan and gap analysis still run even when investigation is skipped.
@@ -385,6 +385,14 @@ When starting a new task:
 1. Create `docs/sdlc/active/{task-id}/` directory
 2. Write `state.md` with task metadata
 3. Create `beads/` subdirectory for work units
+
+### Scout Artifacts
+After Scout phase completes, the task directory contains:
+- `state.md` — task metadata and phase log
+- `beads/` — work unit files
+- `standards-profile.md` — project-specific standards profile from `standards-curator` (persists across sessions)
+- `quality-budget.md` — SLI/SLO tracking (created during Synthesize, read during subsequent tasks)
+- `observability-profile.md` — project observability stack (created during Harden, if reached)
 
 ### Track
 After each runner completes:

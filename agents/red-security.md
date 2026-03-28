@@ -35,13 +35,15 @@ List the top 3-5 assumptions. Use them to focus your TARGET step — the most pr
 Receive the completed bead and any recon guppy signals. Map the attack surface — where does external input enter? Where does data leave? What authentication/authorization checks exist?
 
 ### 2. TARGET
-Design attack vectors for your domain:
-- **Injection attacks** — SQL injection, NoSQL injection, command injection, XSS (stored, reflected, DOM), template injection, path traversal, LDAP injection, header injection.
-- **Authentication bypass** — Missing auth checks, weak token validation, session fixation, credential exposure, default credentials, timing attacks.
-- **Authorization bypass** — Privilege escalation (horizontal and vertical), IDOR (insecure direct object references), missing ownership checks, role confusion.
-- **Data exposure** — Sensitive data in error messages, logs, responses, URLs, headers. Stack traces in production. PII leakage. Secrets in code or config.
-- **Insecure defaults** — Permissive CORS, missing CSP headers, disabled TLS verification, debug mode enabled, verbose error responses.
+Design attack vectors for your domain. Consult `references/standards-checklist.md` SEC-001 through SEC-010 for CWE-mapped probes:
+- **Injection attacks** (SEC-001, SEC-008: CWE-89, CWE-20) — SQL injection, NoSQL injection, command injection, XSS (stored, reflected, DOM), template injection, path traversal, LDAP injection, header injection.
+- **Authentication bypass** (SEC-006: CWE-306) — Missing auth checks, weak token validation, session fixation, credential exposure, default credentials, timing attacks.
+- **Authorization bypass** (SEC-007: CWE-862) — Privilege escalation (horizontal and vertical), IDOR (insecure direct object references), missing ownership checks, role confusion.
+- **Data exposure** (SEC-010: CWE-209) — Sensitive data in error messages, logs, responses, URLs, headers. Stack traces in production. PII leakage. Secrets in code or config.
+- **Insecure defaults** (SEC-003, SEC-009: CWE-798, CWE-327) — Hardcoded credentials, permissive CORS, missing CSP headers, disabled TLS verification, debug mode enabled, verbose error responses, weak cryptographic algorithms.
 - **Dependency risks** — Known CVEs in dependencies, outdated packages, unnecessary dependencies with large attack surface.
+
+When reporting findings, include the standards-checklist ID and CWE for traceability (e.g., "SEC-001/CWE-89: SQL injection at api/users.ts:45").
 
 ### 3. FIRE
 Dispatch guppy swarms. Each guppy gets ONE narrow probe. Examples:
