@@ -29,14 +29,6 @@ if [[ -z "$SESSION_JOURNAL" ]]; then
   exit 2
 fi
 
-# --- Helper: emit result ---
-
-emit_health() {
-  local health="$1"
-  printf '%s\n' "$2"
-  # health is embedded in $2 already — this function is just for documentation
-}
-
 # --- Read session journal ---
 
 if [[ ! -f "$SESSION_JOURNAL" ]]; then
@@ -64,12 +56,12 @@ if command -v jq &> /dev/null; then
   WORKERS_JSON=$(printf '%s\n' "$JOURNAL_CONTENT" | jq -r '(.worker_tasks // .workers // .worker_states // []) | @json' 2>/dev/null || echo "[]")
 
   TOTAL=$(printf '%s\n' "$WORKERS_JSON" | jq 'length' 2>/dev/null || echo "0")
-  COMPLETED=$(printf '%s\n' "$WORKERS_JSON" | jq '[.[] | select(.status == "completed")] | length' 2>/dev/null || echo "0")
+  COMPLETED=$(printf '%s\n' "$WORKERS_JSON" | jq '[.[] | select(.status == "completed" or .status == "complete")] | length' 2>/dev/null || echo "0")
   FAILED=$(printf '%s\n' "$WORKERS_JSON" | jq '[.[] | select(.status == "failed")] | length' 2>/dev/null || echo "0")
   TIMED_OUT=$(printf '%s\n' "$WORKERS_JSON" | jq '[.[] | select(.status == "timed_out")] | length' 2>/dev/null || echo "0")
   NO_EVIDENCE=$(printf '%s\n' "$WORKERS_JSON" | jq '[.[] | select(.status == "no_evidence")] | length' 2>/dev/null || echo "0")
 
-  VALIDATED_ARTIFACTS=$(printf '%s\n' "$JOURNAL_CONTENT" | jq '(.validated_artifacts // 0)' 2>/dev/null || echo "0")
+  VALIDATED_ARTIFACTS=$(printf '%s\n' "$JOURNAL_CONTENT" | jq '(.validated_artifacts // []) | length' 2>/dev/null || echo "0")
   BREAKER_OPEN=$(printf '%s\n' "$JOURNAL_CONTENT" | jq '(.breaker_open // false)' 2>/dev/null || echo "false")
   HEALTH_STATE=$(printf '%s\n' "$JOURNAL_CONTENT" | jq -r '(.health_state // "")' 2>/dev/null || echo "")
 
@@ -77,7 +69,7 @@ else
   # --- grep fallback (approximate counts) ---
 
   TOTAL=$(printf '%s\n' "$JOURNAL_CONTENT" | grep -c '"status"' 2>/dev/null || echo "0")
-  COMPLETED=$(printf '%s\n' "$JOURNAL_CONTENT" | grep -c '"completed"' 2>/dev/null || echo "0")
+  COMPLETED=$(printf '%s\n' "$JOURNAL_CONTENT" | grep -cE '"completed"|"complete"' 2>/dev/null || echo "0")
   FAILED=$(printf '%s\n' "$JOURNAL_CONTENT" | grep -c '"failed"' 2>/dev/null || echo "0")
   TIMED_OUT=$(printf '%s\n' "$JOURNAL_CONTENT" | grep -c '"timed_out"' 2>/dev/null || echo "0")
   NO_EVIDENCE=$(printf '%s\n' "$JOURNAL_CONTENT" | grep -c '"no_evidence"' 2>/dev/null || echo "0")

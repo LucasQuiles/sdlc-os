@@ -106,7 +106,7 @@ CURRENT_PROJECT_DIR=$(pwd)
 if [[ -f "$REGISTRY_JSON" ]]; then
   if command -v jq &> /dev/null; then
     # Check if any registry entry's project_dir value matches current directory
-    REGISTRY_CONFLICT=$(jq -r 'to_entries[] | select(.value == "'"$CURRENT_PROJECT_DIR"'") | .key' "$REGISTRY_JSON" 2>/dev/null | head -1 || echo "")
+    REGISTRY_CONFLICT=$(jq -r --arg pdir "$CURRENT_PROJECT_DIR" 'to_entries[] | select(.value == $pdir) | .key' "$REGISTRY_JSON" 2>/dev/null | head -1 || echo "")
   else
     # grep fallback: look for the current project dir as a value in the JSON
     REGISTRY_CONFLICT=$(grep -oE '"[^"]*"[[:space:]]*:[[:space:]]*"'"$(printf '%s' "$CURRENT_PROJECT_DIR" | sed 's/[\/&]/\\&/g')"'"' "$REGISTRY_JSON" 2>/dev/null | grep -oE '^"[^"]*"' | tr -d '"' | head -1 || echo "")
