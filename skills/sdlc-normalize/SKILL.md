@@ -61,8 +61,8 @@ Active SDLC artifacts detected in `docs/sdlc/active/`. The normalizer has identi
 
 1. Present the normalizer's recovery summary to the user
 2. Ask explicit confirmation: "Resume at `<recommended re-entry point>`?"
-3. On approval, load the task state from the referenced `state.md` file and continue from the recommended bead or phase
-4. Do NOT restart from Phase 1 — that would duplicate completed beads
+3. On approval, load the task state from the referenced `state.md` file, bead files, and any persisted Scout artifacts (`standards-profile.md`, `quality-budget.md`, `observability-profile.md`). Continue from the recommended bead or phase.
+4. Do NOT restart from Phase 1 — that would duplicate completed beads. If `standards-profile.md` is missing and the task is past Scout, note this gap but do not re-run Scout — the enforcement agents can fall back to the full `references/standards-checklist.md`.
 
 **Path C — Full Normalization (Unstructured Changes)**
 

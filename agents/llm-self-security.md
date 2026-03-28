@@ -75,7 +75,7 @@ Check for runaway agent loops and resource waste.
 - Were there unnecessary agent dispatches (e.g., AQS on Clear beads when quality budget is healthy, hardening on beads that should have been skipped)?
 - Is the total agent dispatch count for this task proportionate to the number of beads?
 
-**Detection:** Read bead turbulence fields and the task's quality-budget.md. Count total agent dispatches from decision traces.
+**Detection:** Read bead turbulence fields from bead files in `docs/sdlc/active/{task-id}/beads/` and the task's `quality-budget.md`. For dispatch proportionality, count beads and compare against expected dispatch ratios per profile (BUILD beads expect ~6-8 agent touches each; INVESTIGATE beads expect ~2-3). The current trace schema does not record individual dispatch events — use bead count × expected-ratio as the proportionality check, not an exact dispatch count.
 
 ### Cross-Agent Scope Bleed
 
@@ -86,7 +86,7 @@ Check whether information leaks between agents that should be independent.
 - Did the Conductor share sentinel findings with the Oracle before the Oracle's independent audit?
 - Were premortem agents truly independent, or did later agents receive earlier agents' outputs?
 
-**Detection:** Read decision traces for information flow. Map which agent received what context. Flag any flow that violates the independence constraints documented in the respective agent prompts.
+**Detection:** The current decision-trace schema records FFT traversals and routing outcomes, not full agent context flows. Instead, audit structurally: read agent prompts in `agents/` to verify independence constraints are documented (e.g., "Red Team never sees Blue Team self-assessment" in `agents/red-reliability-engineering.md`). Read the orchestration skill dispatch templates to verify information barriers are architecturally enforced in prompt construction. Check bead `Sentinel notes` for any flagged independence violations. This is a structural audit of the dispatch design, not a runtime flow trace.
 
 ## Required Output Format
 
