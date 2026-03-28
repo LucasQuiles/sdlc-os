@@ -54,7 +54,12 @@ Check whether agents stay within their declared scope.
 - Did any agent make decisions that should have been escalated to the Conductor?
 - Did any runner modify files in `agents/`, `hooks/`, `references/`, or `skills/` without explicit authorization in the bead spec?
 
-**Detection:** For each bead file in `docs/sdlc/active/{task-id}/beads/`, read the `Scope` field and the `Output` field (which lists files the runner reported modifying). Compare declared scope against reported modifications — both are persisted in bead files and do not require a commit boundary. Also check bead `Sentinel notes` for any scope-drift flags already caught by haiku-verifier. If git history is available and the task directory contains a base SHA (see state.md), cross-check against `git diff --name-only {base}..HEAD` — but treat this as supplementary, not required. Flag undetected discrepancies as EXCESSIVE_AGENCY findings.
+**Detection:** The bead contract does not currently persist a "files actually changed" field — the `Output` field records expected deliverables, not runtime modifications. Therefore this check operates at two levels:
+
+1. **Structural (always available):** Read `Scope` and `Sentinel notes` from bead files. The haiku-verifier already checks scope drift at L1. Review sentinel notes for SCOPE_DRIFT flags. If none were raised on a bead that touched sensitive directories (`agents/`, `hooks/`, `skills/`), flag as a potential detection gap.
+2. **Git-based (when available):** If git history is accessible, run `git diff --name-only` across the task's working tree or worktree branch. Compare actual file modifications against each bead's declared `Scope`. This is the only evidence-backed check for scope bleed.
+
+**Limitation:** Without a persisted "files changed" bead field, this audit cannot verify scope compliance from bead artifacts alone when git history is unavailable (e.g., squashed merges, resumed sessions on different machines). Recommend adding a `Files changed` field to the bead contract in a future Evolve cycle to close this gap.
 
 ### LLM07: System Prompt Leakage
 
