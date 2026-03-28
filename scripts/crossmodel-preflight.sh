@@ -98,6 +98,25 @@ if [[ -n "$CONFLICTING_SESSION" ]]; then
   fail "CONFLICTING_SESSION" "Active cross-model session detected: ${CONFLICTING_SESSION} — run crossmodel-grid-down.sh --session-name ${CONFLICTING_SESSION} --force first"
 fi
 
+# --- Check 6: registry.json project-dir conflict ---
+
+REGISTRY_JSON="${TMUP_STATE_DIR}/registry.json"
+CURRENT_PROJECT_DIR=$(pwd)
+
+if [[ -f "$REGISTRY_JSON" ]]; then
+  if command -v jq &> /dev/null; then
+    # Check if any registry entry's project_dir value matches current directory
+    REGISTRY_CONFLICT=$(jq -r 'to_entries[] | select(.value == "'"$CURRENT_PROJECT_DIR"'") | .key' "$REGISTRY_JSON" 2>/dev/null | head -1 || echo "")
+  else
+    # grep fallback: look for the current project dir as a value in the JSON
+    REGISTRY_CONFLICT=$(grep -oE '"[^"]*"[[:space:]]*:[[:space:]]*"'"$(printf '%s' "$CURRENT_PROJECT_DIR" | sed 's/[\/&]/\\&/g')"'"' "$REGISTRY_JSON" 2>/dev/null | grep -oE '^"[^"]*"' | tr -d '"' | head -1 || echo "")
+  fi
+
+  if [[ -n "$REGISTRY_CONFLICT" ]]; then
+    fail "CONFLICTING_SESSION" "registry.json entry '${REGISTRY_CONFLICT}' targets current project directory ${CURRENT_PROJECT_DIR} — run crossmodel-grid-down.sh --session-name ${REGISTRY_CONFLICT} --force first"
+  fi
+fi
+
 # --- All checks passed ---
 
 printf '{"ready":true,"tmux_version":"%s","codex_version":"%s","tmup_entry":"%s","artifact_base":"%s"}\n' \

@@ -12,6 +12,7 @@ set -euo pipefail
 ARTIFACT_PATH=""
 PROJECT_DIR=""
 MAX_SIZE=102400  # 100 KB default
+EXPECTED_CHECKSUM=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -25,6 +26,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --max-size)
       MAX_SIZE="${2:-}"
+      shift 2
+      ;;
+    --expected-checksum)
+      EXPECTED_CHECKSUM="${2:-}"
       shift 2
       ;;
     *)
@@ -151,6 +156,15 @@ elif command -v shasum &> /dev/null; then
   CHECKSUM=$(shasum -a 256 "$ARTIFACT_PATH" | awk '{print $1}')
 else
   CHECKSUM="unavailable"
+fi
+
+# --- Compare checksum if expected value was provided ---
+
+if [[ -n "$EXPECTED_CHECKSUM" ]] && [[ "$CHECKSUM" != "unavailable" ]]; then
+  if [[ "$CHECKSUM" != "$EXPECTED_CHECKSUM" ]]; then
+    emit_result "STALE" "Checksum mismatch: expected=${EXPECTED_CHECKSUM} computed=${CHECKSUM}" "$CHECKSUM"
+    exit 0
+  fi
 fi
 
 # --- All checks passed ---
