@@ -1,7 +1,7 @@
 {
   "name": "sdlc-os",
   "description": "Multi-Agent SDLC Operating System — staged delivery with Opus orchestration, Sonnet production, Haiku verification",
-  "version": "8.1.0",
+  "version": "9.0.0",
   "author": {
     "name": "OnePlatform"
   },

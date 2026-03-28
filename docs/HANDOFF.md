@@ -1,7 +1,7 @@
 # SDLC-OS Plugin — Handoff Document
 
 **Date:** 2026-03-27
-**Plugin version:** 8.1.0
+**Plugin version:** 9.0.0
 **Location:** `~/.claude/plugins/sdlc-os/`
 **Git:** 4 commits on `main`
 
@@ -11,14 +11,15 @@
 
 A multi-agent SDLC orchestration system for Claude Code. The Conductor (Opus) decomposes tasks into atomic beads, dispatches Sonnet runners in parallel, Haiku sentinels patrol continuously, an Oracle council verifies claims, and adversarial red/blue teams probe for defects. Every Conductor decision is routed through Fast-and-Frugal Decision Trees (Gigerenzer). A safety control layer (Leveson/Reason/Dekker) monitors system integrity.
 
-## Current State (v8.1.0)
+## Current State (v9.0.0)
 
 | Component | Count |
 |-----------|-------|
-| Agents | 43 |
-| Skills | 14 |
+| Agents | 45 |
+| Skills | 15 |
 | Hook scripts | 9 |
 | Reference docs | 19 |
+| Cross-model scripts | 5 |
 | Commands | 11 |
 | Research docs | 10 (4,898 lines) |
 | Design specs | 8 |
@@ -36,6 +37,10 @@ A multi-agent SDLC orchestration system for Claude Code. The Conductor (Opus) de
 ### Architecture Layers (Bottom to Top)
 
 ```
+Layer 9: Cross-Model Adversarial Review (v9.0.0)
+  FFT-14 escalation, tmup/Codex workers, crossmodel-supervisor, advisory day-1
+  Cross-model debate (Milvus 53%→80%), tmup DAG coordination, circuit breakers, fallback ladder
+
 Layer 8: Standards Enforcement (v8.1.0)
   LLM self-security (OWASP LLM Top 10), standards curation from /Research/Standards
   OWASP, CISQ, CWE, CERT, SRE, SOLID, Clean Architecture, Testing Standards
