@@ -140,6 +140,10 @@ Dispatch `standards-curator` in Evolve mode. The curator reads `/Users/q/LAB/Res
 
 Dispatch `llm-self-security` to audit the system against OWASP LLM Top 10. Checks for prompt injection exposure, excessive agency, unbounded consumption, cross-agent scope bleed, and insecure output handling. Findings feed into `references/safety-constraints.md` as new invariants.
 
+### 17. Cross-Model System Review
+
+Dispatch `crossmodel-supervisor` in TARGETED mode to review the Evolve changes themselves. When the SDLC-OS modifies its own agents, hooks, or skills, a cross-model review provides genuinely independent verification that the changes are sound. The investigator role probes the highest-risk domain of the Evolve changes; the reviewer role provides an independent assessment. Skip if tmup is unavailable (preflight fails). See `sdlc-os:sdlc-crossmodel` for the full adapter lifecycle.
+
 ## Output Format
 
 Phase 5 produces a system health report:
