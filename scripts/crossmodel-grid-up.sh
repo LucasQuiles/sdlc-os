@@ -33,6 +33,12 @@ if [[ -z "$SESSION_NAME" ]]; then
   exit 2
 fi
 
+# Validate session name (alphanumeric, hyphens, underscores only — prevent injection)
+if [[ "$SESSION_NAME" =~ [^a-zA-Z0-9_-] ]]; then
+  printf 'GRID_UP_FAIL: session name contains invalid characters: %s\n' "$SESSION_NAME" >&2
+  exit 2
+fi
+
 if [[ -z "$PANE_COUNT" ]]; then
   printf 'Missing required argument: --panes\n' >&2
   exit 2
