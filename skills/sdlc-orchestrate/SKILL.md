@@ -159,10 +159,11 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 3. Dispatch `gap-analyst` in Finder mode — compare requirements against codebase to produce a Completeness Map. See `sdlc-os:sdlc-gap-analysis` for full protocol.
 4. Dispatch `feature-finder` in archaeology mode — scan for neglected feature work across code/structural/git/documentation signals and update `docs/sdlc/feature-matrix.md`. See `sdlc-os:sdlc-feature-sweep`.
 5. Dispatch `safety-constraints-guardian` to discover project-specific safety constraints from codebase analysis. Constraints are added to `references/safety-constraints.md`.
-**Output:** Discovery brief + Convention Map + Completeness Map (EXISTS/PARTIAL/MISSING per requirement) + Feature Matrix delta (new/updated findings).
+6. Dispatch `standards-curator` in Scout mode — analyzes the target project to determine which standards from `/Users/q/LAB/Research/Standards/` apply. Produces a project-specific standards profile listing applicable checks from `references/standards-checklist.md`. The profile is injected into runner context during Execute phase.
+**Output:** Discovery brief + Convention Map + Completeness Map (EXISTS/PARTIAL/MISSING per requirement) + Feature Matrix delta (new/updated findings) + Standards Profile (applicable checks per project type).
 **Key constraint:** Phase 3 (Architect) only creates beads for MISSING and PARTIAL items from the Completeness Map. EXISTS items get no beads.
 **Skip when:** You already have sufficient context (e.g., from prior conversation). Convention scan and gap analysis still run even when investigation is skipped.
-**Parallelize:** Investigator, convention-scanner, gap-analyst, and feature-finder can run in parallel — they read different slices of state.
+**Parallelize:** Investigator, convention-scanner, gap-analyst, feature-finder, safety-constraints-guardian, and standards-curator can run in parallel — they read different slices of state.
 
 ### Phase 3: Architect
 **What:** Choose an approach. Define the bead decomposition.
@@ -238,6 +239,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
 3.5. Dispatch `normalizer` in Final Pass mode — cross-bead convention consistency sweep. Checks for naming drift between parallel beads, unmapped conventions, and Convention Map update needs.
 3.75. Dispatch `losa-observer` on a random sample of merged beads (20% sample rate when error budget healthy, 50% when depleted). LOSA observations feed into error budget tracking — if LOSA reports uncaught errors, the error budget depletes regardless of SLI metrics.
 3.875. Dispatch `reliability-ledger` — reads all bead turbulence fields, computes per-step first-pass rates (L0/L1/L2/L2.5/L2.75), identifies bottlenecks, compares against prior ledger entries. Appends results to `docs/sdlc/reliability-ledger.md`. See `references/reliability-ledger.md` for rate formulas and trend analysis rules.
+3.9. Dispatch `llm-self-security` — audits the SDLC-OS workflow itself against OWASP LLM Top 10. Checks: prompt injection exposure, excessive agency (scope bleed), unbounded consumption (turbulence anomalies), insecure output handling, cross-agent independence violations. **Auto-triggered** (skip step number) when any bead in the task modified files in `agents/`, `hooks/`, `commands/`, `skills/`, or `references/`. See `references/standards-checklist.md` LLM-001 through LLM-006.
 4. `haiku-handoff` packages delivery summary
 5. **HRO Structural Constraints** (Weick — non-negotiable):
 
