@@ -81,16 +81,47 @@ Call `tmup_task_batch` to register all worker tasks. Artifact names must be uniq
 
 ### Step 5: DISPATCH
 
-Call `tmup_dispatch` per worker with role-appropriate prompts.
+Call `tmup_dispatch` per worker with role-appropriate prompts. Each worker prompt MUST include the tmup-cli protocol instructions so the Codex worker communicates through tmup's coordination layer, not just by writing files.
+
+**Required tmup-cli instructions in every worker prompt:**
+
+```
+## tmup-cli Protocol (REQUIRED)
+
+You are a tmup-coordinated worker. Use these commands to communicate:
+
+1. After claiming your task, run: tmup-cli heartbeat
+   Run this every 2-3 minutes during your analysis.
+
+2. Post progress updates: tmup-cli checkpoint "analyzing {file}..."
+   Post at least one checkpoint within the first 2 minutes.
+
+3. Report findings as you discover them:
+   tmup-cli message --to lead --type finding "HIGH: {description} at {file:line}"
+
+4. Write your full findings report to the artifact path specified in your task.
+
+5. When done, register the artifact and complete:
+   tmup-cli complete "N findings (X HIGH, Y MEDIUM, Z LOW)" --artifact {artifact-name}:{artifact-path}
+
+6. On failure: tmup-cli fail --reason logic_error "description of what went wrong"
+
+The artifact name and path are specified in your task description.
+Do NOT skip the complete call — the supervisor depends on it to detect task completion.
+```
 
 **Stage A (Investigator) — domain-specific attack:**
 - Role: investigator
-- Input: bead code + spec + domain-specific attack prompt from `domain-attack-libraries.md`
+- Input: bead code + spec + domain-specific attack prompt from `skills/sdlc-adversarial/domain-attack-libraries.md`
+- Artifact name: `{bead-id}-stage-a-{domain}-findings`
+- Artifact path: `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-a-{domain}-investigator.md`
 - **NEVER include Claude AQS findings** — anti-anchoring requirement; Stage A workers must form independent judgments
 
 **Stage B (Reviewer) — independent review:**
 - Role: reviewer
 - Input: bead code + spec ONLY
+- Artifact name: `{bead-id}-stage-b-independent-review-findings`
+- Artifact path: `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-b-independent-reviewer.md`
 - **NEVER include any review artifacts** (not Stage A findings, not AQS findings)
 - Stage B must be fully independent to detect cross-model blind spots
 
@@ -101,13 +132,27 @@ Poll loop:
 - Degraded cadence: every 5 seconds
 - **Global session timeout: 120 minutes.** If the session exceeds this limit, harvest any available artifacts, mark remaining workers as TIMED_OUT, transition to COMPLETE or FALLBACK_CLAUDE_ONLY, and proceed to TEARDOWN. This prevents unbounded consumption (OWASP LLM10).
 
-Each poll cycle: `tmup_status` → `tmup_inbox` → `tmup_next_action`
+Each poll cycle:
 
-Act on next_action directives. If a worker goes idle, attempt `tmup_reprompt` (1 reprompt per worker). If a worker is lost or times out → mark as failed, open replacement slot if within budget, transition state to DEGRADED.
+1. `tmup_status` → check agent heartbeats, trigger stale-agent recovery. Expect heartbeats every 2-3 minutes from live workers.
+2. `tmup_inbox` → read checkpoint messages (progress), finding messages (interim results), blocker messages (escalations). Checkpoints confirm the worker is actively analyzing. Absence of checkpoints for >5 minutes after dispatch → suspect unsent-input (see Pane Interaction Model).
+3. `tmup_next_action` → synthesized recommendation. `all_complete` means all workers called `tmup-cli complete`. `needs_review` means a worker failed non-retriably. `dispatch` means a replacement slot is available.
+
+**Completion detection:** A worker is done when `tmup_status` shows its task status as `completed` (set by `tmup-cli complete`). Do NOT rely on file existence alone — the `tmup-cli complete --artifact` call is the authoritative completion signal because it also registers the artifact checksum.
+
+Act on next_action directives. If a worker goes idle (heartbeat alive but no checkpoints), attempt `tmup_reprompt` (1 reprompt per worker). If a worker is lost or times out → mark as failed, open replacement slot if within budget, transition state to DEGRADED.
 
 ### Step 7: COLLECT
 
-Read artifacts from `docs/sdlc/active/{task-id}/crossmodel/`. Match each artifact to its expected name from Step 4.
+For each completed task (detected via `tmup_status` showing task status `completed`):
+
+1. Read the artifact path from the tmup task's registered artifact (the worker called `tmup-cli complete --artifact name:path`)
+2. Verify the file exists at the registered path in `docs/sdlc/active/{task-id}/crossmodel/`
+3. Cross-check the tmup-registered artifact checksum against the file on disk
+
+For workers that timed out or failed without completing: use `tmup_harvest` to capture pane scrollback as forensic evidence only — do NOT treat scrollback as a findings artifact.
+
+Match each collected artifact to its expected `produces` name from Step 4.
 
 ### Step 8: NORMALIZE
 
