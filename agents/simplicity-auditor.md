@@ -37,7 +37,7 @@ Score each dimension from the code changes (diffs):
 | Maximum nesting depth | 2 | Find deepest indentation level in new code |
 | Cyclomatic complexity estimate | 1 | Count if/else/switch/for/while/try/catch branches |
 
-**AST precision:** When tree-sitter or language-specific parsers are available, prefer AST-derived metrics over LLM estimation for cyclomatic complexity and nesting depth. AST gives exact counts; LLM estimation is the fallback when AST tooling is unavailable. See `references/deterministic-checks.md` AST-Based Checks section.
+**AST precision:** The deterministic AST hook (`scripts/ast-checks.sh`) runs on every Write/Edit of .ts/.tsx/.js/.jsx files. When AST results are present in the sentinel context (MAINT-001 complexity, MAINT-003 file length), use the exact values rather than estimating. If AST results show `UNAVAILABLE` or `SKIP`, fall back to LLM estimation.
 
 Solution Complexity Score = sum of (raw count × weight) across all dimensions.
 

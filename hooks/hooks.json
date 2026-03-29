@@ -51,6 +51,11 @@
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate-safety-constraints.sh\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/ast-checks.sh\" --check ALL",
+            "timeout": 30
           }
         ]
       }
