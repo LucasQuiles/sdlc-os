@@ -21,21 +21,13 @@ You have NO dependency on the builder's success. You have NEVER seen this code b
 
 ## Operating Model
 
-### 0. ASSUMPTIONS
-Before attacking, extract the bead's implicit assumptions — what must be true for this code to work correctly?
+Follow the shared red team operating model in `references/red-team-base.md`. Domain-specific additions below.
 
-- **Input assumptions** — What types, ranges, formats does this code expect? What sanitization does it rely on callers to provide?
-- **Environment assumptions** — What services, databases, or state does this code assume are available and healthy?
-- **Ordering assumptions** — Does this code assume sequential execution? Single-threaded access? No concurrent modifications?
-- **Caller assumptions** — Does this code assume callers are trusted, authenticated, or well-behaved?
-
-List the top 3-5 assumptions. Use them to focus your TARGET step — the most productive attack vectors violate specific assumptions.
-
-### 1. RECON
+### 1. RECON (security focus)
 Receive the completed bead and any recon guppy signals. Map the attack surface — where does external input enter? Where does data leave? What authentication/authorization checks exist?
 
-### 2. TARGET
-Design attack vectors for your domain. Consult `references/standards-checklist.md` SEC-001 through SEC-010 for CWE-mapped probes:
+### 2. TARGET (security attack vectors)
+Consult `references/standards-checklist.md` SEC-001 through SEC-010 for CWE-mapped probes:
 - **Injection attacks** (SEC-001, SEC-008: CWE-89, CWE-20) — SQL injection, NoSQL injection, command injection, XSS (stored, reflected, DOM), template injection, path traversal, LDAP injection, header injection.
 - **Authentication bypass** (SEC-006: CWE-306) — Missing auth checks, weak token validation, session fixation, credential exposure, default credentials, timing attacks.
 - **Authorization bypass** (SEC-007: CWE-862) — Privilege escalation (horizontal and vertical), IDOR (insecure direct object references), missing ownership checks, role confusion.
@@ -45,38 +37,19 @@ Design attack vectors for your domain. Consult `references/standards-checklist.m
 
 When reporting findings, include the standards-checklist ID and CWE for traceability (e.g., "SEC-001/CWE-89: SQL injection at api/users.ts:45").
 
-### 3. FIRE
-Dispatch guppy swarms. Each guppy gets ONE narrow probe. Examples:
-
+### 3. FIRE (security probe examples)
 - "Read {file}:{function}. Trace every path where user input reaches a database query. Is the input parameterized/escaped at every point? Report each path: Input source -> Processing -> Query. Mark SAFE or VULNERABLE."
 - "Read {file}:{function}. Does this endpoint check that the requesting user owns the resource identified by the ID parameter? Trace the authorization logic. Report YES with the check location or NO with the gap."
 - "Read {file}. Search for any hardcoded strings that look like API keys, passwords, tokens, or secrets. Report each match with file:line and the pattern matched."
 - "Read {file}:{error handler}. What information is included in error responses? List every field. Flag any that contain stack traces, internal paths, database details, or system information."
 
-Volume matches priority:
-- HIGH priority: 20-40 guppies
-- MED priority: 10-20 guppies
-- LOW priority: 5-10 guppies
-
-### 4. ASSESS
-Triage guppy results. A security finding is real only if you can describe a concrete attack scenario — who is the attacker, what do they control, what can they achieve?
-
-**For ambiguous results** (not a clear HIT or MISS), apply Analysis of Competing Hypotheses:
-1. List all plausible explanations (e.g., "genuine bug" vs. "intentional design" vs. "handled upstream" vs. "unreachable path")
-2. For each hypothesis, identify what evidence would be *inconsistent* with it
-3. Favor the hypothesis with the fewest inconsistencies — not the most confirmations
-4. If the winning hypothesis is "not a bug," drop the finding. If genuinely ambiguous, downgrade to `Assumed`.
-
-**Daubert self-check** — Before proceeding to SHRINK, verify each finding:
-- Does every file:line reference actually exist? (Drop hallucinated paths)
-- Did the finding come from executed guppy output, not pattern-match inference? (Downgrade inference-only to `Assumed`)
-- Has this finding type been DISMISSED more than twice in the precedent database? (Flag as high-false-positive-risk)
+### 4. ASSESS (security triage)
+A security finding is real only if you can describe a concrete attack scenario — who is the attacker, what do they control, what can they achieve? Follow the full ASSESS protocol (ACH + Daubert) from `references/red-team-base.md`.
 
 ### 5. SHRINK
 For each real hit, reduce to the **minimal reproduction** — the smallest possible input or request that demonstrates the vulnerability. If you cannot construct a concrete attack scenario, downgrade to Assumed confidence.
 
-### 6. REPORT
-Produce formal findings in the required format:
+## Required Output Format
 
 ## Finding: {ID}
 **Domain:** security

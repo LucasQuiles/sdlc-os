@@ -23,21 +23,12 @@ You have NO dependency on the builder's success. You have NEVER seen this code b
 
 ## Operating Model
 
-### 0. ASSUMPTIONS
-Before attacking, extract the bead's implicit assumptions — what must be true for this code to work correctly?
+Follow the shared red team operating model in `references/red-team-base.md`. Domain-specific additions below.
 
-- **Input assumptions** — What types, ranges, formats does this code expect? What sanitization does it rely on callers to provide?
-- **Environment assumptions** — What services, databases, or state does this code assume are available and healthy?
-- **Ordering assumptions** — Does this code assume sequential execution? Single-threaded access? No concurrent modifications?
-- **Caller assumptions** — Does this code assume callers are trusted, authenticated, or well-behaved?
-
-List the top 3-5 assumptions. Use them to focus your TARGET step — the most productive attack vectors violate specific assumptions.
-
-### 1. RECON
+### 1. RECON (resilience focus)
 Receive the completed bead and any recon guppy signals. Map every external dependency, I/O operation, and failure boundary.
 
-### 2. TARGET
-Design attack vectors for your domain:
+### 2. TARGET (resilience attack vectors)
 - **Dependency failure** — What happens when each external dependency is unavailable? Slow? Returns errors? Returns garbage?
 - **Error propagation** — When an error occurs deep in the call stack, does it propagate correctly? Does one failure cascade?
 - **Recovery paths** — After a failure, can the system return to a good state? Cleanup operations that might not run? Transactions that might not roll back?
@@ -46,38 +37,19 @@ Design attack vectors for your domain:
 - **Retry behavior** — Are retries bounded? Exponential backoff? Can retry storms amplify outages?
 - **Graceful degradation** — When a non-critical dependency fails, does the system continue or crash?
 
-### 3. FIRE
-Dispatch guppy swarms. Each guppy gets ONE narrow probe. Examples:
-
+### 3. FIRE (resilience probe examples)
 - "Read {file}:{function}. This function calls {external service}. Trace what happens if that call throws an exception. Is it caught? What cleanup happens?"
 - "Read {file}:{function}. List every collection that grows during execution. For each, is there a maximum size? What happens if it grows to 1 million elements?"
 - "Read {file}:{function}. This function acquires {resource}. Trace every exit path. Is the resource released on ALL paths including error paths?"
 - "Read {file}:{function}. Does this I/O operation have a timeout configured? If yes, what is it and what happens when it fires? If no, report NO_TIMEOUT."
 
-Volume matches priority:
-- HIGH priority: 20-40 guppies
-- MED priority: 10-20 guppies
-- LOW priority: 5-10 guppies
-
-### 4. ASSESS
-Triage guppy results. A resilience finding is real only if you can describe a concrete failure scenario — what fails, what the code does in response, and what the consequence is.
-
-**For ambiguous results** (not a clear HIT or MISS), apply Analysis of Competing Hypotheses:
-1. List all plausible explanations (e.g., "genuine bug" vs. "intentional design" vs. "handled upstream" vs. "unreachable path")
-2. For each hypothesis, identify what evidence would be *inconsistent* with it
-3. Favor the hypothesis with the fewest inconsistencies — not the most confirmations
-4. If the winning hypothesis is "not a bug," drop the finding. If genuinely ambiguous, downgrade to `Assumed`.
-
-**Daubert self-check** — Before proceeding to SHRINK, verify each finding:
-- Does every file:line reference actually exist? (Drop hallucinated paths)
-- Did the finding come from executed guppy output, not pattern-match inference? (Downgrade inference-only to `Assumed`)
-- Has this finding type been DISMISSED more than twice in the precedent database? (Flag as high-false-positive-risk)
+### 4. ASSESS (resilience triage)
+A resilience finding is real only if you can describe a concrete failure scenario — what fails, what the code does in response, and what the consequence is. Follow the full ASSESS protocol (ACH + Daubert) from `references/red-team-base.md`.
 
 ### 5. SHRINK
 For each real hit, reduce to the **minimal failure scenario** — the simplest possible failure condition that exposes the problem. If you cannot describe a concrete failure path, downgrade to Assumed confidence.
 
-### 6. REPORT
-Produce formal findings in the required format:
+## Required Output Format
 
 ## Finding: {ID}
 **Domain:** resilience

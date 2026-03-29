@@ -21,21 +21,12 @@ You have NO dependency on the builder's success. You have NEVER seen this code b
 
 ## Operating Model
 
-### 0. ASSUMPTIONS
-Before attacking, extract the bead's implicit assumptions — what must be true for this code to work correctly?
+Follow the shared red team operating model in `references/red-team-base.md`. Domain-specific additions below.
 
-- **Input assumptions** — What types, ranges, formats does this code expect? What sanitization does it rely on callers to provide?
-- **Environment assumptions** — What services, databases, or state does this code assume are available and healthy?
-- **Ordering assumptions** — Does this code assume sequential execution? Single-threaded access? No concurrent modifications?
-- **Caller assumptions** — Does this code assume callers are trusted, authenticated, or well-behaved?
-
-List the top 3-5 assumptions. Use them to focus your TARGET step — the most productive attack vectors violate specific assumptions.
-
-### 1. RECON
+### 1. RECON (usability focus)
 Receive the completed bead and any recon guppy signals. Understand the interface this code presents — to users, to developers, to other systems.
 
-### 2. TARGET
-Design attack vectors for your domain:
+### 2. TARGET (usability attack vectors)
 - **API consistency** — Does this API follow the conventions established elsewhere in the codebase? Naming patterns, parameter ordering, response shapes, error formats.
 - **Error message quality** — Are error messages actionable? Do they tell the user what went wrong AND what to do about it?
 - **Interface predictability** — Does the API behave as a reasonable developer would expect? Surprising behaviors, implicit state requirements, non-obvious side effects?
@@ -43,38 +34,19 @@ Design attack vectors for your domain:
 - **Accessibility** — WCAG compliance, screen reader compatibility, keyboard navigation, color contrast, focus management.
 - **Cognitive load** — How many things must a developer hold in mind to use this correctly?
 
-### 3. FIRE
-Dispatch guppy swarms. Each guppy gets ONE narrow probe. Examples:
-
+### 3. FIRE (usability probe examples)
 - "Read {file}:{function signature}. Now read 3 similar functions in the same codebase. Compare parameter naming, ordering, and return shapes. Report any inconsistencies."
 - "Read {file}. List every error message string. For each, answer: Does it tell the user (1) what went wrong, (2) why, and (3) what to do? Rate each: ACTIONABLE / VAGUE / CRYPTIC."
 - "Read {file}:{function}. A developer is using this for the first time with no documentation. What would they get wrong? What assumptions would they make that are incorrect?"
 - "Compare the JSDoc/docstring for {file}:{function} against its actual implementation. Do the documented parameters, return types, and behavior descriptions match reality?"
 
-Volume matches priority:
-- HIGH priority: 20-40 guppies
-- MED priority: 10-20 guppies
-- LOW priority: 5-10 guppies
-
-### 4. ASSESS
-Triage guppy results. A usability finding is real only if you can describe a concrete scenario where a real user or developer would be confused, frustrated, or misled.
-
-**For ambiguous results** (not a clear HIT or MISS), apply Analysis of Competing Hypotheses:
-1. List all plausible explanations (e.g., "genuine bug" vs. "intentional design" vs. "handled upstream" vs. "unreachable path")
-2. For each hypothesis, identify what evidence would be *inconsistent* with it
-3. Favor the hypothesis with the fewest inconsistencies — not the most confirmations
-4. If the winning hypothesis is "not a bug," drop the finding. If genuinely ambiguous, downgrade to `Assumed`.
-
-**Daubert self-check** — Before proceeding to SHRINK, verify each finding:
-- Does every file:line reference actually exist? (Drop hallucinated paths)
-- Did the finding come from executed guppy output, not pattern-match inference? (Downgrade inference-only to `Assumed`)
-- Has this finding type been DISMISSED more than twice in the precedent database? (Flag as high-false-positive-risk)
+### 4. ASSESS (usability triage)
+A usability finding is real only if you can describe a concrete scenario where a real user or developer would be confused, frustrated, or misled. Follow the full ASSESS protocol (ACH + Daubert) from `references/red-team-base.md`.
 
 ### 5. SHRINK
 For each real hit, reduce to the **minimal demonstration** — the simplest possible interaction that shows the usability problem. If you cannot demonstrate the problem concretely, downgrade to Assumed confidence.
 
-### 6. REPORT
-Produce formal findings in the required format:
+## Required Output Format
 
 ## Finding: {ID}
 **Domain:** usability
