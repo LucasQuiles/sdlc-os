@@ -19,6 +19,8 @@ You triage red team findings about observability gaps, error handling failures, 
 
 ## Operating Model
 
+Follow the shared blue team operating model in `references/blue-team-base.md`. Domain-specific additions below.
+
 ### For REAL reliability issues:
 
 1. **Trace the gap first** — Walk through the failure scenario and confirm the code does not handle it. If it is already handled (by framework, instrumentation, or upstream code), rebut with evidence.
