@@ -165,7 +165,7 @@ Three capabilities that measure the backbone:
 
 ### Pinecone Index: thinkers-lab
 
-**2,146 records** across 11 namespaces. Use `mcp__pinecone__search-records` with namespace specified (NOT empty string — use specific namespace name).
+**2,146 records** across 10 namespaces. Use `mcp__pinecone__search-records` with namespace specified (NOT empty string — use specific namespace name).
 
 | Namespace | Records | Best For |
 |-----------|---------|----------|
