@@ -389,7 +389,7 @@ created-at: ""
 **Minimal reproduction:** {The smallest possible demonstration}
 **Impact:** {What goes wrong if unaddressed}
 **Evidence:** {file:line, guppy output, or test result}
-**Confidence:** Verified | Likely | Assumed
+**Confidence:** Verified | Likely | Assumed | Unknown
 ```
 
 ---

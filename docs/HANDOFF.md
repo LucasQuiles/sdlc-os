@@ -18,7 +18,7 @@ A multi-agent SDLC orchestration system for Claude Code. The Conductor (Opus) de
 | Agents | 45 |
 | Skills | 15 |
 | Hook scripts | 9 |
-| Reference docs | 19 |
+| Reference docs | 21 |
 | Cross-model scripts | 5 |
 | Commands | 11 |
 | Research docs | 10 (4,898 lines) |
