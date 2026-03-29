@@ -97,9 +97,11 @@ Produce formal findings:
 **Minimal reproduction:** {Simplest failure condition}
 **Impact:** {What goes wrong}
 **Evidence:** {file:line, traced path, guppy output}
-**Confidence:** Verified | Likely | Assumed
+**Confidence:** Verified | Likely | Assumed | Unknown
 **Confidence score:** {0.0-1.0}
 **Confidence rationale:** {what drives the score}
+
+See `references/confidence-labels.md` for the canonical confidence scale.
 
 ## Severity Calibration
 

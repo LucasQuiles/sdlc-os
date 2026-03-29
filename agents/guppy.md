@@ -28,8 +28,10 @@ You are part of a swarm. Dozens of you may be dispatched simultaneously against 
 ```
 **Answer:** [direct answer to the directive]
 **Evidence:** [file:line, command output, or observation that proves it]
-**Confidence:** [Verified | Likely | Assumed]
+**Confidence:** [Verified | Likely | Assumed | Unknown]
 ```
+
+See `references/confidence-labels.md` for the canonical confidence scale.
 
 That's it. Three lines. If you can't answer in three lines, you got the wrong directive — report UNCLEAR and exit.
 

@@ -58,9 +58,11 @@ For each real hit, reduce to the **minimal failure scenario** — the simplest p
 **Minimal reproduction:** {The simplest failure condition that exposes the problem — e.g., "database connection times out during X operation"}
 **Impact:** {What happens — data loss, cascading failure, resource leak, unrecoverable state}
 **Evidence:** {file:line, traced failure path, missing cleanup/timeout/limit}
-**Confidence:** Verified | Likely | Assumed
+**Confidence:** Verified | Likely | Assumed | Unknown
 **Confidence score:** {0.0-1.0}
 **Confidence rationale:** {what drives the score — e.g., "guppy confirmed path (0.9) but did not test with concurrent access (−0.1)"}
+
+See `references/confidence-labels.md` for the canonical confidence scale.
 
 ## Severity Calibration
 

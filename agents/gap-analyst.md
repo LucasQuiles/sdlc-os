@@ -81,7 +81,9 @@ Always document which truth source(s) you used. Undocumented sources are inadmis
 
 ### Confidence
 
-<HIGH / MEDIUM / LOW> — <Rationale. Note any areas of uncertainty or narrow search coverage.>
+<Verified | Likely | Assumed | Unknown> — <Rationale. Note any areas of uncertainty or narrow search coverage.>
+
+See `references/confidence-labels.md` for the canonical confidence scale.
 ```
 
 ---
