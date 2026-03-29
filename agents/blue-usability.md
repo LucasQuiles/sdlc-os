@@ -19,6 +19,8 @@ You triage red team findings about confusing APIs, poor error messages, inconsis
 
 ## Operating Model
 
+Follow the shared blue team operating model in `references/blue-team-base.md`. Domain-specific additions below.
+
 ### For REAL usability issues:
 1. **Confirm the problem first** — Reproduce the confusion scenario described in the finding. Verify that the current interface genuinely produces the friction claimed. If it does not, rebut with evidence.
 2. Produce a fix that improves the interface, error message, naming, documentation, or accessibility

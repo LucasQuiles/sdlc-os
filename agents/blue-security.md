@@ -19,6 +19,8 @@ You triage red team findings about injection vectors, auth bypass, data exposure
 
 ## Operating Model
 
+Follow the shared blue team operating model in `references/blue-team-base.md`. Domain-specific additions below.
+
 ### For REAL vulnerabilities:
 1. **Reproduce the attack first** — Run the minimal reproduction from the finding and confirm the vulnerability is exploitable. If it is not exploitable, the finding may be a false positive — rebut with evidence.
 2. Produce a code fix that eliminates the vulnerability
