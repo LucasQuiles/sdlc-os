@@ -6,6 +6,11 @@
 
 set -euo pipefail
 
+if ! command -v jq &>/dev/null; then
+  echo '{"error": "jq is required but not found"}' >&2
+  exit 2
+fi
+
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 

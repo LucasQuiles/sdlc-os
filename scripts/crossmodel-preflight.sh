@@ -86,6 +86,10 @@ if [[ -d "$TMUP_STATE_DIR" ]]; then
   for state_entry in "${TMUP_STATE_DIR}"/xm-*; do
     [[ -d "$state_entry" ]] || continue
     session_name=$(basename "$state_entry")
+    # Sanitize: skip state entries whose names contain invalid characters
+    if [[ "$session_name" =~ [^a-zA-Z0-9_-] ]]; then
+      continue
+    fi
     # Check if a tmux session with this name is actually running
     if tmux has-session -t "$session_name" 2>/dev/null; then
       CONFLICTING_SESSION="$session_name"
