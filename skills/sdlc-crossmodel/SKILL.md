@@ -57,6 +57,8 @@ See `references/fft-decision-trees.md` FFT-14 for the full decision tree. See `r
 
 Steps 2 and 3 are separate: `tmup_init` creates the SQLite session/DB; `crossmodel-grid-up.sh` creates the tmux pane grid. Do not conflate them.
 
+**Unsent-input detection:** If a worker has an active heartbeat but no checkpoint/finding/completion messages for >5 minutes after dispatch, suspect unsent input rather than a slow worker. Harvest the pane to check if the prompt appears in scrollback. If visible but unanswered, reprompt. If not visible, the send-keys delivery failed — reprompt with full prompt text. See crossmodel-supervisor "Pane Interaction Model" for the full recovery sequence.
+
 ---
 
 ## Stage A — Red Team Supplement

@@ -107,6 +107,24 @@ while [[ $pane_idx -lt $ACTUAL_PANES ]]; do
   pane_idx=$(( pane_idx + 1 ))
 done
 
+# --- Verify pane readiness — wait for shell prompt in each pane ---
+
+for ((i=0; i<ACTUAL_PANES; i++)); do
+  retries=10
+  while ((retries > 0)); do
+    # Check if pane has rendered the prompt
+    pane_content=$(tmux capture-pane -t "${SESSION_NAME}.${i}" -p 2>/dev/null | tail -1)
+    if [[ "$pane_content" == *"xm "* ]]; then
+      break
+    fi
+    sleep 0.5
+    retries=$((retries - 1))
+  done
+  if ((retries == 0)); then
+    printf 'Warning: pane %d may not be ready (prompt not detected)\n' "$i" >&2
+  fi
+done
+
 # --- Verify actual pane count ---
 
 if [[ "$ACTUAL_PANES" -ne "$PANE_COUNT" ]]; then

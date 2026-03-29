@@ -23,6 +23,22 @@ Workers are interactive Codex sessions, not one-shot commands. After `tmup_dispa
 - Use `tmup_harvest` to communicate (it is read-only observation)
 - Treat dispatch as fire-and-forget — monitor via the status/inbox/next_action loop
 
+**Edge case: unsent input**
+If a worker shows no progress but heartbeat is alive, the likely cause is unsent input — text was delivered to the pane but Enter was not received by the Codex process. This is distinct from a dead agent (no heartbeat) or an idle agent (heartbeat + no task claimed).
+
+Detection: `tmup_status` shows agent active with recent heartbeat, but `tmup_inbox` shows no checkpoint/finding/completion messages for >5 minutes after dispatch.
+
+Recovery sequence:
+1. `tmup_harvest` the pane — check if the prompt text appears in scrollback but Codex has not responded
+2. If prompt visible but no response: `tmup_reprompt` with the same task prompt (sends text + double-Enter)
+3. If prompt NOT visible in scrollback: the send-keys delivery failed — `tmup_reprompt` with full task prompt
+4. If reprompt also produces no response after 2 minutes: timeout the worker
+
+**Edge case: pane readiness race**
+After `crossmodel-grid-up.sh` creates panes, wait for shell readiness before dispatching. The grid-up script sets PS1 in each pane, but the shell may not be ready to receive commands immediately after split-window.
+
+Mitigation: `crossmodel-grid-up.sh` should verify each pane has a shell prompt before reporting UP. The dispatch step should not fire until grid-up confirms all panes are ready.
+
 ## State Machine
 
 ```
