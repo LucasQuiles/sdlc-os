@@ -199,8 +199,8 @@ detect_convention() {
 
 # --- Hook Input Parsing ---
 
-# read_hook_file_path: Extract .tool_input.file_path from hook JSON on stdin.
-# Usage: FILE_PATH=$(read_hook_file_path <<<"$INPUT")
+# read_hook_file_path: Extract .tool_input.file_path from hook JSON input.
+# Usage: FILE_PATH=$(read_hook_file_path "$INPUT")
 # Returns the path string, or empty string if not present or jq fails.
 read_hook_file_path() {
   local input="$1"
@@ -214,7 +214,7 @@ read_hook_file_path() {
 
 # read_tool_content: Extract content from .tool_input.content, falling back to
 # reading the file at file_path from disk (for Edit tool where content is absent).
-# Usage: CONTENT=$(read_tool_content <<<"$INPUT" "$FILE_PATH")
+# Usage: CONTENT=$(read_tool_content "$INPUT" "$FILE_PATH")
 # Returns the content string, or empty string if unavailable.
 read_tool_content() {
   local input="$1"

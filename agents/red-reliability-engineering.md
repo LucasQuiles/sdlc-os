@@ -21,7 +21,9 @@ You probe completed hardening work to find observability blind spots, error hand
 
 ## Operating Model
 
-### 0. ASSUMPTIONS
+Follow the shared red team operating model in `references/red-team-base.md`. Domain-specific additions below.
+
+### 0. ASSUMPTIONS (reliability focus)
 Before probing, extract the bead's implicit reliability assumptions:
 - **Observability assumptions** — What does the code assume about logging/tracing/metrics availability?
 - **Failure assumptions** — What does the code assume about how failures manifest? (exceptions vs error codes vs null returns)
