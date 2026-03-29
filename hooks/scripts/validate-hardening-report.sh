@@ -6,8 +6,11 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../lib/common.sh"
+
 INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+FILE_PATH=$(read_hook_file_path "$INPUT")
 
 # Only validate hardening report files
 if [[ -z "$FILE_PATH" ]]; then
@@ -18,10 +21,7 @@ if [[ ! "$FILE_PATH" =~ hardening-report\.md$ ]]; then
   exit 0
 fi
 
-CONTENT=$(echo "$INPUT" | jq -r '.tool_input.content // empty')
-if [[ -z "$CONTENT" ]] && [[ -f "$FILE_PATH" ]]; then
-  CONTENT=$(cat "$FILE_PATH")
-fi
+CONTENT=$(read_tool_content "$INPUT" "$FILE_PATH")
 
 if [[ -z "$CONTENT" ]]; then
   exit 0

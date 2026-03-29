@@ -7,10 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 
 INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null) || {
-  emit_warning "check-naming-convention: failed to parse hook input JSON — skipping"
-  exit 0
-}
+FILE_PATH=$(read_hook_file_path "$INPUT")
 
 if [[ -z "$FILE_PATH" ]]; then exit 0; fi
 if is_vendor_path "$FILE_PATH"; then exit 0; fi

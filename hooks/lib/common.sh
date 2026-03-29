@@ -196,3 +196,33 @@ detect_convention() {
   if [[ "$stem" =~ ^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$ ]]; then echo "UPPER_SNAKE_CASE"; return; fi
   echo "non-standard"
 }
+
+# --- Hook Input Parsing ---
+
+# read_hook_file_path: Extract .tool_input.file_path from hook JSON on stdin.
+# Usage: FILE_PATH=$(read_hook_file_path <<<"$INPUT")
+# Returns the path string, or empty string if not present or jq fails.
+read_hook_file_path() {
+  local input="$1"
+  local path
+  path=$(echo "$input" | jq -r '.tool_input.file_path // empty' 2>/dev/null) || {
+    echo ""
+    return
+  }
+  echo "$path"
+}
+
+# read_tool_content: Extract content from .tool_input.content, falling back to
+# reading the file at file_path from disk (for Edit tool where content is absent).
+# Usage: CONTENT=$(read_tool_content <<<"$INPUT" "$FILE_PATH")
+# Returns the content string, or empty string if unavailable.
+read_tool_content() {
+  local input="$1"
+  local file_path="$2"
+  local content
+  content=$(echo "$input" | jq -r '.tool_input.content // empty' 2>/dev/null) || true
+  if [[ -z "$content" ]] && [[ -n "$file_path" ]] && [[ -f "$file_path" ]]; then
+    content=$(cat "$file_path" 2>/dev/null) || true
+  fi
+  echo "$content"
+}

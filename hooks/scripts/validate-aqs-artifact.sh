@@ -8,13 +8,16 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../lib/common.sh"
+
 if ! command -v jq &>/dev/null; then
   echo '{"error": "jq is required but not found"}' >&2
   exit 2
 fi
 
 INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+FILE_PATH=$(read_hook_file_path "$INPUT")
 
 # Only validate AQS artifacts
 if [[ -z "$FILE_PATH" ]]; then
@@ -26,14 +29,9 @@ if [[ ! "$FILE_PATH" =~ docs/sdlc/active/.*/adversarial/ ]] && [[ ! "$FILE_PATH"
   exit 0
 fi
 
-CONTENT=$(echo "$INPUT" | jq -r '.tool_input.content // empty')
+CONTENT=$(read_tool_content "$INPUT" "$FILE_PATH")
 if [[ -z "$CONTENT" ]]; then
-  # Edit tool — read the file to get current content
-  if [[ -f "$FILE_PATH" ]]; then
-    CONTENT=$(cat "$FILE_PATH")
-  else
-    exit 0
-  fi
+  exit 0
 fi
 
 ERRORS=""
