@@ -184,6 +184,18 @@ From spec Section 6.6:
 | `tmup_harvest` | Debug / timeout / forensics ONLY | Serve as primary evidence path |
 | `tmup_teardown` | Notify agents, log session end | Kill tmux — `crossmodel-grid-down.sh` does that |
 
+### Session Control Model
+
+Workers dispatched via `tmup_dispatch` are persistent interactive Codex sessions, not one-shot commands. The pane hosts a live codex process from dispatch until exit.
+
+| Tool | Session role | What it is NOT |
+|---|---|---|
+| `tmup_dispatch` | Start or resume a persistent interactive session in a pane | Not a fire-and-forget exec call |
+| `tmup_reprompt` | Send follow-up text to an idle or queueable session via send-keys | Not a new command or process launch |
+| `tmup_harvest` | Read pane scrollback — observation only | Not a communication channel to the worker |
+
+Do not run `codex exec`, Bash commands, or any direct shell interaction in worker panes. All follow-up text into the worker's pane goes through `tmup_reprompt`. Structured inter-agent messaging uses `tmup_send_message` / `tmup_inbox` separately.
+
 ---
 
 ## Deterministic Scripts
