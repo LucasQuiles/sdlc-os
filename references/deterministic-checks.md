@@ -37,7 +37,7 @@ Checks that MUST be routed to shell scripts (p=1.0), not LLM agents (p<1.0). Use
 
 ## AST-Based Checks
 
-AST analysis complements grep (pattern matching) and LSP (symbol resolution) by providing structural code analysis. Use tree-sitter or language-specific parsers when available.
+AST analysis complements grep (pattern matching) and LSP (symbol resolution) by providing structural code analysis. The primary implementation is `scripts/ast-checks.sh`, which uses eslint AST rules for deterministic structural checks. tree-sitter support is planned for language-agnostic analysis when installed.
 
 **When to use AST over grep:**
 - Cyclomatic complexity computation (need to count branches in control flow, not just grep for `if`)
@@ -64,6 +64,19 @@ AST analysis complements grep (pattern matching) and LSP (symbol resolution) by 
 | Dead code paths (REL-005) | Partial (unused exports) | Partial (findReferences) | Full (reachability) | LSP + AST |
 | Factory wrapping single function | Regex heuristic | Class with 1 method (documentSymbol) | Exact structural match | AST preferred |
 | N+1 query pattern (PERF-001) | Partial (query inside loop) | Call hierarchy helps | Full (loop + query in scope) | AST + LSP |
+
+### AST Catalog Entries
+
+| Check | Command | Pass Criterion | Category |
+|---|---|---|---|
+| MAINT-001: Cyclomatic complexity | `bash "${CLAUDE_PLUGIN_ROOT}/scripts/ast-checks.sh" --check MAINT-001 {files}` | `status: CLEAN` (no function exceeds complexity 15) | maintainability |
+| REL-005: Dead code / unreachable | `bash "${CLAUDE_PLUGIN_ROOT}/scripts/ast-checks.sh" --check REL-005 {files}` | `status: CLEAN` (no unreachable code or unused vars) | reliability |
+| MAINT-003: God class / file length | `bash "${CLAUDE_PLUGIN_ROOT}/scripts/ast-checks.sh" --check MAINT-003 {files}` | `status: CLEAN` (no file > 500 lines, no function > 100 lines) | maintainability |
+| PERF-001: Expensive loop operations | `bash "${CLAUDE_PLUGIN_ROOT}/scripts/ast-checks.sh" --check PERF-001 {files}` | `status: CLEAN` (no await-in-loop) | performance |
+
+**Availability:** Requires `npx` + `eslint`. If unavailable, the script exits with `status: UNAVAILABLE` and the check is skipped — enforcement falls back to LLM-based agents (simplicity-auditor, drift-detector). This graceful degradation is by design: AST checks are the preferred path but not a hard gate when tooling is absent.
+
+**FFT-08 routing:** These checks are deterministic (binary pass/fail output). Per FFT-08, the Conductor routes them to the script before dispatching LLM-based sentinel checks. If the script returns FINDINGS, the L1 correction directive includes the AST-detected issues alongside any LLM findings.
 
 ## Adding New Checks
 

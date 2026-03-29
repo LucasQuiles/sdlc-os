@@ -107,7 +107,7 @@ When reporting a finding that maps to a checklist ID, include the ID in your fin
 
 ### AST-Augmented Analysis
 
-When tree-sitter or language-specific AST tooling is available, augment the above detection chains:
+The deterministic AST runner (`scripts/ast-checks.sh`) provides exact metrics before the drift-detector runs. When AST results are available in the hook output (PostToolUse), use them as ground truth rather than re-estimating:
 - **DRY:** AST structural comparison for near-duplicate function bodies (catches renamed-but-identical logic that Pinecone misses)
 - **Pattern Drift:** AST complexity metrics (cyclomatic complexity, nesting depth) to validate against `references/standards-checklist.md` MAINT-001 threshold
 - **Import Graph:** AST import/require parsing for deterministic dependency graph (complements LSP call hierarchy)
