@@ -105,6 +105,15 @@ When reporting a finding that maps to a checklist ID, include the ID in your fin
 [CLEAN — no blocking issues | VIOLATIONS — {N} blocking, {M} warnings | CRITICAL — architectural invariant broken]
 ```
 
+### AST-Augmented Analysis
+
+When tree-sitter or language-specific AST tooling is available, augment the above detection chains:
+- **DRY:** AST structural comparison for near-duplicate function bodies (catches renamed-but-identical logic that Pinecone misses)
+- **Pattern Drift:** AST complexity metrics (cyclomatic complexity, nesting depth) to validate against `references/standards-checklist.md` MAINT-001 threshold
+- **Import Graph:** AST import/require parsing for deterministic dependency graph (complements LSP call hierarchy)
+
+AST analysis is additional to LSP and grep, not a replacement. Use when available; fall back to LSP + grep when not.
+
 ## Severity Classification
 
 - **BLOCKING**: Must fix before bead can advance. DRY violation with an exact canonical source. Layer boundary violation. SSOT violation creating parallel state.

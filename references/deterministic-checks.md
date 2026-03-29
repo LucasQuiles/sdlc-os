@@ -35,6 +35,36 @@ Checks that MUST be routed to shell scripts (p=1.0), not LLM agents (p<1.0). Use
 | Dependency audit | `npm audit --audit-level=critical` | exit 0/1 | security |
 | Git conflict markers | `grep -r "<<<<<<" {files}` | match/no-match | structural |
 
+## AST-Based Checks
+
+AST analysis complements grep (pattern matching) and LSP (symbol resolution) by providing structural code analysis. Use tree-sitter or language-specific parsers when available.
+
+**When to use AST over grep:**
+- Cyclomatic complexity computation (need to count branches in control flow, not just grep for `if`)
+- Nesting depth measurement (need to track scope depth, not just indentation)
+- Dead code detection (need to trace reachability, not just grep for function names)
+- Pattern matching on syntax structure (factory wrapping single function, strategy for two-branch conditional)
+
+**When to use AST over LSP:**
+- LSP provides type-level information (signatures, references, hierarchy)
+- AST provides syntax-level information (control flow, nesting, complexity)
+- Both are needed for full analysis — they answer different questions
+
+**Available via:**
+- `tree-sitter` CLI (if installed) — language-agnostic, fast parsing
+- Language-specific: `tsc --noEmit` for TypeScript type checking, `eslint --rule` for rule-based AST checks
+- Claude Code's LSP tool provides some AST-adjacent capabilities (documentSymbol gives structure)
+
+**Checks that benefit from AST:**
+
+| Check | grep | LSP | AST | Best approach |
+|---|---|---|---|---|
+| Cyclomatic complexity (MAINT-001) | Approximate (count keywords) | No | Exact (count branches) | AST preferred, grep fallback |
+| Nesting depth | Approximate (indentation) | No | Exact (scope tracking) | AST preferred, grep fallback |
+| Dead code paths (REL-005) | Partial (unused exports) | Partial (findReferences) | Full (reachability) | LSP + AST |
+| Factory wrapping single function | Regex heuristic | Class with 1 method (documentSymbol) | Exact structural match | AST preferred |
+| N+1 query pattern (PERF-001) | Partial (query inside loop) | Call hierarchy helps | Full (loop + query in scope) | AST + LSP |
+
 ## Adding New Checks
 
 When adding a new verification check to the pipeline:

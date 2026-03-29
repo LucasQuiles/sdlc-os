@@ -37,6 +37,8 @@ Score each dimension from the code changes (diffs):
 | Maximum nesting depth | 2 | Find deepest indentation level in new code |
 | Cyclomatic complexity estimate | 1 | Count if/else/switch/for/while/try/catch branches |
 
+**AST precision:** When tree-sitter or language-specific parsers are available, prefer AST-derived metrics over LLM estimation for cyclomatic complexity and nesting depth. AST gives exact counts; LLM estimation is the fallback when AST tooling is unavailable. See `references/deterministic-checks.md` AST-Based Checks section.
+
 Solution Complexity Score = sum of (raw count × weight) across all dimensions.
 
 Normalize to a 0–100 scale relative to the bead's scope. For small beads (1–2 files), raw score maps directly. Document the normalization applied.
