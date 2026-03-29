@@ -41,7 +41,7 @@ Violations are BLOCKING during L1 sentinel.
 
 **Deterministic vs LLM-reasoning split:**
 
-SC-004 and SC-005 can be expressed as grep/AST patterns and are enforced two ways:
+SC-004 and SC-005 can be expressed as grep/AST patterns. Grep handles simple keyword matching (e.g., detecting `throw new Error` vs `StorageError`). AST handles structural patterns (e.g., verifying error handlers are not empty catch blocks, confirming secrets are not interpolated into log format strings). When tree-sitter is available, prefer AST for SC-004/SC-005; fall back to grep otherwise. These are enforced two ways:
 1. `validate-safety-constraints.sh` hook — PostToolUse advisory on all source file writes (exit 0 with stderr warning; always-on, always-advisory)
 2. safety-constraints-guardian during L1 sentinel — blocking enforcement with full bead context
 
