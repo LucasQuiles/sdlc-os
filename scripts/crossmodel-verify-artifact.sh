@@ -72,8 +72,9 @@ if [[ -n "$PROJECT_DIR" ]]; then
     CANON_ARTIFACT=$(realpath "$ARTIFACT_PATH" 2>/dev/null || echo "$ARTIFACT_PATH")
     CANON_PROJECT=$(realpath "$PROJECT_DIR" 2>/dev/null || echo "$PROJECT_DIR")
   else
-    CANON_ARTIFACT=$(cd "$(dirname "$ARTIFACT_PATH")" 2>/dev/null && pwd)/$(basename "$ARTIFACT_PATH")
-    CANON_PROJECT=$(cd "$PROJECT_DIR" 2>/dev/null && pwd)
+    # Fallback: use pwd -P to resolve symlinks, consistent with common.sh canonicalize_path()
+    CANON_ARTIFACT=$(cd "$(dirname "$ARTIFACT_PATH")" 2>/dev/null && pwd -P)/$(basename "$ARTIFACT_PATH")
+    CANON_PROJECT=$(cd "$PROJECT_DIR" 2>/dev/null && pwd -P)
   fi
 
   # Ensure the artifact path starts with the project dir
