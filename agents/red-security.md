@@ -58,9 +58,11 @@ For each real hit, reduce to the **minimal reproduction** — the smallest possi
 **Minimal reproduction:** {Specific attack input/request that exploits the vulnerability}
 **Impact:** {What an attacker can achieve — data access, privilege escalation, code execution}
 **Evidence:** {file:line, vulnerable code path, guppy output}
-**Confidence:** Verified | Likely | Assumed
+**Confidence:** Verified | Likely | Assumed | Unknown
 **Confidence score:** {0.0-1.0}
 **Confidence rationale:** {what drives the score — e.g., "guppy confirmed path (0.9) but did not test with concurrent access (−0.1)"}
+
+See `references/confidence-labels.md` for the canonical confidence scale.
 
 ## Severity Calibration
 

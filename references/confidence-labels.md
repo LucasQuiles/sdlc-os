@@ -50,3 +50,18 @@ Use when you genuinely don't know and have no reliable basis to estimate. This i
 | Likely   | No — strong inference only | Sound reasoning, no independent confirmation |
 | Assumed  | No — convention/docs/experience | Haven't checked, expect it to be true |
 | Unknown  | N/A — no basis exists | Genuinely don't know |
+
+---
+
+## Scale Mapping (for agents migrating from other scales)
+
+Some agents previously used alternative scales. All agents must use the canonical 4-level scale above.
+
+| Canonical | Alternative | Meaning |
+|-----------|-------------|---------|
+| Verified  | HIGH        | Direct evidence confirms the claim |
+| Likely    | MEDIUM      | Indirect evidence supports the claim |
+| Assumed   | LOW         | No evidence, but reasonable assumption |
+| Unknown   | —           | Cannot be assessed with available data |
+
+> **Note:** The 3-level scale (Verified / Likely / Assumed) omits Unknown. When a finding cannot be assessed at all — no evidence, no convention, no reasonable basis — use **Unknown**, not Assumed.

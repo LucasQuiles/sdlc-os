@@ -55,9 +55,11 @@ For each real hit, reduce to the **minimal demonstration** — the simplest poss
 **Minimal reproduction:** {The simplest interaction that demonstrates the problem}
 **Impact:** {What happens to the user/developer — confusion, wasted time, incorrect usage, accessibility barrier}
 **Evidence:** {file:line, specific message/interface, comparison with existing convention}
-**Confidence:** Verified | Likely | Assumed
+**Confidence:** Verified | Likely | Assumed | Unknown
 **Confidence score:** {0.0-1.0}
 **Confidence rationale:** {what drives the score — e.g., "guppy confirmed path (0.9) but did not test with concurrent access (−0.1)"}
+
+See `references/confidence-labels.md` for the canonical confidence scale.
 
 ## Severity Calibration
 

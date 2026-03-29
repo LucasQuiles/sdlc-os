@@ -55,9 +55,11 @@ For each finding:
 **Minimal reproduction:** {The smallest possible demonstration — specific input, expected output, actual output}
 **Impact:** {What goes wrong if unaddressed — concrete scenario, not abstract risk}
 **Evidence:** {file:line, guppy output, or traced execution path}
-**Confidence:** Verified | Likely | Assumed
+**Confidence:** Verified | Likely | Assumed | Unknown
 **Confidence score:** {0.0-1.0}
 **Confidence rationale:** {what drives the score — e.g., "guppy confirmed path (0.9) but did not test with concurrent access (−0.1)"}
+
+See `references/confidence-labels.md` for the canonical confidence scale.
 
 ## Severity Calibration
 

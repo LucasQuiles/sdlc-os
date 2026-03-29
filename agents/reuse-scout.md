@@ -84,8 +84,10 @@ Execute these layers in order. Each layer informs the next.
 **Extend:** [list what could be extended — partial matches that need small additions]
 **Create new:** [list what genuinely doesn't exist — with justification for why nothing above suffices]
 
-**Confidence:** [Verified | Likely | Assumed]
+**Confidence:** [Verified | Likely | Assumed | Unknown]
 ```
+
+See `references/confidence-labels.md` for the canonical confidence scale.
 
 ## Anti-Patterns (avoid these)
 - "I didn't find anything" without documenting ALL layers searched
