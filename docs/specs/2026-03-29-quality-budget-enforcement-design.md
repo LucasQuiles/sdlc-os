@@ -281,12 +281,14 @@ For derivation to work, bead artifacts must contain structured timestamps. These
 | `references/fft-decision-trees.md` | (FFT-01, FFT-04, FFT-05) | Wire budget_state branches to consume quality-budget.yaml via rules file, not inline thresholds |
 | `references/reliability-ledger.md` | :7-9 | Reconcile: reliability-ledger.md remains the per-level first-pass-rate document. System-budget.jsonl is the cross-task aggregate. Remove conflicting "canonical append-only ledger" claim; clarify that reliability-ledger.md feeds into system-budget.jsonl via the derivation scripts. |
 | `agents/normalizer.md` | (resume artifacts) | Add quality-budget.yaml to resume artifact list; validate on mid-stream pickup |
-| `agents/reliability-ledger.md` | (computation) | Consume quality-budget.yaml task entries for turbulence aggregation instead of reimplementing |
+| `agents/reliability-ledger.md` | (computation) | Keep bead-driven: agent continues reading bead traces directly for per-level first-pass rate computation. Add output of system-budget.jsonl entry as a downstream consumer of its aggregated data via the shared quality-budget-lib.sh helper. Do NOT replace its bead-level source data with quality-budget.yaml. |
 | `agents/process-drift-monitor.md` | (trend analysis) | Consume system-budget.jsonl for longitudinal trend analysis |
 | `agents/losa-observer.md` | (escape reporting) | Write to system-budget-events.jsonl when escape confirmed |
 | `agents/llm-self-security.md` | :83 | Replace `quality-budget.md` with `quality-budget.yaml` for unbounded-consumption checks |
 | `skills/sdlc-evolve/SKILL.md` | (evolution prioritization) | Consume system-budget.jsonl for evolution prioritization |
-| `hooks/hooks.json` | (hook list) | Add validate-quality-budget.sh as PreToolUse or phase-transition hook |
+| `hooks/hooks.json` | (hook list) | Add validate-quality-budget.sh as PostToolUse hook on Write/Edit of quality-budget.yaml — validates file structure and completeness when the artifact is written. Phase gating logic stays in sdlc-orchestrate SKILL.md and sdlc-gate SKILL.md, not in the hook layer. |
+| `hooks/tests/test-hooks.sh` | (test updates) | Add test cases for validate-quality-budget.sh: valid file passes, missing required fields fails, malformed YAML fails, partial artifact_status accepted during Execute |
+| `hooks/tests/fixtures/` | (new fixtures) | Add quality-budget-valid.yaml, quality-budget-missing-fields.yaml, quality-budget-malformed.yaml test fixtures |
 | `commands/sdlc.md` | (artifact description) | Reflect that a task now owns quality-budget.yaml |
 | `README.md` | :124 area | Update artifact list to include quality-budget.yaml and system-budget.jsonl |
 
@@ -309,7 +311,7 @@ For derivation to work, bead artifacts must contain structured timestamps. These
 - Bead timestamp prerequisites
 - Phase gate enforcement
 - All file modifications listed above
-- Validation hook + tests
+- Validation hook (PostToolUse on Write/Edit) + test cases + fixtures
 
 ### Out of scope (Phase 2-5)
 
