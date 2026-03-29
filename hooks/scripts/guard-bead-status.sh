@@ -6,13 +6,16 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../lib/common.sh"
+
 if ! command -v jq &>/dev/null; then
   echo '{"error": "jq is required but not found"}' >&2
   exit 2
 fi
 
 INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+FILE_PATH=$(read_hook_file_path "$INPUT")
 
 # Only validate bead files (not AQS reports)
 if [[ -z "$FILE_PATH" ]]; then
@@ -24,10 +27,7 @@ if [[ ! "$FILE_PATH" =~ docs/sdlc/active/.*/beads/.*\.md$ ]] || [[ "$FILE_PATH" 
 fi
 
 # Get the content (from Write tool_input or read the file for Edit)
-CONTENT=$(echo "$INPUT" | jq -r '.tool_input.content // empty')
-if [[ -z "$CONTENT" ]] && [[ -f "$FILE_PATH" ]]; then
-  CONTENT=$(cat "$FILE_PATH")
-fi
+CONTENT=$(read_tool_content "$INPUT" "$FILE_PATH")
 
 if [[ -z "$CONTENT" ]]; then
   exit 0
@@ -51,8 +51,6 @@ fi
 # And verified -> hardened is NEVER valid (must go through proven)
 
 # Normalize FILE_PATH to repo-relative for git show
-source "$(dirname "$0")/../lib/common.sh"
-
 REPO_ROOT=""
 REL_PATH=""
 if command -v git &> /dev/null && git rev-parse --git-dir &> /dev/null 2>&1; then

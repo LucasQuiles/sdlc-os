@@ -7,19 +7,13 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 
 INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null) || {
-  emit_warning "validate-consistency-artifacts: failed to parse hook input — skipping"
-  exit 0
-}
+FILE_PATH=$(read_hook_file_path "$INPUT")
 
 if [[ -z "$FILE_PATH" ]]; then exit 0; fi
 
 # --- Priority 1: Feature Matrix by path ---
 if [[ "$FILE_PATH" == *"feature-matrix.md" ]]; then
-  CONTENT=$(echo "$INPUT" | jq -r '.tool_input.content // empty' 2>/dev/null)
-  if [[ -z "$CONTENT" ]] && [[ -f "$FILE_PATH" ]]; then
-    CONTENT=$(cat "$FILE_PATH" 2>/dev/null) || true
-  fi
+  CONTENT=$(read_tool_content "$INPUT" "$FILE_PATH")
   if [[ -z "$CONTENT" ]]; then exit 0; fi
 
   # Match all data rows in the Findings table (rows starting with | that aren't header or separator)
@@ -59,10 +53,7 @@ fi
 # --- Priority 3: Convention Report by content ---
 CONTENT=""
 if [[ "$IS_CONVENTION_REPORT" == "false" ]]; then
-  CONTENT=$(echo "$INPUT" | jq -r '.tool_input.content // empty' 2>/dev/null)
-  if [[ -z "$CONTENT" ]] && [[ -f "$FILE_PATH" ]]; then
-    CONTENT=$(cat "$FILE_PATH" 2>/dev/null) || true
-  fi
+  CONTENT=$(read_tool_content "$INPUT" "$FILE_PATH")
   if [[ -n "$CONTENT" ]] && echo "$CONTENT" | grep -q "## Convention Enforcement Report"; then
     IS_CONVENTION_REPORT=true
   fi
@@ -72,10 +63,7 @@ if [[ "$IS_CONVENTION_REPORT" == "false" ]]; then exit 0; fi
 
 # --- Convention Report Validation ---
 if [[ -z "$CONTENT" ]]; then
-  CONTENT=$(echo "$INPUT" | jq -r '.tool_input.content // empty' 2>/dev/null)
-  if [[ -z "$CONTENT" ]] && [[ -f "$FILE_PATH" ]]; then
-    CONTENT=$(cat "$FILE_PATH" 2>/dev/null) || true
-  fi
+  CONTENT=$(read_tool_content "$INPUT" "$FILE_PATH")
 fi
 if [[ -z "$CONTENT" ]]; then exit 0; fi
 
