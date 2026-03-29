@@ -70,8 +70,8 @@ validate_finding_block() {
   local confidence_line
   confidence_line=$(echo "$block" | grep "\*\*Confidence:\*\*" || true)
   if [[ -n "$confidence_line" ]]; then
-    if ! echo "$confidence_line" | grep -qE '(Verified|Likely|Assumed)'; then
-      ERRORS="${ERRORS}Finding #${block_num}: invalid confidence. Use: Verified | Likely | Assumed\n"
+    if ! echo "$confidence_line" | grep -qE '(Verified|Likely|Assumed|Unknown)'; then
+      ERRORS="${ERRORS}Finding #${block_num}: invalid confidence. Use: Verified | Likely | Assumed | Unknown\n"
     fi
   fi
 }

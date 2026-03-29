@@ -1,6 +1,6 @@
 # FFT Decision Trees
 
-All 12 Fast-and-Frugal Trees for Conductor routing decisions. This is the single source of truth — all skills and agents reference this file.
+All Fast-and-Frugal Trees for Conductor routing decisions. This is the single source of truth — all skills and agents reference this file.
 
 **Structure:** Each FFT has ordered cues (most diagnostic first), binary exits at each node, one traversal path logged per decision. Based on Gigerenzer's ecological rationality: match strategy complexity to environment structure.
 
