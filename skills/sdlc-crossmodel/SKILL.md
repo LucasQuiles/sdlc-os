@@ -98,7 +98,16 @@ Each worker declares a unique `produces` artifact name at batch creation:
 | Stage A per domain | `{bead-id}-stage-a-{domain}-findings` | `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-a-{domain}-investigator.md` |
 | Stage B reviewer | `{bead-id}-stage-b-independent-review-findings` | `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-b-independent-reviewer.md` |
 
-`crossmodel-verify-artifact.sh` validates each artifact. On re-verification after repair, use `--expected-checksum`. See spec Section 5.5 for the full artifact format and verification outcome table (VALID / MALFORMED / MISSING / NO_EVIDENCE).
+**Worker communication protocol:** Every worker dispatch prompt MUST include the tmup-cli protocol block (see `agents/crossmodel-supervisor.md` Step 5). Workers are expected to:
+1. Call `tmup-cli heartbeat` every 2-3 minutes
+2. Call `tmup-cli checkpoint` for progress updates (at least 1 within first 2 minutes)
+3. Call `tmup-cli message --to lead --type finding` for interim findings
+4. Write the findings file to the artifact path
+5. Call `tmup-cli complete "summary" --artifact {name}:{path}` to register the artifact and signal completion
+
+The `tmup-cli complete --artifact` call is the **authoritative completion signal** — not file existence. It registers the artifact checksum in tmup's database. The supervisor uses `tmup_status` to detect completion, not filesystem polling.
+
+`crossmodel-verify-artifact.sh` validates each artifact after collection. On re-verification after repair, use `--expected-checksum`. See spec Section 5.5 for the full artifact format and verification outcome table (VALID / MALFORMED / MISSING / NO_EVIDENCE).
 
 ---
 
