@@ -96,9 +96,12 @@ stressors:
     first_harvested: "2026-03-30T00:00:00Z"
     last_applied: null
     lindy_status: provisional | established | retired
-    #   provisional: < 3 applications
-    #   established: >= 3 applications with catch_rate > 0
-    #   retired: >= 5 applications with catch_rate == 0 (never catches anything)
+    #   provisional: < 3 applications (or >= 3 with catch_rate == 0 — still unproven)
+    #   established: >= 3 applications with catch_rate > 0 (proven value)
+    #   retired: (provisional + times_applied >= 5 + catch_rate == 0) OR
+    #            (established + times_applied >= 10 + catch_rate dropped to 0 over last 5)
+    #   Lifecycle: provisional can retire directly if it never catches anything after 5 tries.
+    #   Established stressors retire only after a longer runway (10+ applications, last 5 all misses).
 ```
 
 ### Stress Session Record (`docs/sdlc/active/{task-id}/stress-session.yaml`)
@@ -109,11 +112,19 @@ Per-task stress session artifact. Created when a task is sampled for barbell har
 schema_version: 1
 task_id: ""
 artifact_status: planned | active | final
-sampling_reason: consequence_sensitive | random_sample | anti_turkey | budget_depleted | manual
+sampling_reason: consequence_sensitive | budget_warning | random_sample | anti_turkey | budget_depleted | hormetic | manual
+#   consequence_sensitive: FFT-15 TARGETED (security_sensitive + complex)
+#   budget_warning: FFT-15 SAMPLED (budget_state WARNING, 50% sample)
+#   random_sample: deprecated alias — use hormetic or anti_turkey
+#   anti_turkey: FFT-15 ANTI_TURKEY (clean_streak >= 5, 30% sample)
+#   budget_depleted: FFT-15 FULL (budget_state DEPLETED)
+#   hormetic: FFT-15 HORMETIC (10% baseline random)
+#   manual: user-directed /stress command
 derived_at: "2026-03-30T00:00:00Z"
 last_updated: "2026-03-30T00:00:00Z"
 
 selection:
+  sampling_seed: 0.0           # deterministic: sha256(task_id) → float [0,1)
   quality_budget_state: healthy | warning | depleted
   clean_streak_length: 0      # consecutive tasks with zero escapes
   complexity_weight: 0.0      # from quality-budget.yaml
@@ -169,11 +180,17 @@ One line per completed stress session. Feeds longitudinal analysis.
 
 ### System Stress Events (`docs/sdlc/system-stress-events.jsonl`)
 
-Late-arriving corrections and stressor retirement events.
+Late-arriving corrections and stressor retirement events. **Producer: `scripts/update-stressor-library.sh`** — emits events when stressors are promoted, retired, or reclassified during the library update step.
 
 ```jsonl
-{"stressor_id":"STR-001","event":"retirement|catch_rate_update|reclassified","date":"","details":""}
+{"stressor_id":"STR-001","event":"retirement|promotion|catch_rate_update|reclassified","date":"","details":"","task_id":""}
 ```
+
+Event types:
+- `retirement`: stressor moved to `retired` (provisional never caught, or established gone stale)
+- `promotion`: stressor moved from `provisional` to `established`
+- `catch_rate_update`: significant catch_rate change (> 20% delta)
+- `reclassified`: severity or category changed based on new evidence
 
 ---
 
@@ -227,6 +244,8 @@ Cue 6: Random(0,1) < 0.10?
 ```
 
 Outcomes: FULL | TARGETED | SAMPLED | ANTI_TURKEY | HORMETIC | SKIP
+
+**Reproducibility:** Probabilistic cues (SAMPLED 50%, ANTI_TURKEY 30%, HORMETIC 10%) use a deterministic seed derived from `sha256(task_id)` truncated to a float in [0,1). This ensures the same task always gets the same sampling decision on reruns/resumes. The seed is recorded in `stress-session.yaml:selection.sampling_seed` for audit. Implementation: `echo -n "$TASK_ID" | shasum -a 256 | cut -c1-8` → interpret as hex → divide by 0xFFFFFFFF.
 
 ---
 
@@ -286,7 +305,9 @@ Record candidates in `subtraction_log`. After 3 independent sessions flag the sa
 - Increment `times_caught` for each stressor that found something
 - Recompute `catch_rate`
 - Promote `provisional` → `established` when `times_applied >= 3` and `catch_rate > 0`
-- Retire `established` → `retired` when `times_applied >= 5` and `catch_rate == 0` (never catches anything — Lindy says remove it)
+- Retire `provisional` → `retired` when `times_applied >= 5` and `catch_rate == 0` (never proved value — Lindy says remove)
+- Retire `established` → `retired` when `times_applied >= 10` and catch_rate over last 5 applications == 0 (was valuable, now stale)
+- Emit retirement events to `system-stress-events.jsonl` via `update-stressor-library.sh` (see below)
 
 ---
 
@@ -319,7 +340,7 @@ Record candidates in `subtraction_log`. After 3 independent sessions flag the sa
 | `scripts/lib/stressor-lib.sh` | Shared helpers: stressor selection, library updates, yield computation |
 | `scripts/select-stressors.sh` | Reads task context + library → selects applicable stressors |
 | `scripts/harvest-stressors.sh` | Post-session: extracts new stressor candidates from findings |
-| `scripts/update-stressor-library.sh` | Updates application counts, catch rates, Lindy promotions/retirements |
+| `scripts/update-stressor-library.sh` | Updates application counts, catch rates, Lindy promotions/retirements. **Also produces** `system-stress-events.jsonl` entries for promotions, retirements, and significant catch_rate changes. |
 | `scripts/append-system-stress.sh` | Appends to system-stress.jsonl |
 | `hooks/scripts/validate-stress-session.sh` | PostToolUse hook for stress-session.yaml |
 | `hooks/tests/fixtures/stress-valid/stress-session.yaml` | Test fixture |
