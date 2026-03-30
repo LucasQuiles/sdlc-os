@@ -27,9 +27,9 @@ Copy-paste templates for wave artifacts. Each template uses YAML frontmatter whe
 **Dispatched at:** ""
 **Review started at:** ""
 **Completed at:** ""
-**Control actions:** [Phase B — not yet populated]
-**Unsafe control actions:** [Phase B — not yet populated]
-**Latent condition trace:** [Phase B — not yet populated]
+**Control actions:** [Projected from hazard-defense-ledger.yaml — distinct control_action values for this bead]
+**Unsafe control actions:** [Projected from hazard-defense-ledger.yaml — UCA summaries: control_action — category — scenario]
+**Latent condition trace:** [Projected from hazard-defense-ledger.yaml — See HDL-{bead-id}-* records]
 **Assumptions:** [explicit list of what must be true for this bead to work — populated by runner]
 **Safe-to-fail:** [rollback plan — REQUIRED for Complex domain beads, optional otherwise]
 **Confidence:** [runner's self-assessed confidence 0.0-1.0 with rationale — populated after execution]
@@ -85,6 +85,8 @@ Each task directory contains these machine-readable artifacts:
 | Quality budget | `quality-budget.yaml` | Phase 4 (Execute) | Yes — gates Synthesize and Complete |
 | Standards profile | `standards-profile.md` | Phase 2 (Scout) | If standards apply |
 | Observability profile | `observability-profile.md` | Phase 2 (Scout) | If observability applies |
+| Hazard/Defense Ledger | `hazard-defense-ledger.yaml` | Phase 3 (Architect) | COMPLEX or security_sensitive beads — gates Synthesize and Complete |
+| STPA Analysis | `stpa-analysis.yaml` | Phase 3 (Architect) | Intermediate: consumed by seeding script |
 
 ---
 

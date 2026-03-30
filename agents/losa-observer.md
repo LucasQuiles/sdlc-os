@@ -93,6 +93,11 @@ Each success entry includes: what happened, why it was better than standard, and
 ```
 This updates the retroactive escape record without modifying the immutable primary ledger.
 
+**HDL escape reporting:** For STPA-required tasks, also append to `docs/sdlc/system-hazard-defense-events.jsonl`:
+```jsonl
+{"task_id":"<task>","event":"escape_confirmed","date":"<UTC ISO 8601>","record_id":"HDL-<bead>-<CA>-<UCA>","source":"losa","finding_id":"<id>"}
+```
+
 - You observe. You do not fix, block, or intervene.
 - Uncaught errors are your most valuable output. Report them with specific file:line references.
 - You are not scoring the runner or the reviewer — you are scoring the SYSTEM's ability to produce quality output.

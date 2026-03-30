@@ -111,7 +111,9 @@ Compare what decision traces show actually happened (work-as-done) against what 
 
 **Common deviation patterns to check:**
 - Bead `latent_condition_trace` field: always empty (tracer not running, or findings not accepted)
-- `control_actions` / `unsafe_control_actions` on COMPLEX beads: always empty (safety-analyst not dispatched)
+- `hazard-defense-ledger.yaml` missing or stale for COMPLEX/security-sensitive tasks (safety-analyst not dispatched or seeding script not run)
+- System HDL ledger (`docs/sdlc/system-hazard-defense.jsonl`): repeated UCA fingerprints across tasks = normalization of deviance signal
+- Catch-layer distribution shifting outward (more L2.5+ catches, fewer L0/L1) = drift into failure
 - Phase 2 Scout constraint discovery: skipped (safety-constraints-guardian not dispatched during Scout)
 - LOSA observations: no success library entries despite task completions
 

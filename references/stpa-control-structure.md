@@ -1,7 +1,7 @@
 # STPA Control Structure — SDLC-OS
 
 System-level STAMP control structure for the SDLC-OS. Reference for agent consumption.
-Maintained per Phase B Safety Control Layer design (2026-03-26).
+Maintained per Phase B Safety Control Layer. Canonical Phase B artifact: `hazard-defense-ledger.yaml` (see `references/hazard-defense-schema.md`).
 
 ---
 
@@ -86,12 +86,12 @@ SENSORS (feedback to Controllers)
 └────────┘└──────┘└────┘└───────────┘
 
 TELEMETRY ARTIFACTS (outputs of Safety subcontroller agents)
-┌─────────────────┐┌──────────────────┐┌─────────────────────┐
-│Drift reports    ││Latent trace      ││Feedback channel     │
-│(from process-   ││reports (from     ││health alerts (from  │
-│drift-monitor)   ││latent-condition- ││safety-analyst +     │
-│                 ││tracer)           ││process-drift-monitor│
-└─────────────────┘└──────────────────┘└─────────────────────┘
+┌─────────────────┐┌──────────────────┐┌─────────────────────┐┌─────────────────┐
+│Drift reports    ││Latent trace      ││Feedback channel     ││HDL ledger       │
+│(from process-   ││reports (from     ││health alerts (from  ││(from safety-    │
+│drift-monitor)   ││latent-condition- ││safety-analyst +     ││analyst + seeding│
+│                 ││tracer)           ││process-drift-monitor││script)          │
+└─────────────────┘└──────────────────┘└─────────────────────┘└─────────────────┘
 
 Interface 5: Sensors/Guards → Controllers
 Interface 6: Calibration/Drift/Safety → Evolve/Conductor (meta-feedback)

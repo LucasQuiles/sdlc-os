@@ -58,7 +58,7 @@ Gap type: [e.g., "Attack library missing CORS probes", "Convention map has no re
 Registry update: [GROWING / STABLE / new entry]
 ```
 
-Populate the bead's `latent_condition_trace` field with this classification.
+Populate the matching record in `hazard-defense-ledger.yaml` with the latent condition trace (source_layer, source_reason, artifact_ref). Also update the bead's `Latent condition trace` field with a compact summary referencing the HDL record.
 
 ---
 
