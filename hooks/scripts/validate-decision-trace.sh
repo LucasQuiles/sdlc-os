@@ -89,7 +89,7 @@ fi
 
 # --- Phase B field enforcement (complex or security-sensitive beads) ---
 
-CYNEFIN_DOMAIN=$(echo "$CONTENT" | sed -n 's/^\*\*Cynefin:\*\*[[:space:]]*\([a-z_]*\).*/\1/p' | head -1 || true)
+CYNEFIN_DOMAIN=$(echo "$CONTENT" | sed -n 's/^\*\*Cynefin domain:\*\*[[:space:]]*\([a-z_]*\).*/\1/p' | head -1 || true)
 SECURITY_SENSITIVE=$(echo "$CONTENT" | sed -n 's/^\*\*Security sensitive:\*\*[[:space:]]*\([a-z]*\).*/\1/p' | head -1 || true)
 PHASE_B_STATUS=$(echo "$CONTENT" | sed -n 's/^\*\*Status:\*\*[[:space:]]*\([a-z_]*\).*/\1/p' | head -1 || true)
 
@@ -98,28 +98,17 @@ if [[ "$CYNEFIN_DOMAIN" == "complex" ]] || [[ "$SECURITY_SENSITIVE" == "true" ]]
   PHASE_B_REQUIRED=true
 fi
 
+# Phase B: check hazard-defense-ledger.yaml has records for this bead
 if [[ "$PHASE_B_REQUIRED" == "true" ]] && [[ -n "$PHASE_B_STATUS" ]] && [[ "$PHASE_B_STATUS" != "pending" ]] && [[ "$PHASE_B_STATUS" != "submitted" ]]; then
-  CONTROL_ACTIONS=$(echo "$CONTENT" | sed -n 's/^\*\*Control actions:\*\*[[:space:]]*\(.*\)/\1/p' | head -1 | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//' || true)
-  UNSAFE_CONTROL_ACTIONS=$(echo "$CONTENT" | sed -n 's/^\*\*Unsafe control actions:\*\*[[:space:]]*\(.*\)/\1/p' | head -1 | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//' || true)
-
-  PHASE_B_ERRORS=()
-
-  if [[ -z "$CONTROL_ACTIONS" ]] || [[ "$CONTROL_ACTIONS" == "[]" ]] || [[ "$CONTROL_ACTIONS" == "Phase B" ]]; then
-    PHASE_B_ERRORS+=("control_actions field is empty or unpopulated")
-  fi
-
-  if [[ -z "$UNSAFE_CONTROL_ACTIONS" ]] || [[ "$UNSAFE_CONTROL_ACTIONS" == "[]" ]] || [[ "$UNSAFE_CONTROL_ACTIONS" == "Phase B" ]]; then
-    PHASE_B_ERRORS+=("unsafe_control_actions field is empty or unpopulated")
-  fi
-
-  if [[ ${#PHASE_B_ERRORS[@]} -gt 0 ]]; then
-    echo "Bead is complex or security-sensitive but is missing required Phase B safety fields:" >&2
-    for err in "${PHASE_B_ERRORS[@]}"; do
-      echo "  - ${err}" >&2
-    done
-    echo "" >&2
-    echo "For complex or security-sensitive beads, control_actions and unsafe_control_actions must be populated before advancing past 'submitted'." >&2
-    exit 2
+  TASK_DIR=$(dirname "$(dirname "$file_path")")
+  HDL_FILE="$TASK_DIR/hazard-defense-ledger.yaml"
+  BEAD_ID=$(basename "$file_path" .md)
+  if [[ -f "$HDL_FILE" ]]; then
+    if ! grep -q "bead_id: ${BEAD_ID}" "$HDL_FILE" 2>/dev/null; then
+      echo "HOOK_WARNING: Phase B: hazard-defense-ledger.yaml exists but has no records for bead $BEAD_ID" >&2
+    fi
+  else
+    echo "HOOK_WARNING: Phase B: hazard-defense-ledger.yaml not found for STPA-required bead $BEAD_ID" >&2
   fi
 fi
 

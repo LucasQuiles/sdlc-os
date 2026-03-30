@@ -24,6 +24,12 @@ Run a lightweight health check on the current phase. This is NOT an approval gat
 - Is `budget_state` computed and non-null?
 - If `budget_state` is `depleted`: flag for user attention before proceeding.
 
+### Hazard/Defense Ledger (STPA-required tasks only)
+- Does `hazard-defense-ledger.yaml` exist for tasks with COMPLEX or security_sensitive beads?
+- Is `artifact_status` appropriate? (`seeded` or higher for Execute, `active` for Synthesize, `final` for Complete)
+- Are any records still `open`? (Must be resolved before Complete)
+- Is `coverage_state` computed and non-depleted? If depleted, flag for user attention.
+
 ### Sentinel Status
 - Has the sentinel flagged any unresolved issues?
 - Are there beads that sentinel hasn't reviewed yet?

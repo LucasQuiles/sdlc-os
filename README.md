@@ -95,7 +95,7 @@ L2.5: AQS adversarial (2 cycles) — red/blue/arbiter
 L3-L5: Bead → Phase → Task escalation
 ```
 
-### Hooks (7 scripts)
+### Hooks (8 scripts)
 
 | Hook | Event | Behavior |
 |------|-------|----------|
@@ -106,6 +106,7 @@ L3-L5: Bead → Phase → Task escalation
 | check-naming-convention.sh | PreToolUse | **Advisory** — Convention Map naming check |
 | validate-consistency-artifacts.sh | PostToolUse | **Advisory** — feature matrix + convention report schemas |
 | validate-runner-output.sh | SubagentStop | **Advisory** — runner output structure + convention signals |
+| validate-hazard-defense-ledger.sh | PostToolUse | **Blocking** — HDL schema validation |
 
 ### References
 
@@ -134,6 +135,9 @@ The plugin creates these files in target project repos:
 | Quality Budget | `docs/sdlc/active/{task-id}/quality-budget.yaml` | Task-level metrics, phase gate enforcement |
 | System Budget | `docs/sdlc/system-budget.jsonl` | Cross-task longitudinal ledger |
 | System Budget Events | `docs/sdlc/system-budget-events.jsonl` | Late-arriving escape corrections |
+| Hazard/Defense Ledger | `docs/sdlc/active/{task-id}/hazard-defense-ledger.yaml` | Phase B safety control, defense coverage tracking |
+| System HDL | `docs/sdlc/system-hazard-defense.jsonl` | Cross-task UCA patterns, catch-layer distribution |
+| System HDL Events | `docs/sdlc/system-hazard-defense-events.jsonl` | Late-arriving defense corrections |
 
 ## Testing
 

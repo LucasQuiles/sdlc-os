@@ -93,7 +93,7 @@ After cross-reference produces final domain priorities but before directed strik
 
 For each HIGH/MED/LOW domain, dispatch the corresponding red team Sonnet commander agent. Each commander:
 
-1. Receives the bead code, recon guppy signals, and priority level. For COMPLEX and security-sensitive beads, red team commanders also receive the bead's `unsafe_control_actions` list from the safety-analyst's STPA analysis. UCAs provide systematic attack vectors — probe each UCA type rather than relying on heuristic attack selection alone.
+1. Receives the bead code, recon guppy signals, and priority level. For COMPLEX and security-sensitive beads, red team commanders also receive the bead's UCA records from `hazard-defense-ledger.yaml`. Each HDL record with `status: open` and matching `bead_id` provides a systematic attack vector — probe each UCA scenario. When a red team probe catches a UCA-related issue, the Conductor updates the matching HDL record's `actual_catch_point` with the AQS layer and finding reference.
 2. Designs attack vectors specific to its domain and the signals received
 3. Fires guppy swarms — **machine gun volume, narrow focus** — each guppy gets one probe
 4. Analyzes guppy results; separates genuine hits from noise
