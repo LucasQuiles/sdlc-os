@@ -1,0 +1,18 @@
+# Stressor Rules — externalized FFT-15 sampling rates and lifecycle thresholds
+# Recalibrate here without touching library code.
+schema_version: 1
+
+# FFT-15 probabilistic sampling rates
+fft15_sampling:
+  sampled_rate: 0.50          # Cue 4: WARNING budget → sample at this rate
+  anti_turkey_rate: 0.30      # Cue 5: clean streak → sample at this rate
+  hormetic_rate: 0.10         # Cue 6: baseline random sampling rate
+  clean_streak_threshold: 5   # Cue 5: consecutive zero-escape tasks before anti-turkey triggers
+
+# Stressor Lindy lifecycle thresholds
+lindy:
+  provisional_to_established_min_applications: 3
+  provisional_to_retired_min_applications: 5
+  established_to_retired_min_applications: 10
+  established_to_retired_recent_window: 5   # last N applications must all miss
+  catch_rate_change_threshold: 0.20         # emit event when catch_rate changes by this much

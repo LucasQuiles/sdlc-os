@@ -20,7 +20,7 @@ compute_sampling_seed() {
   python3 -c "print(int('$hex', 16) / 0xFFFFFFFF)"
 }
 
-# evaluate_fft15 <budget_state> <clean_streak> <has_complex_security> <profile> <seed>
+# evaluate_fft15 <budget_state> <clean_streak> <has_complex_security> <profile> <seed> <rules_file>
 #
 # Arguments:
 #   budget_state          — "ok" | "warning" | "depleted"
@@ -28,10 +28,26 @@ compute_sampling_seed() {
 #   has_complex_security  — "true" | "false": bead is complex + security-sensitive
 #   profile               — bead type string (e.g. INVESTIGATE, EVOLVE, BUILD, ...)
 #   seed                  — float [0,1) from compute_sampling_seed
+#   rules_file            — path to stressor-rules.yaml (sampling rates)
 #
 # Returns one of: FULL | TARGETED | SAMPLED | ANTI_TURKEY | HORMETIC | SKIP
 evaluate_fft15() {
-  local budget_state="$1" clean_streak="$2" has_complex_security="$3" profile="$4" seed="$5"
+  local budget_state="$1" clean_streak="$2" has_complex_security="$3" profile="$4" seed="$5" rules_file="${6:-}"
+
+  # Read sampling rates from rules file (no hardcoded values)
+  local sampled_rate anti_turkey_rate hormetic_rate clean_streak_threshold
+  if [ -n "$rules_file" ] && [ -f "$rules_file" ]; then
+    sampled_rate=$(python3 -c "import yaml; r=yaml.safe_load(open('$rules_file')); print(r.get('fft15_sampling',{}).get('sampled_rate', 0.50))" 2>/dev/null || echo "0.50")
+    anti_turkey_rate=$(python3 -c "import yaml; r=yaml.safe_load(open('$rules_file')); print(r.get('fft15_sampling',{}).get('anti_turkey_rate', 0.30))" 2>/dev/null || echo "0.30")
+    hormetic_rate=$(python3 -c "import yaml; r=yaml.safe_load(open('$rules_file')); print(r.get('fft15_sampling',{}).get('hormetic_rate', 0.10))" 2>/dev/null || echo "0.10")
+    clean_streak_threshold=$(python3 -c "import yaml; r=yaml.safe_load(open('$rules_file')); print(r.get('fft15_sampling',{}).get('clean_streak_threshold', 5))" 2>/dev/null || echo "5")
+  else
+    # Fallback defaults (same as spec) — but callers should always pass rules_file
+    sampled_rate="0.50"
+    anti_turkey_rate="0.30"
+    hormetic_rate="0.10"
+    clean_streak_threshold="5"
+  fi
 
   # Cue 1: INVESTIGATE or EVOLVE profile → SKIP (no stress on exploratory beads)
   if [[ "$profile" == "INVESTIGATE" || "$profile" == "EVOLVE" ]]; then
@@ -51,9 +67,9 @@ evaluate_fft15() {
     return
   fi
 
-  # Cue 4: budget WARNING → SAMPLED at 50% probability
+  # Cue 4: budget WARNING → SAMPLED at sampled_rate probability
   if [[ "$budget_state" == "warning" ]]; then
-    if [ "$(echo "$seed < 0.50" | bc -l)" -eq 1 ]; then
+    if [ "$(echo "$seed < $sampled_rate" | bc -l)" -eq 1 ]; then
       echo "SAMPLED"
     else
       echo "SKIP"
@@ -61,9 +77,9 @@ evaluate_fft15() {
     return
   fi
 
-  # Cue 5: clean streak >= 5 → ANTI_TURKEY at 30% probability
-  if [ "$clean_streak" -ge 5 ]; then
-    if [ "$(echo "$seed < 0.30" | bc -l)" -eq 1 ]; then
+  # Cue 5: clean streak >= threshold → ANTI_TURKEY at anti_turkey_rate probability
+  if [ "$clean_streak" -ge "$clean_streak_threshold" ]; then
+    if [ "$(echo "$seed < $anti_turkey_rate" | bc -l)" -eq 1 ]; then
       echo "ANTI_TURKEY"
     else
       echo "SKIP"
@@ -71,8 +87,8 @@ evaluate_fft15() {
     return
   fi
 
-  # Cue 6: baseline HORMETIC sampling at 10% probability
-  if [ "$(echo "$seed < 0.10" | bc -l)" -eq 1 ]; then
+  # Cue 6: baseline HORMETIC sampling at hormetic_rate probability
+  if [ "$(echo "$seed < $hormetic_rate" | bc -l)" -eq 1 ]; then
     echo "HORMETIC"
   else
     echo "SKIP"

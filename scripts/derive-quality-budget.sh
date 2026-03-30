@@ -7,7 +7,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/quality-budget-lib.sh"
 
 TASK_DIR="${1:?Usage: derive-quality-budget.sh <task-dir> [--status partial|ready|final]}"
-STATUS="${3:-partial}"
+# Parse --status flag (consistent with derive-decision-noise-summary.sh and derive-mode-convergence-summary.sh)
+STATUS="partial"
+shift
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --status) STATUS="${2:-partial}"; shift 2 ;;
+    *) shift ;;
+  esac
+done
 RULES_FILE="$SCRIPT_DIR/../references/quality-budget-rules.yaml"
 OUTPUT="$TASK_DIR/quality-budget.yaml"
 STATE_FILE="$TASK_DIR/state.md"
