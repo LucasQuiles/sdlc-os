@@ -30,6 +30,12 @@ Run a lightweight health check on the current phase. This is NOT an approval gat
 - Are any records still `open`? (Must be resolved before Complete)
 - Is `coverage_state` computed and non-depleted? If depleted, flag for user attention.
 
+### Stress Session (stressed tasks only)
+- Does `stress-session.yaml` exist for stress-sampled tasks?
+- Is `artifact_status` appropriate? (`planned` for Execute, `active` for Synthesize, `final` for Complete)
+- Are all stressor applications resolved (no pending results)?
+- Has the harvest section been reviewed?
+
 ### Sentinel Status
 - Has the sentinel flagged any unresolved issues?
 - Are there beads that sentinel hasn't reviewed yet?

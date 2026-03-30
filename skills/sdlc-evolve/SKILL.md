@@ -152,6 +152,20 @@ Dispatch `debt-crawler` in Mode 1. The crawler reads `references/canonical-regis
 
 Results written to `docs/sdlc/debt-scan-report.md` adoption section. PROMOTE findings appended to `docs/sdlc/debt-backlog.md`. RISING violation trends on any canonical are flagged in the system health report.
 
+### 20. Subtraction Review
+
+Consume `subtraction_log` entries across stress sessions in `system-stress.jsonl`. When 3+ independent sessions flag the same mechanism, propose formal removal. Also consume stressor retirement events from `system-stress-events.jsonl` as signals that certain defense patterns are no longer catching anything.
+
+**Protocol:**
+1. Read `docs/sdlc/system-stress.jsonl` and aggregate `subtraction_log` entries across all stress sessions
+2. Group by mechanism/pattern — any mechanism flagged in 3+ independent sessions is a removal candidate
+3. Read `docs/sdlc/system-stress-events.jsonl` for stressor retirement events (`lindy_status: retired`). A retired stressor indicates the defense pattern it probed has become invisible to the system
+4. For each removal candidate: draft a formal subtraction proposal with rationale and estimated complexity reduction
+5. Present proposals to Conductor for approval (NOT auto-apply). Approved subtractions become Repair beads
+6. Log: candidates found, proposals drafted, approvals/rejections
+
+**Anti-pattern guard:** Premature subtraction erodes defenses that are genuinely needed but not recently stressed.
+
 ### 19. Duplicate Scan
 
 Dispatch `debt-crawler` in Mode 2. The crawler runs `scripts/extract-functions.sh` for AST extraction and the full 5-stage pipeline: harvest from AST body hashing + LSP symbols + grep name collisions + git history churn, corroborate (2+ channels required), filter noise, compute Debt Value Score, classify findings. If the AST extractor returns an `error` field (e.g., typescript not installed), the crawler logs `AST_UNAVAILABLE` in the scan report and continues with remaining harvest channels — the scan degrades but does not fail.

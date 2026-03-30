@@ -53,6 +53,13 @@ Named anti-patterns that the FFT Decision Architecture guards against. Each FFT 
 **Detect it:** Post-incident review produces a linear causal chain ending in a single root cause. Everyone feels the situation is fully understood.
 **What to do instead:** Accept that complex failures are multi-causal. Use contributing factor analysis, not root cause analysis.
 
+## Turkey Complacency
+
+**Source:** Nassim Nicholas Taleb (The Black Swan, Antifragile)
+**Pattern:** Relaxing scrutiny because recent tasks have been clean. A long clean streak is not evidence of quality — it may indicate that stressors have stopped, not that the system has improved.
+**Consequence:** Hidden brittleness accumulates undisturbed until a real failure arrives.
+**What to do instead:** Increase skeptical sampling during clean streaks (FFT-15 anti-turkey cue). Maintain minimum stress even during healthy periods (hormetic baseline).
+
 ## Garbage In, Gospel Out
 **Source:** John Sterman (Business Dynamics)
 **Mechanism:** Model outputs treated as authoritative truth without scrutinizing assumptions and data feeding the model.

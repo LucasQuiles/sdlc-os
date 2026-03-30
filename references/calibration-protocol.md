@@ -11,7 +11,7 @@ Procedures for detecting and correcting agent drift, noise, and quality degradat
 - **On suspicion:** If the Conductor notices declining quality, unexpected agent behavior, or increasing arbiter invocations
 
 ### Calibration Bead Process
-1. Select or create a calibration bead — known-good code with 3-5 deliberately planted defects spanning at least 2 domains (e.g., one security flaw, one logic error, one missing timeout)
+1. Select or create a calibration bead — known-good code with 3-5 deliberately planted defects spanning at least 2 domains (e.g., one security flaw, one logic error, one missing timeout). When designing planted defects, consult `references/stressor-library.yaml` for `established` stressors with high catch rates. These represent proven failure modes that the system should detect. Prefer library-sourced defects over ad-hoc invention.
 2. Run the calibration bead through L1 (Sentinel) + L2 (Oracle) + L2.5 (AQS)
 3. Compare detection results against known-planted defects
 4. **Detection rate >= baseline** → System is calibrated. Log result and continue.
