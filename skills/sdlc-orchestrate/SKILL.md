@@ -117,9 +117,9 @@ Every piece of work is tracked as an atomic unit:
 **Dispatched at:** ""
 **Review started at:** ""
 **Completed at:** ""
-**Control actions:** [Phase B — not yet populated]
-**Unsafe control actions:** [Phase B — not yet populated]
-**Latent condition trace:** [Phase B — not yet populated]
+**Control actions:** [Projected from hazard-defense-ledger.yaml — distinct control_action values for this bead]
+**Unsafe control actions:** [Projected from hazard-defense-ledger.yaml — UCA summaries: control_action — category — scenario]
+**Latent condition trace:** [Projected from hazard-defense-ledger.yaml — See HDL-{bead-id}-* records]
 **Assumptions:** [explicit list of what must be true for this bead to work — populated by runner]
 **Safe-to-fail:** [rollback plan — REQUIRED for Complex domain beads, optional otherwise]
 **Confidence:** [runner's self-assessed confidence 0.0-1.0 with rationale — populated after execution]
@@ -192,7 +192,7 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 
 The classification is recorded in the bead's `Complexity source` field and the decision trace.
 
-For beads where the STPA skip rule applies (COMPLEX or security_sensitive), dispatch `safety-analyst` to enumerate control actions and derive UCAs. See `references/stpa-control-structure.md` for the system control structure model. UCAs populate the bead's `unsafe_control_actions` field and become automatic Red Team probe targets.
+For beads where the STPA skip rule applies (COMPLEX or security_sensitive), dispatch `safety-analyst` to enumerate control actions and derive UCAs. See `references/stpa-control-structure.md` for the system control structure model. UCAs populate the bead's `unsafe_control_actions` field and become automatic Red Team probe targets. After safety-analyst produces `stpa-analysis.yaml`, run `scripts/seed-hazard-defense-ledger.sh <task-dir>` to create the seeded `hazard-defense-ledger.yaml`. Then project bead fields from the ledger: for each qualifying bead, update `Control actions`, `Unsafe control actions`, and `Latent condition trace` with compact summaries from the ledger records.
 
 **Canonical-creation check:** After the primary bead manifest is built, check each bead's scope against `canonical_path_prefixes` from `references/canonical-registry.md`. If any bead creates a new export in a canonical path:
 1. Require a companion bead with `intent: migration` — must include migration_target, callers_to_migrate (from Scout/reuse-scout), migration_strategy (INLINE if <10 callers, STAGED, or DEFERRED with substantive justification), and estimated_scope
@@ -260,6 +260,8 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
 **What:** Merge all runner outputs. Resolve conflicts. Verify the whole.
 
 **Synthesize gate:** Before entering Synthesize, run `scripts/derive-quality-budget.sh <task-dir> --status ready`. Verify: quality-budget.yaml exists, artifact_status is `ready`, all derived fields non-null (except estimate_s and sli_readings). If gate fails, report missing fields and re-derive.
+
+**HDL Synthesize gate (STPA-required tasks only):** Before entering Synthesize, verify hazard-defense-ledger.yaml exists with artifact_status `active` or higher. No record may have status `open` unless explicitly justified with `accepted_residual` + non-empty notes. Run `scripts/derive-hazard-defense-summary.sh <task-dir> --status active`.
 
 **How:**
 1. Run **fitness check** (`sdlc-os:sdlc-fitness`) across all changed files — full report
@@ -391,7 +393,7 @@ The Conductor assigns a task profile via FFT-01 before any other routing. The pr
 | REPAIR | Targeted bug fix, failing test, specific defect | Minimal Scout + Execute + Harden | Resilience only | Full | implement |
 | EVOLVE | System self-improvement, quality budget recovery | Evolution beads only | SKIP | SKIP | evolve |
 
-**REPAIR profile STPA note:** REPAIR beads skip Phase 3 (Architect). For REPAIR beads where the STPA skip rule applies (COMPLEX or security_sensitive), `safety-analyst` runs at pre-Execute as an inline mini-Architect step for safety analysis only — before runners are dispatched. This populates `control_actions` and `unsafe_control_actions` on the bead before execution begins.
+**REPAIR profile STPA note:** REPAIR beads skip Phase 3 (Architect). For REPAIR beads where the STPA skip rule applies (COMPLEX or security_sensitive), `safety-analyst` runs at pre-Execute as an inline mini-Architect step for safety analysis only — before runners are dispatched. This populates `control_actions` and `unsafe_control_actions` on the bead before execution begins. For REPAIR beads, safety-analyst also produces `stpa-analysis.yaml` and the seeding script creates the ledger in the same inline step.
 
 Evolve beads follow a shortened status flow: `pending → running → submitted → verified → merged` (skip proven/hardened/reliability-proven — no user code to verify adversarially).
 
@@ -427,6 +429,10 @@ After Scout phase completes, the task directory contains:
 - `system-budget.jsonl` — Append-only system-level ledger (one entry per completed task, written during Complete)
 - `system-budget-events.jsonl` — Late-arriving corrections to system ledger (escape confirmations from LOSA)
 - `observability-profile.md` — project observability stack (created during Harden, if reached)
+- `hazard-defense-ledger.yaml` — Machine-readable Phase B artifact (created during Architect as `seeded`, enriched during Execute as `active`, finalized during Synthesize/Complete as `final`). Schema: `references/hazard-defense-schema.md`. Required for COMPLEX or security_sensitive beads.
+- `stpa-analysis.yaml` — Structured intermediate from safety-analyst (created during Architect, consumed by seeding script)
+- `system-hazard-defense.jsonl` — Append-only system-level HDL ledger (one entry per completed STPA-required task)
+- `system-hazard-defense-events.jsonl` — Late-arriving HDL corrections
 
 ### Track
 After each runner completes:
@@ -438,6 +444,8 @@ After each runner completes:
 When all beads are proven, hardened (or AQS-skipped), and merged:
 
 **Complete gate:** Before marking task complete, verify quality-budget.yaml has artifact_status `final`, sli_readings fully populated, budget_state computed with hard-stops applied. Run `scripts/append-system-budget.sh <task-dir> <project-dir>` to append to the system ledger.
+
+**HDL Complete gate (STPA-required tasks only):** Before marking complete, verify artifact_status is `final`, every record has status in {caught, escaped, accepted_residual}, and summary.coverage_state is computed. Run `scripts/append-system-hazard-defense.sh <task-dir> <project-dir>`.
 
 1. Write `delivery.md` — the final handoff summary
 2. Move task directory from `active/` to `completed/` (optional)
