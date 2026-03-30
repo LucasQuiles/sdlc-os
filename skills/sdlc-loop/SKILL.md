@@ -267,9 +267,24 @@ Every correction flowing between loops uses this format:
 **Evidence:** [file:line, test output, or observation]
 **What to try:** [specific suggestion — not "fix it"]
 **What NOT to try:** [approaches already attempted that didn't work]
+**escalation_reason:** [required when escalating — must be one of the enum values in `references/mode-convergence-rules.yaml:escalation_reasons`]
+**convergence_signal:** [JSON output from `scripts/compute-convergence-signal.sh` for the current cycle, or omit if not yet computed]
 ```
 
 The `What NOT to try` field is critical — it prevents loops from repeating the same failed approach. Each correction carries the history of what was already attempted.
+
+Every escalation MUST include an `escalation_reason` from the enum in `references/mode-convergence-rules.yaml`. Do NOT hardcode values — read the enum directly from the rules file. The reason is recorded in the bead's escalation log and the task's `mode-convergence-summary.yaml`.
+
+### Convergence-Aware Budget Handling
+
+After each loop iteration, compute the convergence signal via `scripts/compute-convergence-signal.sh`. The `recommendation` field modifies budget behavior:
+
+- `continue` → proceed normally within existing budget
+- `stop_early` → skip remaining budget iterations, advance bead (convergence detected — no value in continuing)
+- `extend_budget` → add 1 cycle to remaining budget if total does not exceed 2x original budget (per `references/mode-convergence-rules.yaml:max_budget_multiplier` — do NOT hardcode this multiplier)
+- `change_approach` → escalate to next loop level with structured `escalation_reason`
+
+Branch on the `recommendation` field values, not on `convergence_state` names.
 
 ## Metric Commands
 

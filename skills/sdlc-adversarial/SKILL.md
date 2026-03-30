@@ -199,6 +199,8 @@ aqs_exit:
 
 This block is consumed by FFT-14 (cross-model escalation). If cross-model review is active, the `hardened` transition is gated by FFT-14 — the Conductor evaluates FFT-14 using these fields, and the bead only transitions to `hardened` after any cross-model findings are resolved.
 
+When FFT-14 activates cross-model review, `crossmodel-supervisor` launches or resumes tmup-managed interactive Codex lanes under the current tmup runtime contract: root worker `gpt-5.4`, `model_context_window=1050000`, `model_auto_compact_token_limit=750000`, `model_reasoning_effort=high`, `model_reasoning_summary=low`, `plan_mode_reasoning_effort=xhigh`, `model_verbosity=low`, `service_tier=fast`, `web_search=live`, `features.undo=true`, and tiered internal teams (`tmup-tier1` on `gpt-5.3-codex`, `tmup-tier2` on `gpt-5.2-codex`). Supervise those lanes with `harvest -> evaluate -> reprompt`, and prefer reusing the live lane over replacing it when context is still trustworthy. Resume keeps the same contract.
+
 See `references/artifact-templates.md` "AQS Structured Exit Block" for field definitions.
 
 ### Phase 6: Bead Update
@@ -238,14 +240,23 @@ AQS runs a maximum of **2 full cycles per bead**.
 
 - **Cycle 2 — Convergence Assessment:** After Cycle 1 completes, the Conductor assesses whether the finding space has converged. Cycle 2 fires only if the space has NOT converged.
 
-  **Convergence indicators (all three must be true to skip Cycle 2):**
-  1. **Low diversity** — Cycle 1 findings were concentrated in a single domain
-  2. **Low severity** — All Cycle 1 fixes were `medium` or `low` severity
-  3. **Low volume** — Cycle 1 produced fewer than 3 total findings
+  ### AQS Convergence Assessment
 
-  If all three convergence indicators are true → skip Cycle 2. Log the convergence decision with reasoning in the AQS report.
+  After each AQS cycle, compute the convergence signal:
+  1. Count `new_findings` (findings not seen in prior cycles) vs `repeated_findings` (findings restating prior cycle content)
+  2. Compute `severity_trend` from max finding severity: compare current cycle max vs prior cycle max using the ordinal scale (P4=1, P3=2, P2=3, P1=4) defined in `references/mode-convergence-rules.yaml`
+  3. Compute `entropy_estimate` over the finding category distribution (Shannon entropy)
+  4. Run `scripts/compute-convergence-signal.sh` with cycle data to produce a structured signal
 
-  If ANY indicator is false (findings span multiple domains, any `high`/`critical` fix was applied, or 3+ findings were produced) → Cycle 2 is **mandatory**. The attack surface has been meaningfully changed and needs re-verification.
+  Act on the `recommendation` field (NOT `convergence_state` names):
+  - `stop_early` → skip remaining AQS cycles (findings are repetitive, no new information)
+  - `continue` → proceed to next cycle within budget
+  - `change_approach` → mandatory next cycle regardless of budget + escalate with structured reason
+  - `extend_budget` → add 1 cycle if within 2x original budget (per `references/mode-convergence-rules.yaml:max_budget_multiplier`)
+
+  Log the convergence signal (full JSON output from the script) and the resulting action in the AQS report.
+
+  The prior 3-indicator check (low diversity, low severity, low volume) is subsumed by this convergence signal.
 
 - **Immediate completion:** If Cycle 1 produces no findings (all domains return clean), AQS completes immediately without Cycle 2. No convergence assessment needed.
 
