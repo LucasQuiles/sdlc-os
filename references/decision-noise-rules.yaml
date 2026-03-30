@@ -1,0 +1,65 @@
+# Decision-Noise Rules — externalized thresholds and sampling rates
+schema_version: 1
+
+# MAP scale
+map_scale:
+  min: 1
+  max: 5
+  dimensions:
+    - evidence_strength
+    - impact_severity
+    - base_rate_frequency
+    - pattern_familiarity
+    - decision_confidence
+  post_exposure_dimensions:
+    - precedent_match_delta  # -5 to +5, null on blind passes
+
+# Reference class states
+reference_class_states:
+  - available             # class exists with >= 5 samples
+  - insufficient_history  # class exists with < 5 samples
+  - not_applicable        # no meaningful reference class
+
+# Repeat-review sampling rates
+repeat_review_sampling:
+  complex_aqs: 0.20       # 20% of complex beads with AQS
+  complicated_aqs: 0.10   # 10% of complicated beads with AQS
+  clear: 0.00             # incident-triggered only
+  minimum_per_task: 1     # when any complex bead exists
+
+# Soft escalation thresholds
+soft_escalation:
+  verdict_flip: true                  # blind pair produces different decision class
+  map_bucket_divergence: 2            # evidence_strength or impact_severity differs by N+ buckets
+  anchoring_drift_buckets: 2          # post-exposure MAP shifts N+ toward anchor target
+  unbacked_high_severity: true        # high-severity + reference_class_state: available + no hits/sample
+  # NOT triggered for insufficient_history or not_applicable
+
+# Review stages
+review_stages:
+  - arbiter_pre_synthesis
+  - red_team
+  - blue_team
+  - repeat_blind
+  - repeat_exposed
+
+# Exposure modes
+exposure_modes:
+  - blind_first
+  - precedent_exposed
+  - peer_exposed
+  - full_context
+
+# Verdict decisions
+verdict_decisions:
+  - escalate
+  - accept
+  - dismiss
+  - defer
+
+# Severity levels
+severity_levels:
+  - P1
+  - P2
+  - P3
+  - P4
