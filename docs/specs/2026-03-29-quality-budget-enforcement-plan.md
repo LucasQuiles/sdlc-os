@@ -12,14 +12,15 @@
 
 ---
 
-### Task 1: Add bead timestamp prerequisites to artifact-templates.md
+### Task 1: Add bead timestamp prerequisites to artifact-templates.md and orchestrate SKILL.md
 
 **Files:**
 - Modify: `references/artifact-templates.md:99-122` (bead template)
+- Modify: `skills/sdlc-orchestrate/SKILL.md:115-121` (inline bead schema — this is the contract agents actually follow)
 
-The derivation engine needs structured timestamps to compute review latency and actual duration. These fields must exist in the bead template before anything else.
+The derivation engine needs structured timestamps to compute review latency and actual duration. These fields must exist in BOTH the template reference AND the inline bead schema in orchestrate SKILL.md before anything else.
 
-- [ ] **Step 1: Add timestamp fields to the bead template**
+- [ ] **Step 1: Add timestamp fields to the bead template in artifact-templates.md**
 
 In `references/artifact-templates.md`, find the bead template block (around line 99-122). After the line:
 
@@ -36,6 +37,24 @@ Insert three new fields:
 ```
 
 All timestamps are UTC ISO 8601 format (e.g., `2026-03-29T14:22:00Z`). Populated by the Conductor at each lifecycle transition.
+
+- [ ] **Step 1b: Add the same timestamp fields to the inline bead schema in orchestrate SKILL.md**
+
+In `skills/sdlc-orchestrate/SKILL.md`, find the inline bead schema block (around line 108-121). After the line:
+
+```
+**Turbulence:** {L0: 0, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
+```
+
+Insert the same three fields:
+
+```
+**Dispatched at:** ""
+**Review started at:** ""
+**Completed at:** ""
+```
+
+This is the contract agents actually read when creating beads. If only artifact-templates.md is updated, dispatched agents will never see the new fields.
 
 - [ ] **Step 2: Add quality-budget.yaml to the task artifact contract**
 
@@ -359,7 +378,7 @@ ZERO_TURB=0
 LATENCIES=""
 WIP_AGES=""
 
-for bead in "$BEADS_DIR"/B*.md; do
+for bead in "$BEADS_DIR"/*.md; do
   [ -f "$bead" ] || continue
   TOTAL=$((TOTAL + 1))
 
@@ -398,7 +417,7 @@ TURB_SUM=$((L0 + L1 + L2 + L2_5 + L2_75))
 
 # Find max turbulence bead
 MAX_TURB=0 MAX_BEAD="null"
-for bead in "$BEADS_DIR"/B*.md; do
+for bead in "$BEADS_DIR"/*.md; do
   [ -f "$bead" ] || continue
   turb_raw=$(bead_field "$bead" "Turbulence")
   if [ -n "$turb_raw" ]; then
@@ -745,22 +764,63 @@ In `hooks/hooks.json`, find the `"PostToolUse"` array. Add a new entry at the en
     }
 ```
 
-- [ ] **Step 5: Add test cases to test-hooks.sh**
+- [ ] **Step 5: Create JSON test fixtures for the hook**
+
+The hook receives tool input via stdin as JSON. Create fixture files matching the existing pattern:
+
+Write `hooks/tests/fixtures/qb-write-valid.json`:
+```json
+{"tool_name":"Write","tool_input":{"file_path":"FIXTURES_DIR/quality-budget-valid.yaml"}}
+```
+
+Write `hooks/tests/fixtures/qb-write-missing-fields.json`:
+```json
+{"tool_name":"Write","tool_input":{"file_path":"FIXTURES_DIR/quality-budget-missing-fields.yaml"}}
+```
+
+Write `hooks/tests/fixtures/qb-write-malformed.json`:
+```json
+{"tool_name":"Write","tool_input":{"file_path":"FIXTURES_DIR/quality-budget-malformed.yaml"}}
+```
+
+Write `hooks/tests/fixtures/qb-write-non-budget.json`:
+```json
+{"tool_name":"Write","tool_input":{"file_path":"/tmp/not-quality-budget.txt"}}
+```
+
+**Note:** The `FIXTURES_DIR` placeholder must be replaced with the absolute path at test time. See Step 6.
+
+- [ ] **Step 6: Add test cases to test-hooks.sh**
 
 In `hooks/tests/test-hooks.sh`, before the final summary line, add:
 
 ```bash
-# --- Quality Budget Validation ---
-echo '{"tool_name":"Write","tool_input":{"file_path":"'"$(pwd)/hooks/tests/fixtures/quality-budget-valid.yaml"'"}}' | bash hooks/scripts/validate-quality-budget.sh && pass "quality-budget: valid file passes" || fail "quality-budget: valid file passes"
+echo ""
+echo "=== Quality Budget Validation Tests ==="
 
-echo '{"tool_name":"Write","tool_input":{"file_path":"'"$(pwd)/hooks/tests/fixtures/quality-budget-missing-fields.yaml"'"}}' | bash hooks/scripts/validate-quality-budget.sh 2>/dev/null && fail "quality-budget: missing fields rejected" || pass "quality-budget: missing fields rejected"
+# Patch fixture paths to absolute (fixtures reference YAML files that must exist on disk)
+for f in "$FIXTURES_DIR"/qb-write-*.json; do
+  sed -i.bak "s|FIXTURES_DIR|$FIXTURES_DIR|g" "$f" && rm -f "$f.bak"
+done
 
-echo '{"tool_name":"Write","tool_input":{"file_path":"'"$(pwd)/hooks/tests/fixtures/quality-budget-malformed.yaml"'"}}' | bash hooks/scripts/validate-quality-budget.sh 2>/dev/null && fail "quality-budget: malformed YAML rejected" || pass "quality-budget: malformed YAML rejected"
+run_test "valid: complete quality-budget.yaml passes" \
+  "$HOOKS_DIR/validate-quality-budget.sh" \
+  "$FIXTURES_DIR/qb-write-valid.json" 0
 
-echo '{"tool_name":"Write","tool_input":{"file_path":"/tmp/not-quality-budget.txt"}}' | bash hooks/scripts/validate-quality-budget.sh && pass "quality-budget: non-budget file ignored" || fail "quality-budget: non-budget file ignored"
+run_test "reject: missing required fields" \
+  "$HOOKS_DIR/validate-quality-budget.sh" \
+  "$FIXTURES_DIR/qb-write-missing-fields.json" 2
+
+run_test "reject: malformed YAML" \
+  "$HOOKS_DIR/validate-quality-budget.sh" \
+  "$FIXTURES_DIR/qb-write-malformed.json" 2
+
+run_test "skip: non-budget file ignored" \
+  "$HOOKS_DIR/validate-quality-budget.sh" \
+  "$FIXTURES_DIR/qb-write-non-budget.json" 0
 ```
 
-Update the expected test count in the summary line (currently 32, add 4 → 36).
+Update the expected test count in the summary line to include the 4 new tests.
 
 - [ ] **Step 6: Run tests**
 
@@ -1103,7 +1163,7 @@ Each task produces a `quality-budget.yaml` artifact that tracks turbulence, corr
 
 - [ ] **Step 2: Update README.md artifact table**
 
-In the Per-Project Artifacts table (around line 124-132), add two rows:
+In the Per-Project Artifacts table (around line 124-132), add three rows:
 
 ```markdown
 | Quality Budget | `docs/sdlc/active/{task-id}/quality-budget.yaml` | Task-level metrics, phase gate enforcement |
@@ -1111,7 +1171,21 @@ In the Per-Project Artifacts table (around line 124-132), add two rows:
 | System Budget Events | `docs/sdlc/system-budget-events.jsonl` | Late-arriving escape corrections |
 ```
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 3: Update README.md hook inventory**
+
+In the Hooks section (around line 98), update the hook count from "6 scripts" to "7 scripts" and add the new hook to the table:
+
+```markdown
+### Hooks (7 scripts)
+```
+
+Add row to the hook table:
+
+```markdown
+| validate-quality-budget.sh | PostToolUse | **Blocking** — quality-budget.yaml schema validation |
+```
+
+- [ ] **Step 4: Commit**
 
 ```bash
 cd /Users/q/.claude/plugins/sdlc-os
@@ -1146,10 +1220,10 @@ Expected: Zero matches. All references should now be `quality-budget.yaml`.
 - [ ] **Step 3: Verify all new files exist**
 
 ```bash
-ls -la references/quality-budget-rules.yaml references/quality-budget-schema.md scripts/lib/quality-budget-lib.sh scripts/derive-quality-budget.sh scripts/append-system-budget.sh hooks/scripts/validate-quality-budget.sh hooks/tests/fixtures/quality-budget-valid.yaml hooks/tests/fixtures/quality-budget-missing-fields.yaml hooks/tests/fixtures/quality-budget-malformed.yaml
+ls -la references/quality-budget-rules.yaml references/quality-budget-schema.md scripts/lib/quality-budget-lib.sh scripts/derive-quality-budget.sh scripts/append-system-budget.sh hooks/scripts/validate-quality-budget.sh hooks/tests/fixtures/quality-budget-valid.yaml hooks/tests/fixtures/quality-budget-missing-fields.yaml hooks/tests/fixtures/quality-budget-malformed.yaml hooks/tests/fixtures/qb-write-valid.json hooks/tests/fixtures/qb-write-missing-fields.json hooks/tests/fixtures/qb-write-malformed.json hooks/tests/fixtures/qb-write-non-budget.json
 ```
 
-Expected: All 9 files exist.
+Expected: All 13 files exist (9 artifacts + 4 test fixture JSONs).
 
 - [ ] **Step 4: Verify derivation script runs on a synthetic task**
 
@@ -1161,6 +1235,15 @@ cat > /tmp/test-qb/state.md << 'EOF'
 |------|--------|
 | B01 | merged |
 | B02 | merged |
+EOF
+
+cat > /tmp/test-qb/beads/bead-auth.md << 'EOF'
+**Status:** merged
+**Cynefin domain:** clear
+**Turbulence:** {L0: 0, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
+**Dispatched at:** "2026-03-29T09:50:00Z"
+**Review started at:** "2026-03-29T09:55:00Z"
+**Completed at:** "2026-03-29T09:58:00Z"
 EOF
 
 cat > /tmp/test-qb/beads/B01.md << 'EOF'
@@ -1185,7 +1268,7 @@ cd /Users/q/.claude/plugins/sdlc-os && bash scripts/derive-quality-budget.sh /tm
 cat /tmp/test-qb/quality-budget.yaml
 ```
 
-Expected: YAML output with `zero_turbulence_rate: 0.50` (1 of 2 beads zero turbulence), `turbulence_sum: 1`, `complexity_weight: 0.25`, `artifact_status: ready`.
+Expected: YAML output with 3 beads total (bead-auth.md + B01.md + B02.md), `zero_turbulence_rate: 0.67` (2 of 3 beads zero turbulence), `turbulence_sum: 1`, `artifact_status: ready`. The non-B* bead (bead-auth.md) must be included — if `zero_turbulence_rate` is 0.50 instead of 0.67, the glob is still hardcoded to `B*.md`.
 
 - [ ] **Step 5: Cleanup synthetic test**
 
