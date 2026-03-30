@@ -18,7 +18,8 @@ import json, math
 m1 = json.loads('''$map1''')
 m2 = json.loads('''$map2''')
 dims = ['evidence_strength', 'impact_severity', 'pattern_familiarity', 'decision_confidence']
-# base_rate_frequency uses bucket field
+# base_rate_frequency is a nested struct (not a scalar) because it carries both the bucket
+# and reference_class_state; we extract only bucket for distance arithmetic.
 b1 = m1.get('base_rate_frequency', {}).get('bucket', 3)
 b2 = m2.get('base_rate_frequency', {}).get('bucket', 3)
 vals = [(m1.get(d, 3) - m2.get(d, 3))**2 for d in dims] + [(b1 - b2)**2]
@@ -104,14 +105,17 @@ if esc_rules.get('unbacked_high_severity', True):
             if brf.get('reference_class_state') == 'available':
                 escalations.append('unbacked_high_severity')
 
-# Anchoring drift (post-exposure shift toward anchor)
+# Anchoring drift: the exposed pass moved closer to the anchor than the blind pass was.
+# We only check this when the pass has a parent (blind→exposed pair); without a blind
+# baseline there is nothing to compare against for drift direction.
 if p2.get('parent_review_pass_id') and p2.get('anchor_map_targets_seen'):
     anchor = p2['anchor_map_targets_seen'][0] if p2['anchor_map_targets_seen'] else {}
     for dim in ['evidence_strength', 'impact_severity', 'pattern_familiarity']:
         blind_val = m1.get(dim, 3)
         exposed_val = m2.get(dim, 3)
         anchor_val = anchor.get(dim, 3) if isinstance(anchor, dict) else 3
-        # Drift toward anchor?
+        # Closer to anchor AND shifted by at least drift_threshold buckets → genuine drift,
+        # not just normal rating variance between independent passes.
         if abs(exposed_val - anchor_val) < abs(blind_val - anchor_val) and abs(exposed_val - blind_val) >= drift_threshold:
             escalations.append(f'anchoring_drift_{dim}')
 

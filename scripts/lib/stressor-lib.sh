@@ -55,25 +55,33 @@ print(s.get('sampled_rate', 0.50), s.get('anti_turkey_rate', 0.30), s.get('horme
     clean_streak_threshold="5"
   fi
 
-  # Cue 1: INVESTIGATE or EVOLVE profile → SKIP (no stress on exploratory beads)
+  # Cue 1: INVESTIGATE or EVOLVE → SKIP
+  # Exploratory beads have undefined acceptance criteria; injecting stress yields false
+  # positives because "failure" has no agreed meaning until the investigation concludes.
   if [[ "$profile" == "INVESTIGATE" || "$profile" == "EVOLVE" ]]; then
     echo "SKIP"
     return
   fi
 
-  # Cue 2: budget DEPLETED → FULL stress (system is already failing; stress everything)
+  # Cue 2: budget DEPLETED → FULL stress
+  # When the quality budget is already exhausted, every bead is suspect; full stress
+  # maximises defect surface before any further work lands.
   if [[ "$budget_state" == "depleted" ]]; then
     echo "FULL"
     return
   fi
 
-  # Cue 3: complex + security-sensitive bead → TARGETED stress
+  # Cue 3: complex + security-sensitive → TARGETED stress
+  # Security beads in the complex Cynefin domain have emergent failure modes that only
+  # targeted adversarial probes (not random sampling) can reliably surface.
   if [[ "$has_complex_security" == "true" ]]; then
     echo "TARGETED"
     return
   fi
 
   # Cue 4: budget WARNING → SAMPLED at sampled_rate probability
+  # Warning state means the budget is degraded but not exhausted; probabilistic sampling
+  # applies pressure without the full overhead of Cue 2.
   if [[ "$budget_state" == "warning" ]]; then
     if [ "$(echo "$seed < $sampled_rate" | bc -l)" -eq 1 ]; then
       echo "SAMPLED"
@@ -84,6 +92,8 @@ print(s.get('sampled_rate', 0.50), s.get('anti_turkey_rate', 0.30), s.get('horme
   fi
 
   # Cue 5: clean streak >= threshold → ANTI_TURKEY at anti_turkey_rate probability
+  # Long zero-escape streaks risk complacency ("turkey problem"); occasional stress
+  # prevents the team from mistaking silence for safety.
   if [ "$clean_streak" -ge "$clean_streak_threshold" ]; then
     if [ "$(echo "$seed < $anti_turkey_rate" | bc -l)" -eq 1 ]; then
       echo "ANTI_TURKEY"
@@ -94,6 +104,8 @@ print(s.get('sampled_rate', 0.50), s.get('anti_turkey_rate', 0.30), s.get('horme
   fi
 
   # Cue 6: baseline HORMETIC sampling at hormetic_rate probability
+  # Low-dose stress even when healthy keeps the stress harness calibrated and surfaces
+  # latent fragility before it accumulates into a budget failure.
   if [ "$(echo "$seed < $hormetic_rate" | bc -l)" -eq 1 ]; then
     echo "HORMETIC"
   else

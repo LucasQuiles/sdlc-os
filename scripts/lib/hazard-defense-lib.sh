@@ -14,16 +14,17 @@ hdl_record_id() {
 # Usage: count_records_by_status "ledger.yaml" "caught"
 count_records_by_status() {
   local file="$1" status="$2"
-  grep -c "status: ${status}" "$file" 2>/dev/null || echo 0
+  grep -c "status: ${status}" "$file" 2>/dev/null || { echo "WARN: count_records_by_status failed on $file" >&2; echo 0; }
 }
 
 # Count records with non-empty intended_defenses
 # Usage: count_records_with_defense "ledger.yaml"
 count_records_with_defense() {
   local file="$1"
-  # Records where intended_defenses has at least one "- layer:" entry
+  # Counts top-level record IDs (indented "- id:" at depth 4) as a proxy for total records.
+  # This avoids a full YAML parse; depth-4 indentation is fixed by the HDL schema.
   local total
-  total=$(grep -c "^    - id:" "$file" 2>/dev/null || echo 0)
+  total=$(grep -c "^    - id:" "$file" 2>/dev/null || { echo "WARN: count_records_with_defense failed on $file" >&2; echo 0; })
   local without
   without=$(count_records_without_defense "$file")
   echo $((total - without))
@@ -43,17 +44,21 @@ for r in data.get('records', []):
     if not r.get('intended_defenses'):
         count += 1
 print(count)
-" "$file" 2>/dev/null || echo 0
+" "$file" 2>/dev/null || { echo "WARN: count_records_without_defense failed on $file (missing file or PyYAML unavailable)" >&2; echo 0; }
 }
 
 # Compute coverage_state from summary fields
 # Usage: compute_coverage_state without_defense escapes_at_close residual_high open_count
 compute_coverage_state() {
   local without="$1" escapes="$2" high_risk="$3" open="$4"
-  if [ "$without" -gt 0 ] && [ "$high_risk" -gt 0 ]; then echo "depleted"; return; fi
-  if [ "$without" -gt 0 ] || [ "$escapes" -gt 0 ]; then echo "warning"; return; fi
-  if [ "$open" -gt 0 ]; then echo "warning"; return; fi
-  echo "healthy"
+  local _result
+  if [ "$without" -gt 0 ] && [ "$high_risk" -gt 0 ]; then _result="depleted"
+  elif [ "$without" -gt 0 ] || [ "$escapes" -gt 0 ]; then _result="warning"
+  elif [ "$open" -gt 0 ]; then _result="warning"
+  else _result="healthy"
+  fi
+  validate_enum "$_result" "healthy warning depleted" || true
+  echo "$_result"
 }
 
 # Derive full summary from ledger records (requires python3 + PyYAML)
