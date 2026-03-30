@@ -1,0 +1,64 @@
+# Mode & Convergence Rules — externalized thresholds and derivation parameters
+schema_version: 1
+
+# Escalation reason categories (structured enum)
+escalation_reasons:
+  - ambiguity
+  - coupling
+  - statefulness
+  - concurrency
+  - reviewer_overload
+  - missing_precedent
+  - domain_gap
+  - tooling_limitation
+  - decomposition_error
+  - context_exhaustion
+
+# SRK classification thresholds
+# Rule-based boundaries are INCLUSIVE (>= and <=)
+# Skill-based and knowledge-based use strict inequalities
+srk_thresholds:
+  turbulence_sum_per_bead:
+    skill_max: 1.0        # < 1.0 = skill-based
+    knowledge_min: 3.0    # > 3.0 = knowledge-based
+    # >= 1.0 AND <= 3.0 = rule-based
+  zero_turbulence_rate:
+    skill_min: 0.80       # > 0.80 = skill-based
+    knowledge_max: 0.50   # < 0.50 = knowledge-based
+    # >= 0.50 AND <= 0.80 = rule-based
+  review_latency_p95_s:
+    skill_max: 60         # < 60 = skill-based
+    knowledge_min: 300    # > 300 = knowledge-based
+    # >= 60 AND <= 300 = rule-based
+  escalation_count:
+    skill_max: 0          # == 0 = skill-based
+    knowledge_min: 2      # > 2 = knowledge-based
+    # >= 1 AND <= 2 = rule-based
+
+# SRK confidence derivation
+srk_confidence:
+  unanimous: high         # 4 signals agree
+  supermajority: medium   # 3 signals agree (3-1)
+  split: low              # 2-2 tie (resolved to rule_based)
+
+# Convergence signal parameters
+convergence:
+  evidence_rate_converging: 0.50   # >= this = new evidence still arriving
+  evidence_rate_stable: 0.20      # < this = findings are repetitive
+  entropy_stuck_threshold: 1.0    # < this = findings cluster in 1-2 categories
+  severity_ordinal:
+    P4: 1
+    P3: 2
+    P2: 3
+    P1: 4
+
+# Convergence recommendations
+convergence_recommendations:
+  converging: continue
+  stable: stop_early
+  diverging: change_approach
+  stuck_within_budget: extend_budget   # if budget < 2x original
+  stuck_over_budget: change_approach   # if budget >= 2x original
+
+# Budget extension limit
+max_budget_multiplier: 2
