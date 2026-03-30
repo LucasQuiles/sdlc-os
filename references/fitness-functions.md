@@ -73,3 +73,20 @@ Concrete checks that validate architectural properties. Each check can be run by
 **How:** `grep -rn "createHash('sha256')" lib/storage/api-keys-storage.ts`
 **Pass:** Uses createHmac, not createHash (or has ENCRYPTION_KEY guard)
 **Fail action:** BLOCKING — security vulnerability
+
+### Check: Duplicate function count ratchet
+**Type:** structural
+**What:** PROMOTE-classified duplicate count must not exceed prior Evolve scan baseline
+**How:** debt-crawler evaluates during Evolve bead #19; compares current PROMOTE count against previous in `docs/sdlc/debt-scan-report.md`
+**Pass:** PROMOTE count <= previous scan count
+**Fail action:** BLOCKING within Evolve — debt-crawler writes FAIL to system health report; Conductor must acknowledge and either fix or document justification before Evolve cycle completes
+**Scope:** Evaluated by debt-crawler during Evolve bead #19 only. Does NOT run in per-bead sdlc-fitness checks.
+**Note:** WATCH count is tracked and trended but advisory only
+
+### Check: Bare suppression ratchet
+**Type:** governance
+**What:** Bare eslint-disable count (score 0) must not increase between Evolve scans
+**How:** standards-curator compares current bare count from `docs/sdlc/active/{task-id}/rule-governance-profile.md` against the most recent prior profile found via the Evolve lookback contract (`active/*/rule-governance-profile.md` + `completed/*/rule-governance-profile.md`, last 10 tasks or 30 days)
+**Pass:** Bare count <= previous
+**Fail action:** WARNING — flag in system health report for Conductor review
+**Scope:** Evaluated by standards-curator during Evolve step #15 only
