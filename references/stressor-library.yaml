@@ -1,0 +1,22 @@
+# Stressor Library — persistent, Lindy-weighted catalog
+# Grows from real failures via harvest-stressors.sh
+# Updated by update-stressor-library.sh after each stress session
+schema_version: 1
+last_updated: "2026-03-30T00:00:00Z"
+
+stressors: []
+# Each entry:
+#   id: STR-NNN
+#   name: short description
+#   category: concurrency | boundary | state | auth | input | dependency | context_gap | defense_assumption
+#   source: {type, task_id, artifact_ref}
+#   description: what the stressor does
+#   probe_template: parameterized probe text
+#   applicable_when: {cynefin: [], tags: []}
+#   severity: high | medium | low
+#   times_applied: 0
+#   times_caught: 0
+#   catch_rate: null
+#   first_harvested: ISO 8601
+#   last_applied: null
+#   lindy_status: provisional | established | retired
