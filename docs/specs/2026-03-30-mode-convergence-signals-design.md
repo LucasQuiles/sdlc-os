@@ -84,6 +84,18 @@ convergence_signal:
   recommendation: continue | stop_early | extend_budget | change_approach
 ```
 
+**severity_trend derivation:**
+
+Compare max finding severity in the current cycle vs the prior cycle. Severity ordinal: P4=1, P3=2, P2=3, P1=4.
+```
+IF no prior cycle exists: stable
+ELSE IF max_severity_current > max_severity_prior: escalating
+ELSE IF max_severity_current < max_severity_prior: declining
+ELSE: stable
+```
+
+For AQS cycles: compare across the full finding set per cycle (all domains). For L0-L2 loops: compare the correction signal severity across iterations.
+
 **convergence_state derivation:**
 ```
 IF evidence_rate >= 0.50 AND severity_trend != escalating:
@@ -92,9 +104,13 @@ ELSE IF evidence_rate < 0.20 AND severity_trend == stable:
   stable (findings are repetitive, no new information)
 ELSE IF severity_trend == escalating:
   diverging (getting worse — deeper problem)
+ELSE IF evidence_rate < 0.50 AND entropy_estimate < 1.0:
+  stuck (low evidence rate AND low category diversity — same issues repeating)
 ELSE:
   stuck (low evidence rate, unclear trend)
 ```
+
+`entropy_estimate` is Shannon entropy over finding category distribution this cycle: `-sum(p_i * log2(p_i))` where `p_i` is the proportion of findings in category `i`. Low entropy (< 1.0) means findings cluster in 1-2 categories — the loop is stuck on the same problem class. High entropy means diverse issues are surfacing — the loop may be productive despite low evidence_rate.
 
 **recommendation derivation:**
 ```
@@ -124,12 +140,21 @@ execution_mode:
 
 | Signal | Skill-based | Rule-based | Knowledge-based |
 |--------|------------|------------|-----------------|
-| turbulence_sum_per_bead | < 1.0 | 1.0-3.0 | > 3.0 |
-| zero_turbulence_rate | > 0.80 | 0.50-0.80 | < 0.50 |
-| review_latency_p95_s | < 60 | 60-300 | > 300 |
-| escalation_count (L2+) | 0 | 1-2 | > 2 |
+| turbulence_sum_per_bead | < 1.0 | >= 1.0 AND <= 3.0 | > 3.0 |
+| zero_turbulence_rate | > 0.80 | >= 0.50 AND <= 0.80 | < 0.50 |
+| review_latency_p95_s | < 60 | >= 60 AND <= 300 | > 300 |
+| escalation_count (L2+) | == 0 | >= 1 AND <= 2 | > 2 |
+
+Boundary values are inclusive for rule-based (the middle band). Skill-based and knowledge-based use strict inequalities except at the rule-based boundaries.
 
 Majority vote across 4 signals. Ties → rule_based (middle).
+
+**Confidence derivation:**
+```
+4 signals unanimous → high
+3 signals agree (3-1 vote) → medium
+2-2 split (tie, resolved to rule_based) → low
+```
 
 ### Per-Task Mode/Convergence Summary
 
@@ -212,7 +237,7 @@ Replace the current 3-indicator heuristic check with convergence_signal computat
 
 ## Phase Gates
 
-Advisory-only in v1. Mode/convergence signals are tracked and reported but do not gate phase transitions.
+v1 is **operational but non-phase-gating.** Convergence signals actively affect loop control flow (stop_early, extend_budget, change_approach) and AQS cycle decisions. However, mode/convergence signals do NOT gate Synthesize or Complete phase transitions — they are informational at the task-lifecycle level.
 
 **Soft signals:**
 - `execution_mode: knowledge_based` with `confidence: high` → flag for Conductor: "This task is operating in knowledge-based mode — expect higher turbulence and longer loops"
@@ -271,11 +296,12 @@ Advisory-only in v1. Mode/convergence signals are tracked and reported but do no
 - AQS convergence replacement (evidence-rate based, not just indicator count)
 - Validation hook + tests
 - Rules file (SRK thresholds, convergence rules)
-- Advisory soft signals
+- Operational loop control (stop_early, extend_budget, change_approach affect runtime)
+- Advisory soft signals at task-lifecycle level (non-phase-gating)
 
 ### Out of scope
 
-- Hard gates on mode/convergence signals (advisory-only v1)
+- Phase-transition gates on mode/convergence signals (non-phase-gating in v1)
 - Automated decomposition based on escalation reason patterns (evolve proposes, Conductor decides)
 - Cross-task mode prediction (predicting SRK classification before execution starts)
 - Full Shannon entropy computation with token-level analysis (use finding-category entropy as proxy)
