@@ -607,9 +607,9 @@ docs/sdlc/system-budget.jsonl for longitudinal analysis."
 
 **Files:**
 - Create: `hooks/scripts/validate-quality-budget.sh`
-- Create: `hooks/tests/fixtures/quality-budget-valid.yaml`
-- Create: `hooks/tests/fixtures/quality-budget-missing-fields.yaml`
-- Create: `hooks/tests/fixtures/quality-budget-malformed.yaml`
+- Create: `hooks/tests/fixtures/qb-valid/quality-budget.yaml`
+- Create: `hooks/tests/fixtures/qb-missing/quality-budget.yaml`
+- Create: `hooks/tests/fixtures/qb-malformed/quality-budget.yaml`
 - Modify: `hooks/hooks.json`
 - Modify: `hooks/tests/test-hooks.sh`
 
@@ -637,15 +637,22 @@ if [[ ! -f "$file_path" ]]; then
 fi
 
 # Validate: must parse as valid YAML
-if command -v python3 &>/dev/null; then
+# Try python3+PyYAML first; if unavailable, fall back to structural grep checks.
+_has_pyyaml=false
+if command -v python3 &>/dev/null && python3 -c "import yaml" 2>/dev/null; then
+  _has_pyyaml=true
+fi
+
+if [[ "$_has_pyyaml" == "true" ]]; then
   if ! python3 -c "import yaml, sys; yaml.safe_load(open(sys.argv[1]))" "$file_path" 2>/dev/null; then
     echo '{"decision":"deny","reason":"quality-budget.yaml is not valid YAML"}' >&2
     exit 2
   fi
 else
-  # Fallback: check for obvious structural errors (unclosed brackets, missing colons)
-  if grep -qE '^\S+[^:]$' "$file_path" 2>/dev/null | head -1; then
-    echo '{"decision":"deny","reason":"quality-budget.yaml has structural errors (no python3 for full parse)"}' >&2
+  # Fallback: check for basic YAML structure (colon-separated key-value lines)
+  # This catches obvious corruption but not all parse errors
+  if ! grep -qE '^[a-z_]+:' "$file_path" 2>/dev/null; then
+    echo '{"decision":"deny","reason":"quality-budget.yaml has no recognizable YAML keys"}' >&2
     exit 2
   fi
 fi
@@ -788,39 +795,33 @@ The test generates JSON input inline (no separate JSON fixture files needed — 
 echo ""
 echo "=== Quality Budget Validation Tests ==="
 
-# Generate inline JSON that points at the real YAML fixture paths
-_qb_input() { echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$1\"}}"; }
+# Generate temp fixture files with inline JSON pointing at real YAML fixture paths.
+# We write to temp files and use run_test (not a pipe) so PASS/FAIL counters
+# update in the current shell — piping into a function runs a subshell.
+_qb_tmp=$(mktemp -d)
+_qb_json() { echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$1\"}}" > "$2"; }
 
-_qb_input "$FIXTURES_DIR/qb-valid/quality-budget.yaml" | run_test_inline \
-  "valid: complete quality-budget.yaml passes" "$HOOKS_DIR/validate-quality-budget.sh" 0
+_qb_json "$FIXTURES_DIR/qb-valid/quality-budget.yaml" "$_qb_tmp/qb-valid.json"
+_qb_json "$FIXTURES_DIR/qb-missing/quality-budget.yaml" "$_qb_tmp/qb-missing.json"
+_qb_json "$FIXTURES_DIR/qb-malformed/quality-budget.yaml" "$_qb_tmp/qb-malformed.json"
+_qb_json "/tmp/not-quality-budget.txt" "$_qb_tmp/qb-non-budget.json"
 
-_qb_input "$FIXTURES_DIR/qb-missing/quality-budget.yaml" | run_test_inline \
-  "reject: missing required fields" "$HOOKS_DIR/validate-quality-budget.sh" 2
+run_test "valid: complete quality-budget.yaml passes" \
+  "$HOOKS_DIR/validate-quality-budget.sh" "$_qb_tmp/qb-valid.json" 0
 
-_qb_input "$FIXTURES_DIR/qb-malformed/quality-budget.yaml" | run_test_inline \
-  "reject: malformed YAML" "$HOOKS_DIR/validate-quality-budget.sh" 2
+run_test "reject: missing required fields" \
+  "$HOOKS_DIR/validate-quality-budget.sh" "$_qb_tmp/qb-missing.json" 2
 
-_qb_input "/tmp/not-quality-budget.txt" | run_test_inline \
-  "skip: non-budget file ignored" "$HOOKS_DIR/validate-quality-budget.sh" 0
+run_test "reject: malformed YAML" \
+  "$HOOKS_DIR/validate-quality-budget.sh" "$_qb_tmp/qb-malformed.json" 2
+
+run_test "skip: non-budget file ignored" \
+  "$HOOKS_DIR/validate-quality-budget.sh" "$_qb_tmp/qb-non-budget.json" 0
+
+rm -rf "$_qb_tmp"
 ```
 
-Also add the `run_test_inline` helper near the top of test-hooks.sh (after `run_test_advisory`):
-
-```bash
-# Like run_test but reads fixture from stdin instead of a file
-run_test_inline() {
-  local test_name="$1" hook_script="$2" expected_exit="$3"
-  local actual_exit=0
-  bash "$hook_script" > /dev/null 2>&1 || actual_exit=$?
-  if [[ "$actual_exit" -eq "$expected_exit" ]]; then
-    echo "  PASS: $test_name (exit $actual_exit)"
-    PASS=$((PASS + 1))
-  else
-    echo "  FAIL: $test_name (expected exit $expected_exit, got $actual_exit)"
-    FAIL=$((FAIL + 1))
-  fi
-}
-```
+No new helper function needed — the existing `run_test` from `test-hooks.sh:14` handles everything. The inline JSON is written to temp files that `run_test` reads via `cat "$fixture_file"`, keeping the function in the current shell so PASS/FAIL counters update correctly.
 
 Update the expected test count in the summary line to include the 4 new tests.
 
