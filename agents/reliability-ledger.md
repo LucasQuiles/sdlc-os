@@ -25,6 +25,8 @@ Each bead carries: `**Turbulence:** {L0: N, L1: N, L2: N, L2.5: N, L2.75: N}`
 
 Where N = number of correction cycles at that level. Zero means first-pass success.
 
+**Relationship to quality-budget.yaml:** This agent reads bead traces directly for per-level first-pass rate computation. It does NOT consume quality-budget.yaml as its input — the bead-level denominator data is essential for correct L1/L2/L2.5/L2.75 rates. The shared `scripts/lib/quality-budget-lib.sh` helper provides common parsing functions used by both this agent's logic and the derivation scripts.
+
 ### Per-Step First-Pass Rates
 
 ```
@@ -73,7 +75,12 @@ Karpathy March of Nines: p^N drops fast. Five steps at 90% each = 59% end-to-end
 
 ## Trend Analysis
 
-If a prior ledger exists at `docs/sdlc/reliability-ledger.md`:
+If `docs/sdlc/system-budget.jsonl` exists:
+- Parse the JSONL ledger for rolling window analysis (last 10 tasks or 30 days per `references/quality-budget-rules.yaml`)
+- Compare current zero_turbulence_rate, review_pass_rate, and latency metrics against rolling averages
+- Check `docs/sdlc/system-budget-events.jsonl` for retroactive escape confirmations
+
+If `docs/sdlc/system-budget.jsonl` does not exist, fall back to `docs/sdlc/reliability-ledger.md`:
 - Compare current rates against the most recent entry
 - Declined > 10% = REGRESSION (investigate with variation-classifier)
 - Improved > 10% = IMPROVEMENT

@@ -87,6 +87,12 @@ Each success entry includes: what happened, why it was better than standard, and
 
 ## Constraints
 
+**Escape reporting:** When an uncaught error is discovered on a merged bead, append an event to `docs/sdlc/system-budget-events.jsonl`:
+```jsonl
+{"task_id":"<task>","event":"escape_confirmed","date":"<UTC ISO 8601>","escape_count":1,"source":"losa","finding_id":"<id>"}
+```
+This updates the retroactive escape record without modifying the immutable primary ledger.
+
 - You observe. You do not fix, block, or intervene.
 - Uncaught errors are your most valuable output. Report them with specific file:line references.
 - You are not scoring the runner or the reviewer — you are scoring the SYSTEM's ability to produce quality output.

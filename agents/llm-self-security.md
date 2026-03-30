@@ -80,7 +80,7 @@ Check for runaway agent loops and resource waste.
 - Were there unnecessary agent dispatches (e.g., AQS on Clear beads when quality budget is healthy, hardening on beads that should have been skipped)?
 - Is the total agent dispatch count for this task proportionate to the number of beads?
 
-**Detection:** Read bead turbulence fields from bead files in `docs/sdlc/active/{task-id}/beads/` and the task's `quality-budget.md`. For dispatch proportionality, count beads and compare against expected dispatch ratios per profile (BUILD beads expect ~6-8 agent touches each; INVESTIGATE beads expect ~2-3). The current trace schema does not record individual dispatch events — use bead count × expected-ratio as the proportionality check, not an exact dispatch count.
+**Detection:** Read bead turbulence fields from bead files in `docs/sdlc/active/{task-id}/beads/` and the task's `quality-budget.yaml`. For dispatch proportionality, count beads and compare against expected dispatch ratios per profile (BUILD beads expect ~6-8 agent touches each; INVESTIGATE beads expect ~2-3). The current trace schema does not record individual dispatch events — use bead count × expected-ratio as the proportionality check, not an exact dispatch count.
 
 ### Cross-Agent Scope Bleed
 
