@@ -16,6 +16,8 @@ The Evolve profile maintains and improves the SDLC system itself. No user-facing
 - **Periodic:** Every 20th task, the Conductor checks whether an Evolve cycle is due
 - **Manual:** User runs `/evolve`
 
+**Data source for evolution prioritization:** When deciding which evolution bead types to dispatch, consult `docs/sdlc/system-budget.jsonl` for longitudinal metrics. Prioritize evolution beads that address the lowest-performing metrics in the rolling window (e.g., if zero_turbulence_rate is declining, prioritize auto-rule generation and calibration tuning).
+
 ## Phase Configuration (from FFT-04 Cue 3)
 
 - Frame: SKIP
