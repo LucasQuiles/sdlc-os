@@ -1,0 +1,4 @@
+schema_version: 1
+task_id: "test-task-002"
+# Missing: artifact_status, cynefin_mix, beads, corrections, metrics, timing, escapes
+budget_state: healthy

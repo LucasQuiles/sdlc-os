@@ -455,6 +455,34 @@ unset SDLC_TASK_ID
 rm -rf /tmp/test-project
 
 echo ""
+echo "=== Quality Budget Validation Tests ==="
+
+# Generate temp fixture files with inline JSON pointing at real YAML fixture paths.
+# We write to temp files and use run_test (not a pipe) so PASS/FAIL counters
+# update in the current shell — piping into a function runs a subshell.
+_qb_tmp=$(mktemp -d)
+_qb_json() { echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$1\"}}" > "$2"; }
+
+_qb_json "$FIXTURES_DIR/qb-valid/quality-budget.yaml" "$_qb_tmp/qb-valid.json"
+_qb_json "$FIXTURES_DIR/qb-missing/quality-budget.yaml" "$_qb_tmp/qb-missing.json"
+_qb_json "$FIXTURES_DIR/qb-malformed/quality-budget.yaml" "$_qb_tmp/qb-malformed.json"
+_qb_json "/tmp/not-quality-budget.txt" "$_qb_tmp/qb-non-budget.json"
+
+run_test "valid: complete quality-budget.yaml passes" \
+  "$HOOKS_DIR/validate-quality-budget.sh" "$_qb_tmp/qb-valid.json" 0
+
+run_test "reject: missing required fields" \
+  "$HOOKS_DIR/validate-quality-budget.sh" "$_qb_tmp/qb-missing.json" 2
+
+run_test "reject: malformed YAML" \
+  "$HOOKS_DIR/validate-quality-budget.sh" "$_qb_tmp/qb-malformed.json" 2
+
+run_test "skip: non-budget file ignored" \
+  "$HOOKS_DIR/validate-quality-budget.sh" "$_qb_tmp/qb-non-budget.json" 0
+
+rm -rf "$_qb_tmp"
+
+echo ""
 echo "=== Results ==="
 echo "PASS: $PASS  FAIL: $FAIL  TOTAL: $((PASS + FAIL))"
 

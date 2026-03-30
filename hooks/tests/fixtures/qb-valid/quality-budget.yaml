@@ -1,0 +1,48 @@
+schema_version: 1
+task_id: "test-task-001"
+artifact_status: ready
+budget_state: healthy
+derived_at: "2026-03-29T14:00:00Z"
+last_updated: "2026-03-29T14:00:00Z"
+cynefin_mix:
+  clear: 2
+  complicated: 1
+  complex: 0
+  chaotic: 0
+complexity_weight: 0.17
+beads:
+  total: 3
+  completed: 3
+  wip: 0
+  stuck: 0
+  blocked: 0
+  wip_age_max_s: 0
+corrections:
+  L0: 1
+  L1: 0
+  L2: 0
+  L2_5: 0
+  L2_75: 0
+turbulence_sum: 1
+turbulence_max_bead: B01
+metrics:
+  zero_turbulence_rate: 0.67
+  turbulence_sum_per_bead: 0.33
+  review_pass_rate: 1.0
+  queue_depth_peak: 2
+  buffer_hits: 0
+  review_latency_avg_s: 30
+  review_latency_p95_s: 45
+timing:
+  estimate_s: null
+  actual_s: null
+sli_readings:
+  lint_clean: null
+  types_clean: null
+  test_coverage_delta: null
+  complexity_delta: null
+  critical_findings: null
+escapes:
+  known_at_close: 0
+overrides: []
+notes: ""
