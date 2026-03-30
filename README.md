@@ -35,6 +35,7 @@ For simpler tasks, the Conductor scales down automatically — trivial tasks ski
 | `/normalize` | Assess project state, produce convention map, align existing work |
 | `/gap-analysis [mode]` | Feature completeness analysis (finder or finisher mode) |
 | `/feature-sweep [mode]` | Discover neglected/abandoned/incomplete features across codebase |
+| `/stress` | Manually invoke barbell stress testing on the current task |
 
 ## Architecture
 
@@ -95,7 +96,7 @@ L2.5: AQS adversarial (2 cycles) — red/blue/arbiter
 L3-L5: Bead → Phase → Task escalation
 ```
 
-### Hooks (8 scripts)
+### Hooks (9 scripts)
 
 | Hook | Event | Behavior |
 |------|-------|----------|
@@ -107,6 +108,7 @@ L3-L5: Bead → Phase → Task escalation
 | validate-consistency-artifacts.sh | PostToolUse | **Advisory** — feature matrix + convention report schemas |
 | validate-runner-output.sh | SubagentStop | **Advisory** — runner output structure + convention signals |
 | validate-hazard-defense-ledger.sh | PostToolUse | **Blocking** — HDL schema validation |
+| validate-stress-session.sh | PostToolUse | **Blocking** — stress session schema validation |
 
 ### References
 
@@ -138,6 +140,10 @@ The plugin creates these files in target project repos:
 | Hazard/Defense Ledger | `docs/sdlc/active/{task-id}/hazard-defense-ledger.yaml` | Phase B safety control, defense coverage tracking |
 | System HDL | `docs/sdlc/system-hazard-defense.jsonl` | Cross-task UCA patterns, catch-layer distribution |
 | System HDL Events | `docs/sdlc/system-hazard-defense-events.jsonl` | Late-arriving defense corrections |
+| Stress Session | `docs/sdlc/active/{task-id}/stress-session.yaml` | Barbell stress testing, stressor application tracking |
+| System Stress | `docs/sdlc/system-stress.jsonl` | Cross-task stress yield, clean streak tracking |
+| System Stress Events | `docs/sdlc/system-stress-events.jsonl` | Stressor lifecycle events |
+| Stressor Library | `references/stressor-library.yaml` | Persistent stressor catalog |
 
 ## Testing
 
@@ -146,7 +152,7 @@ cd ~/.claude/plugins/sdlc-os
 bash hooks/tests/test-hooks.sh
 ```
 
-Expected: 46/46 PASS.
+Expected: 50/50 PASS.
 
 ## License
 
