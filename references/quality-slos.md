@@ -53,15 +53,12 @@ The error budget is the gap between target and 100%. When budget is healthy, the
 
 The Conductor maintains a running budget state in the task's active directory:
 
-```
-## Quality Budget: {task-id}
-**Current state:** healthy | warning | depleted
-**SLI readings (last 3 tasks):**
-| Task | Lint | Types | Coverage | Complexity | Critical Findings |
-|------|------|-------|----------|------------|-------------------|
-| ... | ... | ... | ... | ... | ... |
-**Breached SLOs:** {list or "None"}
-**Action taken:** {what was done about breaches, or "N/A"}
-```
+## Quality Budget Artifact
 
-Written to `docs/sdlc/active/{task-id}/quality-budget.md` during Phase 5.
+The quality budget is now a machine-readable YAML artifact. See:
+- **Schema:** `references/quality-budget-schema.md`
+- **Rules:** `references/quality-budget-rules.yaml`
+- **Location:** `docs/sdlc/active/{task-id}/quality-budget.yaml`
+- **System ledger:** `docs/sdlc/system-budget.jsonl`
+
+Derivation: `scripts/derive-quality-budget.sh`. The old markdown format (`quality-budget.md`) is superseded.

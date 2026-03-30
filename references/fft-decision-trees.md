@@ -24,6 +24,7 @@ FFT-01: task_profile
     → NO  → continue
 
   Cue 3: Is the quality budget at WARNING or DEPLETED with no user task pending?
+    (Read budget_state from quality-budget.yaml in the most recent completed task, or from system-budget.jsonl rolling window)
     → YES → EVOLVE
     → NO  → continue
 
@@ -149,6 +150,7 @@ FFT-04: phase_config
     → NO  → continue
 
   Cue 5: cynefin == CLEAR and budget == healthy?
+    (budget == quality-budget.yaml:budget_state for current task, or system-budget.jsonl rolling state if no current task budget)
     → YES → Frame: SKIP
              Scout: SKIP
              Architect: SKIP
@@ -180,10 +182,12 @@ FFT-05: loop_depth
     → NO  → continue
 
   Cue 3: cynefin == CLEAR and budget == healthy?
+    (budget == quality-budget.yaml:budget_state for current task, or system-budget.jsonl rolling state if no current task budget)
     → YES → L0 only (runner self-check, auto-advance)
     → NO  → continue
 
   Cue 4: cynefin == CLEAR and budget != healthy?
+    (budget == quality-budget.yaml:budget_state for current task, or system-budget.jsonl rolling state if no current task budget)
     → YES → L0 + L1 (add sentinel verification)
     → NO  → continue
 

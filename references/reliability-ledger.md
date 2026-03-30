@@ -6,7 +6,9 @@ Persistent format and computation rules for the March of Nines reliability track
 
 ## Ledger Location
 
-`docs/sdlc/reliability-ledger.md` — append-only, one entry per completed task.
+`docs/sdlc/reliability-ledger.md` — per-task first-pass rate analysis, one entry per completed task.
+
+**Relationship to system budget:** The reliability ledger computes per-level first-pass rates from bead traces. The system budget (`docs/sdlc/system-budget.jsonl`) aggregates task-level metrics for longitudinal analysis. The derivation scripts (`scripts/derive-quality-budget.sh`, `scripts/append-system-budget.sh`) consume bead traces directly — the reliability ledger is a parallel analysis artifact, not a prerequisite for the system budget.
 
 ## Ledger Entry Format
 
