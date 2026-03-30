@@ -1,0 +1,3 @@
+schema_version: 1
+task_id: "test-task-002"
+# Missing: artifact_status, sampling_reason, selection, stressors_applied, harvest, subtraction_log, summary

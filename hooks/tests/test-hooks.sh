@@ -511,6 +511,34 @@ run_test "skip: non-ledger file ignored" \
 rm -rf "$_hdl_tmp"
 
 echo ""
+echo "=== Stress Session Validation Tests ==="
+
+# Generate temp fixture files with inline JSON pointing at real YAML fixture paths.
+# We write to temp files and use run_test (not a pipe) so PASS/FAIL counters
+# update in the current shell — piping into a function runs a subshell.
+_ss_tmp=$(mktemp -d)
+_ss_json() { echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$1\"}}" > "$2"; }
+
+_ss_json "$FIXTURES_DIR/stress-valid/stress-session.yaml" "$_ss_tmp/ss-valid.json"
+_ss_json "$FIXTURES_DIR/stress-missing/stress-session.yaml" "$_ss_tmp/ss-missing.json"
+_ss_json "$FIXTURES_DIR/stress-malformed/stress-session.yaml" "$_ss_tmp/ss-malformed.json"
+_ss_json "/tmp/not-stress-session.txt" "$_ss_tmp/ss-non-session.json"
+
+run_test "valid: complete stress-session.yaml passes" \
+  "$HOOKS_DIR/validate-stress-session.sh" "$_ss_tmp/ss-valid.json" 0
+
+run_test "reject: missing required fields" \
+  "$HOOKS_DIR/validate-stress-session.sh" "$_ss_tmp/ss-missing.json" 2
+
+run_test "reject: malformed YAML" \
+  "$HOOKS_DIR/validate-stress-session.sh" "$_ss_tmp/ss-malformed.json" 2
+
+run_test "skip: non-session file ignored" \
+  "$HOOKS_DIR/validate-stress-session.sh" "$_ss_tmp/ss-non-session.json" 0
+
+rm -rf "$_ss_tmp"
+
+echo ""
 echo "=== Results ==="
 echo "PASS: $PASS  FAIL: $FAIL  TOTAL: $((PASS + FAIL))"
 

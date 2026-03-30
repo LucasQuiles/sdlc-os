@@ -1,0 +1,30 @@
+schema_version: 1
+task_id: "test-task-001"
+artifact_status: active
+sampling_reason: random_sample
+created_at: "2026-03-29T14:00:00Z"
+
+selection:
+  fft15_result: APPLY
+  stressor_ids:
+    - STS-001
+
+stressors_applied:
+  - stressor_id: "STS-001"
+    name: "Boundary value injection"
+    probe: "Submit payload with max-length string values"
+    result: "pass"
+    notes: "No overflow observed"
+
+harvest:
+  new_stressors: []
+  updated_stressors: []
+  notes: "Nothing new to harvest"
+
+subtraction_log:
+  candidates: []
+
+summary:
+  stressors_applied_count: 1
+  escapes_found: 0
+  net_library_delta: 0
