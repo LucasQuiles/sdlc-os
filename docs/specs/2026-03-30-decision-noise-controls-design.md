@@ -54,9 +54,19 @@ Append-only. One line per independent review pass. This is the canonical source 
 
 **Record shape:**
 
+**Append-only invariants:**
+- Records are immutable after write. No field is ever modified in place.
+- Idempotent write key: `review_pass_id` (globally unique). Duplicate `review_pass_id` appends are rejected.
+- Post-exposure revisions are stored as NEW records with `parent_review_pass_id` pointing to the blind pass.
+- `supersedes_review_pass_id` is set when a pass explicitly replaces a prior pass (e.g., arbiter override).
+- Schema evolution: `schema_version` field on every record. Consumers must handle version differences.
+
 ```json
 {
+  "schema_version": 1,
   "review_pass_id": "rp_20260330_001",
+  "parent_review_pass_id": null,
+  "supersedes_review_pass_id": null,
   "task_id": "wizard-modal-rebuild-20260328",
   "bead_id": "B03",
   "decision_trace_id": "B03-decision-trace",
@@ -67,7 +77,10 @@ Append-only. One line per independent review pass. This is the canonical source 
   "reviewer_model": "opus | sonnet | haiku",
 
   "exposure_mode": "blind_first | precedent_exposed | peer_exposed | full_context",
+  "exposure_order": 0,
   "anchor_sources_seen": [],
+  "anchor_verdicts_seen": [],
+  "anchor_map_targets_seen": [],
   "precedent_pack_id": null,
 
   "repeat_review_group_id": null,
@@ -80,10 +93,12 @@ Append-only. One line per independent review pass. This is the canonical source 
       "bucket": 3,
       "hits": 3,
       "sample": 10,
-      "reference_class_id": "complex-state-mutation-90d"
+      "reference_class_id": "complex-state-mutation-90d",
+      "reference_class_state": "available"
     },
-    "precedent_fit": 4,
-    "decision_confidence": 3
+    "pattern_familiarity": 4,
+    "decision_confidence": 3,
+    "precedent_match_delta": null
   },
 
   "probability_judgments": [
@@ -116,9 +131,14 @@ Append-only. One line per independent review pass. This is the canonical source 
 |-----------|-----------------|-------|
 | `evidence_strength` | How well the claim is supported by concrete evidence | 1-5 |
 | `impact_severity` | If true, how much user/system/compliance harm follows | 1-5 |
-| `base_rate_frequency` | How often similar beads historically produced this issue class | 1-5 bucket + hits/sample/reference_class_id |
-| `precedent_fit` | How closely the claim matches known failure or defense patterns | 1-5 |
+| `base_rate_frequency` | How often similar beads historically produced this issue class | 1-5 bucket + hits/sample/reference_class_id + reference_class_state |
+| `pattern_familiarity` | How familiar this pattern feels to the reviewer based on their own judgment (blind — no precedent exposure) | 1-5 |
 | `decision_confidence` | How stable the reviewer believes this pass is under re-review | 1-5 |
+| `precedent_match_delta` | Post-exposure only: how much the reviewer's assessment changed after seeing precedent packs. Null on blind passes. | -5 to +5 (negative = precedent weakened confidence, positive = strengthened) |
+
+**Blind vs exposed:** On blind passes, `pattern_familiarity` is scored and `precedent_match_delta` is null. On post-exposure passes, both are scored. The delta between blind `pattern_familiarity` and post-exposure `pattern_familiarity` is the raw anchoring signal.
+
+**reference_class_state:** `available` (class exists with sufficient history), `insufficient_history` (class exists but < 5 samples), `not_applicable` (no meaningful reference class for this issue type). When `insufficient_history` or `not_applicable`, the `hits/sample` fields are null and the soft escalation for unbacked high-severity claims does NOT fire — the claim is explicitly marked as novel, not negligently unbacked.
 
 ### Per-Task Summary (derived view)
 
@@ -169,9 +189,9 @@ The core mechanism is sequence control:
 1. Reviewer sees bead evidence and decision trace metadata, but NOT prior verdicts
 2. Reviewer records a **blind MAP vector** and provisional verdict
 3. Only after that lock may the system reveal precedent packs or peer findings
-4. Any post-exposure revision is stored as a **new pass** linked back to the blind pass via `repeat_review_group_id`
+4. Any post-exposure revision is stored as a **new pass** with `parent_review_pass_id` pointing to the blind pass, `exposure_order` incremented, and `anchor_sources_seen` / `anchor_verdicts_seen` / `anchor_map_targets_seen` populated
 
-This makes anchoring measurable: every pass records what was seen before judgment.
+This makes anchoring computable: the drift between the blind pass MAP vector and the post-exposure pass MAP vector, toward or away from the anchor's MAP target, is a measurable signal. The `precedent_match_delta` field captures the reviewer's own assessment of how much the precedent changed their judgment.
 
 ---
 
@@ -198,10 +218,10 @@ No hard blocking. Noise metrics are tracked and reported but do not gate phase t
 ### Soft Escalation Conditions
 
 Trigger a second arbiter pass or mandatory re-review when ANY of:
-- Blind pair produces a **verdict flip** (different decision class)
+- Blind pair produces a **verdict flip** (different decision class across passes sharing `repeat_review_group_id`)
 - `evidence_strength` or `impact_severity` differs by **2+ buckets** across paired blind reviews
-- A **high-severity claim** has no natural-frequency backing
-- A post-exposure pass shifts **2+ buckets** toward the first visible anchor
+- A **high-severity claim** has `reference_class_state: available` but no `hits/sample` values (negligently unbacked). Claims with `insufficient_history` or `not_applicable` do NOT trigger this — they are explicitly novel.
+- A post-exposure pass shifts **2+ MAP buckets** toward the anchor's MAP target (computed: compare `parent_review_pass_id` blind MAP vector vs this pass's MAP vector, in the direction of `anchor_map_targets_seen[0]`)
 
 ### Hard Gates
 
