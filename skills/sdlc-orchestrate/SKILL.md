@@ -29,6 +29,7 @@ Conductor (Opus)
 **Conductor (you, Opus):**
 - Decompose ambiguous requests into crisp, atomic work units
 - Distribute work units to runners with precise context — no more, no less
+- Choose the right execution surface: disposable runners by default, tmup-managed Codex lanes when warm context or interactive supervision matters
 - Decide when to parallelize vs serialize (dependency analysis)
 - **Swarm guppies** for breadth-first investigation, audit, and verification (use `sdlc-os:sdlc-swarm`)
 - Synthesize runner outputs into coherent delivery
@@ -40,6 +41,14 @@ Conductor (Opus)
 - Execute in isolation (git worktrees or non-overlapping file scopes)
 - Submit output and exit. Do not accumulate context across work units.
 - Agent variants: `sonnet-investigator`, `sonnet-designer`, `sonnet-implementer`, `sonnet-reviewer`
+
+**Persistent External Lanes (tmup-managed Codex):**
+- Use when repo-scale execution, warm context, or interactive supervision makes disposable runners inefficient.
+- Treat each lane as a long-lived external subagent. You own the objective, context hygiene, and lifecycle.
+- Supervise with `harvest -> evaluate -> reprompt`, not fire-and-forget polling.
+- Prefer reusing a live lane over replacing it when the pane already holds relevant context.
+- tmup lanes inherit the current tmup runtime contract: root worker `gpt-5.4`, `model_context_window=1050000`, `model_auto_compact_token_limit=750000`, `model_reasoning_effort=high`, `model_reasoning_summary=low`, `plan_mode_reasoning_effort=xhigh`, `model_verbosity=low`, `service_tier=fast`, `web_search=live`, `features.undo=true`, `agents.max_threads=6`, `agents.max_depth=2`, `agents.job_max_runtime_seconds=3600`, and tiered internal teams (`tmup-tier1` on `gpt-5.3-codex`, `tmup-tier2` on `gpt-5.2-codex`).
+- Resume is safe when continuity matters: tmup reapplies the same runtime contract on `resume_session_id`.
 
 **Guppies (Haiku micro-agents, swarmed):**
 - Disposable micro-agents. One question, one answer, one exit.
@@ -216,7 +225,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - Dispatch `reuse-scout` (haiku) — runs the 6-layer analysis chain (episodic → Pinecone → grep → LSP symbols → LSP calls → synthesis)
    - Inject scout report into runner context as "Existing Solutions"
 1.5. **Stress sampling (FFT-15):** Before dispatching runners, evaluate FFT-15 from `references/fft-decision-trees.md` using quality-budget.yaml state, clean streak from system-stress.jsonl, bead complexity, and the deterministic seed (`sha256(task_id)`). If FFT-15 returns anything other than SKIP, create `stress-session.yaml` with `artifact_status: planned` and the selected stressors. Stressor probes are applied during AQS (Step 4) alongside domain probes.
-2. Dispatch `sonnet-implementer` runners — one per bead, with scout report. Parallel when independent.
+2. Dispatch execution units — `sonnet-implementer` runners by default, or tmup-managed Codex lanes when warm context, repo-scale coordination, or interactive reprompting justifies a persistent lane. Parallel when independent.
 3. After each runner submits, sentinel loop runs:
    - `haiku-verifier` checks acceptance criteria
    - `drift-detector` checks DRY/SSOT/SoC/pattern/boundary violations
@@ -225,6 +234,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - `drift-detector` receives additional context: bead base commit ref (the commit SHA before the runner started) + current bead manifest (all beads with Type, Intent, Scope) + `canonical_path_prefixes` from `references/canonical-registry.md`. This enables the `MIGRATION_PLAN_MISSING` check — new exports in canonical paths without `intent: migration` companions are BLOCKING.
    - Oracle audits test integrity (L2)
    Convention-enforcer BLOCKING violations trigger L1 correction same as drift-detector. `CONVENTION_DRIFT` signal → Conductor reviews Convention Map for staleness, may dispatch `convention-scanner` to refresh.
+   tmup-managed lanes follow a different supervision rhythm: harvest the pane, evaluate lane state, then reprompt the same lane when context is still valuable. Replacement workers are the fallback, not the default.
 4. After Oracle proves the bead, run the **Adversarial Quality System** (`sdlc-os:sdlc-adversarial`):
    - Recon burst (8 guppies across 4 domains) + Conductor domain selection → cross-reference priorities
    - Deploy domain-specialized red team commanders (`red-functionality`, `red-security`, `red-usability`, `red-resilience`) for HIGH/MED domains
@@ -232,7 +242,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - Deploy domain-matched blue team defenders to respond to findings
    - Dispatch `arbiter` (Opus) for any disputed findings — Kahneman protocol, binding verdicts
    - Update bead with hardening changes
-   - **Cross-model escalation (FFT-14):** After same-model AQS completes, the Conductor evaluates FFT-14 from `references/fft-decision-trees.md` using the AQS structured exit block (`aqs_exit`). If FFT-14 returns FULL or TARGETED: dispatch `crossmodel-supervisor` with bead context, FFT-14 outcome, and AQS structured exit block. The supervisor manages the full tmup session lifecycle (see `sdlc-os:sdlc-crossmodel`). Stage A findings route to existing blue team defenders. Stage B findings route to `crossmodel-triage`. Cross-model findings are routed through blue-team and triage channels. Resolution is tracked in the session journal but does not independently gate the `hardened` transition on day 1. The Conductor evaluates cross-model findings alongside same-model AQS results when deciding whether to proceed. If FFT-14 returns SKIP or SKIP_UNAVAILABLE: proceed directly to `hardened`. Decision logged in bead decision trace.
+   - **Cross-model escalation (FFT-14):** After same-model AQS completes, the Conductor evaluates FFT-14 from `references/fft-decision-trees.md` using the AQS structured exit block (`aqs_exit`). If FFT-14 returns FULL or TARGETED: dispatch `crossmodel-supervisor` with bead context, FFT-14 outcome, and AQS structured exit block. The supervisor manages the full tmup session lifecycle (see `sdlc-os:sdlc-crossmodel`) using the current tmup runtime contract, tiered internal teams, and the `harvest -> evaluate -> reprompt` supervision loop. Stage A findings route to existing blue team defenders. Stage B findings route to `crossmodel-triage`. Cross-model findings are routed through blue-team and triage channels. Resolution is tracked in the session journal but does not independently gate the `hardened` transition on day 1. The Conductor evaluates cross-model findings alongside same-model AQS results when deciding whether to proceed. If FFT-14 returns SKIP or SKIP_UNAVAILABLE: proceed directly to `hardened`. Decision logged in bead decision trace.
    - mark status `hardened`
    - See `sdlc-os:sdlc-adversarial` for full cycle details
    - **Skip for trivial beads.** See `skills/sdlc-adversarial/scaling-heuristics.md`
@@ -240,6 +250,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
 5. Corrections flow through the L0-L5 loop system (`sdlc-os:sdlc-loop`).
 6. **Turbulence tracking (Karpathy March of Nines):** The Conductor updates the bead's `Turbulence` field after each correction cycle at any level. Increment the relevant counter: L0 for runner self-corrections, L1 for sentinel corrections, L2 for oracle findings, L2.5 for AQS findings, L2.75 for hardening findings. See `references/reliability-ledger.md` for population rules.
 7. **Budget derivation:** After each bead status change (completion, stuck, blocked), run `scripts/derive-quality-budget.sh <task-dir> --status partial` to update the task's quality-budget.yaml with current metrics.
+**Execution mode classification:** After Execute phase completes, run `scripts/classify-execution-mode.sh <task-dir>` to compute the Rasmussen SRK classification from quality-budget.yaml telemetry. Classification is computed once from final telemetry (mode_transitions deferred to v2).
 **Output:** Code changes, tests, validation notes, reuse reports per bead.
 **Recovery:** Handled by loop mechanics. See `sdlc-os:sdlc-loop`.
 
@@ -290,6 +301,8 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    **5d. Deference to expertise:** When a domain-specialist agent flags a finding, the Conductor CANNOT dismiss it — it MUST proceed to the corresponding Blue Team regardless of Conductor judgment. Conductor disagreement is logged in the decision trace for retrospective analysis, not used as a filter. Applies to ALL specialist agents: `red-functionality`, `red-security`, `red-usability`, `red-resilience`, `red-reliability-engineering`, `observability-engineer`, `error-hardener`.
 **Decision-noise summary:** Run `scripts/derive-decision-noise-summary.sh` and `scripts/evaluate-escalations.sh`. Include escalation advisory in delivery summary.
 
+**Mode-convergence summary:** Run `scripts/derive-mode-convergence-summary.sh <task-dir> --status final`. Include escalation reason distribution and convergence yield in delivery summary.
+
 **Output:** Delivery summary with fitness report, evidence, uncertainty, next actions, and Feature Matrix triage updates.
 
 ## How to Dispatch Runners
@@ -324,6 +337,8 @@ Agent tool:
 ```
 
 **IMPORTANT: Always set `mode: auto`** for runners and sentinels. Without this, subagents start with an empty allow list under dontAsk mode — even when the parent session allows Write/Edit/Bash. `auto` inherits the parent's allow/deny lists and auto-approves without prompting. Do NOT use `bypassPermissions` — it skips deny lists and may skip hooks.
+
+tmup-managed Codex lanes are the deliberate exception to the disposable-runner pattern. When you choose tmup, do not copy this packet verbatim into a pane. tmup already injects the baseline runtime contract, lane discipline, tmux input model, process context, quality posture, internal team rules, and `tmup-cli` reference. Add only the mission-specific delta, then supervise the lane with `harvest -> evaluate -> reprompt`. If the lane still has the right context, reuse it instead of spawning a replacement.
 
 For Sentinel dispatch:
 ```
@@ -444,6 +459,8 @@ After Scout phase completes, the task directory contains:
 - `system-stress-events.jsonl` — Stressor lifecycle events (promotions, retirements)
 - `decision-noise-summary.yaml` — Per-task decision-noise metrics (created during Synthesize). Schema: `references/decision-noise-schema.md`.
 - `review-passes.jsonl` — System-level canonical review pass ledger at `docs/sdlc/decision-noise/review-passes.jsonl`
+- `mode-convergence-summary.yaml` — Per-task execution mode, convergence history, escalation log (created during Synthesize). Schema: `references/mode-convergence-schema.md`.
+- `system-mode-convergence.jsonl` — System-level mode/convergence ledger
 
 ### Track
 After each runner completes:
@@ -462,6 +479,8 @@ When all beads are proven, hardened (or AQS-skipped), and merged:
 
 **Stress Complete gate (stressed tasks only):** artifact_status is `final`. Stressor library updated. System stress ledger entry appended. Subtraction candidates logged.
 
+**Mode-convergence Complete:** Run `scripts/append-system-mode-convergence.sh <task-dir> <project-dir>`.
+
 1. Write `delivery.md` — the final handoff summary
 2. Move task directory from `active/` to `completed/` (optional)
 
@@ -473,6 +492,7 @@ When all beads are proven, hardened (or AQS-skipped), and merged:
 - **Sentinel as gatekeeper** — The sentinel advises. You decide. Don't create approval bottlenecks.
 - **Over-decomposition** — Don't create 20 beads for a 3-file change. Match decomposition to complexity.
 - **Under-supervision** — Don't skip sentinel checks on "simple" work. Problems hide in simple changes.
+- **Fire-and-forget tmup lanes** — tmup workers are supervised external subagents, not batch jobs. Harvest, evaluate, and reprompt them.
 
 ## Quick Reference
 
@@ -482,5 +502,5 @@ When all beads are proven, hardened (or AQS-skipped), and merged:
 | Frame | sonnet-investigator | haiku-evidence | — | — | Define mission, scope, criteria |
 | Scout | sonnet-investigator + convention-scanner + gap-analyst (Finder) + standards-curator + safety-constraints-guardian | haiku-evidence | — | — | Gather context, map conventions, find gaps, discover standards |
 | Architect | sonnet-designer + safety-analyst (if STPA applies) | haiku-verifier | — | — | Choose approach, create bead manifest |
-| Execute | sonnet-implementer (parallel OK) + crossmodel-supervisor (if FFT-14) | haiku-verifier + drift-detector + convention-enforcer + simplicity-auditor + safety-constraints-guardian | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
+| Execute | sonnet-implementer (parallel OK) or tmup-managed Codex lanes (when warm context / interactive supervision helps) + crossmodel-supervisor (if FFT-14) | haiku-verifier + drift-detector + convention-enforcer + simplicity-auditor + safety-constraints-guardian | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
 | Synthesize | sonnet-reviewer + gap-analyst (Finisher) + normalizer (Final Pass) + losa-observer + reliability-ledger + llm-self-security | haiku-handoff | oracle L1+L2+L3 (integration) | fitness report (full, includes Conventions) | Merge results, deliver |
