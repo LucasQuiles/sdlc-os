@@ -53,6 +53,29 @@ fi
 
 export TMUP_NO_TERMINAL=1
 
+# --- Sync tmup tiered custom agents into ~/.codex/agents ---
+
+TMUP_SYNC_SCRIPT=""
+for candidate in \
+  "$(cd "$(dirname "$0")/../.." && pwd)/tmup/scripts/sync-codex-agents.sh" \
+  "${HOME}/.claude/plugins/tmup/scripts/sync-codex-agents.sh" \
+  "${HOME}/.local/share/tmup/scripts/sync-codex-agents.sh"; do
+  if [[ -f "$candidate" ]]; then
+    TMUP_SYNC_SCRIPT="$candidate"
+    break
+  fi
+done
+
+if [[ -z "$TMUP_SYNC_SCRIPT" ]]; then
+  printf 'TMUP sync script not found — expected tmup/scripts/sync-codex-agents.sh alongside sdlc-os\n' >&2
+  exit 2
+fi
+
+if ! bash "$TMUP_SYNC_SCRIPT" >/dev/null; then
+  printf 'Failed to sync tmup custom Codex agents via %s\n' "$TMUP_SYNC_SCRIPT" >&2
+  exit 2
+fi
+
 # --- Check for existing session ---
 
 if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then

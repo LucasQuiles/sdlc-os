@@ -51,6 +51,13 @@ if [[ -z "$TMUP_ENTRY" ]]; then
   fail "TMUP_MISSING" "tmup MCP entry point not found — expected tmup plugin alongside sdlc-os"
 fi
 
+TMUP_PLUGIN_DIR="$(cd "$(dirname "$TMUP_ENTRY")" && pwd)"
+TMUP_SYNC_SCRIPT="${TMUP_PLUGIN_DIR}/scripts/sync-codex-agents.sh"
+
+if [[ ! -f "$TMUP_SYNC_SCRIPT" ]]; then
+  fail "TMUP_SYNC_MISSING" "tmup sync-codex-agents.sh not found — cross-model review requires tmup tiered agent sync support"
+fi
+
 # --- Check 4: Artifact path writable ---
 
 ARTIFACT_BASE=""
@@ -123,8 +130,9 @@ fi
 
 # --- All checks passed ---
 
-printf '{"ready":true,"tmux_version":"%s","codex_version":"%s","tmup_entry":"%s","artifact_base":"%s"}\n' \
+printf '{"ready":true,"tmux_version":"%s","codex_version":"%s","tmup_entry":"%s","tmup_sync":"%s","artifact_base":"%s"}\n' \
   "$TMUX_VERSION" \
   "$CODEX_VERSION" \
   "$TMUP_ENTRY" \
+  "$TMUP_SYNC_SCRIPT" \
   "${ARTIFACT_BASE:-n/a}"

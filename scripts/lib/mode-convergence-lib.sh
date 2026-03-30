@@ -74,6 +74,10 @@ else:
     winner = 'rule_based'
     conf = 'low'
 
+_allowed_modes = {'skill_based', 'rule_based', 'knowledge_based'}
+if winner not in _allowed_modes:
+    print(f'ERROR: Invalid classification {winner!r}. Allowed: {sorted(_allowed_modes)}', file=sys.stderr)
+
 print(json.dumps({'classification': winner, 'confidence': conf}))
 " "$tpb" "$ztr" "$lat" "$esc" "$rules"
 }
@@ -171,6 +175,10 @@ elif state == 'stuck':
         recommendation = rec['stuck_within_budget']
     else:
         recommendation = rec['stuck_over_budget']
+
+_allowed_states = {'converging', 'stable', 'diverging', 'stuck'}
+if state not in _allowed_states:
+    print(f'ERROR: Invalid convergence_state {state!r}. Allowed: {sorted(_allowed_states)}', file=sys.stderr)
 
 print(json.dumps({
     'cycle': cycle,

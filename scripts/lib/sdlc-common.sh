@@ -21,3 +21,14 @@ count_by_pattern() {
 check_pyyaml() {
   python3 -c "import yaml" 2>/dev/null
 }
+
+# Validate a value against an allowed set. Returns 0 if valid, 1 if not.
+# Usage: validate_enum "healthy" "healthy warning depleted"
+validate_enum() {
+  local value="$1" allowed="$2"
+  for v in $allowed; do
+    [[ "$v" == "$value" ]] && return 0
+  done
+  echo "ERROR: Invalid value '$value'. Allowed: $allowed" >&2
+  return 1
+}

@@ -61,6 +61,41 @@ Steps 2 and 3 are separate: `tmup_init` creates the SQLite session/DB; `crossmod
 
 ---
 
+## tmup Runtime Contract
+
+Cross-model workers inherit tmup's current interactive Codex worker contract automatically:
+
+- Root pane workers launch on `gpt-5.4`
+- `model_context_window=1050000`
+- `model_auto_compact_token_limit=750000`
+- `model_reasoning_effort=high`
+- `model_reasoning_summary=low`
+- `plan_mode_reasoning_effort=xhigh`
+- `model_verbosity=low`
+- `service_tier=fast`
+- `tool_output_token_limit=50000`
+- `web_search=live`
+- `history.persistence=save-all`
+- `features.undo=true`
+- `shell_environment_policy.inherit=all`
+- `features.shell_snapshot=true`
+- `features.enable_request_compression=true`
+- `tui.notifications=true`
+- `background_terminal_max_timeout=600000`
+- `agents.max_threads=6`
+- `agents.max_depth=2`
+- `agents.job_max_runtime_seconds=3600`
+
+Tiered tmup subagents are available inside each pane:
+
+- `tmup-tier1` — `gpt-5.3-codex`
+- `tmup-tier2` — `gpt-5.2-codex`
+- `crossmodel-grid-up.sh` syncs these definitions into `~/.codex/agents/` before declaring the grid ready
+
+Resumed workers keep the same contract. `tmup_dispatch` with `resume_session_id` reapplies the configured model, context, compaction, approval, sandbox, and subagent-cap settings on resume.
+
+---
+
 ## Stage A — Red Team Supplement
 
 **FULL:** 4 Codex investigator workers, one per AQS domain (functionality, security, usability, resilience).
@@ -98,12 +133,16 @@ Each worker declares a unique `produces` artifact name at batch creation:
 | Stage A per domain | `{bead-id}-stage-a-{domain}-findings` | `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-a-{domain}-investigator.md` |
 | Stage B reviewer | `{bead-id}-stage-b-independent-review-findings` | `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-b-independent-reviewer.md` |
 
-**Worker communication protocol:** Every worker dispatch prompt MUST include the tmup-cli protocol block (see `agents/crossmodel-supervisor.md` Step 5). Workers are expected to:
+**Worker communication protocol:** tmup already injects the baseline worker contract: runtime settings, lane discipline, tmux input model, process context, quality posture, internal teams, and tmup-cli command reference. Cross-model dispatch prompts should add only the mission-specific delta (blindness constraints, artifact contract, checkpoint cadence, and domain focus). Workers are expected to:
 1. Call `tmup-cli heartbeat` every 2-3 minutes
 2. Call `tmup-cli checkpoint` for progress updates (at least 1 within first 2 minutes)
 3. Call `tmup-cli message --to lead --type finding` for interim findings
 4. Write the findings file to the artifact path
 5. Call `tmup-cli complete "summary" --artifact {name}:{path}` to register the artifact and signal completion
+
+**Internal teams:** Cross-model workers should use tmup's tiered internal teams when the work decomposes cleanly. Root workers may spawn `tmup-tier1`; tier-1 workers may spawn `tmup-tier2` for narrow leaf tasks. Do not spawn unnamed/raw agents.
+
+**Supervision pattern:** The supervisor manages these panes with the harvest → evaluate → reprompt loop. Keep live lane context warm and prefer reprompting the same pane over dispatching a replacement worker.
 
 The `tmup-cli complete --artifact` call is the **authoritative completion signal** — not file existence. It registers the artifact checksum in tmup's database. The supervisor uses `tmup_status` to detect completion, not filesystem polling.
 
@@ -157,8 +196,8 @@ From spec Section 6.5:
 | `tmup_init` fails | Log, DISABLED for this bead, Claude-only |
 | `crossmodel-grid-up.sh` fails | `crossmodel-grid-down.sh --force` (deregisters from tmup registry + kills tmux residue) → retry `tmup_init` with `xm-{bead-id}-r1`. If retry fails → DISABLED |
 | Worker launch fails | Mark unavailable, skip, continue surviving workers |
-| Worker idle | `tmup_reprompt` once, then timeout |
-| Worker timeout (>10min) | `tmup_harvest` for forensics, mark TIMED_OUT, optional one replacement |
+| Worker idle | `tmup_harvest` → evaluate lane state → `tmup_reprompt` once, then timeout |
+| Worker timeout (>10min) | `tmup_harvest` for supervision + forensics, mark TIMED_OUT, optional resume or one replacement |
 | Worker completes without artifact | NO_EVIDENCE (not clean) |
 | Artifact malformed | One repair request, then NO_EVIDENCE |
 | `crossmodel-grid-down.sh` fails | Warning only, note residue in session journal |
@@ -187,12 +226,12 @@ From spec Section 6.6:
 |---|---|---|
 | `tmup_init` | Create SQLite session/DB | Create tmux grid — `crossmodel-grid-up.sh` does that |
 | `tmup_task_batch` | Register all worker tasks with unique `produces` names | Launch workers — `tmup_dispatch` does that |
-| `tmup_dispatch` | Launch Codex workers to grid panes | Retry on failure — mark skipped and continue |
+| `tmup_dispatch` | Launch or resume Codex workers to grid panes under the tmup runtime contract | Retry on failure — mark skipped and continue |
 | `tmup_status` | Primary heartbeat + stale-agent recovery trigger | Serve as sole monitoring signal |
 | `tmup_inbox` | Check for blocker/finding messages from workers | Replace `tmup_status` in monitor loop |
 | `tmup_next_action` | Synthesized recommendation | Override human judgment — advisory only |
-| `tmup_reprompt` | First recovery step for idle-but-alive workers | Replace timeout for unresponsive workers |
-| `tmup_harvest` | Debug / timeout / forensics ONLY | Serve as primary evidence path |
+| `tmup_reprompt` | Primary way to continue or redirect an existing live lane | Replace timeout for unresponsive workers |
+| `tmup_harvest` | Observe pane state before reprompt / timeout / replacement decisions | Serve as primary findings evidence path |
 | `tmup_teardown` | Notify agents, log session end | Kill tmux — `crossmodel-grid-down.sh` does that |
 
 ### Session Control Model
@@ -201,11 +240,11 @@ Workers dispatched via `tmup_dispatch` are persistent interactive Codex sessions
 
 | Tool | Session role | What it is NOT |
 |---|---|---|
-| `tmup_dispatch` | Start or resume a persistent interactive session in a pane | Not a fire-and-forget exec call |
+| `tmup_dispatch` | Start or resume a persistent interactive session in a pane; resumes now reapply the same tmup runtime contract | Not a fire-and-forget exec call |
 | `tmup_reprompt` | Send follow-up text to an idle or queueable session via send-keys | Not a new command or process launch |
 | `tmup_harvest` | Read pane scrollback — observation only | Not a communication channel to the worker |
 
-Do not run `codex exec`, Bash commands, or any direct shell interaction in worker panes. All follow-up text into the worker's pane goes through `tmup_reprompt`. Structured inter-agent messaging uses `tmup_send_message` / `tmup_inbox` separately.
+Do not run `codex exec`, Bash commands, or any direct shell interaction in worker panes. All follow-up text into the worker's pane goes through `tmup_reprompt`. Structured inter-agent messaging uses `tmup_send_message` / `tmup_inbox` separately. Reuse the existing lane whenever it still holds relevant context; replacement workers are a fallback, not the normal control path.
 
 ---
 
@@ -214,7 +253,7 @@ Do not run `codex exec`, Bash commands, or any direct shell interaction in worke
 | Script | Role |
 |---|---|
 | `crossmodel-preflight.sh` | Verify environment: tmup MCP reachable, codex in PATH, tmux available, artifact path writable, no conflicting session |
-| `crossmodel-grid-up.sh` | Create tmux panes for all workers; set `TMUP_NO_TERMINAL=1` to suppress GUI terminal launch in autonomous SDLC path |
+| `crossmodel-grid-up.sh` | Create tmux panes for all workers; set `TMUP_NO_TERMINAL=1` to suppress GUI terminal launch in autonomous SDLC path; sync tmup tiered agents before declaring the grid ready |
 | `crossmodel-grid-down.sh` | Tear down tmux grid + clean residue. `--force`: also deregisters session from tmup registry (`registry.json`) to prevent reattachment on retry |
 | `crossmodel-verify-artifact.sh` | Validate artifact: existence, path, size, required headings, findings table, checksum. `--expected-checksum` flag on re-verification |
 | `crossmodel-health.sh` | Compute session health state from worker statuses for circuit breaker evaluation |

@@ -55,62 +55,52 @@ print(s.get('sampled_rate', 0.50), s.get('anti_turkey_rate', 0.30), s.get('horme
     clean_streak_threshold="5"
   fi
 
+  local _result
+
   # Cue 1: INVESTIGATE or EVOLVE → SKIP
   # Exploratory beads have undefined acceptance criteria; injecting stress yields false
   # positives because "failure" has no agreed meaning until the investigation concludes.
   if [[ "$profile" == "INVESTIGATE" || "$profile" == "EVOLVE" ]]; then
-    echo "SKIP"
-    return
-  fi
-
+    _result="SKIP"
   # Cue 2: budget DEPLETED → FULL stress
   # When the quality budget is already exhausted, every bead is suspect; full stress
   # maximises defect surface before any further work lands.
-  if [[ "$budget_state" == "depleted" ]]; then
-    echo "FULL"
-    return
-  fi
-
+  elif [[ "$budget_state" == "depleted" ]]; then
+    _result="FULL"
   # Cue 3: complex + security-sensitive → TARGETED stress
   # Security beads in the complex Cynefin domain have emergent failure modes that only
   # targeted adversarial probes (not random sampling) can reliably surface.
-  if [[ "$has_complex_security" == "true" ]]; then
-    echo "TARGETED"
-    return
-  fi
-
+  elif [[ "$has_complex_security" == "true" ]]; then
+    _result="TARGETED"
   # Cue 4: budget WARNING → SAMPLED at sampled_rate probability
   # Warning state means the budget is degraded but not exhausted; probabilistic sampling
   # applies pressure without the full overhead of Cue 2.
-  if [[ "$budget_state" == "warning" ]]; then
+  elif [[ "$budget_state" == "warning" ]]; then
     if [ "$(echo "$seed < $sampled_rate" | bc -l)" -eq 1 ]; then
-      echo "SAMPLED"
+      _result="SAMPLED"
     else
-      echo "SKIP"
+      _result="SKIP"
     fi
-    return
-  fi
-
   # Cue 5: clean streak >= threshold → ANTI_TURKEY at anti_turkey_rate probability
   # Long zero-escape streaks risk complacency ("turkey problem"); occasional stress
   # prevents the team from mistaking silence for safety.
-  if [ "$clean_streak" -ge "$clean_streak_threshold" ]; then
+  elif [ "$clean_streak" -ge "$clean_streak_threshold" ]; then
     if [ "$(echo "$seed < $anti_turkey_rate" | bc -l)" -eq 1 ]; then
-      echo "ANTI_TURKEY"
+      _result="ANTI_TURKEY"
     else
-      echo "SKIP"
+      _result="SKIP"
     fi
-    return
-  fi
-
   # Cue 6: baseline HORMETIC sampling at hormetic_rate probability
   # Low-dose stress even when healthy keeps the stress harness calibrated and surfaces
   # latent fragility before it accumulates into a budget failure.
-  if [ "$(echo "$seed < $hormetic_rate" | bc -l)" -eq 1 ]; then
-    echo "HORMETIC"
+  elif [ "$(echo "$seed < $hormetic_rate" | bc -l)" -eq 1 ]; then
+    _result="HORMETIC"
   else
-    echo "SKIP"
+    _result="SKIP"
   fi
+
+  validate_enum "$_result" "FULL TARGETED SAMPLED ANTI_TURKEY HORMETIC SKIP" || true
+  echo "$_result"
 }
 
 # select_applicable_stressors <library_path> <cynefin_domain> <tags_csv>
@@ -170,29 +160,27 @@ compute_stress_yield() {
 # Outputs one of: promote | retire | unchanged
 compute_lindy_transition() {
   local lindy_status="$1" times_applied="$2" catch_rate="$3" last5_misses="$4"
+  local _result="unchanged"
 
   case "$lindy_status" in
     provisional)
       if [ "$times_applied" -ge 3 ] && [ "$catch_rate" != "null" ] && \
          [ "$(echo "$catch_rate > 0" | bc -l)" -eq 1 ]; then
-        echo "promote"
-        return
-      fi
-      if [ "$times_applied" -ge 5 ] && ( [ "$catch_rate" = "null" ] || \
+        _result="promote"
+      elif [ "$times_applied" -ge 5 ] && ( [ "$catch_rate" = "null" ] || \
          [ "$(echo "$catch_rate == 0" | bc -l)" -eq 1 ] ); then
-        echo "retire"
-        return
+        _result="retire"
       fi
       ;;
     established)
       if [ "$times_applied" -ge 10 ] && [ "$last5_misses" -eq 5 ]; then
-        echo "retire"
-        return
+        _result="retire"
       fi
       ;;
   esac
 
-  echo "unchanged"
+  validate_enum "$_result" "promote retire unchanged" || true
+  echo "$_result"
 }
 
 # now_utc() provided by sdlc-common.sh
