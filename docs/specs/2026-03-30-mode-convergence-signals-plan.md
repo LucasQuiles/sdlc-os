@@ -256,9 +256,11 @@ print(f'{entropy:.3f}')
 }
 
 # Compute full convergence signal from cycle data
-# Usage: compute_convergence_signal new_findings repeated_findings severity_trend entropy_estimate cycle_budget current_cycle <rules_file>
+# Usage: compute_convergence_signal new_findings repeated_findings severity_trend entropy_estimate original_budget current_cycle <rules_file>
+# IMPORTANT: original_budget is the INITIAL budget, not the current (possibly extended) budget.
+# This prevents runaway extensions past 2x the original.
 compute_convergence_signal() {
-  local new="$1" repeated="$2" sev_trend="$3" entropy="$4" budget="$5" cycle="$6" rules="$7"
+  local new="$1" repeated="$2" sev_trend="$3" entropy="$4" original_budget="$5" cycle="$6" rules="$7"
   python3 -c "
 import yaml, sys, json
 with open(sys.argv[7]) as f:
@@ -271,7 +273,7 @@ new_f = int(sys.argv[1])
 repeated_f = int(sys.argv[2])
 sev_trend = sys.argv[3]
 entropy = float(sys.argv[4])
-budget = int(sys.argv[5])
+original_budget = int(sys.argv[5])  # INITIAL budget, not current
 cycle = int(sys.argv[6])
 
 total = new_f + repeated_f
@@ -279,12 +281,12 @@ evidence_rate = new_f / total if total > 0 else 0.0
 
 if evidence_rate >= c['evidence_rate_converging'] and sev_trend != 'escalating':
     state = 'converging'
-elif evidence_rate < c['evidence_rate_stable'] and sev_trend == 'stable':
-    state = 'stable'
 elif sev_trend == 'escalating':
     state = 'diverging'
-elif evidence_rate < c['evidence_rate_converging'] and entropy < c['entropy_stuck_threshold']:
-    state = 'stuck'
+elif evidence_rate < c['evidence_rate_stable'] and entropy < c['entropy_stuck_threshold']:
+    state = 'stuck'  # low evidence + low entropy = same issues repeating, loop is stuck
+elif evidence_rate < c['evidence_rate_stable'] and sev_trend == 'stable':
+    state = 'stable'  # low evidence + diverse categories = genuinely exhausted search space
 else:
     state = 'stuck'
 
@@ -295,7 +297,7 @@ elif state == 'stable':
 elif state == 'diverging':
     recommendation = rec['diverging']
 elif state == 'stuck':
-    if cycle < budget * max_mult:
+    if cycle < original_budget * max_mult:
         recommendation = rec['stuck_within_budget']
     else:
         recommendation = rec['stuck_over_budget']
@@ -372,7 +374,7 @@ severity_trend → convergence_state → recommendation."
 
 - [ ] **Step 1: Create summary derivation script**
 
-Write `scripts/derive-mode-convergence-summary.sh`. Takes `<task-dir>`. Reads quality-budget.yaml (for SRK signals), bead convergence history (from bead files or a collected convergence log), and escalation log. Produces `mode-convergence-summary.yaml` with: execution_mode, convergence_history, escalation_log, summary (total_escalations, reason_distribution, dominant_reason, early_stops, budget_extensions, approach_changes, mode_transitions).
+Write `scripts/derive-mode-convergence-summary.sh`. Takes `<task-dir>`. Reads quality-budget.yaml (for SRK signals), bead convergence history (from bead files or a collected convergence log), and escalation log. Produces `mode-convergence-summary.yaml` with: execution_mode (computed once, final classification), convergence_history, escalation_log, summary (total_escalations, reason_distribution, dominant_reason, early_stops, budget_extensions, approach_changes). `mode_transitions` is deferred to v2 (requires per-iteration snapshots not collected in v1).
 
 Sources mode-convergence-lib.sh. Add PyYAML guard. Accepts `--status partial|final`.
 
@@ -475,11 +477,11 @@ After each AQS cycle, compute convergence signal:
 3. Compute `entropy_estimate` over finding category distribution (Shannon entropy)
 4. Run `scripts/compute-convergence-signal.sh` with cycle data
 
-Act on recommendation:
+Act on the `recommendation` field (not `convergence_state`):
 - `stop_early` → skip remaining AQS cycles (findings are repetitive, no new information)
 - `continue` → proceed to next cycle within budget
-- `diverging` → mandatory next cycle regardless of budget (severity is escalating)
-- `stuck` → if within 2x budget, extend; else escalate
+- `change_approach` → mandatory next cycle regardless of budget + escalate with structured reason
+- `extend_budget` → add 1 cycle if within 2x original budget
 
 The prior 3-indicator check (low diversity, low severity, low volume) is subsumed by this convergence signal.
 ```
@@ -509,7 +511,7 @@ AQS convergence replaces 3-indicator heuristic with evidence-rate
 In Execute phase, after bead completion handling, add:
 
 ```markdown
-**Execution mode classification:** After Execute phase completes, run `scripts/classify-execution-mode.sh <task-dir>` to compute the Rasmussen SRK classification from quality-budget.yaml telemetry. Log mode transitions if classification changes during task.
+**Execution mode classification:** After Execute phase completes, run `scripts/classify-execution-mode.sh <task-dir>` to compute the Rasmussen SRK classification from quality-budget.yaml telemetry. Classification is computed once from final telemetry (mode_transitions deferred to v2).
 ```
 
 - [ ] **Step 2: Add mode-convergence summary to Synthesize**
@@ -579,7 +581,7 @@ Add: "When dispatching evolution beads, check `system-mode-convergence.jsonl` fo
 
 - [ ] **Step 4: Update process-drift-monitor**
 
-Add: "Mode-transition detection from `system-mode-convergence.jsonl`: if tasks that start as `skill_based` frequently transition to `knowledge_based` during execution, decomposition may be underestimating complexity. Escalation-reason clustering: if the same reason dominates 5+ consecutive tasks, flag as systematic issue."
+Add: "Escalation-reason clustering from `system-mode-convergence.jsonl`: if the same reason dominates 5+ consecutive tasks, flag as systematic issue. Convergence yield trend: if convergence_yield is declining, loop stopping logic may need recalibration." (Mode-transition detection deferred to v2 — v1 computes mode once per task, not per-iteration.)
 
 - [ ] **Step 5: Update normalize, artifact-templates, README**
 
@@ -657,6 +659,36 @@ echo "Stable: $RESULT"
 RESULT=$(compute_convergence_signal 3 2 escalating 1.5 2 1 references/mode-convergence-rules.yaml)
 echo "Diverging: $RESULT"
 # Expected: convergence_state: diverging, recommendation: change_approach
+
+# Stuck (entropy-driven): low evidence rate + low entropy (< 1.0) = same issues repeating
+RESULT=$(compute_convergence_signal 1 8 stable 0.5 2 1 references/mode-convergence-rules.yaml)
+echo "Stuck (low entropy): $RESULT"
+# Expected: convergence_state: stuck (NOT stable), recommendation: extend_budget
+# This tests the fix where entropy < 1.0 differentiates stuck from stable
+
+# Stable (high entropy): low evidence rate + high entropy (>= 1.0) = genuinely exhausted
+RESULT=$(compute_convergence_signal 1 8 stable 1.5 2 2 references/mode-convergence-rules.yaml)
+echo "Stable (high entropy): $RESULT"
+# Expected: convergence_state: stable, recommendation: stop_early
+```
+
+- [ ] **Step 4b: Test SRK boundary values**
+
+```bash
+# Exact boundary: turbulence_sum_per_bead = 1.0 should be rule_based (inclusive)
+RESULT=$(classify_execution_mode 1.0 0.80 60 1 references/mode-convergence-rules.yaml)
+echo "Boundary 1.0/0.80/60/1: $RESULT"
+# Expected: rule_based (all 4 signals are at the inclusive boundary)
+
+# Just below skill threshold: 0.99 turbulence
+RESULT=$(classify_execution_mode 0.99 0.81 59 0 references/mode-convergence-rules.yaml)
+echo "Just-below-skill: $RESULT"
+# Expected: skill_based, confidence: high (all 4 strict < boundaries met)
+
+# Just above knowledge threshold: 3.01 turbulence
+RESULT=$(classify_execution_mode 3.01 0.49 301 3 references/mode-convergence-rules.yaml)
+echo "Just-above-knowledge: $RESULT"
+# Expected: knowledge_based, confidence: high (all 4 strict > boundaries met)
 ```
 
 - [ ] **Step 5: Spot-check integration points**
