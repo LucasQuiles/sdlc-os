@@ -69,7 +69,7 @@ derived_at: "2026-03-29T14:22:00Z"  # UTC ISO 8601
 last_updated: "2026-03-29T14:22:00Z"
 
 summary:
-  qualifying_beads: 0       # beads that triggered STPA (COMPLEX or security_sensitive)
+  qualifying_beads: 0       # beads that triggered STPA (COMPLEX or `security_sensitive: true`)
   records_total: 0          # total HDL records across all qualifying beads
   records_with_defense: 0   # records with at least one intended_defense
   records_without_defense: 0 # records with no intended defense (open risk)
@@ -80,7 +80,7 @@ summary:
 records:
   - id: "HDL-{bead-id}-{CA-index}-{UCA-index}"
     bead_id: ""
-    cynefin_domain: complex | chaotic
+    cynefin_domain: clear | complicated | complex | chaotic  # any domain — trigger is complex OR security_sensitive
     security_sensitive: true | false
 
     # === STPA core (seeded by safety-analyst) ===
@@ -146,12 +146,39 @@ ELSE:
 
 ### Seeded (Architect / pre-Execute)
 
-`safety-analyst` runs STPA analysis for qualifying beads (COMPLEX or security_sensitive). For each control action + UCA pair, creates a ledger record with:
-- STPA core fields populated (interface, controller, control_action, hazard, UCA)
-- `safety_constraint` cross-referenced from `references/safety-constraints.md`
-- `intended_defenses` seeded based on UCA category and existing defense layer mapping
+`safety-analyst` runs STPA analysis for qualifying beads (COMPLEX or `security_sensitive: true`). The agent MUST produce a structured intermediate artifact — `docs/sdlc/active/{task-id}/stpa-analysis.yaml` — not prose. This artifact is the input to the seeding script.
+
+#### safety-analyst Output Contract (`stpa-analysis.yaml`)
+
+```yaml
+schema_version: 1
+task_id: ""
+beads_analyzed:
+  - bead_id: ""
+    cynefin_domain: ""
+    security_sensitive: false
+    control_actions:
+      - interface: 0
+        controller: ""
+        action: ""
+        hazard: ""
+        ucas:
+          - category: not_provided | wrong_timing_or_order | stopped_too_soon | applied_too_long
+            scenario: ""
+            safety_constraint: ""  # SC-NNN or null
+            suggested_defenses:
+              - layer: L0 | L1 | L2 | L2_5 | L2_75
+                mechanism: ""
+```
+
+The seeding script (`scripts/seed-hazard-defense-ledger.sh`) reads this structured output and produces `hazard-defense-ledger.yaml` with one HDL record per bead + control_action + UCA combination. For each record:
+- STPA core fields populated from the analysis
+- `safety_constraint` cross-referenced from the analysis
+- `intended_defenses` seeded from `suggested_defenses`
 - `status: open`
 - `actual_catch_point: null`
+
+The existing bead-field population (`control_actions`, `unsafe_control_actions`) becomes a projection step that writes compact summaries to bead files after the ledger is seeded.
 
 ### Active (Execute)
 
@@ -178,7 +205,7 @@ Every record must be resolved:
 
 | Field | Source |
 |-------|--------|
-| `summary.qualifying_beads` | Count of beads with `cynefin_domain: complex/chaotic` or `security_sensitive: true` |
+| `summary.qualifying_beads` | Count of beads with `cynefin_domain: complex` or `security_sensitive: true` |
 | `summary.records_total` | Count of records in `records` array |
 | `summary.records_with_defense` | Records where `intended_defenses` is non-empty |
 | `summary.records_without_defense` | Records where `intended_defenses` is empty |
@@ -215,7 +242,7 @@ This preserves local usability in the bead file without duplicating the canonica
 
 ### Pre-Execute Gate (STPA-required beads only)
 
-For beads where `cynefin_domain` is COMPLEX or `security_sensitive` is true:
+For beads where `cynefin_domain` is COMPLEX or `security_sensitive` is true (the canonical STPA trigger rule from `agents/safety-analyst.md`):
 - `hazard-defense-ledger.yaml` must exist with `artifact_status: seeded`
 - At least one record must exist for each qualifying bead
 
@@ -260,7 +287,8 @@ Late-arriving corrections:
 | File | Purpose |
 |------|---------|
 | `scripts/lib/hazard-defense-lib.sh` | Shared helpers: record ID generation, summary derivation, coverage_state computation |
-| `scripts/seed-hazard-defense-ledger.sh` | Reads safety-analyst output → creates seeded hazard-defense-ledger.yaml |
+| `scripts/seed-hazard-defense-ledger.sh` | Reads `stpa-analysis.yaml` → creates seeded hazard-defense-ledger.yaml |
+| (runtime artifact) `docs/sdlc/active/{task-id}/stpa-analysis.yaml` | Structured intermediate output from safety-analyst; input to seeding script |
 | `scripts/derive-hazard-defense-summary.sh` | Recomputes summary fields from records array |
 | `scripts/append-system-hazard-defense.sh` | Reads final ledger → appends to system-hazard-defense.jsonl |
 | `references/hazard-defense-schema.md` | Canonical schema documentation |
@@ -284,11 +312,14 @@ Late-arriving corrections:
 | `agents/losa-observer.md` | Add escape reporting to system-hazard-defense-events.jsonl |
 | `references/artifact-templates.md:30-32` | Replace Phase B placeholders with projection rules |
 | `references/stpa-control-structure.md:4` | Update "Maintained per Phase B" note to reference hazard-defense-ledger.yaml; add ledger as telemetry artifact |
-| `hooks/scripts/validate-decision-trace.sh:90-124` | Update Phase B enforcement to check ledger existence instead of raw bead field presence |
+| `hooks/scripts/validate-decision-trace.sh:90-124` | Update Phase B enforcement: (1) check ledger exists AND has at least one record for the bead being validated (task-level existence alone is insufficient per pre-Execute gate); (2) fix the `Cynefin:` → `Cynefin domain:` field-name bug at line 92 — the hook parses `**Cynefin:**` but the bead contract uses `**Cynefin domain:**`, causing complex non-security beads to slip through STPA enforcement |
 | `hooks/hooks.json` | Add validate-hazard-defense-ledger.sh PostToolUse hook |
 | `hooks/tests/test-hooks.sh` | Add HDL validation test cases |
 | `skills/sdlc-gate/SKILL.md` | Add hazard-defense-ledger checks for COMPLEX/security-sensitive transitions |
 | `skills/sdlc-adversarial/SKILL.md:96` | Update AQS probe selection to read from ledger records instead of bead UCA fields |
+| `skills/sdlc-normalize/SKILL.md:64` | Add `hazard-defense-ledger.yaml` to resume artifact list (alongside quality-budget.yaml, standards-profile.md) |
+| `references/artifact-templates.md` (task artifact table) | Add `hazard-defense-ledger.yaml` to the Task Artifacts table created in Phase 1 (required for COMPLEX/security-sensitive work, gates Synthesize and Complete) |
+| `agents/safety-analyst.md` (output contract) | Define `stpa-analysis.yaml` as the structured intermediate output format; replace prose-based bead field population with YAML output |
 | `README.md` | Add hazard-defense-ledger artifacts to table; update hook count |
 
 ### Files Unchanged but Consuming
