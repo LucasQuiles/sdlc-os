@@ -141,10 +141,24 @@ print(f'{math.sqrt(sum(vals)):.3f}')
 }
 
 # Check if a review_pass_id already exists in the ledger (idempotent guard)
+# Uses python3 JSON parsing — not grep — to handle any whitespace formatting
 # Usage: pass_exists "review-passes.jsonl" "rp_20260330_001"
 pass_exists() {
   local ledger="$1" pass_id="$2"
-  grep -q "\"review_pass_id\":\"${pass_id}\"" "$ledger" 2>/dev/null
+  [ -f "$ledger" ] || return 1
+  python3 -c "
+import json, sys
+target = sys.argv[1]
+with open(sys.argv[2]) as f:
+    for line in f:
+        try:
+            r = json.loads(line.strip())
+            if r.get('review_pass_id') == target:
+                sys.exit(0)
+        except json.JSONDecodeError:
+            continue
+sys.exit(1)
+" "$pass_id" "$ledger"
 }
 
 # Append a review pass record (with idempotent guard)
@@ -166,22 +180,39 @@ append_review_pass() {
 detect_escalations() {
   local pass1="$1" pass2="$2" rules="$3"
   python3 -c "
-import json, sys
+import json, sys, yaml
 
 p1 = json.loads('''$pass1''')
 p2 = json.loads('''$pass2''')
 
+# Read thresholds from rules file (not hardcoded)
+with open('$rules') as rf:
+    rules = yaml.safe_load(rf)
+esc_rules = rules.get('soft_escalation', {})
+divergence_threshold = esc_rules.get('map_bucket_divergence', 2)
+drift_threshold = esc_rules.get('anchoring_drift_buckets', 2)
+
 escalations = []
 
 # Verdict flip
-if p1.get('verdict',{}).get('decision') != p2.get('verdict',{}).get('decision'):
-    escalations.append('verdict_flip')
+if esc_rules.get('verdict_flip', True):
+    if p1.get('verdict',{}).get('decision') != p2.get('verdict',{}).get('decision'):
+        escalations.append('verdict_flip')
 
-# MAP bucket divergence (2+)
+# MAP bucket divergence (threshold from rules)
 m1 = p1.get('map', {}); m2 = p2.get('map', {})
 for dim in ['evidence_strength', 'impact_severity']:
-    if abs(m1.get(dim, 3) - m2.get(dim, 3)) >= 2:
+    if abs(m1.get(dim, 3) - m2.get(dim, 3)) >= divergence_threshold:
         escalations.append(f'map_divergence_{dim}')
+
+# Unbacked high-severity claims (available reference class but no hits/sample)
+if esc_rules.get('unbacked_high_severity', True):
+    for pj in p2.get('probability_judgments', []):
+        if pj.get('severity') == 'high' and pj.get('hits') is None:
+            # Only escalate if a reference class is available but not used
+            brf = m2.get('base_rate_frequency', {})
+            if brf.get('reference_class_state') == 'available':
+                escalations.append('unbacked_high_severity')
 
 # Anchoring drift (post-exposure shift toward anchor)
 if p2.get('parent_review_pass_id') and p2.get('anchor_map_targets_seen'):
@@ -191,7 +222,7 @@ if p2.get('parent_review_pass_id') and p2.get('anchor_map_targets_seen'):
         exposed_val = m2.get(dim, 3)
         anchor_val = anchor.get(dim, 3) if isinstance(anchor, dict) else 3
         # Drift toward anchor?
-        if abs(exposed_val - anchor_val) < abs(blind_val - anchor_val) and abs(exposed_val - blind_val) >= 2:
+        if abs(exposed_val - anchor_val) < abs(blind_val - anchor_val) and abs(exposed_val - blind_val) >= drift_threshold:
             escalations.append(f'anchoring_drift_{dim}')
 
 print(json.dumps(escalations))
@@ -420,17 +451,17 @@ PostToolUse hook validates decision-noise-summary.yaml structure.
 
 - [ ] **Step 1: Update orchestrate SKILL.md**
 
-Add repeat-review sampling during AQS phase: "After AQS domain probes complete, evaluate repeat-review sampling per `references/decision-noise-rules.yaml`. For sampled beads, dispatch a second blind arbiter pre-synthesis pass with a fresh `repeat_review_group_id`. Both passes recorded via `scripts/record-review-pass.sh`."
+Add repeat-review sampling during AQS phase: "After AQS domain probes complete, evaluate repeat-review sampling per `references/decision-noise-rules.yaml`. For sampled beads, dispatch a second blind pass with `review_stage: repeat_blind` and `exposure_mode: blind_first`, sharing a `repeat_review_group_id` with the original `arbiter_pre_synthesis` pass. Both passes recorded via `scripts/record-review-pass.sh`."
 
 Add to Synthesize: "Run `scripts/derive-decision-noise-summary.sh` and `scripts/evaluate-escalations.sh`. Include escalation advisory in delivery summary."
 
-Add noise artifacts to inventory: `decision-noise-summary.yaml`, `review-passes.jsonl`, `noise-events.jsonl`.
+Add noise artifacts to inventory: `decision-noise-summary.yaml`, `review-passes.jsonl`. (`noise-events.jsonl` deferred to v2 — no producer in v1.)
 
 - [ ] **Step 2: Update adversarial SKILL.md**
 
 Add MAP vector requirement: "Every arbiter pre-synthesis pass MUST produce a structured MAP vector (5 blind dimensions + verdict). The arbiter receives bead evidence and decision trace but NOT prior verdicts or peer findings (blind-first protocol). MAP vector is recorded via `scripts/record-review-pass.sh` before the arbiter sees precedent packs."
 
-Add repeat-review dispatch: "For sampled beads, a second arbiter pass is dispatched with `exposure_mode: repeat_blind` and a shared `repeat_review_group_id`. The second pass sees the same evidence but NOT the first pass's verdict."
+Add repeat-review dispatch: "For sampled beads, a second arbiter pass is dispatched with `review_stage: repeat_blind` and `exposure_mode: blind_first`, sharing a `repeat_review_group_id` with the original blind pass. The second pass sees the same evidence but NOT the first pass's verdict. The stage distinguishes it from the original arbiter_pre_synthesis pass; the exposure_mode confirms it was blind."
 
 - [ ] **Step 3: Update arbitration-protocol.md**
 
@@ -477,7 +508,9 @@ Add advisory decision-noise checklist (after stress session checklist):
 
 - [ ] **Step 2: Update evolve SKILL.md**
 
-Add cue-calibration evolution bead type: "Consume `review-passes.jsonl` heuristics fields + outcome events from `noise-events.jsonl`. Compute cue precision (how often the top_cue predicted a confirmed finding vs false alarm). Propose FFT cue reordering when precision drops below 0.50."
+Add noise-awareness to evolve: "When dispatching evolution beads, check `review-passes.jsonl` for high repeat_review_noise_index or frequent verdict flips. These are signals that the review process needs calibration — prioritize precedent coherence audits and constitution staleness checks when noise is high."
+
+**Deferred (v2):** Full cue-calibration evolution bead (consume heuristics fields + outcome events, compute cue precision, propose FFT reordering). This requires `noise-events.jsonl` which has no producer in v1.
 
 - [ ] **Step 3: Update quality-slos.md**
 
