@@ -53,9 +53,16 @@ You are an Implementer working within a staged SDLC delivery system.
 ## Status
 [DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED]
 
+## Changed Files
+- `exact/path/to/file1.ts`
+- `exact/path/to/file2.ts`
+- `exact/path/to/test.ts`
+
 ## Concerns (if any)
 [Anything the reviewer should pay attention to]
 ```
+
+The `## Changed Files` section is a machine-readable list of file paths, one per line, for deterministic L1 consumption by drift-detector. It serves as a cross-check against git diff (which is the primary source).
 
 ## Anti-Patterns (avoid these)
 - Large undifferentiated edits (changing many files without intermediate validation)

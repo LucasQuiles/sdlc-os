@@ -80,6 +80,65 @@ Write to `docs/sdlc/active/{task-id}/standards-profile.md`:
 {List of specific check IDs from standards-checklist.md that apply to this project}
 ```
 
+## Scout Mode: Rule Governance Audit
+
+When dispatched during Scout, also audit the target project's lint rule and suppression health.
+This runs in parallel with the standards profile generation above.
+
+### Protocol
+
+**Step 1: Rule Census.** Read the project's ESLint config. For each custom rule, extract: rule name, severity (warn/error/off), category, and creation date (via git blame on the config entry).
+
+**Step 2: Suppression Census.** Scan the codebase for `eslint-disable` comments (inline, next-line, and block forms). For each, extract: file path, line number, rule(s) disabled, and justification text parsed against the structured format (`-- <reason>; tracked in <ID>` or `-- <reason>; expires <date>`).
+
+**Step 3: Suppression-Ratio Analysis.** Per rule:
+- `suppression_count` = eslint-disable lines targeting this rule
+- `violation_count` = total lint violations from ESLint output
+- `suppression_ratio` = suppression_count / (suppression_count + violation_count)
+- `justification_rate` = structured justifications / total suppressions for this rule
+- `justification_quality` = distribution across quality scores (Strong=3, Adequate=2, Weak=1, Bare=0)
+
+**Step 4: Classification.** Two tracks:
+
+**Track 1 — GAMED (any severity):** suppression_ratio > 50% means the rule is being circumvented regardless of warn/error level.
+
+**Track 2 — Graduation candidates (warn-level only):**
+- READY: suppression_ratio <= 50% AND violation trend FALLING
+- NOT_READY: suppression_ratio <= 50% AND violation trend FLAT/RISING
+- JUSTIFICATION_CRISIS: justification_rate < 10% across all rules
+
+### Output (Rule Governance Audit)
+
+Write to `docs/sdlc/active/{task-id}/rule-governance-profile.md`:
+
+```markdown
+## Rule Governance Profile - {task-id}
+
+### Rule Census
+- Custom rules: {N} (warn: {N}, error: {N})
+
+### Suppression Health
+- Total eslint-disable: {N}
+- Structured justification: {N} ({pct}%)
+- Bare / weak: {N} ({pct}%)
+
+### Per-Rule Analysis
+| Rule | Severity | Suppressions | Violations | Ratio | Classification |
+|---|---|---|---|---|---|
+
+### Bare Suppression Count: {N}
+```
+
+Also generate `docs/sdlc/active/{task-id}/suppression-allowlist.md` — fingerprints of all pre-existing bare suppressions for the justification hook:
+
+```markdown
+# Suppression Allowlist - {task-id}
+# Auto-generated from Rule Governance Profile
+# Fingerprints: sha256(file_path + normalized_eslint_disable_text + hash_of_surrounding_3_lines)
+
+- fingerprint: {hash} | file: {path} | rule: {rule-name}
+```
+
 ## Evolve Mode: Protocol Refresh
 
 When dispatched during Evolve, compare the current local artifacts against the standards library for drift:
@@ -104,6 +163,18 @@ When dispatched during Evolve, compare the current local artifacts against the s
 4. **Propose updates** — specific additions to local artifacts, formatted as diffs or append blocks
 
 5. **Priority-rank proposals** by risk severity and enforcement feasibility
+
+6. **Rule Governance Trend Analysis:**
+   - Discover prior Rule Governance Profiles via lookback contract:
+     - Primary: `docs/sdlc/active/*/rule-governance-profile.md`
+     - Secondary: `docs/sdlc/completed/*/rule-governance-profile.md`
+     - Lookback window: last 10 tasks or 30 days, whichever is larger
+     - Discovery: glob both paths, sort by task timestamp, take most recent N within window
+   - For rules classified READY across 3+ consecutive profiles: propose warn -> error graduation
+   - For JUSTIFICATION_CRISIS persisting across profiles: propose project add `eslint-plugin-eslint-comments/require-description`
+   - For GAMED rules: propose targeted suppression cleanup
+   - For bare suppression count RISING across profiles: flag as protocol concern
+   - All proposals require Conductor approval
 
 ### Output (Evolve Mode)
 

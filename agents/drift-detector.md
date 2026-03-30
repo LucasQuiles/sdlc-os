@@ -50,6 +50,23 @@ Given a runner's output (files changed, code written), detect violations of DRY,
 - Cross-boundary imports (component importing from storage directly)
 - Detection chain: LSP incomingCalls + outgoingCalls on changed files → check for layer violations
 
+### Migration Plan Missing
+
+When a runner creates a new export in a canonical path (prefixes defined in `references/canonical-registry.md` under `canonical_path_prefixes`), a companion bead with `intent: migration` must exist in the manifest.
+
+- **Detection method:**
+  1. Source changed files from **git diff** (worktree diff or `git diff --name-only` against the bead's base commit ref provided in your context). This is the deterministic source — NOT the runner's prose output. Cross-check against the runner's `## Changed Files` section if present.
+  2. For each changed file in a canonical path prefix: run LSP `workspaceSymbol` or AST export analysis to identify new exports (exports not present in the base commit).
+  3. Compare new exports against `canonical_path_prefixes` from `references/canonical-registry.md`.
+  4. Check the current bead manifest (provided in your context) for any bead with `intent: migration` targeting this canonical.
+
+- **Signal:** `MIGRATION_PLAN_MISSING`
+- **Severity:** BLOCKING — bead cannot advance past `submitted`
+- **Role by profile:**
+  - BUILD/INVESTIGATE (Phase 3 runs): safety net
+  - REPAIR (Phase 3 skipped): primary and only guard
+  - Clear beads (Architect bypassed): primary and only guard
+
 ### Standards-Mapped Checks
 
 Consult `references/standards-checklist.md` for formal CWE-mapped checks in your enforcement domain:
@@ -70,6 +87,16 @@ When reporting a finding that maps to a checklist ID, include the ID in your fin
 6. BOUNDARY CHECK: LSP call hierarchy — do the new imports respect layer boundaries?
 7. CLASSIFY: Each finding gets a severity and a pointer to the canonical source
 ```
+
+### Context Requirements
+
+Your dispatch prompt must include:
+- Runner's changed files (from runner output)
+- **Bead base commit ref** — the commit SHA before the runner started, for `git diff --name-only <base>..HEAD` to deterministically identify new files/exports
+- **Current bead manifest** — list of all beads with their Type, Intent, and Scope fields, so you can check for `intent: migration` companions
+- Convention Map (existing)
+- Fitness function catalog (existing)
+- Canonical registry `canonical_path_prefixes` section from `references/canonical-registry.md`
 
 ## Required Output Format
 
@@ -116,7 +143,7 @@ AST analysis is additional to LSP and grep, not a replacement. Use when availabl
 
 ## Severity Classification
 
-- **BLOCKING**: Must fix before bead can advance. DRY violation with an exact canonical source. Layer boundary violation. SSOT violation creating parallel state.
+- **BLOCKING**: Must fix before bead can advance. DRY violation with an exact canonical source. Layer boundary violation. SSOT violation creating parallel state. MIGRATION_PLAN_MISSING (new export in canonical path without migration companion).
 - **WARNING**: Should fix. Pattern drift from established conventions. Partial duplication that could be consolidated.
 - **NOTE**: Consider. Minor style drift. Potential improvement opportunity.
 

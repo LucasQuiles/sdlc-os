@@ -110,6 +110,7 @@ Every piece of work is tracked as an atomic unit:
 **Security sensitive:** true | false
 **Complexity source:** essential | accidental
 **Profile:** BUILD | INVESTIGATE | REPAIR | EVOLVE
+**Intent:** default | migration | registry | debt_companion
 **Decision trace:** [path to {bead-id}-decision-trace.md]
 **Deterministic checks:** [list of checks routed to scripts per FFT-08]
 **Turbulence:** {L0: 0, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
@@ -120,6 +121,14 @@ Every piece of work is tracked as an atomic unit:
 **Safe-to-fail:** [rollback plan — REQUIRED for Complex domain beads, optional otherwise]
 **Confidence:** [runner's self-assessed confidence 0.0-1.0 with rationale — populated after execution]
 ```
+
+**Intent values:**
+- `intent: default` — standard work (omitted when default)
+- `intent: migration` — migrates callers from non-canonical to canonical usage
+- `intent: registry` — adds an entry to `references/canonical-registry.md`
+- `intent: debt_companion` — addresses a debt-backlog item
+
+Intent does not change bead Type. A migration bead is `Type: implement, Intent: migration`.
 
 Beads are written to `docs/sdlc/active/{task-id}/beads/` as individual markdown files. They persist in Git — surviving agent sessions, crashes, and context resets.
 
@@ -159,7 +168,9 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 3. Dispatch `gap-analyst` in Finder mode — compare requirements against codebase to produce a Completeness Map. See `sdlc-os:sdlc-gap-analysis` for full protocol.
 4. Dispatch `feature-finder` in archaeology mode — scan for neglected feature work across code/structural/git/documentation signals and update `docs/sdlc/feature-matrix.md`. See `sdlc-os:sdlc-feature-sweep`.
 5. Dispatch `safety-constraints-guardian` to discover project-specific safety constraints from codebase analysis. Constraints are added to `references/safety-constraints.md`.
-6. Dispatch `standards-curator` in Scout mode — analyzes the target project to determine which standards from `/Users/q/LAB/Research/Standards/` apply. Produces a project-specific standards profile at `docs/sdlc/active/{task-id}/standards-profile.md` listing applicable checks from `references/standards-checklist.md`. The profile is referenced in runner context packets during Execute phase (by path, not inlined).
+6. Dispatch `standards-curator` in Scout mode — performs two parallel audits:
+   - **Standards Profile:** Analyzes the target project to determine which standards from `/Users/q/LAB/Research/Standards/` apply. Produces `docs/sdlc/active/{task-id}/standards-profile.md` listing applicable checks from `references/standards-checklist.md`.
+   - **Rule Governance Audit:** Audits the project's lint rule health, suppression ratios, and justification quality. Produces `docs/sdlc/active/{task-id}/rule-governance-profile.md` and `docs/sdlc/active/{task-id}/suppression-allowlist.md`. The allowlist is consumed by the `check-eslint-disable-justification.sh` hook during Execute. The profile is referenced by path in runner context packets.
 **Output:** Discovery brief + Convention Map + Completeness Map (EXISTS/PARTIAL/MISSING per requirement) + Feature Matrix delta (new/updated findings) + Standards Profile (applicable checks per project type).
 **Key constraint:** Phase 3 (Architect) only creates beads for MISSING and PARTIAL items from the Completeness Map. EXISTS items get no beads.
 **Skip when:** You already have sufficient context (e.g., from prior conversation). Convention scan and gap analysis still run even when investigation is skipped.
@@ -180,6 +191,16 @@ The classification is recorded in the bead's `Complexity source` field and the d
 
 For beads where the STPA skip rule applies (COMPLEX or security_sensitive), dispatch `safety-analyst` to enumerate control actions and derive UCAs. See `references/stpa-control-structure.md` for the system control structure model. UCAs populate the bead's `unsafe_control_actions` field and become automatic Red Team probe targets.
 
+**Canonical-creation check:** After the primary bead manifest is built, check each bead's scope against `canonical_path_prefixes` from `references/canonical-registry.md`. If any bead creates a new export in a canonical path:
+1. Require a companion bead with `intent: migration` — must include migration_target, callers_to_migrate (from Scout/reuse-scout), migration_strategy (INLINE if <10 callers, STAGED, or DEFERRED with substantive justification), and estimated_scope
+2. Require a companion bead with `intent: registry` — adds the new canonical to `references/canonical-registry.md`
+3. Manifest order: Primary beads -> Migration bead(s) -> Registry bead -> Debt-companion beads
+
+**Debt-backlog import:** After migration check, read `docs/sdlc/debt-backlog.md` for PROMOTE items. Import rules:
+1. Relevance gate: only items whose `include_paths` overlap with any primary bead's `Scope` field
+2. Debt budget: max 1-2 `intent: debt_companion` beads per task
+3. Items in untouched modules wait for a future task
+
 **Output:** Design decision + bead manifest (list of all work units with dependencies).
 **Skip when:** The implementation path is obvious and low-risk.
 
@@ -195,6 +216,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - `drift-detector` checks DRY/SSOT/SoC/pattern/boundary violations
    - `convention-enforcer` checks naming/structure/style against Convention Map (see `references/convention-dimensions.md`)
    - `safety-constraints-guardian` checks bead outputs against the Safety Constraints Registry (`references/safety-constraints.md`). Violations are BLOCKING — same correction signal as drift-detector.
+   - `drift-detector` receives additional context: bead base commit ref (the commit SHA before the runner started) + current bead manifest (all beads with Type, Intent, Scope) + `canonical_path_prefixes` from `references/canonical-registry.md`. This enables the `MIGRATION_PLAN_MISSING` check — new exports in canonical paths without `intent: migration` companions are BLOCKING.
    - Oracle audits test integrity (L2)
    Convention-enforcer BLOCKING violations trigger L1 correction same as drift-detector. `CONVENTION_DRIFT` signal → Conductor reviews Convention Map for staleness, may dispatch `convention-scanner` to refresh.
 4. After Oracle proves the bead, run the **Adversarial Quality System** (`sdlc-os:sdlc-adversarial`):
@@ -238,6 +260,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
 3. Dispatch `drift-detector` for final cross-bead duplication check
 3.25. Dispatch `gap-analyst` in Finisher mode — compare delivery against mission brief success criteria + codebase inference. See `sdlc-os:sdlc-gap-analysis`. If GAPS found: minor → Conductor creates follow-up beads; significant → present to user.
 3.375. Dispatch `feature-finisher` — triage unresolved Feature Matrix rows, assign type/effort/recommendation, and write completion specs for findings at 50%+ completion. See `sdlc-os:sdlc-feature-sweep`.
+3.4. **Migration completion check:** gap-analyst Finisher reports remaining unmigrated callers from STAGED/DEFERRED migration beads (beads with `intent: migration`). Finisher reports counts; it does NOT auto-create anything. The Conductor reads the report and writes entries to `docs/sdlc/debt-backlog.md` with status PROMOTE for remaining callers.
 3.5. Dispatch `normalizer` in Final Pass mode — cross-bead convention consistency sweep. Checks for naming drift between parallel beads, unmapped conventions, and Convention Map update needs.
 3.75. Dispatch `losa-observer` on a random sample of merged beads (20% sample rate when error budget healthy, 50% when depleted). LOSA observations feed into error budget tracking — if LOSA reports uncaught errors, the error budget depletes regardless of SLI metrics.
 3.875. Dispatch `reliability-ledger` — reads all bead turbulence fields, computes per-step first-pass rates (L0/L1/L2/L2.5/L2.75), identifies bottlenecks, compares against prior ledger entries. Appends results to `docs/sdlc/reliability-ledger.md`. See `references/reliability-ledger.md` for rate formulas and trend analysis rules.

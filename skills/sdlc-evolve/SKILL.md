@@ -21,7 +21,7 @@ The Evolve profile maintains and improves the SDLC system itself. No user-facing
 - Frame: SKIP
 - Scout: SKIP
 - Architect: SKIP
-- Execute: evolution beads (5 types below)
+- Execute: evolution beads (19 types below)
 - AQS: SKIP
 - Harden: SKIP
 - Synthesize: SYSTEM_REPORT
@@ -144,6 +144,18 @@ Dispatch `llm-self-security` to audit the system against OWASP LLM Top 10. Check
 
 Dispatch `crossmodel-supervisor` in TARGETED mode to review the Evolve changes themselves. When the SDLC-OS modifies its own agents, hooks, or skills, a cross-model review provides genuinely independent verification that the changes are sound. The investigator role probes the highest-risk domain of the Evolve changes; the reviewer role provides an independent assessment. Skip if tmup is unavailable (preflight fails). See `sdlc-os:sdlc-crossmodel` for the full adapter lifecycle.
 
+### 18. Adoption Scan
+
+Dispatch `debt-crawler` in Mode 1. The crawler reads `references/canonical-registry.md` and runs the full 5-stage pipeline: harvest from canonical-registry patterns + LSP references + suppression scan, corroborate (2+ channels required), filter noise, compute Debt Value Score, classify findings.
+
+Results written to `docs/sdlc/debt-scan-report.md` adoption section. PROMOTE findings appended to `docs/sdlc/debt-backlog.md`. RISING violation trends on any canonical are flagged in the system health report.
+
+### 19. Duplicate Scan
+
+Dispatch `debt-crawler` in Mode 2. The crawler runs `scripts/extract-functions.sh` for AST extraction and the full 5-stage pipeline: harvest from AST body hashing + LSP symbols + grep name collisions + git history churn, corroborate (2+ channels required), filter noise, compute Debt Value Score, classify findings.
+
+PROMOTE findings appended to `docs/sdlc/debt-backlog.md`. Ratchet evaluation: PROMOTE count must not exceed previous scan baseline — FAIL is BLOCKING within Evolve (Conductor must acknowledge). All counts updated in `docs/sdlc/debt-scan-report.md`.
+
 ## Output Format
 
 Phase 5 produces a system health report:
@@ -179,6 +191,19 @@ Phase 5 produces a system health report:
 - Indicators computed: {5 metrics with values and trend direction}
 - Co-trending alert: {YES/NO}
 - Pattern identified: {description or "none"}
+
+## Adoption Scan (#18)
+- Canonicals scanned: {count}
+- Violations found: {count}
+- RISING trends: {list or "none"}
+- New PROMOTE findings: {count}
+
+## Duplicate Scan (#19)
+- Candidates harvested: {count}
+- Corroborated: {count}
+- PROMOTE: {count} | WATCH: {count} | IGNORE: {count}
+- Ratchet: PASS | FAIL (current: {N}, previous: {N})
+- New debt-backlog entries: {count}
 
 ## Overall Assessment
 {Conductor summary of system health and recommended actions}
