@@ -483,6 +483,34 @@ run_test "skip: non-budget file ignored" \
 rm -rf "$_qb_tmp"
 
 echo ""
+echo "=== Hazard-Defense Ledger Validation Tests ==="
+
+# Generate temp fixture files with inline JSON pointing at real YAML fixture paths.
+# We write to temp files and use run_test (not a pipe) so PASS/FAIL counters
+# update in the current shell — piping into a function runs a subshell.
+_hdl_tmp=$(mktemp -d)
+_hdl_json() { echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$1\"}}" > "$2"; }
+
+_hdl_json "$FIXTURES_DIR/hdl-valid/hazard-defense-ledger.yaml" "$_hdl_tmp/hdl-valid.json"
+_hdl_json "$FIXTURES_DIR/hdl-missing/hazard-defense-ledger.yaml" "$_hdl_tmp/hdl-missing.json"
+_hdl_json "$FIXTURES_DIR/hdl-malformed/hazard-defense-ledger.yaml" "$_hdl_tmp/hdl-malformed.json"
+_hdl_json "/tmp/not-hazard-defense-ledger.txt" "$_hdl_tmp/hdl-non-ledger.json"
+
+run_test "valid: complete hazard-defense-ledger.yaml passes" \
+  "$HOOKS_DIR/validate-hazard-defense-ledger.sh" "$_hdl_tmp/hdl-valid.json" 0
+
+run_test "reject: missing required fields" \
+  "$HOOKS_DIR/validate-hazard-defense-ledger.sh" "$_hdl_tmp/hdl-missing.json" 2
+
+run_test "reject: malformed YAML" \
+  "$HOOKS_DIR/validate-hazard-defense-ledger.sh" "$_hdl_tmp/hdl-malformed.json" 2
+
+run_test "skip: non-ledger file ignored" \
+  "$HOOKS_DIR/validate-hazard-defense-ledger.sh" "$_hdl_tmp/hdl-non-ledger.json" 0
+
+rm -rf "$_hdl_tmp"
+
+echo ""
 echo "=== Results ==="
 echo "PASS: $PASS  FAIL: $FAIL  TOTAL: $((PASS + FAIL))"
 

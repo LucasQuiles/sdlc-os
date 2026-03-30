@@ -1,0 +1,32 @@
+schema_version: 1
+task_id: "test-task-001"
+artifact_status: seeded
+stpa_required: true
+derived_at: "2026-03-29T14:00:00Z"
+coverage_state: partial
+
+summary:
+  qualifying_beads: 1
+  records_total: 1
+  records_with_defense: 0
+  records_without_defense: 1
+  escapes_known_at_close: 0
+  residual_high_risk: 0
+
+records:
+  - record_id: "HDL-B01-CA1-UCA1"
+    bead_id: "B01"
+    status: open
+    control_action:
+      actor: agent
+      action: write file
+      context: during Execute phase
+    unsafe_control_action:
+      category: providing_causes_hazard
+      scenario: "agent writes file with missing required fields"
+      hazard: "invalid artifact accepted by downstream consumers"
+    defense:
+      layer: not_tested
+      mechanism: null
+    actual_catch_point: {}
+    notes: ""
