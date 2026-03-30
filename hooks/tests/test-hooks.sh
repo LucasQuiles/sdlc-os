@@ -567,6 +567,34 @@ run_test "skip: non-summary file ignored" \
 rm -rf "$_dn_tmp"
 
 echo ""
+echo "=== Mode-Convergence Summary Validation Tests ==="
+
+# Generate temp fixture files with inline JSON pointing at real YAML fixture paths.
+# We write to temp files and use run_test (not a pipe) so PASS/FAIL counters
+# update in the current shell — piping into a function runs a subshell.
+_mc_tmp=$(mktemp -d)
+_mc_json() { echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$1\"}}" > "$2"; }
+
+_mc_json "$FIXTURES_DIR/mc-valid/mode-convergence-summary.yaml" "$_mc_tmp/mc-valid.json"
+_mc_json "$FIXTURES_DIR/mc-missing/mode-convergence-summary.yaml" "$_mc_tmp/mc-missing.json"
+_mc_json "$FIXTURES_DIR/mc-malformed/mode-convergence-summary.yaml" "$_mc_tmp/mc-malformed.json"
+_mc_json "/tmp/not-mode-convergence-summary.txt" "$_mc_tmp/mc-non-summary.json"
+
+run_test "valid: complete mode-convergence-summary.yaml passes" \
+  "$HOOKS_DIR/validate-mode-convergence-summary.sh" "$_mc_tmp/mc-valid.json" 0
+
+run_test "reject: missing required fields" \
+  "$HOOKS_DIR/validate-mode-convergence-summary.sh" "$_mc_tmp/mc-missing.json" 2
+
+run_test "reject: malformed YAML" \
+  "$HOOKS_DIR/validate-mode-convergence-summary.sh" "$_mc_tmp/mc-malformed.json" 2
+
+run_test "skip: non-summary file ignored" \
+  "$HOOKS_DIR/validate-mode-convergence-summary.sh" "$_mc_tmp/mc-non-summary.json" 0
+
+rm -rf "$_mc_tmp"
+
+echo ""
 echo "=== Results ==="
 echo "PASS: $PASS  FAIL: $FAIL  TOTAL: $((PASS + FAIL))"
 

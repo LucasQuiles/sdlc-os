@@ -1,0 +1,3 @@
+schema_version: 1
+task_id: "test-task-mc-002"
+# Missing: artifact_status, execution_mode, summary
