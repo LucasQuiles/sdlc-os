@@ -96,7 +96,7 @@ L2.5: AQS adversarial (2 cycles) — red/blue/arbiter
 L3-L5: Bead → Phase → Task escalation
 ```
 
-### Hooks (10 scripts)
+### Hooks (11 scripts)
 
 | Hook | Event | Behavior |
 |------|-------|----------|
@@ -110,6 +110,7 @@ L3-L5: Bead → Phase → Task escalation
 | validate-hazard-defense-ledger.sh | PostToolUse | **Blocking** — HDL schema validation |
 | validate-stress-session.sh | PostToolUse | **Blocking** — stress session schema validation |
 | validate-decision-noise-summary.sh | PostToolUse | **Advisory** — decision-noise-summary.yaml schema validation |
+| validate-mode-convergence-summary.sh | PostToolUse | **Advisory** — mode-convergence-summary.yaml schema validation |
 
 ### References
 
@@ -147,6 +148,8 @@ The plugin creates these files in target project repos:
 | Stressor Library | `references/stressor-library.yaml` | Persistent stressor catalog |
 | Decision Noise Summary | `docs/sdlc/active/{task-id}/decision-noise-summary.yaml` | Per-task MAP scores, noise index, escalations — advisory |
 | Review Passes | `docs/sdlc/decision-noise/review-passes.jsonl` | System-level append-only ledger of all review passes |
+| Mode Convergence Summary | `docs/sdlc/active/{task-id}/mode-convergence-summary.yaml` | Per-task execution mode classification, convergence yield, escalation reasons — advisory |
+| System Mode Convergence | `docs/sdlc/system-mode-convergence.jsonl` | Cross-task mode and convergence ledger |
 
 ## Testing
 
@@ -155,7 +158,7 @@ cd ~/.claude/plugins/sdlc-os
 bash hooks/tests/test-hooks.sh
 ```
 
-Expected: 54/54 PASS.
+Expected: 58/58 PASS.
 
 ## License
 

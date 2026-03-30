@@ -144,7 +144,7 @@ Dispatch `llm-self-security` to audit the system against OWASP LLM Top 10. Check
 
 ### 17. Cross-Model System Review
 
-Dispatch `crossmodel-supervisor` in TARGETED mode to review the Evolve changes themselves. When the SDLC-OS modifies its own agents, hooks, or skills, a cross-model review provides genuinely independent verification that the changes are sound. The investigator role probes the highest-risk domain of the Evolve changes; the reviewer role provides an independent assessment. Skip if tmup is unavailable (preflight fails). See `sdlc-os:sdlc-crossmodel` for the full adapter lifecycle.
+Dispatch `crossmodel-supervisor` in TARGETED mode to review the Evolve changes themselves. When the SDLC-OS modifies its own agents, hooks, or skills, a cross-model review provides genuinely independent verification that the changes are sound. These sessions run on tmup-managed interactive Codex lanes under the current tmup runtime contract: root worker `gpt-5.4`, `model_context_window=1050000`, `model_auto_compact_token_limit=750000`, `model_reasoning_effort=high`, `model_reasoning_summary=low`, `plan_mode_reasoning_effort=xhigh`, `model_verbosity=low`, `service_tier=fast`, `web_search=live`, `features.undo=true`, and tiered internal teams (`tmup-tier1` on `gpt-5.3-codex`, `tmup-tier2` on `gpt-5.2-codex`). The investigator role probes the highest-risk domain of the Evolve changes; the reviewer role provides an independent assessment. The supervisor should reuse live lanes with `harvest -> evaluate -> reprompt`, and only replace a lane when the existing context is no longer trustworthy. Skip if tmup is unavailable or the tiered agent sync contract fails. See `sdlc-os:sdlc-crossmodel` for the full adapter lifecycle.
 
 ### 18. Adoption Scan
 
@@ -224,6 +224,12 @@ Phase 5 produces a system health report:
 ## Overall Assessment
 {Conductor summary of system health and recommended actions}
 ```
+
+## Escalation-Reason Awareness
+
+When dispatching evolution beads, check `system-mode-convergence.jsonl` for dominant escalation reasons across tasks. Clustering of the same reason (e.g., `coupling` in 5+ tasks) signals that decomposition heuristics need improvement — prioritize decomposition review evolution beads.
+
+**Deferred (v2):** Automated decomposition proposal based on escalation patterns.
 
 ## Noise-Aware Dispatch
 

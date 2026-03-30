@@ -31,6 +31,8 @@ Quality governance for agent-generated code. The Conductor tracks these indicato
 | repeat_review_noise_index | Average MAP distance across repeat-review pairs | < 2.0 | Decision consistency |
 | natural_frequency_coverage | Share of high-severity claims with frequency backing | >= 0.80 | Calibration quality |
 | spot_check_coverage_rate | Repeat-reviewed beads / eligible beads | >= sampling target | Noise measurement completeness |
+| convergence_yield | Early stops / total loop iterations | >= 0.20 | Loop efficiency — system knows when to stop |
+| dominant_escalation_reason | Most frequent escalation reason | Monitor (no SLO) | Decomposition quality signal |
 
 ---
 

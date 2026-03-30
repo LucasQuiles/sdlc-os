@@ -41,6 +41,11 @@ Run a lightweight health check on the current phase. This is NOT an approval gat
 - Are any soft escalation conditions triggered? (Check escalations section)
 - If verdict flips or MAP divergence detected: flag for Conductor attention (advisory, not blocking)
 
+### Mode & Convergence (advisory)
+- Is execution mode classified? If `knowledge_based` with `confidence: high`, flag for Conductor attention.
+- Does the escalation log show a dominant reason (3+ occurrences)? Flag: "Systematic issue — consider re-decomposition."
+- Is convergence_yield low (< 0.10) across recent tasks? Flag: "Loops rarely stop early."
+
 ### Sentinel Status
 - Has the sentinel flagged any unresolved issues?
 - Are there beads that sentinel hasn't reviewed yet?

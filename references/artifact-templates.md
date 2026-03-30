@@ -89,6 +89,7 @@ Each task directory contains these machine-readable artifacts:
 | Stress session | `stress-session.yaml` | Phase 4 (Execute) | If stress-sampled — gates Synthesize and Complete |
 | STPA Analysis | `stpa-analysis.yaml` | Phase 3 (Architect) | Intermediate: consumed by seeding script |
 | Decision noise summary | `decision-noise-summary.yaml` | Phase 5 (Synthesize) | If AQS-engaged — advisory |
+| Mode convergence summary | `mode-convergence-summary.yaml` | Phase 5 (Synthesize) | If mode-convergence tracking enabled — advisory |
 
 ---
 

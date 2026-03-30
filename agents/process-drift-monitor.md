@@ -237,6 +237,39 @@ Stale models generate Evolve beads to refresh the model contents.
 
 ---
 
+## MC1: Escalation-Reason Clustering
+
+**Trigger:** Every Evolve cycle
+
+Read `docs/sdlc/system-mode-convergence.jsonl` and scan escalation reason fields across tasks. If the same reason dominates 5+ consecutive tasks, flag as a systematic issue — the decomposition heuristics may need improvement.
+
+**Convergence yield trend:** Compute `convergence_yield` (early stops / total loop iterations) across the last 5 tasks. If convergence_yield is declining, loop stopping logic may need recalibration.
+
+**Note:** Mode-transition detection (per-iteration mode tracking) is deferred to v2. v1 computes mode once per task, not per-iteration.
+
+**Output:**
+
+```
+## Escalation-Reason Clustering Report
+
+Window: last 10 tasks with mode-convergence records
+
+Dominant reason: [reason or "none"]
+Consecutive tasks with same dominant reason: N
+Clustering status: OK (< 5) / SYSTEMATIC ISSUE FLAG (5+)
+
+Convergence yield trend (last 5 tasks):
+| Task | Early Stops | Total Iterations | Yield |
+|------|-------------|-----------------|-------|
+| [id] | N | N | X.XX |
+
+Yield direction: STABLE / IMPROVING / DECLINING
+[If SYSTEMATIC ISSUE:] Recommend: Evolve bead targeting decomposition heuristics.
+[If DECLINING yield:] Recommend: Recalibrate loop stopping logic.
+```
+
+---
+
 ## N1: Decision Noise Trend
 
 **Trigger:** Every Evolve cycle
