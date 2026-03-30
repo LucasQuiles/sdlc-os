@@ -1,0 +1,72 @@
+# Quality Budget Rules — externalized thresholds for budget_state derivation
+# Recalibrate here without touching historical artifacts.
+schema_version: 1
+
+# complexity_weight = (clear*0 + complicated*0.5 + complex*1.0 + chaotic*1.5) / total_beads
+complexity_thresholds:
+  - max_weight: 0.2    # mostly clear
+    healthy_floor: 0.90
+    depleted_floor: 0.60
+  - max_weight: 0.5    # mixed
+    healthy_floor: 0.75
+    depleted_floor: 0.50
+  - max_weight: 0.8    # mostly complex
+    healthy_floor: 0.60
+    depleted_floor: 0.35
+  - max_weight: 999    # extreme
+    healthy_floor: 0.50
+    depleted_floor: 0.25
+
+# Hard-stop invariants: budget_state CANNOT be healthy if ANY are true
+# Evaluated against sli_readings and beads fields in quality-budget.yaml
+hard_stops:
+  - field: sli_readings.lint_clean
+    operator: "=="
+    value: false
+  - field: sli_readings.types_clean
+    operator: "=="
+    value: false
+  - field: sli_readings.critical_findings
+    operator: ">"
+    value: 0
+  - field: beads.stuck
+    operator: ">"
+    value: 0
+  - compound:
+      - field: beads.blocked
+        operator: ">"
+        value: 0
+      - field: beads.wip_age_max_s
+        operator: ">"
+        value: 3600
+
+# v1 gating metrics (budget_state depends on these)
+gating_metrics:
+  - zero_turbulence_rate
+  - escapes.known_at_close
+  - hard_stops
+  - turbulence_sum_per_bead
+
+# v1 observed-only metrics (recorded but not gated)
+observed_metrics:
+  - queue_depth_peak
+  - buffer_hits
+  - wip_age_max_s
+  - review_latency_avg_s
+  - review_latency_p95_s
+  - review_pass_rate
+
+# System budget rolling window
+system_rolling_window:
+  tasks: 10
+  max_days: 30
+
+# System budget_state thresholds
+system_thresholds:
+  healthy:
+    min_zero_turbulence_rate: 0.70
+    max_escapes_last_3: 0
+  depleted:
+    max_zero_turbulence_rate: 0.50
+    max_escapes_last_3: 1
+    max_high_turbulence_tasks: 2
