@@ -129,9 +129,9 @@ print(json.dumps(escalations))
 # Usage: compute_noise_index "review-passes.jsonl" "task_id"
 compute_noise_index() {
   local ledger="$1" task_id="$2"
-  # Pre-filter: extract only lines containing the task_id (fast string match),
-  # then pipe the candidate subset to Python for accurate JSON parsing.
-  { [ -f "$ledger" ] && grep -F "\"task_id\":\"$task_id\"" "$ledger"; } 2>/dev/null | python3 -c "
+  # Pre-filter: grep for the task_id VALUE (not key:value pair) to handle both
+  # compact JSON ("task_id":"x") and spaced JSON ("task_id": "x") from json.dumps.
+  { [ -f "$ledger" ] && grep -F "\"$task_id\"" "$ledger"; } 2>/dev/null | python3 -c "
 import json, math, sys
 
 passes = []
