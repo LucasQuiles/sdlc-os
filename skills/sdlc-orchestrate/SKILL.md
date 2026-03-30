@@ -236,6 +236,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - mark status `hardened`
    - See `sdlc-os:sdlc-adversarial` for full cycle details
    - **Skip for trivial beads.** See `skills/sdlc-adversarial/scaling-heuristics.md`
+   - **Repeat-review sampling:** After AQS domain probes complete, evaluate repeat-review sampling per `references/decision-noise-rules.yaml`. For sampled beads, dispatch a second blind pass with `review_stage: repeat_blind` and `exposure_mode: blind_first`, sharing a `repeat_review_group_id` with the original `arbiter_pre_synthesis` pass. Both passes recorded via `scripts/record-review-pass.sh`.
 5. Corrections flow through the L0-L5 loop system (`sdlc-os:sdlc-loop`).
 6. **Turbulence tracking (Karpathy March of Nines):** The Conductor updates the bead's `Turbulence` field after each correction cycle at any level. Increment the relevant counter: L0 for runner self-corrections, L1 for sentinel corrections, L2 for oracle findings, L2.5 for AQS findings, L2.75 for hardening findings. See `references/reliability-ledger.md` for population rules.
 7. **Budget derivation:** After each bead status change (completion, stuck, blocked), run `scripts/derive-quality-budget.sh <task-dir> --status partial` to update the task's quality-budget.yaml with current metrics.
@@ -287,6 +288,8 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    **5c. Sensitivity to operations:** Every 3rd bead, the Conductor reads raw sentinel logs, not just summaries. Logged in decision trace.
 
    **5d. Deference to expertise:** When a domain-specialist agent flags a finding, the Conductor CANNOT dismiss it — it MUST proceed to the corresponding Blue Team regardless of Conductor judgment. Conductor disagreement is logged in the decision trace for retrospective analysis, not used as a filter. Applies to ALL specialist agents: `red-functionality`, `red-security`, `red-usability`, `red-resilience`, `red-reliability-engineering`, `observability-engineer`, `error-hardener`.
+**Decision-noise summary:** Run `scripts/derive-decision-noise-summary.sh` and `scripts/evaluate-escalations.sh`. Include escalation advisory in delivery summary.
+
 **Output:** Delivery summary with fitness report, evidence, uncertainty, next actions, and Feature Matrix triage updates.
 
 ## How to Dispatch Runners
@@ -439,6 +442,8 @@ After Scout phase completes, the task directory contains:
 - `stress-session.yaml` — Stress session artifact (created during Execute for sampled tasks). Schema: `references/stressor-schema.md`.
 - `system-stress.jsonl` — Append-only system stress ledger
 - `system-stress-events.jsonl` — Stressor lifecycle events (promotions, retirements)
+- `decision-noise-summary.yaml` — Per-task decision-noise metrics (created during Synthesize). Schema: `references/decision-noise-schema.md`.
+- `review-passes.jsonl` — System-level canonical review pass ledger at `docs/sdlc/decision-noise/review-passes.jsonl`
 
 ### Track
 After each runner completes:

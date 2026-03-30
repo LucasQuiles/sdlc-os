@@ -162,6 +162,12 @@ BLUE defenders: `blue-functionality`, `blue-security`, `blue-usability`, `blue-r
 - [ ] Other: {specify}
 ```
 
+### Phase 4.5: Arbiter Pre-Synthesis MAP Scoring
+
+**MAP scoring (blind-first):** Every arbiter pre-synthesis pass MUST produce a structured MAP vector (5 blind dimensions + verdict). The arbiter receives bead evidence and decision trace but NOT prior verdicts or peer findings (blind-first protocol). MAP vector is recorded via `scripts/record-review-pass.sh` before the arbiter sees precedent packs.
+
+**Repeat-review sampling:** For sampled beads (per `references/decision-noise-rules.yaml`), a second arbiter pass is dispatched with `review_stage: repeat_blind` and `exposure_mode: blind_first`, sharing a `repeat_review_group_id` with the original blind pass. The second pass sees the same evidence but NOT the first pass's verdict.
+
 ### Phase 5: Arbiter (Disputes Only)
 
 The Arbiter (`arbiter` agent, Opus) fires only when blue team selects `disputed`. This is the **Kahneman adversarial collaboration protocol**:

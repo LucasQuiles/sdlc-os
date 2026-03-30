@@ -16,6 +16,18 @@ The Arbiter does NOT fire on:
 
 ---
 
+## Blind-First MAP Protocol
+
+The arbiter produces a MAP vector on every pre-synthesis pass — before disputes are filed — using the blind-first protocol below.
+
+1. Arbiter receives bead evidence and decision trace metadata (blind — no prior verdicts or peer findings)
+2. Arbiter produces MAP vector (evidence_strength, impact_severity, base_rate_frequency, pattern_familiarity, decision_confidence) + provisional verdict
+3. System records blind pass via `scripts/record-review-pass.sh` with `exposure_mode: blind_first`
+4. System reveals precedent pack (if available)
+5. Arbiter may revise assessment — revision recorded as a NEW pass with `parent_review_pass_id` pointing to the blind pass, `exposure_mode: precedent_exposed`, and `precedent_match_delta` capturing the shift
+
+---
+
 ## The Protocol
 
 ### Step 0: Precedent Lookup
