@@ -42,7 +42,7 @@ for field in "schema_version:" "task_id:" "artifact_status:"; do
 done
 
 # Validate: artifact_status enum
-STATUS=$(grep "^artifact_status:" "$file_path" | sed 's/artifact_status: *//')
+STATUS=$(grep "^artifact_status:" "$file_path" | sed 's/artifact_status: *//' | sed 's/^["'"'"']\(.*\)["'"'"']$/\1/')
 case "$STATUS" in
   partial|final) ;;
   *) echo '{"decision":"deny","reason":"artifact_status must be partial or final"}' >&2; exit 2 ;;

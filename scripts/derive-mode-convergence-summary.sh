@@ -46,6 +46,9 @@ RULES_FILE="$SCRIPT_DIR/../references/mode-convergence-rules.yaml"
 [ -f "$QB" ] || { echo "ERROR: quality-budget.yaml not found in $TASK_DIR" >&2; exit 1; }
 [ -f "$RULES_FILE" ] || { echo "ERROR: mode-convergence-rules.yaml not found: $RULES_FILE" >&2; exit 1; }
 
+# Extract beads.total separately from wip_beads (schema distinguishes them)
+BEADS_TOTAL=$(python3 -c "import yaml,sys; qb=yaml.safe_load(open(sys.argv[1])); print(qb.get('beads',{}).get('total',0))" "$QB")
+
 NOW=$(now_utc)
 
 # --- Step 1: Classify execution mode from quality-budget.yaml SRK signals ---
@@ -108,7 +111,7 @@ result = {
     'classification': winner,
     'confidence': conf,
     'signals': {
-        'wip_beads': beads_total,
+        'wip_beads': int(qb.get('beads', {}).get('wip', 0)),
         'turbulence_sum_per_bead': tpb,
         'review_latency_p95_s': lat,
         'zero_turbulence_rate': ztr,
@@ -197,6 +200,9 @@ data = {
     'convergence_history': conv_history,
 
     'escalation_log': esc_log,
+
+    # beads_total separate from wip_beads for the system ledger
+    '_beads_total': $BEADS_TOTAL,
 
     'summary': {
         'total_escalations':  total_escalations,

@@ -53,13 +53,18 @@ budget_extensions  = int(summary.get('budget_extensions', 0))
 approach_changes   = int(summary.get('approach_changes', 0))
 
 # convergence_yield = early_stops / total_loop_iterations
-# total_loop_iterations = early_stops + budget_extensions + approach_changes
-# (each represents a cycle outcome; cycles with 'continue' are not separately tracked in v1)
-total_loop_iterations = early_stops + budget_extensions + approach_changes
+# Count ALL cycles from convergence_history (not just terminal recommendations)
+convergence_history = data.get('convergence_history', [])
+total_loop_iterations = 0
+for bead_entry in convergence_history:
+    total_loop_iterations += len(bead_entry.get('cycles', []))
+# Fallback: if no convergence_history, use terminal outcomes as lower bound
+if total_loop_iterations == 0:
+    total_loop_iterations = early_stops + budget_extensions + approach_changes
 convergence_yield = round(early_stops / total_loop_iterations, 3) if total_loop_iterations > 0 else 0.0
 
-# bead count from execution_mode.signals (wip_beads = total beads in task)
-beads = int(exec_mode.get('signals', {}).get('wip_beads', 0))
+# bead count from quality-budget beads.total (NOT wip_beads which is a different concept)
+beads = int(data.get('_beads_total', exec_mode.get('signals', {}).get('wip_beads', 0)))
 
 entry = {
     'task_id':            task_id,
