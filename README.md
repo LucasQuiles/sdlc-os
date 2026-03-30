@@ -96,7 +96,7 @@ L2.5: AQS adversarial (2 cycles) — red/blue/arbiter
 L3-L5: Bead → Phase → Task escalation
 ```
 
-### Hooks (9 scripts)
+### Hooks (10 scripts)
 
 | Hook | Event | Behavior |
 |------|-------|----------|
@@ -109,6 +109,7 @@ L3-L5: Bead → Phase → Task escalation
 | validate-runner-output.sh | SubagentStop | **Advisory** — runner output structure + convention signals |
 | validate-hazard-defense-ledger.sh | PostToolUse | **Blocking** — HDL schema validation |
 | validate-stress-session.sh | PostToolUse | **Blocking** — stress session schema validation |
+| validate-decision-noise-summary.sh | PostToolUse | **Advisory** — decision-noise-summary.yaml schema validation |
 
 ### References
 
@@ -144,6 +145,8 @@ The plugin creates these files in target project repos:
 | System Stress | `docs/sdlc/system-stress.jsonl` | Cross-task stress yield, clean streak tracking |
 | System Stress Events | `docs/sdlc/system-stress-events.jsonl` | Stressor lifecycle events |
 | Stressor Library | `references/stressor-library.yaml` | Persistent stressor catalog |
+| Decision Noise Summary | `docs/sdlc/active/{task-id}/decision-noise-summary.yaml` | Per-task MAP scores, noise index, escalations — advisory |
+| Review Passes | `docs/sdlc/decision-noise/review-passes.jsonl` | System-level append-only ledger of all review passes |
 
 ## Testing
 
@@ -152,7 +155,7 @@ cd ~/.claude/plugins/sdlc-os
 bash hooks/tests/test-hooks.sh
 ```
 
-Expected: 50/50 PASS.
+Expected: 54/54 PASS.
 
 ## License
 

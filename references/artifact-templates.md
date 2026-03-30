@@ -88,6 +88,7 @@ Each task directory contains these machine-readable artifacts:
 | Hazard/Defense Ledger | `hazard-defense-ledger.yaml` | Phase 3 (Architect) | COMPLEX or security_sensitive beads — gates Synthesize and Complete |
 | Stress session | `stress-session.yaml` | Phase 4 (Execute) | If stress-sampled — gates Synthesize and Complete |
 | STPA Analysis | `stpa-analysis.yaml` | Phase 3 (Architect) | Intermediate: consumed by seeding script |
+| Decision noise summary | `decision-noise-summary.yaml` | Phase 5 (Synthesize) | If AQS-engaged — advisory |
 
 ---
 
