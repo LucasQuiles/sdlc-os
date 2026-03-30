@@ -1,0 +1,7 @@
+{
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "/tmp/test-project/lib/utils/example.ts",
+    "content": "import { something } from './other';\n\n// eslint-disable-next-line no-raw-soft-delete -- legacy migration pending for soft-delete canonical; tracked in DEBT-001\nconst result = db.query('SELECT * FROM users WHERE deleted_at IS NULL');\n\nexport { result };\n"
+  }
+}

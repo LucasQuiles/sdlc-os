@@ -167,7 +167,7 @@ run_integration_guard_test() {
 ## Description
 Test bead in verified state.
 BEAD
-  (cd "$REPO" && git add -A && git commit -q -m "initial bead")
+  (cd "$REPO" && git add -A && git commit -q --no-verify -m "initial bead")
 
   # Test 1: illegal verified->merged with physical path (should block)
   local PHYSICAL_ROOT
@@ -391,6 +391,68 @@ run_test_advisory "warning: runner output missing sections" \
 run_test_advisory "warning: runner output with convention signal" \
   "$HOOKS_DIR/validate-runner-output.sh" \
   "$FIXTURES_DIR/runner-output-convention-signal.json" "yes"
+
+echo ""
+echo "=== eslint-disable Justification Tests ==="
+
+# Setup: create test source file for Edit-tier test
+mkdir -p /tmp/test-project/lib/storage
+echo '// eslint-disable-next-line no-raw-soft-delete
+const old = true;' > /tmp/test-project/lib/storage/access-requests.ts
+
+run_test "BLOCK: bare eslint-disable (no justification)" \
+  "$HOOKS_DIR/check-eslint-disable-justification.sh" \
+  "$FIXTURES_DIR/justification-bare-suppression.json" 2
+
+run_test "valid: structured justification with tracking ID" \
+  "$HOOKS_DIR/check-eslint-disable-justification.sh" \
+  "$FIXTURES_DIR/justification-structured-valid.json" 0
+
+run_test "valid: weak justification (score 1, not blocked)" \
+  "$HOOKS_DIR/check-eslint-disable-justification.sh" \
+  "$FIXTURES_DIR/justification-weak-reason.json" 0
+
+run_test "valid: non-source file (skip)" \
+  "$HOOKS_DIR/check-eslint-disable-justification.sh" \
+  "$FIXTURES_DIR/justification-non-source-file.json" 0
+
+run_test "BLOCK: Edit-tier bare suppression (no allowlist)" \
+  "$HOOKS_DIR/check-eslint-disable-justification.sh" \
+  "$FIXTURES_DIR/justification-edit-bare-no-allowlist.json" 2
+
+# Setup: create allowlist with matching fingerprint for the bare suppression fixture.
+# (1) init git repo so get_repo_root() works, (2) compute fingerprint by running
+# the same hashing logic the hook uses on the actual fixture content.
+cd /tmp/test-project && git init -q && cd - > /dev/null
+ALLOWLIST_DIR="/tmp/test-project/docs/sdlc/active/test-task"
+mkdir -p "$ALLOWLIST_DIR"
+# Compute fingerprint from fixture content using the exact same method as the hook:
+# parse JSON content, grep for eslint-disable, extract context lines via sed -n, hash with echo.
+FIXTURE_CONTENT=$(cat "$FIXTURES_DIR/justification-allowlisted-bare.json" | jq -r '.tool_input.content')
+FIXTURE_FILE_PATH=$(cat "$FIXTURES_DIR/justification-allowlisted-bare.json" | jq -r '.tool_input.file_path')
+FIXTURE_LINE=$(echo "$FIXTURE_CONTENT" | grep -n "eslint-disable" | head -1)
+FIXTURE_LINE_NUM=$(echo "$FIXTURE_LINE" | cut -d: -f1)
+FIXTURE_LINE_CONTENT=$(echo "$FIXTURE_LINE" | cut -d: -f2-)
+FIXTURE_NORMALIZED=$(echo "$FIXTURE_LINE_CONTENT" | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
+FIXTURE_CTX_START=$((FIXTURE_LINE_NUM > 1 ? FIXTURE_LINE_NUM - 1 : 1))
+FIXTURE_CTX_END=$((FIXTURE_LINE_NUM + 1))
+FIXTURE_CTX_LINES=$(echo "$FIXTURE_CONTENT" | sed -n "${FIXTURE_CTX_START},${FIXTURE_CTX_END}p")
+FIXTURE_CTX_HASH=$(echo "$FIXTURE_CTX_LINES" | shasum -a 256 | cut -d' ' -f1)
+FINGERPRINT=$(echo "${FIXTURE_FILE_PATH}${FIXTURE_NORMALIZED}${FIXTURE_CTX_HASH}" | shasum -a 256 | cut -d' ' -f1)
+echo "- fingerprint: $FINGERPRINT | file: $FIXTURE_FILE_PATH | rule: no-raw-soft-delete" > "$ALLOWLIST_DIR/suppression-allowlist.md"
+export SDLC_TASK_ID="test-task"
+# cd to the test project so get_repo_root() resolves to /tmp/test-project
+SAVED_DIR="$(pwd)"
+cd /tmp/test-project
+
+run_test "valid: allowlisted bare suppression (fingerprint match)" \
+  "$HOOKS_DIR/check-eslint-disable-justification.sh" \
+  "$FIXTURES_DIR/justification-allowlisted-bare.json" 0
+
+# Cleanup
+cd "$SAVED_DIR"
+unset SDLC_TASK_ID
+rm -rf /tmp/test-project
 
 echo ""
 echo "=== Results ==="

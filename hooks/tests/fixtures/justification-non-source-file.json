@@ -1,0 +1,7 @@
+{
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "/tmp/test-project/docs/README.md",
+    "content": "# README\n\nThis file mentions eslint-disable but is not a source file.\n"
+  }
+}
