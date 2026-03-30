@@ -146,7 +146,7 @@ cd ~/.claude/plugins/sdlc-os
 bash hooks/tests/test-hooks.sh
 ```
 
-Expected: 32/32 PASS.
+Expected: 46/46 PASS.
 
 ## License
 

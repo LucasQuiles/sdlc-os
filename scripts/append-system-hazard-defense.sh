@@ -6,6 +6,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/hazard-defense-lib.sh"
 
+if ! python3 -c "import yaml" 2>/dev/null; then
+  echo "ERROR: python3 with PyYAML is required. Install: pip3 install pyyaml" >&2
+  exit 1
+fi
+
 TASK_DIR="${1:?Usage: append-system-hazard-defense.sh <task-dir> <project-dir>}"
 PROJECT_DIR="${2:?Usage: append-system-hazard-defense.sh <task-dir> <project-dir>}"
 LEDGER="$TASK_DIR/hazard-defense-ledger.yaml"

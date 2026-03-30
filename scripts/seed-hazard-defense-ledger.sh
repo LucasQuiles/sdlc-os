@@ -6,6 +6,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/hazard-defense-lib.sh"
 
+# Dependency check: python3 + PyYAML required for YAML parsing
+if ! python3 -c "import yaml" 2>/dev/null; then
+  echo "ERROR: python3 with PyYAML is required. Install: pip3 install pyyaml" >&2
+  exit 1
+fi
+
 TASK_DIR="${1:?Usage: seed-hazard-defense-ledger.sh <task-dir>}"
 STPA_FILE="$TASK_DIR/stpa-analysis.yaml"
 OUTPUT="$TASK_DIR/hazard-defense-ledger.yaml"
