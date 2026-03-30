@@ -539,6 +539,34 @@ run_test "skip: non-session file ignored" \
 rm -rf "$_ss_tmp"
 
 echo ""
+echo "=== Decision-Noise Summary Validation Tests ==="
+
+# Generate temp fixture files with inline JSON pointing at real YAML fixture paths.
+# We write to temp files and use run_test (not a pipe) so PASS/FAIL counters
+# update in the current shell — piping into a function runs a subshell.
+_dn_tmp=$(mktemp -d)
+_dn_json() { echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$1\"}}" > "$2"; }
+
+_dn_json "$FIXTURES_DIR/dn-valid/decision-noise-summary.yaml" "$_dn_tmp/dn-valid.json"
+_dn_json "$FIXTURES_DIR/dn-missing/decision-noise-summary.yaml" "$_dn_tmp/dn-missing.json"
+_dn_json "$FIXTURES_DIR/dn-malformed/decision-noise-summary.yaml" "$_dn_tmp/dn-malformed.json"
+_dn_json "/tmp/not-decision-noise-summary.txt" "$_dn_tmp/dn-non-summary.json"
+
+run_test "valid: complete decision-noise-summary.yaml passes" \
+  "$HOOKS_DIR/validate-decision-noise-summary.sh" "$_dn_tmp/dn-valid.json" 0
+
+run_test "reject: missing required fields" \
+  "$HOOKS_DIR/validate-decision-noise-summary.sh" "$_dn_tmp/dn-missing.json" 2
+
+run_test "reject: malformed YAML" \
+  "$HOOKS_DIR/validate-decision-noise-summary.sh" "$_dn_tmp/dn-malformed.json" 2
+
+run_test "skip: non-summary file ignored" \
+  "$HOOKS_DIR/validate-decision-noise-summary.sh" "$_dn_tmp/dn-non-summary.json" 0
+
+rm -rf "$_dn_tmp"
+
+echo ""
 echo "=== Results ==="
 echo "PASS: $PASS  FAIL: $FAIL  TOTAL: $((PASS + FAIL))"
 

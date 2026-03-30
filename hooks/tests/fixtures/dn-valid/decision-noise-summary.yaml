@@ -1,0 +1,20 @@
+schema_version: 1
+task_id: "test-task-001"
+artifact_status: partial
+generated_at: "2026-03-30T00:00:00Z"
+
+metrics:
+  noise_index: null
+  verdict_agreement: null
+  map_convergence: null
+  anchoring_drift_detected: false
+  natural_frequency_coverage: null
+  spot_check_coverage: null
+  review_pass_count: 1
+
+escalations:
+  verdict_flips: 0
+  map_divergence_count: 0
+  anchoring_drift_count: 0
+  unbacked_high_severity_count: 0
+  triggered: []
