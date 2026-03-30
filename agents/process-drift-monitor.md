@@ -234,3 +234,35 @@ For each controller in the STPA control structure (`references/stpa-control-stru
 
 Stale models generate Evolve beads to refresh the model contents.
 ```
+
+---
+
+## S1: Stressor Effectiveness Signals
+
+**Trigger:** Every Evolve cycle
+
+Read `docs/sdlc/system-stress.jsonl` and compute two drift signals:
+
+**Clean streak detection:** If 5 or more consecutive tasks show zero escapes (no stressor-caught defects), flag as an anti-turkey signal. A long clean streak does not mean the system is safe — it may mean stressors are no longer probing real failure modes. The system looks safe precisely because the sensors have stopped finding anything.
+
+**Stress yield trend:** Compute `stress_yield` (escapes caught / stressors applied) across the last 5 tasks that had stressors applied. If yield is declining monotonically or near-monotonically across that window, flag as potential stressor library staleness — the library may have converged on low-value stressors that no longer match the system's actual failure modes.
+
+**Output:**
+
+```
+## Stressor Effectiveness Report
+
+Clean streak: N consecutive tasks with zero escapes
+Clean streak status: OK (< 5) / ANTI-TURKEY WARNING (5+)
+
+Stress yield trend (last 5 stressed tasks):
+| Task | Stressors Applied | Escapes Caught | Yield |
+|------|-------------------|----------------|-------|
+| [id] | N | N | X% |
+
+Yield direction: STABLE / IMPROVING / DECLINING
+Staleness status: OK / WARNING (declining yield across 5 tasks)
+
+[If ANTI-TURKEY WARNING:] Recommend: run manual adversarial probe or add novel stressors to library.
+[If staleness WARNING:] Recommend: Evolve bead to refresh stressor-library.yaml entries for affected cynefin domains.
+```

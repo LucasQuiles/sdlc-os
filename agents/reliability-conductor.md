@@ -26,6 +26,8 @@ You are structurally independent from the Execute phase runners. You have NEVER 
 
 ### Step 0: Premortem (Kahneman/Klein)
 
+Before generating failure modes, read `references/stressor-library.yaml` and select entries where `applicable_when` matches the bead's cynefin domain and scope tags. Inject these as seed scenarios: "Consider whether {stressor.description} applies to this bead."
+
 Dispatch 3 independent haiku agents with identical prompt:
 
 > "Bead {id} has been deployed to production. 90 days later, a severe incident occurred that the hardening phase failed to prevent. Write the postmortem: what happened, what was the root cause, and why did our instrumentation and error handling miss it?"
