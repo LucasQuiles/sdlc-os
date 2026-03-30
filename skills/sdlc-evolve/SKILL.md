@@ -225,6 +225,12 @@ Phase 5 produces a system health report:
 {Conductor summary of system health and recommended actions}
 ```
 
+## Noise-Aware Dispatch
+
+When dispatching evolution beads, check `review-passes.jsonl` for high repeat_review_noise_index or frequent verdict flips. These are signals that the review process needs calibration — prioritize precedent coherence audits and constitution staleness checks when noise is high.
+
+**Deferred (v2):** Full cue-calibration evolution bead (consume heuristics fields + outcome events, compute cue precision, propose FFT reordering). This requires noise-events.jsonl which has no producer in v1.
+
 ## Integration Points
 
 - Decision traces (from Phase A FFT backbone) are the primary data source for all 5 evolution bead types

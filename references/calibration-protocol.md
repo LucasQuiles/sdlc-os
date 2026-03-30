@@ -95,3 +95,9 @@ Before applying ANY noise mitigation from the table above, dispatch `variation-c
 3. **STABLE PROCESS** (noise has always been at this level) → The system is operating as designed. Do NOT tighten rubrics reactively — that is Tampering. Instead, reassess whether the noise level is acceptable for the current quality budget.
 
 See `references/control-charts.md` for Western Electric rules and Funnel Rule details.
+
+---
+
+## Calibration Beads as Noise Benchmarks
+
+Calibration beads with known answers can double as noise benchmarks: the distance between the reviewer's MAP vector and the "correct" MAP vector measures calibration noise on a known-answer task.

@@ -36,6 +36,11 @@ Run a lightweight health check on the current phase. This is NOT an approval gat
 - Are all stressor applications resolved (no pending results)?
 - Has the harvest section been reviewed?
 
+### Decision Noise (AQS-engaged tasks, advisory)
+- Does `decision-noise-summary.yaml` exist for tasks with AQS-engaged beads?
+- Are any soft escalation conditions triggered? (Check escalations section)
+- If verdict flips or MAP divergence detected: flag for Conductor attention (advisory, not blocking)
+
 ### Sentinel Status
 - Has the sentinel flagged any unresolved issues?
 - Are there beads that sentinel hasn't reviewed yet?

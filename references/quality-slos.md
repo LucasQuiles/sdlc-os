@@ -28,6 +28,9 @@ Quality governance for agent-generated code. The Conductor tracks these indicato
 | Feedback channel health | >= 80% channels GREEN | All sensors/guards functioning; measured via safety-analyst probe-based health check per L3 mechanism; checked each Evolve cycle and post-L3-escalation |
 | stress_yield | Stress session catch rate | >= 0.10 per stressed task | Stressor library effectiveness |
 | clean_streak_length | Consecutive tasks with zero escapes | Monitor (no SLO — anti-turkey signal) | Turkey problem early warning |
+| repeat_review_noise_index | Average MAP distance across repeat-review pairs | < 2.0 | Decision consistency |
+| natural_frequency_coverage | Share of high-severity claims with frequency backing | >= 0.80 | Calibration quality |
+| spot_check_coverage_rate | Repeat-reviewed beads / eligible beads | >= sampling target | Noise measurement completeness |
 
 ---
 

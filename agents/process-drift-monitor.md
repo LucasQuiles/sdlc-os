@@ -237,6 +237,14 @@ Stale models generate Evolve beads to refresh the model contents.
 
 ---
 
+## N1: Decision Noise Trend
+
+**Trigger:** Every Evolve cycle
+
+Read `review-passes.jsonl` for noise_index trend. Rising noise index across last 5 tasks = decision reliability degradation. Declining spot_check_coverage = measurement gap.
+
+---
+
 ## S1: Stressor Effectiveness Signals
 
 **Trigger:** Every Evolve cycle
