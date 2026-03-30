@@ -152,6 +152,8 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 - If this is the Nth task where N mod 20 == 0 → schedule an Evolve cycle after the current task completes (do not interrupt the user's task; queue it)
 - Evolve cycles triggered by budget WARNING are immediate (before user task). Periodic Evolve cycles are deferred (after user task).
 - Manual `/evolve` always takes priority over queued periodic cycles.
+**Anti-turkey check:** Read `docs/sdlc/system-stress.jsonl` for the last N tasks. If the clean streak (consecutive tasks with zero escapes across quality-budget and HDL) is >= 5, flag in the normalization report: "Anti-turkey sampling active — suspicious clean streak ({N} tasks). FFT-15 will apply 30% random sampling to this task."
+
 **Output:** Normalization report (or no-op confirmation). Directives require user approval before execution.
 **Skip when:** Never. Always fires, but self-limits depth based on state detection.
 
@@ -213,6 +215,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
 1. For each implementation bead, run the **reuse-first protocol** (`sdlc-os:sdlc-reuse`):
    - Dispatch `reuse-scout` (haiku) — runs the 6-layer analysis chain (episodic → Pinecone → grep → LSP symbols → LSP calls → synthesis)
    - Inject scout report into runner context as "Existing Solutions"
+1.5. **Stress sampling (FFT-15):** Before dispatching runners, evaluate FFT-15 from `references/fft-decision-trees.md` using quality-budget.yaml state, clean streak from system-stress.jsonl, bead complexity, and the deterministic seed (`sha256(task_id)`). If FFT-15 returns anything other than SKIP, create `stress-session.yaml` with `artifact_status: planned` and the selected stressors. Stressor probes are applied during AQS (Step 4) alongside domain probes.
 2. Dispatch `sonnet-implementer` runners — one per bead, with scout report. Parallel when independent.
 3. After each runner submits, sentinel loop runs:
    - `haiku-verifier` checks acceptance criteria
@@ -433,6 +436,9 @@ After Scout phase completes, the task directory contains:
 - `stpa-analysis.yaml` — Structured intermediate from safety-analyst (created during Architect, consumed by seeding script)
 - `system-hazard-defense.jsonl` — Append-only system-level HDL ledger (one entry per completed STPA-required task)
 - `system-hazard-defense-events.jsonl` — Late-arriving HDL corrections
+- `stress-session.yaml` — Stress session artifact (created during Execute for sampled tasks). Schema: `references/stressor-schema.md`.
+- `system-stress.jsonl` — Append-only system stress ledger
+- `system-stress-events.jsonl` — Stressor lifecycle events (promotions, retirements)
 
 ### Track
 After each runner completes:
@@ -446,6 +452,10 @@ When all beads are proven, hardened (or AQS-skipped), and merged:
 **Complete gate:** Before marking task complete, verify quality-budget.yaml has artifact_status `final`, sli_readings fully populated, budget_state computed with hard-stops applied. Run `scripts/append-system-budget.sh <task-dir> <project-dir>` to append to the system ledger.
 
 **HDL Complete gate (STPA-required tasks only):** Before marking complete, verify artifact_status is `final`, every record has status in {caught, escaped, accepted_residual}, and summary.coverage_state is computed. Run `scripts/append-system-hazard-defense.sh <task-dir> <project-dir>`.
+
+**Stress Synthesize gate (stressed tasks only):** stress-session.yaml exists with artifact_status `active` or higher. All stressor applications have results (no pending). Harvest section reviewed.
+
+**Stress Complete gate (stressed tasks only):** artifact_status is `final`. Stressor library updated. System stress ledger entry appended. Subtraction candidates logged.
 
 1. Write `delivery.md` — the final handoff summary
 2. Move task directory from `active/` to `completed/` (optional)
