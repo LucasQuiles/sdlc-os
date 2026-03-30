@@ -27,11 +27,15 @@ print(f'{math.sqrt(sum(vals)):.3f}')
 }
 
 # Check if a review_pass_id already exists in the ledger (idempotent guard)
-# Uses python3 JSON parsing — not grep — to handle any whitespace formatting
+# Pre-checks with grep before Python parsing to avoid full-file scan when the
+# pass_id is not present at all (fast path: grep miss → skip Python entirely).
 # Usage: pass_exists "review-passes.jsonl" "rp_20260330_001"
 pass_exists() {
   local ledger="$1" pass_id="$2"
   [ -f "$ledger" ] || return 1
+  # Fast path: if grep finds no candidate lines, the pass cannot exist
+  grep -qF "\"$pass_id\"" "$ledger" || return 1
+  # Slow path: grep found a candidate; confirm via proper JSON parse
   python3 -c "
 import json, sys
 target = sys.argv[1]
@@ -116,18 +120,24 @@ print(json.dumps(escalations))
 }
 
 # Compute noise index across a set of paired passes
+# Pre-filters the ledger with grep before Python parsing, reducing Python work
+# from O(total_ledger) to O(task_records).
 # Usage: compute_noise_index "review-passes.jsonl" "task_id"
 compute_noise_index() {
   local ledger="$1" task_id="$2"
-  python3 -c "
+  # Pre-filter: extract only lines containing the task_id (fast string match),
+  # then pipe the candidate subset to Python for accurate JSON parsing.
+  { [ -f "$ledger" ] && grep -F "\"task_id\":\"$task_id\"" "$ledger"; } 2>/dev/null | python3 -c "
 import json, math, sys
 
 passes = []
-with open('$ledger') as f:
-    for line in f:
+for line in sys.stdin:
+    try:
         r = json.loads(line.strip())
         if r.get('task_id') == '$task_id':
             passes.append(r)
+    except json.JSONDecodeError:
+        continue
 
 # Find repeat-review pairs
 groups = {}
