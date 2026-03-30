@@ -378,6 +378,8 @@ FFT-11: budget_allocation
 
 The barbell principle: most beads get minimal scrutiny (Clear/SKIP), a few get maximum (Complex/HIGH). MED is the only justified middle — recon surfaced a genuine blind spot the Conductor missed.
 
+**Note:** If FFT-15 returns FULL or TARGETED for this task, override budget to HIGH regardless of domain priority.
+
 **Trace log:** Per-domain guppy allocation, barbell position (max/min/justified-middle).
 
 ## FFT-12: Parallelization Safety
@@ -465,3 +467,55 @@ FFT-14: cross_model_escalation
 - **ESCALATE_L3:** AQS DEFERRED — no cross-model, standard L3 escalation.
 
 **TARGETED worker selection:** Domain investigator chosen from `aqs_exit.dominant_residual_risk_domain`. Tie-break order: security > functionality > resilience > usability (security wins ties because its failure modes are highest-consequence).
+
+---
+
+## FFT-15: Stress Sampling
+
+**New decision point** — determines whether a task bead should receive barbell stress testing and at what intensity
+**Anti-pattern guarded:** Turkey Complacency — long clean streaks are not evidence of quality; hidden brittleness accumulates during quiet periods
+**Source:** Taleb antifragile barbell (Antifragile, thinkers-lab `sdlc-map-10`), hormetic dose-response principle
+
+**Deterministic seed:** `sha256(task_id)` → float [0,1). Seed is computed once per task and reused for all probabilistic cues, ensuring reproducible sampling decisions across re-runs or resume scenarios. Compute with: `python3 -c "import hashlib; h=hashlib.sha256(task_id.encode()).hexdigest()[:8]; print(int(h,16)/0xFFFFFFFF)"`
+
+```
+FFT-15: stress_sampling
+
+  Input: budget_state (from quality-budget.yaml), clean_streak (from system-stress.jsonl),
+         has_complex_security (cynefin==COMPLEX or security_sensitive==true),
+         profile (from FFT-01), seed (sha256(task_id) → float [0,1))
+
+  Cue 1: profile == INVESTIGATE or profile == EVOLVE?
+    → YES → SKIP (no code changes to stress-test)
+    → NO  → continue
+
+  Cue 2: budget_state == depleted?
+    → YES → FULL (system under strain — maximum stress exposure)
+    → NO  → continue
+
+  Cue 3: cynefin == COMPLEX and security_sensitive == true?
+    → YES → TARGETED (high-consequence domain — targeted stressor probes)
+    → NO  → continue
+
+  Cue 4: budget_state == warning?
+    → YES → SAMPLED (50% probability — seed < 0.50 → SAMPLED, else SKIP)
+    → NO  → continue
+
+  Cue 5: clean_streak >= 5?
+    → YES → ANTI_TURKEY (30% probability — seed < 0.30 → ANTI_TURKEY, else SKIP)
+             Log: "Anti-turkey sampling active — suspicious clean streak ({N} tasks)"
+    → NO  → continue
+
+  Cue 6: Hormetic baseline
+    → HORMETIC (10% probability — seed < 0.10 → HORMETIC, else SKIP)
+```
+
+**Outcomes:**
+- **FULL:** Apply all applicable stressors from library. Budget overrides to HIGH (see FFT-11).
+- **TARGETED:** Apply stressors matching bead's cynefin domain and security tags only. Budget overrides to HIGH (see FFT-11).
+- **SAMPLED:** Apply a random 50% sample of applicable stressors.
+- **ANTI_TURKEY:** Apply stressors with highest catch rates from library (most proven failure modes).
+- **HORMETIC:** Apply 1-2 lowest-severity stressors as a minimum viable stress dose.
+- **SKIP:** No stress testing for this task.
+
+**Trace log:** Outcome, which cue fired, seed value used, stressors selected.
