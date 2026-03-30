@@ -53,7 +53,7 @@ Find duplicate, variant, and zombie functions across the JS/TS codebase.
 
 ### Harvest Channels
 
-1. **AST extraction:** Run `scripts/extract-functions.sh` on configured paths. Compare body hashes (SHA-256 of normalized body) for structural duplicates.
+1. **AST extraction:** Run `scripts/extract-functions.sh` on configured paths. Compare body hashes (SHA-256 of normalized body) for structural duplicates. **If the output JSON contains an `error` field** (e.g., typescript not installed), log the error in the scan report as `AST_UNAVAILABLE`, skip this channel entirely, and continue with remaining channels. Do NOT treat missing AST as a scan failure — the other 3 channels can still produce corroborated findings.
 2. **LSP:** `workspaceSymbol` for name collisions across modules. `findReferences` for adoption breadth. `incomingCalls`/`outgoingCalls` for usage patterns.
 3. **Grep/rules:** Same-name exports across modules. Canonical anti-patterns from registry.
 4. **Git history:** `git log --format='%H %an' -- <file>` for churn frequency, authorship spread. Single-author files that duplicate multi-author canonicals = context blindness signal.

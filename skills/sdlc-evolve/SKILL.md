@@ -152,7 +152,7 @@ Results written to `docs/sdlc/debt-scan-report.md` adoption section. PROMOTE fin
 
 ### 19. Duplicate Scan
 
-Dispatch `debt-crawler` in Mode 2. The crawler runs `scripts/extract-functions.sh` for AST extraction and the full 5-stage pipeline: harvest from AST body hashing + LSP symbols + grep name collisions + git history churn, corroborate (2+ channels required), filter noise, compute Debt Value Score, classify findings.
+Dispatch `debt-crawler` in Mode 2. The crawler runs `scripts/extract-functions.sh` for AST extraction and the full 5-stage pipeline: harvest from AST body hashing + LSP symbols + grep name collisions + git history churn, corroborate (2+ channels required), filter noise, compute Debt Value Score, classify findings. If the AST extractor returns an `error` field (e.g., typescript not installed), the crawler logs `AST_UNAVAILABLE` in the scan report and continues with remaining harvest channels — the scan degrades but does not fail.
 
 PROMOTE findings appended to `docs/sdlc/debt-backlog.md`. Ratchet evaluation: PROMOTE count must not exceed previous scan baseline — FAIL is BLOCKING within Evolve (Conductor must acknowledge). All counts updated in `docs/sdlc/debt-scan-report.md`.
 

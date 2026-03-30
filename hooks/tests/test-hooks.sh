@@ -238,7 +238,7 @@ JSON
 ## Description
 Test bead advanced to proven.
 BEAD
-  (cd "$REPO" && git add -A && git commit -q -m "advance to proven")
+  (cd "$REPO" && git add -A && git commit -q --no-verify -m "advance to proven")
 
   local FIXTURE_VALID
   FIXTURE_VALID=$(cat <<JSON
@@ -302,7 +302,7 @@ run_naming_integration_test() {
 - **Scope:** lib/storage/, lib/utils/
 - **Confidence:** Verified 5/5
 MAP
-  (cd "$REPO" && git add -A && git commit -q -m "add convention map")
+  (cd "$REPO" && git add -A && git commit -q --no-verify -m "add convention map")
 
   # Test: valid kebab-case file in mapped dir — no warning
   local FIXTURE_VALID
