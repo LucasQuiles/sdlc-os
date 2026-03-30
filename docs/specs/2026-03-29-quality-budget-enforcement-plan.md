@@ -344,7 +344,7 @@ hard-stop invariant checks."
 - [ ] **Step 1: Create the derivation script**
 
 Write `scripts/derive-quality-budget.sh`. This script:
-1. Reads bead files from `docs/sdlc/active/{task-id}/beads/B*.md`
+1. Reads bead files from `docs/sdlc/active/{task-id}/beads/*.md`
 2. Reads `state.md` for bead counts and status
 3. Aggregates turbulence, computes metrics, looks up thresholds
 4. Produces/updates `quality-budget.yaml`
@@ -636,6 +636,20 @@ if [[ ! -f "$file_path" ]]; then
   exit 2
 fi
 
+# Validate: must parse as valid YAML
+if command -v python3 &>/dev/null; then
+  if ! python3 -c "import yaml, sys; yaml.safe_load(open(sys.argv[1]))" "$file_path" 2>/dev/null; then
+    echo '{"decision":"deny","reason":"quality-budget.yaml is not valid YAML"}' >&2
+    exit 2
+  fi
+else
+  # Fallback: check for obvious structural errors (unclosed brackets, missing colons)
+  if grep -qE '^\S+[^:]$' "$file_path" 2>/dev/null | head -1; then
+    echo '{"decision":"deny","reason":"quality-budget.yaml has structural errors (no python3 for full parse)"}' >&2
+    exit 2
+  fi
+fi
+
 # Validate: must contain schema_version
 if ! grep -q "^schema_version:" "$file_path"; then
   echo '{"decision":"deny","reason":"quality-budget.yaml missing schema_version field"}' >&2
@@ -680,7 +694,9 @@ chmod +x hooks/scripts/validate-quality-budget.sh
 
 - [ ] **Step 3: Create test fixtures**
 
-Write `hooks/tests/fixtures/quality-budget-valid.yaml`:
+Each YAML fixture is named `quality-budget.yaml` (matching the hook's filename guard) and placed in a subdirectory to distinguish variants.
+
+Write `hooks/tests/fixtures/qb-valid/quality-budget.yaml`:
 ```yaml
 schema_version: 1
 task_id: "test-task-001"
@@ -732,7 +748,7 @@ overrides: []
 notes: ""
 ```
 
-Write `hooks/tests/fixtures/quality-budget-missing-fields.yaml`:
+Write `hooks/tests/fixtures/qb-missing/quality-budget.yaml`:
 ```yaml
 schema_version: 1
 task_id: "test-task-002"
@@ -740,7 +756,7 @@ task_id: "test-task-002"
 budget_state: healthy
 ```
 
-Write `hooks/tests/fixtures/quality-budget-malformed.yaml`:
+Write `hooks/tests/fixtures/qb-malformed/quality-budget.yaml`:
 ```
 this is not valid yaml: [
   unclosed bracket
@@ -764,60 +780,46 @@ In `hooks/hooks.json`, find the `"PostToolUse"` array. Add a new entry at the en
     }
 ```
 
-- [ ] **Step 5: Create JSON test fixtures for the hook**
+- [ ] **Step 5: Add test cases to test-hooks.sh**
 
-The hook receives tool input via stdin as JSON. Create fixture files matching the existing pattern:
-
-Write `hooks/tests/fixtures/qb-write-valid.json`:
-```json
-{"tool_name":"Write","tool_input":{"file_path":"FIXTURES_DIR/quality-budget-valid.yaml"}}
-```
-
-Write `hooks/tests/fixtures/qb-write-missing-fields.json`:
-```json
-{"tool_name":"Write","tool_input":{"file_path":"FIXTURES_DIR/quality-budget-missing-fields.yaml"}}
-```
-
-Write `hooks/tests/fixtures/qb-write-malformed.json`:
-```json
-{"tool_name":"Write","tool_input":{"file_path":"FIXTURES_DIR/quality-budget-malformed.yaml"}}
-```
-
-Write `hooks/tests/fixtures/qb-write-non-budget.json`:
-```json
-{"tool_name":"Write","tool_input":{"file_path":"/tmp/not-quality-budget.txt"}}
-```
-
-**Note:** The `FIXTURES_DIR` placeholder must be replaced with the absolute path at test time. See Step 6.
-
-- [ ] **Step 6: Add test cases to test-hooks.sh**
-
-In `hooks/tests/test-hooks.sh`, before the final summary line, add:
+The test generates JSON input inline (no separate JSON fixture files needed — the YAML fixture files on disk are what the hook validates). In `hooks/tests/test-hooks.sh`, before the final summary line, add:
 
 ```bash
 echo ""
 echo "=== Quality Budget Validation Tests ==="
 
-# Patch fixture paths to absolute (fixtures reference YAML files that must exist on disk)
-for f in "$FIXTURES_DIR"/qb-write-*.json; do
-  sed -i.bak "s|FIXTURES_DIR|$FIXTURES_DIR|g" "$f" && rm -f "$f.bak"
-done
+# Generate inline JSON that points at the real YAML fixture paths
+_qb_input() { echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$1\"}}"; }
 
-run_test "valid: complete quality-budget.yaml passes" \
-  "$HOOKS_DIR/validate-quality-budget.sh" \
-  "$FIXTURES_DIR/qb-write-valid.json" 0
+_qb_input "$FIXTURES_DIR/qb-valid/quality-budget.yaml" | run_test_inline \
+  "valid: complete quality-budget.yaml passes" "$HOOKS_DIR/validate-quality-budget.sh" 0
 
-run_test "reject: missing required fields" \
-  "$HOOKS_DIR/validate-quality-budget.sh" \
-  "$FIXTURES_DIR/qb-write-missing-fields.json" 2
+_qb_input "$FIXTURES_DIR/qb-missing/quality-budget.yaml" | run_test_inline \
+  "reject: missing required fields" "$HOOKS_DIR/validate-quality-budget.sh" 2
 
-run_test "reject: malformed YAML" \
-  "$HOOKS_DIR/validate-quality-budget.sh" \
-  "$FIXTURES_DIR/qb-write-malformed.json" 2
+_qb_input "$FIXTURES_DIR/qb-malformed/quality-budget.yaml" | run_test_inline \
+  "reject: malformed YAML" "$HOOKS_DIR/validate-quality-budget.sh" 2
 
-run_test "skip: non-budget file ignored" \
-  "$HOOKS_DIR/validate-quality-budget.sh" \
-  "$FIXTURES_DIR/qb-write-non-budget.json" 0
+_qb_input "/tmp/not-quality-budget.txt" | run_test_inline \
+  "skip: non-budget file ignored" "$HOOKS_DIR/validate-quality-budget.sh" 0
+```
+
+Also add the `run_test_inline` helper near the top of test-hooks.sh (after `run_test_advisory`):
+
+```bash
+# Like run_test but reads fixture from stdin instead of a file
+run_test_inline() {
+  local test_name="$1" hook_script="$2" expected_exit="$3"
+  local actual_exit=0
+  bash "$hook_script" > /dev/null 2>&1 || actual_exit=$?
+  if [[ "$actual_exit" -eq "$expected_exit" ]]; then
+    echo "  PASS: $test_name (exit $actual_exit)"
+    PASS=$((PASS + 1))
+  else
+    echo "  FAIL: $test_name (expected exit $expected_exit, got $actual_exit)"
+    FAIL=$((FAIL + 1))
+  fi
+}
 ```
 
 Update the expected test count in the summary line to include the 4 new tests.
@@ -834,12 +836,13 @@ Expected: 36/36 PASS (or whatever the new total is).
 
 ```bash
 cd /Users/q/.claude/plugins/sdlc-os
-git add hooks/scripts/validate-quality-budget.sh hooks/hooks.json hooks/tests/test-hooks.sh hooks/tests/fixtures/quality-budget-valid.yaml hooks/tests/fixtures/quality-budget-missing-fields.yaml hooks/tests/fixtures/quality-budget-malformed.yaml
+git add hooks/scripts/validate-quality-budget.sh hooks/hooks.json hooks/tests/test-hooks.sh hooks/tests/fixtures/qb-valid/quality-budget.yaml hooks/tests/fixtures/qb-missing/quality-budget.yaml hooks/tests/fixtures/qb-malformed/quality-budget.yaml
 git commit -m "feat: add quality budget validation hook with tests
 
 PostToolUse hook validates quality-budget.yaml structure on Write/Edit.
-Checks schema_version, task_id, artifact_status, and required sections.
-4 test cases with 3 fixtures."
+YAML parse check (python3 safe_load with grep fallback), then validates
+schema_version, task_id, artifact_status, and required sections.
+4 test cases with 3 YAML fixtures in subdirectories."
 ```
 
 ---
@@ -1220,10 +1223,10 @@ Expected: Zero matches. All references should now be `quality-budget.yaml`.
 - [ ] **Step 3: Verify all new files exist**
 
 ```bash
-ls -la references/quality-budget-rules.yaml references/quality-budget-schema.md scripts/lib/quality-budget-lib.sh scripts/derive-quality-budget.sh scripts/append-system-budget.sh hooks/scripts/validate-quality-budget.sh hooks/tests/fixtures/quality-budget-valid.yaml hooks/tests/fixtures/quality-budget-missing-fields.yaml hooks/tests/fixtures/quality-budget-malformed.yaml hooks/tests/fixtures/qb-write-valid.json hooks/tests/fixtures/qb-write-missing-fields.json hooks/tests/fixtures/qb-write-malformed.json hooks/tests/fixtures/qb-write-non-budget.json
+ls -la references/quality-budget-rules.yaml references/quality-budget-schema.md scripts/lib/quality-budget-lib.sh scripts/derive-quality-budget.sh scripts/append-system-budget.sh hooks/scripts/validate-quality-budget.sh hooks/tests/fixtures/qb-valid/quality-budget.yaml hooks/tests/fixtures/qb-missing/quality-budget.yaml hooks/tests/fixtures/qb-malformed/quality-budget.yaml
 ```
 
-Expected: All 13 files exist (9 artifacts + 4 test fixture JSONs).
+Expected: All 9 files exist.
 
 - [ ] **Step 4: Verify derivation script runs on a synthetic task**
 
