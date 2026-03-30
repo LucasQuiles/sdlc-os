@@ -114,6 +114,9 @@ Every piece of work is tracked as an atomic unit:
 **Decision trace:** [path to {bead-id}-decision-trace.md]
 **Deterministic checks:** [list of checks routed to scripts per FFT-08]
 **Turbulence:** {L0: 0, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
+**Dispatched at:** ""
+**Review started at:** ""
+**Completed at:** ""
 **Control actions:** [Phase B — not yet populated]
 **Unsafe control actions:** [Phase B — not yet populated]
 **Latent condition trace:** [Phase B — not yet populated]

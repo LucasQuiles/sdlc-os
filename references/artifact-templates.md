@@ -4,6 +4,43 @@ Copy-paste templates for wave artifacts. Each template uses YAML frontmatter whe
 
 ---
 
+## 0. Bead — Work Unit
+
+```markdown
+# Bead: {id}
+**Status:** pending | running | submitted | verified | proven | hardened | reliability-proven | merged | blocked | stuck | escalated
+**Type:** investigate | design | implement | verify | review | evolve
+**Runner:** [agent name or "unassigned"]
+**Dependencies:** [list of bead IDs that must complete first]
+**Scope:** [files/areas this bead touches — used for conflict detection]
+**Input:** [what context the runner needs]
+**Output:** [what the runner must produce]
+**Sentinel notes:** [anything the sentinel flagged]
+**Cynefin domain:** clear | complicated | complex | chaotic | confusion
+**Security sensitive:** true | false
+**Complexity source:** essential | accidental
+**Profile:** BUILD | INVESTIGATE | REPAIR | EVOLVE
+**Intent:** default | migration | registry | debt_companion
+**Decision trace:** [path to {bead-id}-decision-trace.md]
+**Deterministic checks:** [list of checks routed to scripts per FFT-08]
+**Turbulence:** {L0: 0, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
+**Dispatched at:** ""
+**Review started at:** ""
+**Completed at:** ""
+**Control actions:** [Phase B — not yet populated]
+**Unsafe control actions:** [Phase B — not yet populated]
+**Latent condition trace:** [Phase B — not yet populated]
+**Assumptions:** [explicit list of what must be true for this bead to work — populated by runner]
+**Safe-to-fail:** [rollback plan — REQUIRED for Complex domain beads, optional otherwise]
+**Confidence:** [runner's self-assessed confidence 0.0-1.0 with rationale — populated after execution]
+```
+
+All timestamps are UTC ISO 8601 format (e.g., 2026-03-29T14:22:00Z). Populated by the Conductor at each lifecycle transition.
+
+Beads are written to `docs/sdlc/active/{task-id}/beads/` as individual markdown files.
+
+---
+
 ## 1. state.md — Task State
 
 ```markdown
@@ -35,6 +72,19 @@ decisions:
 
 _Managed by Orchestrator. Updated at each wave transition._
 ```
+
+---
+
+### Task Artifacts
+
+Each task directory contains these machine-readable artifacts:
+
+| Artifact | File | Created | Required |
+|----------|------|---------|----------|
+| Task state | `state.md` | Phase 1 (Frame) | Yes |
+| Quality budget | `quality-budget.yaml` | Phase 4 (Execute) | Yes — gates Synthesize and Complete |
+| Standards profile | `standards-profile.md` | Phase 2 (Scout) | If standards apply |
+| Observability profile | `observability-profile.md` | Phase 2 (Scout) | If observability applies |
 
 ---
 
