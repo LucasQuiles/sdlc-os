@@ -95,13 +95,14 @@ L2.5: AQS adversarial (2 cycles) — red/blue/arbiter
 L3-L5: Bead → Phase → Task escalation
 ```
 
-### Hooks (6 scripts)
+### Hooks (7 scripts)
 
 | Hook | Event | Behavior |
 |------|-------|----------|
 | validate-aqs-artifact.sh | PostToolUse | **Blocking** — AQS schema validation |
 | guard-bead-status.sh | PostToolUse | **Blocking** — illegal status transitions |
 | lint-domain-vocabulary.sh | PostToolUse | **Blocking** — non-canonical domains |
+| validate-quality-budget.sh | PostToolUse | **Blocking** — quality-budget.yaml schema validation |
 | check-naming-convention.sh | PreToolUse | **Advisory** — Convention Map naming check |
 | validate-consistency-artifacts.sh | PostToolUse | **Advisory** — feature matrix + convention report schemas |
 | validate-runner-output.sh | SubagentStop | **Advisory** — runner output structure + convention signals |
@@ -130,6 +131,9 @@ The plugin creates these files in target project repos:
 | Convention Map | `docs/sdlc/convention-map.md` | Project's naming/style/structure conventions |
 | Feature Matrix | `docs/sdlc/feature-matrix.md` | Neglected feature tracking |
 | SDLC State | `docs/sdlc/active/{task-id}/` | Workflow state, bead files, AQS reports |
+| Quality Budget | `docs/sdlc/active/{task-id}/quality-budget.yaml` | Task-level metrics, phase gate enforcement |
+| System Budget | `docs/sdlc/system-budget.jsonl` | Cross-task longitudinal ledger |
+| System Budget Events | `docs/sdlc/system-budget-events.jsonl` | Late-arriving escape corrections |
 
 ## Testing
 

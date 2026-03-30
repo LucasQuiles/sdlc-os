@@ -14,3 +14,5 @@ Start a new SDLC workflow using the `sdlc-os:sdlc-orchestrate` skill.
 3. Create `docs/sdlc/active/{task-id}/beads/` directory
 4. Assess complexity (trivial / moderate / complex)
 5. Begin Phase 1 (Frame) or skip to Execute for trivial tasks
+
+Each task produces a `quality-budget.yaml` artifact that tracks turbulence, corrections, and SLI readings. This artifact gates Synthesize and Complete phase transitions. See `references/quality-budget-schema.md` for the full schema.
