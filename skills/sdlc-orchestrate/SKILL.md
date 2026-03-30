@@ -144,7 +144,7 @@ Phases exist for orientation, not approval. The Conductor flows through them as 
 **How:** Dispatch `normalizer` agent. See `sdlc-os:sdlc-normalize` for full protocol.
 **Depth detection:**
   - Clean state → no-op (<5 seconds), proceed to Phase 1
-  - Partial SDLC artifacts → resume protocol: read state.md + beads + standards-profile.md (if exists) + quality-budget.md (if exists), recover Cynefin assignments, quality budget, and standards context. Recommend re-entry phase
+  - Partial SDLC artifacts → resume protocol: read state.md + beads + standards-profile.md (if exists) + quality-budget.yaml (if exists), recover Cynefin assignments, quality budget, and standards context. Recommend re-entry phase
   - Unstructured changes → full normalization: check/create Convention Map via `convention-scanner`, assess changes against Convention Map + code-constitution, produce normalization directives (require user approval), dispatch `gap-analyst` Finder mode on existing work
 
 **Evolve auto-trigger check (runs during every Phase 0):**
@@ -235,6 +235,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - **Skip for trivial beads.** See `skills/sdlc-adversarial/scaling-heuristics.md`
 5. Corrections flow through the L0-L5 loop system (`sdlc-os:sdlc-loop`).
 6. **Turbulence tracking (Karpathy March of Nines):** The Conductor updates the bead's `Turbulence` field after each correction cycle at any level. Increment the relevant counter: L0 for runner self-corrections, L1 for sentinel corrections, L2 for oracle findings, L2.5 for AQS findings, L2.75 for hardening findings. See `references/reliability-ledger.md` for population rules.
+7. **Budget derivation:** After each bead status change (completion, stuck, blocked), run `scripts/derive-quality-budget.sh <task-dir> --status partial` to update the task's quality-budget.yaml with current metrics.
 **Output:** Code changes, tests, validation notes, reuse reports per bead.
 **Recovery:** Handled by loop mechanics. See `sdlc-os:sdlc-loop`.
 
@@ -257,6 +258,9 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
 
 ### Phase 5: Synthesize
 **What:** Merge all runner outputs. Resolve conflicts. Verify the whole.
+
+**Synthesize gate:** Before entering Synthesize, run `scripts/derive-quality-budget.sh <task-dir> --status ready`. Verify: quality-budget.yaml exists, artifact_status is `ready`, all derived fields non-null (except estimate_s and sli_readings). If gate fails, report missing fields and re-derive.
+
 **How:**
 1. Run **fitness check** (`sdlc-os:sdlc-fitness`) across all changed files — full report
 2. Dispatch `sonnet-reviewer` for critical assessment of the integrated result
@@ -419,7 +423,9 @@ After Scout phase completes, the task directory contains:
 - `state.md` — task metadata and phase log
 - `beads/` — work unit files
 - `standards-profile.md` — project-specific standards profile from `standards-curator` (persists across sessions)
-- `quality-budget.md` — SLI/SLO tracking (created during Synthesize, read during subsequent tasks)
+- `quality-budget.yaml` — Machine-readable quality budget (created during Execute as `partial`, promoted to `ready` before Synthesize, `final` after Synthesize). Schema: `references/quality-budget-schema.md`. Rules: `references/quality-budget-rules.yaml`.
+- `system-budget.jsonl` — Append-only system-level ledger (one entry per completed task, written during Complete)
+- `system-budget-events.jsonl` — Late-arriving corrections to system ledger (escape confirmations from LOSA)
 - `observability-profile.md` — project observability stack (created during Harden, if reached)
 
 ### Track
@@ -430,6 +436,9 @@ After each runner completes:
 
 ### Complete
 When all beads are proven, hardened (or AQS-skipped), and merged:
+
+**Complete gate:** Before marking task complete, verify quality-budget.yaml has artifact_status `final`, sli_readings fully populated, budget_state computed with hard-stops applied. Run `scripts/append-system-budget.sh <task-dir> <project-dir>` to append to the system ledger.
+
 1. Write `delivery.md` — the final handoff summary
 2. Move task directory from `active/` to `completed/` (optional)
 
