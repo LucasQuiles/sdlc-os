@@ -1,7 +1,7 @@
 # SDLC-OS Plugin — Handoff Document
 
-**Date:** 2026-03-27
-**Plugin version:** 9.0.0
+**Date:** 2026-03-29
+**Plugin version:** 10.0.0
 **Location:** `~/.claude/plugins/sdlc-os/`
 **Git:** 4 commits on `main`
 
@@ -11,19 +11,19 @@
 
 A multi-agent SDLC orchestration system for Claude Code. The Conductor (Opus) decomposes tasks into atomic beads, dispatches Sonnet runners in parallel, Haiku sentinels patrol continuously, an Oracle council verifies claims, and adversarial red/blue teams probe for defects. Every Conductor decision is routed through Fast-and-Frugal Decision Trees (Gigerenzer). A safety control layer (Leveson/Reason/Dekker) monitors system integrity.
 
-## Current State (v9.0.0)
+## Current State (v10.0.0)
 
 | Component | Count |
 |-----------|-------|
-| Agents | 45 |
+| Agents | 46 |
 | Skills | 15 |
-| Hook scripts | 9 |
-| Reference docs | 21 |
-| Cross-model scripts | 5 |
+| Hook scripts | 10 |
+| Reference docs | 22 |
+| Cross-model scripts | 6 |
 | Commands | 11 |
 | Research docs | 10 (4,898 lines) |
-| Design specs | 8 |
-| Implementation plans | 4 |
+| Design specs | 10 |
+| Implementation plans | 6 |
 
 ### Commit History (This Session)
 
@@ -37,6 +37,10 @@ A multi-agent SDLC orchestration system for Claude Code. The Conductor (Opus) de
 ### Architecture Layers (Bottom to Top)
 
 ```
+Layer 10: Debt Combat System (v10.0.0)
+  debt-crawler (adoption + duplicate scan), migration plan gate, rule governance audit
+  eslint-disable justification enforcement, canonical registry, debt backlog/ratchet
+
 Layer 9: Cross-Model Adversarial Review (v9.0.0)
   FFT-14 escalation, tmup/Codex workers, crossmodel-supervisor, advisory day-1
   Cross-model debate (Milvus 53%→80%), tmup DAG coordination, circuit breakers, fallback ladder
@@ -92,6 +96,8 @@ Layer 1: Core Orchestration (v1.0.0, pre-session)
 2. `references/anti-patterns.md` — 8 named anti-patterns the system guards against
 3. `references/safety-constraints.md` — Invariants all agents must respect
 
+**v10.0.0 additions:** `Intent` field (`default | migration | registry | debt_companion`) added to bead schema for debt combat system. See `skills/sdlc-orchestrate/SKILL.md` bead schema block.
+
 ---
 
 ## Phased Roadmap
@@ -137,6 +143,18 @@ Three capabilities that measure the backbone:
 - Source: `docs/research/2026-03-26-karpathy-gap-analysis.md`, thinkers-lab `netnew-004`
 
 **Design tradeoff to preserve:** L0-only paths intentionally accept probabilistic enforcement for LLM-only safety constraints. Advisory hooks provide early warning; LOSA catches violations post-merge. This is by design (spec Section 7).
+
+### Phase D: Debt Combat System — DONE (v10.0.0)
+
+Five capabilities closing gaps A-E from consolidation root cause analysis:
+- **A: Adoption tracking** — debt-crawler Mode 1, canonical-registry.md
+- **B: Rule graduation** — standards-curator Rule Governance Audit in Scout + Evolve
+- **C: Suppression enforcement** — check-eslint-disable-justification.sh hook
+- **D: Duplicate scan** — debt-crawler Mode 2, extract-functions.sh, ratchet
+- **E: Migration plan gate** — Architect Phase 3 check + drift-detector MIGRATION_PLAN_MISSING
+
+**Spec:** `docs/specs/2026-03-29-debt-combat-system-design.md`
+**Plan:** `docs/superpowers/plans/2026-03-29-debt-combat-system.md`
 
 ---
 
@@ -224,6 +242,7 @@ Skill content in markdown...
 **Status:** pending | running | submitted | verified | proven | hardened | reliability-proven | merged | blocked | stuck | escalated
 **Type:** investigate | design | implement | verify | review | evolve
 **Profile:** BUILD | INVESTIGATE | REPAIR | EVOLVE
+**Intent:** default | migration | registry | debt_companion
 **Runner:** [agent name]
 **Dependencies:** [bead IDs]
 **Scope:** [files]
