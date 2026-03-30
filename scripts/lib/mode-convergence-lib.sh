@@ -1,12 +1,10 @@
 #!/bin/bash
 # mode-convergence-lib.sh — Shared helpers for mode & convergence signals
 set -euo pipefail
+source "$(dirname "${BASH_SOURCE[0]}")/sdlc-common.sh"
 
-# PyYAML dependency guard
-if ! python3 -c "import yaml" 2>/dev/null; then
-  echo "ERROR: PyYAML is required. Install with: pip install pyyaml" >&2
-  exit 1
-fi
+# PyYAML checked by callers via check_pyyaml from sdlc-common.sh
+# (removed module-level exit 1 that killed sourcing shells)
 
 # Classify one SRK signal. Returns: skill_based | rule_based | knowledge_based
 # Usage: classify_signal "turbulence_sum_per_bead" 0.5 <rules_file>
@@ -187,6 +185,4 @@ print(json.dumps({
 " "$new" "$repeated" "$sev_trend" "$entropy" "$original_budget" "$cycle" "$rules"
 }
 
-now_utc() {
-  date -u +"%Y-%m-%dT%H:%M:%SZ"
-}
+# now_utc() provided by sdlc-common.sh

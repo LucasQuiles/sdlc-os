@@ -1,6 +1,7 @@
 #!/bin/bash
 # hazard-defense-lib.sh — Shared helpers for hazard/defense ledger operations
 set -euo pipefail
+source "$(dirname "${BASH_SOURCE[0]}")/sdlc-common.sh"
 
 # Generate HDL record ID from bead_id, control action index, UCA index
 # Usage: hdl_record_id "B03" 1 2
@@ -91,7 +92,4 @@ print(json.dumps({
 " "$file"
 }
 
-# Format current UTC timestamp as ISO 8601
-now_utc() {
-  date -u +"%Y-%m-%dT%H:%M:%SZ"
-}
+# now_utc() provided by sdlc-common.sh

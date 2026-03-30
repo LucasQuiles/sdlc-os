@@ -1,6 +1,7 @@
 #!/bin/bash
 # decision-noise-lib.sh — Shared helpers for decision-noise controls
 set -euo pipefail
+source "$(dirname "${BASH_SOURCE[0]}")/sdlc-common.sh"
 
 # Generate unique review pass ID
 # Usage: generate_review_pass_id
@@ -154,6 +155,4 @@ print(json.dumps({'noise_index': round(avg,3) if avg else None, 'pairs': len(dis
 "
 }
 
-now_utc() {
-  date -u +"%Y-%m-%dT%H:%M:%SZ"
-}
+# now_utc() provided by sdlc-common.sh

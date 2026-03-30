@@ -3,6 +3,7 @@
 # Sourced by derive-quality-budget.sh and append-system-budget.sh
 
 set -euo pipefail
+source "$(dirname "${BASH_SOURCE[0]}")/sdlc-common.sh"
 
 # Parse YAML frontmatter from a bead file, extract a field value
 # Usage: bead_field "beads/B01.md" "Turbulence"
@@ -82,7 +83,4 @@ check_hard_stops() {
   echo "false"
 }
 
-# Format current UTC timestamp as ISO 8601
-now_utc() {
-  date -u +"%Y-%m-%dT%H:%M:%SZ"
-}
+# now_utc() provided by sdlc-common.sh

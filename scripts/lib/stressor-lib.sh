@@ -1,10 +1,11 @@
 #!/bin/bash
 # stressor-lib.sh — Shared helpers for stressor harvesting
 set -euo pipefail
+source "$(dirname "${BASH_SOURCE[0]}")/sdlc-common.sh"
 
-# PyYAML dependency guard (for callers that source this lib and use python3+yaml)
+# PyYAML dependency guard — delegates to sdlc-common.sh check_pyyaml
 _check_pyyaml() {
-  if ! python3 -c "import yaml" 2>/dev/null; then
+  if ! check_pyyaml; then
     echo "ERROR: PyYAML not installed. Run: pip3 install pyyaml" >&2
     return 1
   fi
@@ -34,15 +35,20 @@ compute_sampling_seed() {
 evaluate_fft15() {
   local budget_state="$1" clean_streak="$2" has_complex_security="$3" profile="$4" seed="$5" rules_file="${6:-}"
 
-  # Read sampling rates from rules file (no hardcoded values)
+  # Read ALL sampling rates from rules file in a single python3 invocation (not 4 separate ones)
   local sampled_rate anti_turkey_rate hormetic_rate clean_streak_threshold
   if [ -n "$rules_file" ] && [ -f "$rules_file" ]; then
-    sampled_rate=$(python3 -c "import yaml; r=yaml.safe_load(open('$rules_file')); print(r.get('fft15_sampling',{}).get('sampled_rate', 0.50))" 2>/dev/null || echo "0.50")
-    anti_turkey_rate=$(python3 -c "import yaml; r=yaml.safe_load(open('$rules_file')); print(r.get('fft15_sampling',{}).get('anti_turkey_rate', 0.30))" 2>/dev/null || echo "0.30")
-    hormetic_rate=$(python3 -c "import yaml; r=yaml.safe_load(open('$rules_file')); print(r.get('fft15_sampling',{}).get('hormetic_rate', 0.10))" 2>/dev/null || echo "0.10")
-    clean_streak_threshold=$(python3 -c "import yaml; r=yaml.safe_load(open('$rules_file')); print(r.get('fft15_sampling',{}).get('clean_streak_threshold', 5))" 2>/dev/null || echo "5")
+    # Single python3 invocation: parse YAML once, output space-separated values
+    local _rates
+    _rates=$(python3 -c "
+import yaml
+with open('$rules_file') as f:
+    r = yaml.safe_load(f)
+s = r.get('fft15_sampling', {})
+print(s.get('sampled_rate', 0.50), s.get('anti_turkey_rate', 0.30), s.get('hormetic_rate', 0.10), s.get('clean_streak_threshold', 5))
+" 2>/dev/null || echo "0.50 0.30 0.10 5")
+    read -r sampled_rate anti_turkey_rate hormetic_rate clean_streak_threshold <<< "$_rates"
   else
-    # Fallback defaults (same as spec) — but callers should always pass rules_file
     sampled_rate="0.50"
     anti_turkey_rate="0.30"
     hormetic_rate="0.10"
@@ -177,8 +183,4 @@ compute_lindy_transition() {
   echo "unchanged"
 }
 
-# now_utc
-# Outputs current UTC time in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
-now_utc() {
-  date -u +"%Y-%m-%dT%H:%M:%SZ"
-}
+# now_utc() provided by sdlc-common.sh
