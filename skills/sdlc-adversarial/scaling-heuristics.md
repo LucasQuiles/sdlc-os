@@ -66,6 +66,8 @@ Budget allocation follows **FFT-11** from `references/fft-decision-trees.md`, im
 
 Note: security_sensitive == true overrides ACCIDENTAL → guppies are never zero for security-sensitive beads regardless of complexity source.
 
+**FFT-15 stress override:** If FFT-15 returns FULL or TARGETED for this task, override the guppy budget to HIGH (20-40) regardless of the domain priority level. Stress-sampled tasks have already been identified as needing maximum scrutiny — do not let domain heuristics reduce the budget below HIGH.
+
 ### Arbiter Budget
 
 **Maximum 3 arbiter invocations per bead.** If more than 3 findings reach `disputed` status, halt and recalibrate the red/blue pair before proceeding. See `arbitration-protocol.md` for the recalibration trigger.

@@ -91,6 +91,8 @@ After cross-reference produces final domain priorities but before directed strik
 
 ### Phase 3: Directed Strike
 
+**Stressor probes (stress-sampled tasks):** For tasks where FFT-15 returned anything other than SKIP, stressor-selected probes from `stress-session.yaml:stressors_applied` run alongside domain probes. Each stressor probe is dispatched as a directed guppy (severity `low`/`medium`) or a sonnet strike (severity `high`) targeting the specific failure mode described in the stressor entry. Results — HIT or MISS — are recorded back in `stress-session.yaml` under the corresponding stressor application's `result` field before Phase 4 begins.
+
 For each HIGH/MED/LOW domain, dispatch the corresponding red team Sonnet commander agent. Each commander:
 
 1. Receives the bead code, recon guppy signals, and priority level. For COMPLEX and security-sensitive beads, red team commanders also receive the bead's UCA records from `hazard-defense-ledger.yaml`. Each HDL record with `status: open` and matching `bead_id` provides a systematic attack vector — probe each UCA scenario. When a red team probe catches a UCA-related issue, the Conductor updates the matching HDL record's `actual_catch_point` with the AQS layer and finding reference.

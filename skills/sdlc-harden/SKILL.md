@@ -29,6 +29,12 @@ Step 6: Post-Clean ────────── /finding-duplicate-functions +
 Step 7: Report ────────────── hardening report + WYSIATI sweep + evidence ledger
 ```
 
+### Step 0 — Premortem Detail
+
+Before generating premortem failure modes, consult `references/stressor-library.yaml` for stressors applicable to this bead's domain and tags (match on `applicable_when.cynefin` and `applicable_when.tags`). Inject applicable stressor scenarios into the premortem prompt as seed failure modes — prefer `established` stressors over `provisional` ones.
+
+If `stress-session.yaml` exists for this task, the hardening pipeline receives the stress session as additional input. Stressor probes that were `caught` during AQS feed into the hardening targets — these are empirically confirmed failure modes for this specific bead and must be addressed before `reliability-proven` can be declared.
+
 ### Dual-Process Scheduling (Kahneman System 1/2)
 
 | Step | System 1 (Haiku — fast) | System 2 (Sonnet — deliberate) |
