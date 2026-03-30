@@ -17,6 +17,13 @@ Run a lightweight health check on the current phase. This is NOT an approval gat
 ### Readiness Checklist
 - [ ] AQS engaged for non-trivial beads (or explicitly skipped with justification)
 
+### Quality Budget
+- Does `quality-budget.yaml` exist in the task directory?
+- Is `artifact_status` appropriate for the current transition? (`ready` for Synthesize, `final` for Complete)
+- Are any hard-stop invariants triggered? (Check `references/quality-budget-rules.yaml`)
+- Is `budget_state` computed and non-null?
+- If `budget_state` is `depleted`: flag for user attention before proceeding.
+
 ### Sentinel Status
 - Has the sentinel flagged any unresolved issues?
 - Are there beads that sentinel hasn't reviewed yet?
