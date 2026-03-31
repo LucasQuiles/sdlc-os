@@ -150,15 +150,35 @@ run_synthesize_checks() {
 
     # All derived fields non-null except estimate_s and sli_readings
     if [ -f "$qb" ]; then
-      for field in task_id complexity_weight turbulence_sum turbulence_max_bead budget_state; do
+      # Top-level derived fields
+      for field in task_id complexity_weight turbulence_sum budget_state; do
         if yaml_field_nonnull "$qb" "$field" 2>/dev/null; then
           pass "quality-budget.$field is non-null"
         else
           fail "quality-budget.$field is null (required derived field)"
         fi
       done
+
+      # Required nested sections (must exist as non-empty dicts/lists)
+      local _qb_sections_ok
+      _qb_sections_ok="$(python3 - "$qb" <<'PY'
+import sys, yaml
+with open(sys.argv[1]) as f:
+    d = yaml.safe_load(f) or {}
+required = ["cynefin_mix", "beads", "corrections", "metrics", "timing", "escapes"]
+missing = [s for s in required if not d.get(s)]
+print(" ".join(missing) if missing else "OK")
+PY
+2>/dev/null || echo "ERROR")"
+      if [ "$_qb_sections_ok" = "OK" ]; then
+        pass "quality-budget: all required sections present (cynefin_mix, beads, corrections, metrics, timing, escapes)"
+      elif [ "$_qb_sections_ok" = "ERROR" ]; then
+        fail "quality-budget: failed to validate nested sections"
+      else
+        fail "quality-budget: missing required sections: $_qb_sections_ok"
+      fi
+
       # sli_readings: WARN if inner values are all null, not fail
-      # (sli_readings object always exists but inner fields may be null)
       local sli_null_count
       sli_null_count="$(python3 - "$qb" <<'PY'
 import sys, yaml
@@ -219,6 +239,25 @@ run_complete_local_checks() {
         fail "quality-budget.budget_state is null (must be computed for complete)"
       fi
 
+      # Required nested sections
+      local _qb_sections_ok
+      _qb_sections_ok="$(python3 - "$qb" <<'PY'
+import sys, yaml
+with open(sys.argv[1]) as f:
+    d = yaml.safe_load(f) or {}
+required = ["cynefin_mix", "beads", "corrections", "metrics", "timing", "escapes"]
+missing = [s for s in required if not d.get(s)]
+print(" ".join(missing) if missing else "OK")
+PY
+2>/dev/null || echo "ERROR")"
+      if [ "$_qb_sections_ok" = "OK" ]; then
+        pass "quality-budget: all required sections present"
+      elif [ "$_qb_sections_ok" = "ERROR" ]; then
+        fail "quality-budget: failed to validate nested sections"
+      else
+        fail "quality-budget: missing required sections: $_qb_sections_ok"
+      fi
+
       # All required derived fields non-null
       for field in task_id complexity_weight turbulence_sum budget_state; do
         if yaml_field_nonnull "$qb" "$field" 2>/dev/null; then
@@ -228,11 +267,26 @@ run_complete_local_checks() {
         fi
       done
 
-      # sli_readings: WARN on null, not fail
-      if ! yaml_field_nonnull "$qb" "sli_readings" 2>/dev/null; then
-        warn "quality-budget.sli_readings is null (deferred — project-specific enforcement)"
+      # sli_readings: WARN if inner values are all null, not fail (same as synthesize)
+      local sli_null_count
+      sli_null_count="$(python3 - "$qb" <<'PY'
+import sys, yaml
+with open(sys.argv[1]) as f:
+    d = yaml.safe_load(f)
+sli = d.get("sli_readings", {}) if d else {}
+if not sli:
+    print("ALL")
+else:
+    nulls = sum(1 for v in sli.values() if v is None)
+    print("ALL" if nulls == len(sli) else str(nulls))
+PY
+2>/dev/null || echo "ERROR")"
+      if [ "$sli_null_count" = "ALL" ]; then
+        warn "quality-budget.sli_readings: all values null (deferred — project-specific enforcement)"
+      elif [ "$sli_null_count" = "0" ]; then
+        pass "quality-budget.sli_readings: all values populated"
       else
-        pass "quality-budget.sli_readings is non-null"
+        warn "quality-budget.sli_readings: $sli_null_count value(s) null"
       fi
     fi
 
