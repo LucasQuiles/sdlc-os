@@ -32,5 +32,9 @@ JSON
 )
 
 mkdir -p "$(dirname "$LEDGER")"
+if [ -f "$LEDGER" ] && grep -qF "\"$TASK_ID\"" "$LEDGER" 2>/dev/null; then
+  echo "SKIP: $TASK_ID already in $(basename "$LEDGER") (idempotent)" >&2
+  exit 0
+fi
 echo "$ENTRY" >> "$LEDGER"
 echo "Appended $TASK_ID to system-budget.jsonl"

@@ -22,6 +22,12 @@ LEDGER="$PROJECT_DIR/docs/sdlc/system-mode-convergence.jsonl"
 
 [ -f "$SUMMARY" ] || { echo "ERROR: mode-convergence-summary.yaml not found: $SUMMARY" >&2; exit 1; }
 
+_MC_TASK_ID=$(python3 -c "import yaml; print(yaml.safe_load(open('$SUMMARY'))['task_id'])")
+if [ -f "$LEDGER" ] && grep -qF "\"$_MC_TASK_ID\"" "$LEDGER" 2>/dev/null; then
+  echo "SKIP: $_MC_TASK_ID already in $(basename "$LEDGER") (idempotent)" >&2
+  exit 0
+fi
+
 python3 -c "
 import yaml, sys, json
 from collections import Counter

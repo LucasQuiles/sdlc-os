@@ -18,6 +18,12 @@ SYSTEM_LEDGER="$PROJECT_DIR/docs/sdlc/system-hazard-defense.jsonl"
 
 [ -f "$LEDGER" ] || { echo "ERROR: hazard-defense-ledger.yaml not found" >&2; exit 1; }
 
+_HDL_TASK_ID=$(python3 -c "import yaml; print(yaml.safe_load(open('$LEDGER'))['task_id'])")
+if [ -f "$SYSTEM_LEDGER" ] && grep -qF "\"$_HDL_TASK_ID\"" "$SYSTEM_LEDGER" 2>/dev/null; then
+  echo "SKIP: $_HDL_TASK_ID already in $(basename "$SYSTEM_LEDGER") (idempotent)" >&2
+  exit 0
+fi
+
 # Build JSONL entry from final ledger
 python3 -c "
 import yaml, sys, json

@@ -43,6 +43,17 @@ summary = session.get('summary', {})
 selection = session.get('selection', {})
 harvest = session.get('harvest', {})
 task_id = session.get('task_id', '')
+
+# Duplicate guard
+import os
+task_id_val = session.get('task_id', '')
+if os.path.exists(ledger_path):
+    with open(ledger_path) as lf:
+        for line in lf:
+            if f'"task_id":"{task_id_val}"' in line or f'"task_id": "{task_id_val}"' in line:
+                print(f'SKIP: {task_id_val} already in ledger (idempotent)', file=sys.stderr)
+                sys.exit(0)
+
 date = session.get('last_updated') or session.get('derived_at') or \
     datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
