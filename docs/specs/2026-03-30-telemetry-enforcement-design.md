@@ -140,49 +140,36 @@ source "$SCRIPT_DIR/lib/sdlc-common.sh"
 classify_task_lanes "$TASK_DIR" "$TASK_ID" "$PROJECT_DIR"
 # Sets: HAS_BEADS, IS_STPA, IS_AQS, IS_STRESSED
 
-if [ -d "$TASK_DIR/beads" ] && ls "$TASK_DIR/beads/"*.md &>/dev/null; then
-  HAS_BEADS=true  # redundant but explicit
-  fi
-fi
-
-# Also check review-passes for AQS engagement
-if grep -qF "\"$TASK_ID\"" "$PROJECT_DIR/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null; then
-  IS_AQS=true
-fi
-
-IS_STRESSED=false
-[ -f "$TASK_DIR/stress-session.yaml" ] && IS_STRESSED=true
-
 echo "=== Synthesize Gates: $TASK_ID ==="
 echo "Beads: $HAS_BEADS | STPA: $IS_STPA | AQS: $IS_AQS | Stressed: $IS_STRESSED"
 
 # --- 1. Quality budget (always, if beads exist) ---
 if [ "$HAS_BEADS" = true ]; then
   echo "[1/5] Deriving quality budget..."
-  scripts/derive-quality-budget.sh "$TASK_DIR" --status ready
+  "$SCRIPT_DIR/derive-quality-budget.sh" "$TASK_DIR" --status ready
 fi
 
 # --- 2. HDL summary (if STPA-required) ---
 if [ "$IS_STPA" = true ] && [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ]; then
   echo "[2/5] Deriving HDL summary..."
-  scripts/derive-hazard-defense-summary.sh "$TASK_DIR" --status active
+  "$SCRIPT_DIR/derive-hazard-defense-summary.sh" "$TASK_DIR" --status active
 fi
 
 # --- 3. Decision-noise summary (if AQS-engaged) ---
 if [ "$IS_AQS" = true ]; then
   echo "[3/5] Deriving decision-noise summary..."
-  scripts/derive-decision-noise-summary.sh "$TASK_ID" "$PROJECT_DIR" --status partial || echo "WARN: decision-noise derivation skipped (no review passes)" >&2
+  "$SCRIPT_DIR/derive-decision-noise-summary.sh" "$TASK_ID" "$PROJECT_DIR" --status partial || echo "WARN: decision-noise derivation skipped (no review passes)" >&2
 fi
 
 # --- 4. Mode-convergence summary (always, if beads exist) ---
 if [ "$HAS_BEADS" = true ]; then
   echo "[4/5] Deriving mode-convergence summary..."
-  scripts/derive-mode-convergence-summary.sh "$TASK_DIR" --status partial
+  "$SCRIPT_DIR/derive-mode-convergence-summary.sh" "$TASK_DIR" --status partial
 fi
 
 # --- 5. Validate all synthesize gates ---
 echo "[5/5] Checking synthesize gates..."
-scripts/check-sdlc-gates.sh "$TASK_DIR" synthesize --project-dir "$PROJECT_DIR"
+"$SCRIPT_DIR/check-sdlc-gates.sh" "$TASK_DIR" synthesize --project-dir "$PROJECT_DIR"
 ```
 
 Note: `classify-execution-mode.sh` is removed — mode classification is already done inside `derive-mode-convergence-summary.sh`.
@@ -201,10 +188,9 @@ set -euo pipefail
 TASK_DIR="$1"
 PROJECT_DIR="$2"
 TASK_ID=$(basename "$TASK_DIR")
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# --- Classification: SAME logic as synthesize (sourced from shared function) ---
-# Both scripts source scripts/lib/sdlc-common.sh which provides classify_task_lanes()
-# or inline the identical block from the "Classification in scripts" section above.
+# --- Classification: SAME shared function as synthesize ---
 source "$SCRIPT_DIR/lib/sdlc-common.sh"
 classify_task_lanes "$TASK_DIR" "$TASK_ID" "$PROJECT_DIR"
 # Sets: HAS_BEADS, IS_STPA, IS_AQS, IS_STRESSED
@@ -214,19 +200,19 @@ echo "=== Complete Gates: $TASK_ID ==="
 # --- 1. Finalize quality budget ---
 if [ "$HAS_BEADS" = true ]; then
   echo "[1/6] Finalizing quality budget..."
-  scripts/derive-quality-budget.sh "$TASK_DIR" --status final
+  "$SCRIPT_DIR/derive-quality-budget.sh" "$TASK_DIR" --status final
 fi
 
 # --- 2. Finalize HDL (if STPA) ---
 if [ "$IS_STPA" = true ] && [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ]; then
   echo "[2/6] Finalizing HDL..."
-  scripts/derive-hazard-defense-summary.sh "$TASK_DIR" --status final
+  "$SCRIPT_DIR/derive-hazard-defense-summary.sh" "$TASK_DIR" --status final
 fi
 
 # --- 3. Finalize decision-noise summary (if AQS-engaged) ---
 if [ "$IS_AQS" = true ]; then
   echo "[3/8] Finalizing decision-noise summary..."
-  scripts/derive-decision-noise-summary.sh "$TASK_ID" "$PROJECT_DIR" --status final || echo "WARN: decision-noise finalization skipped" >&2
+  "$SCRIPT_DIR/derive-decision-noise-summary.sh" "$TASK_ID" "$PROJECT_DIR" --status final || echo "WARN: decision-noise finalization skipped" >&2
 fi
 
 # --- 4. Finalize stress session (if stressed) ---
@@ -241,33 +227,33 @@ data['artifact_status'] = 'final'
 with open('$TASK_DIR/stress-session.yaml', 'w') as f:
     yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 "
-  scripts/update-stressor-library.sh "$TASK_DIR" "references/stressor-library.yaml" "$PROJECT_DIR"
+  "$SCRIPT_DIR/update-stressor-library.sh" "$TASK_DIR" "$SCRIPT_DIR/../references/stressor-library.yaml" "$PROJECT_DIR"
 fi
 
 # --- 5. Finalize mode-convergence ---
 if [ "$HAS_BEADS" = true ]; then
   echo "[5/8] Finalizing mode-convergence summary..."
-  scripts/derive-mode-convergence-summary.sh "$TASK_DIR" --status final
+  "$SCRIPT_DIR/derive-mode-convergence-summary.sh" "$TASK_DIR" --status final
 fi
 
 # --- 6. Append to ALL applicable system ledgers ---
 echo "[6/8] Appending to system ledgers..."
 if [ "$HAS_BEADS" = true ]; then
-  scripts/append-system-budget.sh "$TASK_DIR" "$PROJECT_DIR"
+  "$SCRIPT_DIR/append-system-budget.sh" "$TASK_DIR" "$PROJECT_DIR"
 fi
 if [ "$IS_STPA" = true ] && [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ]; then
-  scripts/append-system-hazard-defense.sh "$TASK_DIR" "$PROJECT_DIR"
+  "$SCRIPT_DIR/append-system-hazard-defense.sh" "$TASK_DIR" "$PROJECT_DIR"
 fi
 if [ "$IS_STRESSED" = true ]; then
-  scripts/append-system-stress.sh "$TASK_DIR" "$PROJECT_DIR"
+  "$SCRIPT_DIR/append-system-stress.sh" "$TASK_DIR" "$PROJECT_DIR"
 fi
 if [ "$HAS_BEADS" = true ]; then
-  scripts/append-system-mode-convergence.sh "$TASK_DIR" "$PROJECT_DIR"
+  "$SCRIPT_DIR/append-system-mode-convergence.sh" "$TASK_DIR" "$PROJECT_DIR"
 fi
 
 # --- 7. Validate ALL complete gates (task-local + system ledger) ---
 echo "[7/8] Checking complete gates..."
-scripts/check-sdlc-gates.sh "$TASK_DIR" complete --project-dir "$PROJECT_DIR"
+"$SCRIPT_DIR/check-sdlc-gates.sh" "$TASK_DIR" complete --project-dir "$PROJECT_DIR"
 ```
 
 ### 4. Advisory Hook (`hooks/scripts/warn-phase-transition.sh`)
