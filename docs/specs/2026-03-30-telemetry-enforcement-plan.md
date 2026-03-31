@@ -22,12 +22,15 @@
 
 - [ ] **Step 1: Add classify_task_lanes() to sdlc-common.sh**
 
-Read `scripts/lib/sdlc-common.sh`. After the existing functions, add the `classify_task_lanes()` function from the spec's "Classification in scripts" section. The function:
+Read `scripts/lib/sdlc-common.sh`. After the existing functions, add the `classify_task_lanes()` function. The function:
 - Takes `<task-dir> <task-id> <project-dir>`
 - Sets globals: `HAS_BEADS`, `IS_STPA`, `IS_AQS`, `IS_STRESSED`
-- Artifact-first: checks for HDL/stress-session/dn-summary existence
-- Bead-metadata fallback: grep for bold-markdown Cynefin/Security fields
-- Review-passes fallback: grep for task_id in review-passes.jsonl
+
+Classification rules (execution-grounded, not domain-inferred):
+- `HAS_BEADS`: `beads/` directory exists with `*.md` files
+- `IS_STPA`: artifact-first (`hazard-defense-ledger.yaml` exists), bead-metadata fallback (grep for bold-markdown `**Cynefin domain:**.*complex` or `**Security sensitive:**.*true`)
+- `IS_AQS`: **artifact-only, NO bead-domain fallback.** Check `decision-noise-summary.yaml` exists OR `review-passes.jsonl` contains task_id. AQS can be skipped for Chaotic/Clear/ACCIDENTAL beads even when the domain would suggest it — only the actual execution record is authoritative.
+- `IS_STRESSED`: `stress-session.yaml` exists (no fallback needed)
 
 - [ ] **Step 2: Create check-sdlc-gates.sh**
 
@@ -35,6 +38,7 @@ Create `scripts/check-sdlc-gates.sh`. Takes `<task-dir> <target-phase> --project
 
 **Synthesize checks:**
 - `quality-budget.yaml` exists with `artifact_status: ready` (if HAS_BEADS)
+- `quality-budget.yaml` has all derived fields non-null except `estimate_s` and `sli_readings` (per spec: "All derived fields non-null")
 - `hazard-defense-ledger.yaml` exists with `artifact_status: active`+ (if IS_STPA)
 - `stress-session.yaml` exists with `artifact_status: active`+ (if IS_STRESSED)
 - `decision-noise-summary.yaml` exists with `artifact_status: partial`+ (if IS_AQS)
@@ -42,7 +46,10 @@ Create `scripts/check-sdlc-gates.sh`. Takes `<task-dir> <target-phase> --project
 
 **Complete checks (task-local):**
 - All of the above with `artifact_status: final`
-- `quality-budget.yaml` has `sli_readings` non-null and `budget_state` computed
+- `quality-budget.yaml` has `sli_readings` fully populated (not null) and `budget_state` computed
+- If IS_STPA: HDL has every record with `status` in {caught, escaped, accepted_residual} — no `open` records remain. `summary.coverage_state` is computed.
+- If IS_STRESSED: `stress-session.yaml` has all stressor applications resolved (no pending results)
+- If IS_AQS: `decision-noise-summary.yaml` has `artifact_status: final`
 
 **Complete checks (system ledger):**
 - `system-budget.jsonl` contains `task_id` (if HAS_BEADS)
@@ -127,13 +134,52 @@ Make executable.
 
 Add PostToolUse entry for `warn-phase-transition.sh`, matcher `"Write|Edit"`, timeout 15.
 
-Create test fixtures:
-- `hooks/tests/fixtures/state-synthesize.json` — state.md write with `current-phase: synthesize`
-- `hooks/tests/fixtures/state-complete.json` — state.md write with `current-phase: complete`
-- `hooks/tests/fixtures/state-execute.json` — state.md write with `current-phase: execute` (no warning)
-- `hooks/tests/fixtures/state-non-state.json` — non-state.md file write (skip)
+The hook parses `current-phase:` from the FILE on disk, not from the JSON fixture. Tests must create real temp state.md files with YAML frontmatter:
 
-Note: The hook calls `check-sdlc-gates.sh` which will fail for test fixtures (no real task dir). The hook should handle this gracefully (warn, not crash). Tests verify: non-state files are skipped (exit 0), state.md files trigger the check path.
+```bash
+# In test-hooks.sh, create temp state.md files that the hook can read:
+_pt_tmp=$(mktemp -d)
+mkdir -p "$_pt_tmp/beads"
+
+# state.md with current-phase: complete (should trigger warning — no artifacts)
+cat > "$_pt_tmp/state.md" << 'YAML'
+---
+task-id: test-gate-task
+current-phase: complete
+---
+# Test state
+YAML
+
+# JSON fixture points at the real temp state.md
+_pt_json "$_pt_tmp/state.md" "$_pt_tmp/state-complete.json"
+run_test_advisory "warn: complete without artifacts" "$HOOKS_DIR/warn-phase-transition.sh" "$_pt_tmp/state-complete.json" "yes"
+
+# state.md with current-phase: execute (should NOT trigger)
+cat > "$_pt_tmp/state-exec.md" << 'YAML'
+---
+task-id: test-gate-task
+current-phase: execute
+---
+YAML
+_pt_json "$_pt_tmp/state-exec.md" "$_pt_tmp/state-execute.json"
+# Rename to state.md for the hook to recognize it
+cp "$_pt_tmp/state-exec.md" "$_pt_tmp/state.md"
+_pt_json "$_pt_tmp/state.md" "$_pt_tmp/state-execute.json"
+run_test "skip: execute phase (no warning)" "$HOOKS_DIR/warn-phase-transition.sh" "$_pt_tmp/state-execute.json" 0
+
+# Non-state.md file (should skip entirely)
+_pt_json "/tmp/not-state.txt" "$_pt_tmp/non-state.json"
+run_test "skip: non-state file" "$HOOKS_DIR/warn-phase-transition.sh" "$_pt_tmp/non-state.json" 0
+
+rm -rf "$_pt_tmp"
+```
+
+The `_pt_json` helper writes a JSON fixture with the file_path pointing at the real temp file. The hook reads the file at that path and parses YAML frontmatter.
+
+This tests:
+1. complete transition with no artifacts → HOOK_WARNING emitted (advisory, exit 0)
+2. execute transition → no warning, exit 0
+3. non-state.md file → skip, exit 0
 
 - [ ] **Step 3: Run tests**
 
@@ -166,8 +212,10 @@ without passing gate check. Parses YAML frontmatter, never blocks."
 
 - [ ] **Step 1: Add duplicate-task-id guard to each append script**
 
-For each of the 4 scripts, before the `echo "$ENTRY" >> "$LEDGER"` line, add:
+The 4 append scripts have different structures — 2 use shell `echo >> ledger`, 2 use Python `print() >> ledger`. Apply the guard in the appropriate language for each:
 
+**Shell-based scripts** (`append-system-budget.sh`, `append-system-mode-convergence.sh`):
+Before the `echo "$ENTRY" >> "$LEDGER"` line, add:
 ```bash
 # Duplicate guard: skip if task_id already in ledger
 if [ -f "$LEDGER" ] && grep -qF "\"$TASK_ID\"" "$LEDGER" 2>/dev/null; then
@@ -176,9 +224,21 @@ if [ -f "$LEDGER" ] && grep -qF "\"$TASK_ID\"" "$LEDGER" 2>/dev/null; then
 fi
 ```
 
-This matches the pattern from `pass_exists()` in decision-noise-lib.sh — grep for the task_id string before appending.
+**Python-based scripts** (`append-system-hazard-defense.sh`, `append-system-stress.sh`):
+These append inside a Python block. Add the duplicate guard inside the Python code, before the `print()` or file write:
+```python
+# Duplicate guard: check if task_id already in ledger
+import os
+ledger_path = sys.argv[N]  # or however the script references the ledger path
+if os.path.exists(ledger_path):
+    with open(ledger_path) as lf:
+        for line in lf:
+            if f'"task_id":"{task_id}"' in line or f'"task_id": "{task_id}"' in line:
+                print(f'SKIP: {task_id} already in ledger (idempotent)', file=sys.stderr)
+                sys.exit(0)
+```
 
-Read each file to find the exact insertion point (before the append line).
+Read each file to identify the exact structure (shell append vs Python append) and the correct insertion point. The variable names for task_id and ledger path differ per script.
 
 - [ ] **Step 2: Commit**
 
@@ -320,7 +380,78 @@ grep -l "already in\|SKIP.*idempotent" scripts/append-system-*.sh
 
 Expected: All 4 append scripts have the guard.
 
-- [ ] **Step 5: Run backfill on sdlc-os plugin tasks**
+- [ ] **Step 5: Controlled end-to-end test with temp task fixture**
+
+Create a synthetic task with beads, run both gate scripts, verify success AND failure cases:
+
+```bash
+# Create temp task with minimal bead data
+_e2e=$(mktemp -d)
+mkdir -p "$_e2e/beads"
+cat > "$_e2e/state.md" << 'YAML'
+---
+task-id: e2e-gate-test
+current-phase: execute
+---
+YAML
+
+cat > "$_e2e/beads/B01.md" << 'YAML'
+**Status:** merged
+**Cynefin domain:** complicated
+**Security sensitive:** false
+**Turbulence:** {L0: 0, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
+**Dispatched at:** "2026-03-30T10:00:00Z"
+**Review started at:** "2026-03-30T10:05:00Z"
+**Completed at:** "2026-03-30T10:10:00Z"
+YAML
+
+PROJECT_E2E=$(mktemp -d)
+
+# --- FAILURE CASE: synthesize gate should FAIL (no artifacts yet) ---
+echo "=== Failure case: synthesize without artifacts ==="
+bash scripts/check-sdlc-gates.sh "$_e2e" synthesize --project-dir "$PROJECT_E2E" 2>&1
+SYNTH_EXIT=$?
+echo "Exit code: $SYNTH_EXIT"
+[ "$SYNTH_EXIT" -eq 1 ] && echo "PASS: gate correctly rejected" || echo "FAIL: gate should have rejected"
+
+# --- SUCCESS CASE: run synthesize automation, then check ---
+echo "=== Success case: run-synthesize-gates then check ==="
+bash scripts/run-synthesize-gates.sh "$_e2e" "$PROJECT_E2E" 2>&1
+bash scripts/check-sdlc-gates.sh "$_e2e" synthesize --project-dir "$PROJECT_E2E" 2>&1
+SYNTH_EXIT2=$?
+echo "Exit code: $SYNTH_EXIT2"
+[ "$SYNTH_EXIT2" -eq 0 ] && echo "PASS: gate passed after automation" || echo "FAIL: gate should have passed"
+
+# --- SUCCESS CASE: run complete automation, then check ---
+echo "=== Success case: run-complete-gates then check ==="
+bash scripts/run-complete-gates.sh "$_e2e" "$PROJECT_E2E" 2>&1
+bash scripts/check-sdlc-gates.sh "$_e2e" complete --project-dir "$PROJECT_E2E" 2>&1
+COMP_EXIT=$?
+echo "Exit code: $COMP_EXIT"
+[ "$COMP_EXIT" -eq 0 ] && echo "PASS: complete gate passed" || echo "FAIL: complete gate should have passed"
+
+# --- Verify system ledger was populated ---
+echo "=== System ledger check ==="
+cat "$PROJECT_E2E/docs/sdlc/system-budget.jsonl" 2>/dev/null | head -1
+[ -f "$PROJECT_E2E/docs/sdlc/system-budget.jsonl" ] && echo "PASS: system ledger populated" || echo "FAIL: system ledger empty"
+
+# --- IDEMPOTENCY: run complete again, verify no duplicate ---
+bash scripts/run-complete-gates.sh "$_e2e" "$PROJECT_E2E" 2>&1
+LINES=$(wc -l < "$PROJECT_E2E/docs/sdlc/system-budget.jsonl" 2>/dev/null || echo 0)
+echo "Ledger lines after rerun: $LINES"
+[ "$LINES" -eq 1 ] && echo "PASS: no duplicate append" || echo "FAIL: duplicate detected"
+
+rm -rf "$_e2e" "$PROJECT_E2E"
+```
+
+Expected results:
+1. Synthesize without artifacts → exit 1 (PASS: correctly rejected)
+2. Synthesize after automation → exit 0 (PASS: gate passed)
+3. Complete after automation → exit 0 (PASS: gate passed)
+4. System ledger populated with 1 entry
+5. Rerun produces no duplicate (still 1 line)
+
+- [ ] **Step 6: Run backfill on sdlc-os plugin tasks**
 
 ```bash
 bash scripts/backfill-telemetry.sh docs/sdlc/active/ .
@@ -328,21 +459,9 @@ bash scripts/backfill-telemetry.sh docs/sdlc/active/ .
 
 Expected: Creates artifacts for tasks with bead data. System ledger entries appended.
 
-- [ ] **Step 6: Verify backfill idempotency**
+- [ ] **Step 7: Verify backfill idempotency**
 
 Run backfill again. Expected: All "already exists" / "already has" messages.
-
-- [ ] **Step 7: Verify gate checker works on a backfilled task**
-
-```bash
-# Pick a task that was backfilled (has quality-budget.yaml)
-TASK=$(ls -d docs/sdlc/active/*/quality-budget.yaml 2>/dev/null | head -1 | xargs dirname)
-if [ -n "$TASK" ]; then
-  bash scripts/check-sdlc-gates.sh "$TASK" complete --project-dir .
-fi
-```
-
-Expected: Gate check reports results (may pass or fail depending on which artifacts exist).
 
 - [ ] **Step 8: Spot-check key files**
 
