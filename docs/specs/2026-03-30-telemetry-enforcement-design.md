@@ -20,31 +20,48 @@ The SDLC-OS has 5 telemetry pipelines (Quality Budget, Hazard/Defense Ledger, St
 
 ## Task Classification Rules
 
-The automation scripts need deterministic rules to decide which telemetry lanes apply. These replace prose judgments:
+The automation scripts need deterministic rules to decide which telemetry lanes apply. Classification uses a two-layer approach: **artifact presence first** (most reliable), **bead metadata grep as fallback** (handles tasks that predate the telemetry system).
 
 ### STPA-required
 
-A task is STPA-required if any bead file in `beads/*.md` has:
-- `**Cynefin domain:** complex` OR
-- `**Security sensitive:** true`
+**Primary:** `hazard-defense-ledger.yaml` exists in the task directory (created by safety-analyst during Architect).
 
-Detection: `grep -rl "Cynefin domain:.*complex\|Security sensitive:.*true" "$TASK_DIR/beads/"` returns matches.
+**Fallback:** Any bead file in `beads/*.md` matches `grep -rl "\*\*Cynefin domain:\*\*.*complex\|\*\*Security sensitive:\*\*.*true"` (handles bold markdown formatting used in bead files).
 
 ### Stress-sampled
 
-A task is stress-sampled if `stress-session.yaml` exists in the task directory (created by FFT-15 evaluation during Execute).
+**Primary:** `stress-session.yaml` exists in the task directory (created by FFT-15 evaluation during Execute).
 
-Detection: `[ -f "$TASK_DIR/stress-session.yaml" ]`
+No fallback needed — the artifact IS the decision record.
 
 ### AQS-engaged
 
-A task is AQS-engaged if any bead file has `**Cynefin domain:**` that is NOT `clear`, OR if the system-level `review-passes.jsonl` contains entries for this task_id.
+**Primary:** `decision-noise-summary.yaml` exists in the task directory, OR the system-level `review-passes.jsonl` contains entries for this task_id.
 
-Detection: `grep -rl "Cynefin domain:.*complicated\|Cynefin domain:.*complex\|Cynefin domain:.*chaotic" "$TASK_DIR/beads/"` returns matches, OR `grep -qF "\"$TASK_ID\"" "$PROJECT_DIR/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null`.
+**Fallback:** Any bead file matches `grep -rl "\*\*Cynefin domain:\*\*.*complicated\|\*\*Cynefin domain:\*\*.*complex\|\*\*Cynefin domain:\*\*.*chaotic"`. Note: this is a superset of the orchestrate skip-condition (Clear beads under healthy budget skip AQS). A complicated bead classified here may have had AQS skipped by FFT — the primary check (artifact/ledger presence) is authoritative.
 
 ### No beads
 
 If `beads/` is empty or absent, the task has no derivable telemetry. The gate checker reports this as a warning (not failure) — the task may be an INVESTIGATE or early-stage task.
+
+### Classification in scripts
+
+```bash
+# Artifact-first classification (reliable)
+IS_STPA=false; [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ] && IS_STPA=true
+IS_STRESSED=false; [ -f "$TASK_DIR/stress-session.yaml" ] && IS_STRESSED=true
+IS_AQS=false
+[ -f "$TASK_DIR/decision-noise-summary.yaml" ] && IS_AQS=true
+grep -qF "\"$TASK_ID\"" "$PROJECT_DIR/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null && IS_AQS=true
+
+# Bead metadata fallback (for tasks that predate artifact creation)
+if [ "$IS_STPA" = false ] && [ -d "$TASK_DIR/beads" ]; then
+  grep -rlq "\*\*Cynefin domain:\*\*.*complex\|\*\*Security sensitive:\*\*.*true" "$TASK_DIR/beads/" 2>/dev/null && IS_STPA=true
+fi
+if [ "$IS_AQS" = false ] && [ -d "$TASK_DIR/beads" ]; then
+  grep -rlq "\*\*Cynefin domain:\*\*.*complicated\|\*\*Cynefin domain:\*\*.*complex\|\*\*Cynefin domain:\*\*.*chaotic" "$TASK_DIR/beads/" 2>/dev/null && IS_AQS=true
+fi
+```
 
 ---
 
@@ -103,20 +120,24 @@ TASK_DIR="$1"
 PROJECT_DIR="$2"
 TASK_ID=$(basename "$TASK_DIR")
 
-# --- Determine which telemetry lanes apply ---
+# --- Determine which telemetry lanes apply (artifact-first, bead-metadata fallback) ---
 HAS_BEADS=false
 IS_STPA=false
 IS_AQS=false
 
+# Artifact-first classification
+[ -f "$TASK_DIR/hazard-defense-ledger.yaml" ] && IS_STPA=true
+[ -f "$TASK_DIR/decision-noise-summary.yaml" ] && IS_AQS=true
+grep -qF "\"$TASK_ID\"" "$PROJECT_DIR/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null && IS_AQS=true
+
 if [ -d "$TASK_DIR/beads" ] && ls "$TASK_DIR/beads/"*.md &>/dev/null; then
   HAS_BEADS=true
-  # STPA-required: any bead with complex domain or security_sensitive
-  if grep -rlq "Cynefin domain:.*complex\|Security sensitive:.*true" "$TASK_DIR/beads/" 2>/dev/null; then
-    IS_STPA=true
+  # Bead metadata fallback (for tasks predating artifact creation)
+  if [ "$IS_STPA" = false ]; then
+    grep -rlq "\*\*Cynefin domain:\*\*.*complex\|\*\*Security sensitive:\*\*.*true" "$TASK_DIR/beads/" 2>/dev/null && IS_STPA=true
   fi
-  # AQS-engaged: any bead with non-clear domain
-  if grep -rlq "Cynefin domain:.*complicated\|Cynefin domain:.*complex\|Cynefin domain:.*chaotic" "$TASK_DIR/beads/" 2>/dev/null; then
-    IS_AQS=true
+  if [ "$IS_AQS" = false ]; then
+    grep -rlq "\*\*Cynefin domain:\*\*.*complicated\|\*\*Cynefin domain:\*\*.*complex\|\*\*Cynefin domain:\*\*.*chaotic" "$TASK_DIR/beads/" 2>/dev/null && IS_AQS=true
   fi
 fi
 
@@ -178,11 +199,13 @@ PROJECT_DIR="$2"
 TASK_ID=$(basename "$TASK_DIR")
 
 # --- Same classification as synthesize ---
-HAS_BEADS=false; IS_STPA=false; IS_STRESSED=false
+HAS_BEADS=false; IS_STPA=false; IS_AQS=false; IS_STRESSED=false
 if [ -d "$TASK_DIR/beads" ] && ls "$TASK_DIR/beads/"*.md &>/dev/null; then
   HAS_BEADS=true
   grep -rlq "Cynefin domain:.*complex\|Security sensitive:.*true" "$TASK_DIR/beads/" 2>/dev/null && IS_STPA=true
+  grep -rlq "Cynefin domain:.*complicated\|Cynefin domain:.*complex\|Cynefin domain:.*chaotic" "$TASK_DIR/beads/" 2>/dev/null && IS_AQS=true
 fi
+grep -qF "\"$TASK_ID\"" "$PROJECT_DIR/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null && IS_AQS=true
 [ -f "$TASK_DIR/stress-session.yaml" ] && IS_STRESSED=true
 
 echo "=== Complete Gates: $TASK_ID ==="
@@ -199,21 +222,35 @@ if [ "$IS_STPA" = true ] && [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ]; then
   scripts/derive-hazard-defense-summary.sh "$TASK_DIR" --status final
 fi
 
-# --- 3. Finalize stress session (if stressed) ---
+# --- 3. Finalize decision-noise summary (if AQS-engaged) ---
+if [ "$IS_AQS" = true ]; then
+  echo "[3/8] Finalizing decision-noise summary..."
+  scripts/derive-decision-noise-summary.sh "$TASK_ID" "$PROJECT_DIR" --status final || echo "WARN: decision-noise finalization skipped" >&2
+fi
+
+# --- 4. Finalize stress session (if stressed) ---
 if [ "$IS_STRESSED" = true ]; then
-  echo "[3/6] Finalizing stress session..."
-  # Update artifact_status to final + run library update
+  echo "[4/8] Finalizing stress session..."
+  # Write artifact_status: final to stress-session.yaml, then update stressor library
+  python3 -c "
+import yaml
+with open('$TASK_DIR/stress-session.yaml') as f:
+    data = yaml.safe_load(f)
+data['artifact_status'] = 'final'
+with open('$TASK_DIR/stress-session.yaml', 'w') as f:
+    yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+"
   scripts/update-stressor-library.sh "$TASK_DIR" "references/stressor-library.yaml" "$PROJECT_DIR"
 fi
 
-# --- 4. Finalize mode-convergence ---
+# --- 5. Finalize mode-convergence ---
 if [ "$HAS_BEADS" = true ]; then
-  echo "[4/6] Finalizing mode-convergence summary..."
+  echo "[5/8] Finalizing mode-convergence summary..."
   scripts/derive-mode-convergence-summary.sh "$TASK_DIR" --status final
 fi
 
-# --- 5. Append to ALL applicable system ledgers ---
-echo "[5/6] Appending to system ledgers..."
+# --- 6. Append to ALL applicable system ledgers ---
+echo "[6/8] Appending to system ledgers..."
 if [ "$HAS_BEADS" = true ]; then
   scripts/append-system-budget.sh "$TASK_DIR" "$PROJECT_DIR"
 fi
@@ -227,8 +264,8 @@ if [ "$HAS_BEADS" = true ]; then
   scripts/append-system-mode-convergence.sh "$TASK_DIR" "$PROJECT_DIR"
 fi
 
-# --- 6. Validate ALL complete gates (task-local + system ledger) ---
-echo "[6/6] Checking complete gates..."
+# --- 7. Validate ALL complete gates (task-local + system ledger) ---
+echo "[7/8] Checking complete gates..."
 scripts/check-sdlc-gates.sh "$TASK_DIR" complete --project-dir "$PROJECT_DIR"
 ```
 
@@ -350,12 +387,17 @@ Do NOT manually update state.md phase log without running the appropriate gate s
 
 ### In scope
 - Gate checker with system ledger verification
-- Synthesize/Complete automation with deterministic classification
-- Stress session finalization in Complete automation
+- Synthesize/Complete automation with deterministic classification (artifact-first, bead-metadata fallback)
+- Stress session finalization (write artifact_status: final) in Complete automation
+- Decision-noise finalization in Complete automation
 - Backfill for existing tasks with bead data
-- Advisory phase-transition hook (re-check, no stamp file)
+- Advisory phase-transition hook (re-check against filesystem, no stamp file)
 - Orchestrate SKILL.md update
 - Testing and verification
+
+### Implementation plan must address (from review findings 4 and 5)
+- **Hook detection:** Parse `current-phase:` from state.md YAML frontmatter for transition detection, not grep for same-day date strings. Must detect both synthesize and complete transitions.
+- **Backfill idempotency:** Add duplicate-task-id guard to all system ledger append scripts (`grep -qF` before appending, same pattern as `pass_exists` in decision-noise-lib). Make backfill resumable: check each artifact + each ledger entry independently, not short-circuit on first artifact.
 
 ### Out of scope
 - Blocking (non-advisory) hook enforcement (v2)
