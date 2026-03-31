@@ -111,7 +111,7 @@ L3-L5: Bead → Phase → Task escalation
 | validate-stress-session.sh | PostToolUse | **Blocking** — stress session schema validation |
 | validate-decision-noise-summary.sh | PostToolUse | **Advisory** — decision-noise-summary.yaml schema validation |
 | validate-mode-convergence-summary.sh | PostToolUse | **Advisory** — mode-convergence-summary.yaml schema validation |
-| warn-phase-transition.sh | PreToolUse | **Advisory** — warns on phase transitions without prior gate script run |
+| warn-phase-transition.sh | PostToolUse | **Advisory** — warns on phase transitions without prior gate script run |
 
 ### References
 
