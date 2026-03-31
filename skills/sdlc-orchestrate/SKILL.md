@@ -144,6 +144,20 @@ Intent does not change bead Type. A migration bead is `Type: implement, Intent: 
 
 Beads are written to `docs/sdlc/active/{task-id}/beads/` as individual markdown files. They persist in Git — surviving agent sessions, crashes, and context resets.
 
+## REQUIRED: Gate Automation
+
+Before Synthesize: `bash scripts/run-synthesize-gates.sh <task-dir> <project-dir>`
+Before Complete: `bash scripts/run-complete-gates.sh <task-dir> <project-dir>`
+
+These scripts automatically:
+- Detect which telemetry lanes apply (STPA, AQS, stress) using deterministic rules
+- Run all applicable derivation scripts in the correct order
+- Append to all applicable system JSONL ledgers
+- Validate both task-local artifacts AND system ledger entries
+- Report pass/fail with details
+
+Do NOT manually update state.md phase log without running the appropriate gate script first.
+
 ## Workflow Phases (Lightweight, Not Gates)
 
 Phases exist for orientation, not approval. The Conductor flows through them as fast as the work allows.

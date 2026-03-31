@@ -74,6 +74,10 @@ Rate overall confidence: **High** / **Medium** / **Low**
 {Proceed / Address [specific items] / Escalate to user}
 ```
 
+## Gate Automation
+
+The gate checker validates both task-local artifacts (quality-budget.yaml, hazard-defense-ledger.yaml, etc.) AND system ledger entries (system-budget.jsonl, etc.). Run via `scripts/run-synthesize-gates.sh` or `scripts/run-complete-gates.sh` which automate the full derivation + validation flow. The checker supports three modes: `synthesize` (pre-Synthesize), `complete-local` (pre-append validation), `complete` (full post-append verification).
+
 ## When Confidence is Low
 
 The Conductor should:

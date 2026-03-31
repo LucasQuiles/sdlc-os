@@ -96,7 +96,7 @@ L2.5: AQS adversarial (2 cycles) — red/blue/arbiter
 L3-L5: Bead → Phase → Task escalation
 ```
 
-### Hooks (11 scripts)
+### Hooks (12 scripts)
 
 | Hook | Event | Behavior |
 |------|-------|----------|
@@ -111,6 +111,7 @@ L3-L5: Bead → Phase → Task escalation
 | validate-stress-session.sh | PostToolUse | **Blocking** — stress session schema validation |
 | validate-decision-noise-summary.sh | PostToolUse | **Advisory** — decision-noise-summary.yaml schema validation |
 | validate-mode-convergence-summary.sh | PostToolUse | **Advisory** — mode-convergence-summary.yaml schema validation |
+| warn-phase-transition.sh | PreToolUse | **Advisory** — warns on phase transitions without prior gate script run |
 
 ### References
 
@@ -158,7 +159,7 @@ cd ~/.claude/plugins/sdlc-os
 bash hooks/tests/test-hooks.sh
 ```
 
-Expected: 58/58 PASS.
+Expected: 62/62 PASS.
 
 ## License
 
