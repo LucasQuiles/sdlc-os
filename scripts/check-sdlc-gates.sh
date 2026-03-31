@@ -41,8 +41,8 @@ if [ -z "$PROJECT_DIR" ]; then
   exit 2
 fi
 
-if [[ "$TARGET_PHASE" != "synthesize" && "$TARGET_PHASE" != "complete" ]]; then
-  echo "ERROR: <target-phase> must be 'synthesize' or 'complete', got: $TARGET_PHASE" >&2
+if [[ "$TARGET_PHASE" != "synthesize" && "$TARGET_PHASE" != "complete-local" && "$TARGET_PHASE" != "complete" ]]; then
+  echo "ERROR: <target-phase> must be 'synthesize', 'complete-local', or 'complete', got: $TARGET_PHASE" >&2
   exit 2
 fi
 
