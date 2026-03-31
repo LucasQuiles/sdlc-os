@@ -46,22 +46,36 @@ If `beads/` is empty or absent, the task has no derivable telemetry. The gate ch
 
 ### Classification in scripts
 
-```bash
-# Artifact-first classification (reliable)
-IS_STPA=false; [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ] && IS_STPA=true
-IS_STRESSED=false; [ -f "$TASK_DIR/stress-session.yaml" ] && IS_STRESSED=true
-IS_AQS=false
-[ -f "$TASK_DIR/decision-noise-summary.yaml" ] && IS_AQS=true
-grep -qF "\"$TASK_ID\"" "$PROJECT_DIR/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null && IS_AQS=true
+This function is added to `scripts/lib/sdlc-common.sh` and used by BOTH `run-synthesize-gates.sh` and `run-complete-gates.sh` to ensure phase-stable classification. The gate checker also uses it.
 
-# Bead metadata fallback (for tasks that predate artifact creation)
-if [ "$IS_STPA" = false ] && [ -d "$TASK_DIR/beads" ]; then
-  grep -rlq "\*\*Cynefin domain:\*\*.*complex\|\*\*Security sensitive:\*\*.*true" "$TASK_DIR/beads/" 2>/dev/null && IS_STPA=true
-fi
-if [ "$IS_AQS" = false ] && [ -d "$TASK_DIR/beads" ]; then
-  grep -rlq "\*\*Cynefin domain:\*\*.*complicated\|\*\*Cynefin domain:\*\*.*complex\|\*\*Cynefin domain:\*\*.*chaotic" "$TASK_DIR/beads/" 2>/dev/null && IS_AQS=true
-fi
+```bash
+# classify_task_lanes <task-dir> <task-id> <project-dir>
+# Sets global variables: HAS_BEADS, IS_STPA, IS_AQS, IS_STRESSED
+classify_task_lanes() {
+  local task_dir="$1" task_id="$2" project_dir="$3"
+
+  HAS_BEADS=false; IS_STPA=false; IS_AQS=false; IS_STRESSED=false
+
+  # Artifact-first classification (most reliable)
+  [ -f "$task_dir/hazard-defense-ledger.yaml" ] && IS_STPA=true
+  [ -f "$task_dir/stress-session.yaml" ] && IS_STRESSED=true
+  [ -f "$task_dir/decision-noise-summary.yaml" ] && IS_AQS=true
+  grep -qF "\"$task_id\"" "$project_dir/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null && IS_AQS=true
+
+  # Bead metadata fallback (handles bold markdown formatting)
+  if [ -d "$task_dir/beads" ] && ls "$task_dir/beads/"*.md &>/dev/null; then
+    HAS_BEADS=true
+    if [ "$IS_STPA" = false ]; then
+      grep -rlq "\*\*Cynefin domain:\*\*.*complex\|\*\*Security sensitive:\*\*.*true" "$task_dir/beads/" 2>/dev/null && IS_STPA=true
+    fi
+    if [ "$IS_AQS" = false ]; then
+      grep -rlq "\*\*Cynefin domain:\*\*.*complicated\|\*\*Cynefin domain:\*\*.*complex\|\*\*Cynefin domain:\*\*.*chaotic" "$task_dir/beads/" 2>/dev/null && IS_AQS=true
+    fi
+  fi
+}
 ```
+
+Both automation scripts call `classify_task_lanes "$TASK_DIR" "$TASK_ID" "$PROJECT_DIR"` and get identical results.
 
 ---
 
@@ -120,24 +134,14 @@ TASK_DIR="$1"
 PROJECT_DIR="$2"
 TASK_ID=$(basename "$TASK_DIR")
 
-# --- Determine which telemetry lanes apply (artifact-first, bead-metadata fallback) ---
-HAS_BEADS=false
-IS_STPA=false
-IS_AQS=false
-
-# Artifact-first classification
-[ -f "$TASK_DIR/hazard-defense-ledger.yaml" ] && IS_STPA=true
-[ -f "$TASK_DIR/decision-noise-summary.yaml" ] && IS_AQS=true
-grep -qF "\"$TASK_ID\"" "$PROJECT_DIR/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null && IS_AQS=true
+# --- Classification: shared function from sdlc-common.sh ---
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/sdlc-common.sh"
+classify_task_lanes "$TASK_DIR" "$TASK_ID" "$PROJECT_DIR"
+# Sets: HAS_BEADS, IS_STPA, IS_AQS, IS_STRESSED
 
 if [ -d "$TASK_DIR/beads" ] && ls "$TASK_DIR/beads/"*.md &>/dev/null; then
-  HAS_BEADS=true
-  # Bead metadata fallback (for tasks predating artifact creation)
-  if [ "$IS_STPA" = false ]; then
-    grep -rlq "\*\*Cynefin domain:\*\*.*complex\|\*\*Security sensitive:\*\*.*true" "$TASK_DIR/beads/" 2>/dev/null && IS_STPA=true
-  fi
-  if [ "$IS_AQS" = false ]; then
-    grep -rlq "\*\*Cynefin domain:\*\*.*complicated\|\*\*Cynefin domain:\*\*.*complex\|\*\*Cynefin domain:\*\*.*chaotic" "$TASK_DIR/beads/" 2>/dev/null && IS_AQS=true
+  HAS_BEADS=true  # redundant but explicit
   fi
 fi
 
@@ -198,15 +202,12 @@ TASK_DIR="$1"
 PROJECT_DIR="$2"
 TASK_ID=$(basename "$TASK_DIR")
 
-# --- Same classification as synthesize ---
-HAS_BEADS=false; IS_STPA=false; IS_AQS=false; IS_STRESSED=false
-if [ -d "$TASK_DIR/beads" ] && ls "$TASK_DIR/beads/"*.md &>/dev/null; then
-  HAS_BEADS=true
-  grep -rlq "Cynefin domain:.*complex\|Security sensitive:.*true" "$TASK_DIR/beads/" 2>/dev/null && IS_STPA=true
-  grep -rlq "Cynefin domain:.*complicated\|Cynefin domain:.*complex\|Cynefin domain:.*chaotic" "$TASK_DIR/beads/" 2>/dev/null && IS_AQS=true
-fi
-grep -qF "\"$TASK_ID\"" "$PROJECT_DIR/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null && IS_AQS=true
-[ -f "$TASK_DIR/stress-session.yaml" ] && IS_STRESSED=true
+# --- Classification: SAME logic as synthesize (sourced from shared function) ---
+# Both scripts source scripts/lib/sdlc-common.sh which provides classify_task_lanes()
+# or inline the identical block from the "Classification in scripts" section above.
+source "$SCRIPT_DIR/lib/sdlc-common.sh"
+classify_task_lanes "$TASK_DIR" "$TASK_ID" "$PROJECT_DIR"
+# Sets: HAS_BEADS, IS_STPA, IS_AQS, IS_STRESSED
 
 echo "=== Complete Gates: $TASK_ID ==="
 
@@ -287,13 +288,18 @@ file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // 
 TASK_DIR=$(dirname "$file_path")
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
 
-# Detect if a phase was marked complete by checking file content
-if grep -qE "complete.*$(date -u +%Y-%m-%d)" "$file_path" 2>/dev/null; then
-  # Run gate check — warn on failure, never block
-  if ! bash "${CLAUDE_PLUGIN_ROOT}/scripts/check-sdlc-gates.sh" "$TASK_DIR" complete --project-dir "$PROJECT_DIR" 2>/dev/null; then
-    echo "HOOK_WARNING: Phase marked complete but gate check failed. Run: bash scripts/run-complete-gates.sh $TASK_DIR $PROJECT_DIR" >&2
-  fi
-fi
+# Detect phase transition by parsing current-phase from YAML frontmatter
+CURRENT_PHASE=$(sed -n '/^---$/,/^---$/{ s/^current-phase: *//p; }' "$file_path" 2>/dev/null | head -1)
+
+# Check gates for synthesize or complete transitions
+case "$CURRENT_PHASE" in
+  synthesize|complete)
+    TARGET="$CURRENT_PHASE"
+    if ! bash "${CLAUDE_PLUGIN_ROOT}/scripts/check-sdlc-gates.sh" "$TASK_DIR" "$TARGET" --project-dir "$PROJECT_DIR" 2>/dev/null; then
+      echo "HOOK_WARNING: current-phase set to '$TARGET' but gate check failed. Run: bash scripts/run-${TARGET}-gates.sh $TASK_DIR $PROJECT_DIR" >&2
+    fi
+    ;;
+esac
 
 exit 0
 ```
@@ -304,11 +310,20 @@ exit 0
 #!/bin/bash
 # Usage: backfill-telemetry.sh <sdlc-active-dir> <project-dir>
 # Retroactively derives telemetry for tasks that have bead data.
+# IDEMPOTENT: checks each artifact and ledger entry independently.
+# Safe to re-run after partial failures.
 set -euo pipefail
 
 ACTIVE_DIR="$1"
 PROJECT_DIR="$2"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKFILLED=0
+
+# Helper: check if task_id already in a JSONL ledger (duplicate guard)
+task_in_ledger() {
+  local ledger="$1" task_id="$2"
+  [ -f "$ledger" ] && grep -qF "\"$task_id\"" "$ledger" 2>/dev/null
+}
 
 for task_dir in "$ACTIVE_DIR"/*/; do
   TASK_ID=$(basename "$task_dir")
@@ -316,20 +331,47 @@ for task_dir in "$ACTIVE_DIR"/*/; do
   # Skip tasks without beads
   [ -d "$task_dir/beads" ] && ls "$task_dir/beads/"*.md &>/dev/null || continue
 
-  # Skip tasks that already have quality-budget.yaml
-  [ -f "$task_dir/quality-budget.yaml" ] && continue
-
   echo "=== Backfilling: $TASK_ID ==="
 
-  # Derive quality budget
-  bash scripts/derive-quality-budget.sh "$task_dir" --status final 2>/dev/null && echo "  quality-budget.yaml created" || echo "  WARN: quality-budget derivation failed" >&2
+  # --- Per-artifact checks (each independent, not short-circuit) ---
 
-  # Derive mode-convergence
-  bash scripts/derive-mode-convergence-summary.sh "$task_dir" --status final 2>/dev/null && echo "  mode-convergence-summary.yaml created" || echo "  WARN: mode-convergence derivation failed" >&2
+  # Quality budget
+  if [ ! -f "$task_dir/quality-budget.yaml" ]; then
+    bash "$SCRIPT_DIR/derive-quality-budget.sh" "$task_dir" --status final 2>/dev/null \
+      && echo "  quality-budget.yaml created" \
+      || echo "  WARN: quality-budget derivation failed" >&2
+  else
+    echo "  quality-budget.yaml already exists (skip derivation)"
+  fi
 
-  # Append to system ledgers
-  bash scripts/append-system-budget.sh "$task_dir" "$PROJECT_DIR" 2>/dev/null && echo "  system-budget.jsonl appended" || echo "  WARN: system-budget append failed" >&2
-  bash scripts/append-system-mode-convergence.sh "$task_dir" "$PROJECT_DIR" 2>/dev/null && echo "  system-mode-convergence.jsonl appended" || echo "  WARN: system-mode-convergence append failed" >&2
+  # Mode-convergence
+  if [ ! -f "$task_dir/mode-convergence-summary.yaml" ]; then
+    bash "$SCRIPT_DIR/derive-mode-convergence-summary.sh" "$task_dir" --status final 2>/dev/null \
+      && echo "  mode-convergence-summary.yaml created" \
+      || echo "  WARN: mode-convergence derivation failed" >&2
+  else
+    echo "  mode-convergence-summary.yaml already exists (skip derivation)"
+  fi
+
+  # --- Per-ledger checks (duplicate guard before append) ---
+
+  BUDGET_LEDGER="$PROJECT_DIR/docs/sdlc/system-budget.jsonl"
+  if ! task_in_ledger "$BUDGET_LEDGER" "$TASK_ID"; then
+    bash "$SCRIPT_DIR/append-system-budget.sh" "$task_dir" "$PROJECT_DIR" 2>/dev/null \
+      && echo "  system-budget.jsonl appended" \
+      || echo "  WARN: system-budget append failed" >&2
+  else
+    echo "  system-budget.jsonl already has $TASK_ID (skip append)"
+  fi
+
+  MC_LEDGER="$PROJECT_DIR/docs/sdlc/system-mode-convergence.jsonl"
+  if ! task_in_ledger "$MC_LEDGER" "$TASK_ID"; then
+    bash "$SCRIPT_DIR/append-system-mode-convergence.sh" "$task_dir" "$PROJECT_DIR" 2>/dev/null \
+      && echo "  system-mode-convergence.jsonl appended" \
+      || echo "  WARN: system-mode-convergence append failed" >&2
+  else
+    echo "  system-mode-convergence.jsonl already has $TASK_ID (skip append)"
+  fi
 
   BACKFILLED=$((BACKFILLED + 1))
 done
@@ -375,6 +417,11 @@ Do NOT manually update state.md phase log without running the appropriate gate s
 
 | File | Change |
 |------|--------|
+| `scripts/lib/sdlc-common.sh` | Add `classify_task_lanes()` shared function |
+| `scripts/append-system-budget.sh` | Add duplicate-task-id guard (`grep -qF` before append) |
+| `scripts/append-system-hazard-defense.sh` | Add duplicate-task-id guard |
+| `scripts/append-system-stress.sh` | Add duplicate-task-id guard |
+| `scripts/append-system-mode-convergence.sh` | Add duplicate-task-id guard |
 | `skills/sdlc-orchestrate/SKILL.md` | Add prominent REQUIRED gate automation callout |
 | `skills/sdlc-gate/SKILL.md` | Reference check-sdlc-gates.sh as enforcement mechanism |
 | `hooks/hooks.json` | Add warn-phase-transition.sh PostToolUse hook |
