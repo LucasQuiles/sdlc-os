@@ -1,7 +1,7 @@
 # Telemetry Enforcement — Gate Automation for Thinker Enhancement Artifacts
 
 **Date:** 2026-03-30
-**Status:** Draft
+**Status:** Draft (rev 2 — addresses 5 review findings)
 **Profile:** REPAIR
 **Problem:** 41 active tasks, zero telemetry artifacts. Gates are prose instructions, not enforced checkpoints.
 
@@ -16,14 +16,46 @@ The SDLC-OS has 5 telemetry pipelines (Quality Budget, Hazard/Defense Ledger, St
 3. **The Conductor must remember 21 manual steps.** No checklist, no automation, no accountability.
 4. **Bead turbulence is never populated.** Beads carry `{L0: 0, L1: 0, ...}` placeholders that are never incremented during execution.
 
+---
+
+## Task Classification Rules
+
+The automation scripts need deterministic rules to decide which telemetry lanes apply. These replace prose judgments:
+
+### STPA-required
+
+A task is STPA-required if any bead file in `beads/*.md` has:
+- `**Cynefin domain:** complex` OR
+- `**Security sensitive:** true`
+
+Detection: `grep -rl "Cynefin domain:.*complex\|Security sensitive:.*true" "$TASK_DIR/beads/"` returns matches.
+
+### Stress-sampled
+
+A task is stress-sampled if `stress-session.yaml` exists in the task directory (created by FFT-15 evaluation during Execute).
+
+Detection: `[ -f "$TASK_DIR/stress-session.yaml" ]`
+
+### AQS-engaged
+
+A task is AQS-engaged if any bead file has `**Cynefin domain:**` that is NOT `clear`, OR if the system-level `review-passes.jsonl` contains entries for this task_id.
+
+Detection: `grep -rl "Cynefin domain:.*complicated\|Cynefin domain:.*complex\|Cynefin domain:.*chaotic" "$TASK_DIR/beads/"` returns matches, OR `grep -qF "\"$TASK_ID\"" "$PROJECT_DIR/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null`.
+
+### No beads
+
+If `beads/` is empty or absent, the task has no derivable telemetry. The gate checker reports this as a warning (not failure) — the task may be an INVESTIGATE or early-stage task.
+
+---
+
 ## Design
 
 ### 1. Gate Checker Script (`scripts/check-sdlc-gates.sh`)
 
-A deterministic script that validates all required artifacts for a given phase transition. Called by the Conductor before updating state.md, or by a hook.
+Deterministic validator for phase transitions. Checks BOTH task-local artifacts AND system ledger append success.
 
 ```
-Usage: check-sdlc-gates.sh <task-dir> <target-phase> [--project-dir <dir>]
+Usage: check-sdlc-gates.sh <task-dir> <target-phase> --project-dir <dir>
 
 Target phases: synthesize | complete
 
@@ -34,114 +66,243 @@ Exit codes:
 ```
 
 **Synthesize gate checks:**
-- quality-budget.yaml exists with artifact_status: ready
-- All derived fields non-null (except estimate_s, sli_readings)
-- For STPA tasks: hazard-defense-ledger.yaml exists with artifact_status: active+
-- For stressed tasks: stress-session.yaml exists with artifact_status: active+
+- `quality-budget.yaml` exists with `artifact_status: ready`
+- All derived fields non-null (except `estimate_s`, `sli_readings`)
+- If STPA-required: `hazard-defense-ledger.yaml` exists with `artifact_status: active`+
+- If stress-sampled: `stress-session.yaml` exists with `artifact_status: active`+
+- If AQS-engaged: `decision-noise-summary.yaml` exists with `artifact_status: partial`+
+- `mode-convergence-summary.yaml` exists with `artifact_status: partial`+
 
-**Complete gate checks:**
-- quality-budget.yaml exists with artifact_status: final
-- sli_readings populated
-- budget_state computed
-- For STPA tasks: HDL artifact_status: final, all records resolved
-- For stressed tasks: stress-session.yaml final
-- decision-noise-summary.yaml exists (if AQS-engaged)
-- mode-convergence-summary.yaml exists
+**Complete gate checks (task-local):**
+- `quality-budget.yaml` exists with `artifact_status: final`
+- `sli_readings` populated (not null)
+- `budget_state` computed
+- If STPA-required: HDL `artifact_status: final`, all records resolved
+- If stress-sampled: `stress-session.yaml` `artifact_status: final`
+- If AQS-engaged: `decision-noise-summary.yaml` `artifact_status: final`
+- `mode-convergence-summary.yaml` `artifact_status: final`
+
+**Complete gate checks (system ledger verification):**
+- `system-budget.jsonl` contains an entry with this `task_id`
+- If STPA-required: `system-hazard-defense.jsonl` contains an entry with this `task_id`
+- If stress-sampled: `system-stress.jsonl` contains an entry with this `task_id`
+- `system-mode-convergence.jsonl` contains an entry with this `task_id`
+
+Ledger verification: `grep -qF "\"$TASK_ID\"" "$LEDGER_PATH"`. If the ledger file doesn't exist, that's also a failure.
 
 ### 2. Synthesize Automation Script (`scripts/run-synthesize-gates.sh`)
 
-Runs all derivation scripts in the correct order, then validates:
+Runs all applicable derivation scripts, then validates. Uses the deterministic classification rules above — no prose decisions.
 
 ```bash
 #!/bin/bash
-# 1. Derive quality budget (→ ready)
-derive-quality-budget.sh "$TASK_DIR" --status ready
+# Usage: run-synthesize-gates.sh <task-dir> <project-dir>
+set -euo pipefail
 
-# 2. Derive HDL summary (if STPA task)
-if [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ]; then
-  derive-hazard-defense-summary.sh "$TASK_DIR" --status active
+TASK_DIR="$1"
+PROJECT_DIR="$2"
+TASK_ID=$(basename "$TASK_DIR")
+
+# --- Determine which telemetry lanes apply ---
+HAS_BEADS=false
+IS_STPA=false
+IS_AQS=false
+
+if [ -d "$TASK_DIR/beads" ] && ls "$TASK_DIR/beads/"*.md &>/dev/null; then
+  HAS_BEADS=true
+  # STPA-required: any bead with complex domain or security_sensitive
+  if grep -rlq "Cynefin domain:.*complex\|Security sensitive:.*true" "$TASK_DIR/beads/" 2>/dev/null; then
+    IS_STPA=true
+  fi
+  # AQS-engaged: any bead with non-clear domain
+  if grep -rlq "Cynefin domain:.*complicated\|Cynefin domain:.*complex\|Cynefin domain:.*chaotic" "$TASK_DIR/beads/" 2>/dev/null; then
+    IS_AQS=true
+  fi
 fi
 
-# 3. Classify execution mode
-classify-execution-mode.sh "$TASK_DIR"
+# Also check review-passes for AQS engagement
+if grep -qF "\"$TASK_ID\"" "$PROJECT_DIR/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null; then
+  IS_AQS=true
+fi
 
-# 4. Derive decision-noise summary (if review-passes exist for this task)
-derive-decision-noise-summary.sh "$TASK_ID" "$PROJECT_DIR"
+IS_STRESSED=false
+[ -f "$TASK_DIR/stress-session.yaml" ] && IS_STRESSED=true
 
-# 5. Derive mode-convergence summary
-derive-mode-convergence-summary.sh "$TASK_DIR" --status partial
+echo "=== Synthesize Gates: $TASK_ID ==="
+echo "Beads: $HAS_BEADS | STPA: $IS_STPA | AQS: $IS_AQS | Stressed: $IS_STRESSED"
 
-# 6. Evaluate escalations
-evaluate-escalations.sh "$TASK_ID" "$PROJECT_DIR"
+# --- 1. Quality budget (always, if beads exist) ---
+if [ "$HAS_BEADS" = true ]; then
+  echo "[1/5] Deriving quality budget..."
+  scripts/derive-quality-budget.sh "$TASK_DIR" --status ready
+fi
 
-# 7. Check all synthesize gates
-check-sdlc-gates.sh "$TASK_DIR" synthesize
+# --- 2. HDL summary (if STPA-required) ---
+if [ "$IS_STPA" = true ] && [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ]; then
+  echo "[2/5] Deriving HDL summary..."
+  scripts/derive-hazard-defense-summary.sh "$TASK_DIR" --status active
+fi
+
+# --- 3. Decision-noise summary (if AQS-engaged) ---
+if [ "$IS_AQS" = true ]; then
+  echo "[3/5] Deriving decision-noise summary..."
+  scripts/derive-decision-noise-summary.sh "$TASK_ID" "$PROJECT_DIR" --status partial || echo "WARN: decision-noise derivation skipped (no review passes)" >&2
+fi
+
+# --- 4. Mode-convergence summary (always, if beads exist) ---
+if [ "$HAS_BEADS" = true ]; then
+  echo "[4/5] Deriving mode-convergence summary..."
+  scripts/derive-mode-convergence-summary.sh "$TASK_DIR" --status partial
+fi
+
+# --- 5. Validate all synthesize gates ---
+echo "[5/5] Checking synthesize gates..."
+scripts/check-sdlc-gates.sh "$TASK_DIR" synthesize --project-dir "$PROJECT_DIR"
 ```
+
+Note: `classify-execution-mode.sh` is removed — mode classification is already done inside `derive-mode-convergence-summary.sh`.
+
+Stress-session.yaml is NOT created here. It was created during Execute by FFT-15 evaluation. If FFT-15 didn't trigger, there's no session to derive. The gate checker handles this: if `stress-session.yaml` doesn't exist, the stressed-task gates don't apply.
 
 ### 3. Complete Automation Script (`scripts/run-complete-gates.sh`)
 
-Finalizes all artifacts and appends to system ledgers:
+Finalizes all artifacts, appends to system ledgers, verifies ledger entries exist.
 
 ```bash
 #!/bin/bash
-# 1. Finalize quality budget
-derive-quality-budget.sh "$TASK_DIR" --status final
+# Usage: run-complete-gates.sh <task-dir> <project-dir>
+set -euo pipefail
 
-# 2. Finalize HDL (if STPA task)
-if [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ]; then
-  derive-hazard-defense-summary.sh "$TASK_DIR" --status final
+TASK_DIR="$1"
+PROJECT_DIR="$2"
+TASK_ID=$(basename "$TASK_DIR")
+
+# --- Same classification as synthesize ---
+HAS_BEADS=false; IS_STPA=false; IS_STRESSED=false
+if [ -d "$TASK_DIR/beads" ] && ls "$TASK_DIR/beads/"*.md &>/dev/null; then
+  HAS_BEADS=true
+  grep -rlq "Cynefin domain:.*complex\|Security sensitive:.*true" "$TASK_DIR/beads/" 2>/dev/null && IS_STPA=true
+fi
+[ -f "$TASK_DIR/stress-session.yaml" ] && IS_STRESSED=true
+
+echo "=== Complete Gates: $TASK_ID ==="
+
+# --- 1. Finalize quality budget ---
+if [ "$HAS_BEADS" = true ]; then
+  echo "[1/6] Finalizing quality budget..."
+  scripts/derive-quality-budget.sh "$TASK_DIR" --status final
 fi
 
-# 3. Finalize mode-convergence summary
-derive-mode-convergence-summary.sh "$TASK_DIR" --status final
-
-# 4. Append to all system ledgers
-append-system-budget.sh "$TASK_DIR" "$PROJECT_DIR"
-if [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ]; then
-  append-system-hazard-defense.sh "$TASK_DIR" "$PROJECT_DIR"
+# --- 2. Finalize HDL (if STPA) ---
+if [ "$IS_STPA" = true ] && [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ]; then
+  echo "[2/6] Finalizing HDL..."
+  scripts/derive-hazard-defense-summary.sh "$TASK_DIR" --status final
 fi
-if [ -f "$TASK_DIR/stress-session.yaml" ]; then
-  append-system-stress.sh "$TASK_DIR" "$PROJECT_DIR"
-fi
-append-system-mode-convergence.sh "$TASK_DIR" "$PROJECT_DIR"
 
-# 5. Check all complete gates
-check-sdlc-gates.sh "$TASK_DIR" complete --project-dir "$PROJECT_DIR"
+# --- 3. Finalize stress session (if stressed) ---
+if [ "$IS_STRESSED" = true ]; then
+  echo "[3/6] Finalizing stress session..."
+  # Update artifact_status to final + run library update
+  scripts/update-stressor-library.sh "$TASK_DIR" "references/stressor-library.yaml" "$PROJECT_DIR"
+fi
+
+# --- 4. Finalize mode-convergence ---
+if [ "$HAS_BEADS" = true ]; then
+  echo "[4/6] Finalizing mode-convergence summary..."
+  scripts/derive-mode-convergence-summary.sh "$TASK_DIR" --status final
+fi
+
+# --- 5. Append to ALL applicable system ledgers ---
+echo "[5/6] Appending to system ledgers..."
+if [ "$HAS_BEADS" = true ]; then
+  scripts/append-system-budget.sh "$TASK_DIR" "$PROJECT_DIR"
+fi
+if [ "$IS_STPA" = true ] && [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ]; then
+  scripts/append-system-hazard-defense.sh "$TASK_DIR" "$PROJECT_DIR"
+fi
+if [ "$IS_STRESSED" = true ]; then
+  scripts/append-system-stress.sh "$TASK_DIR" "$PROJECT_DIR"
+fi
+if [ "$HAS_BEADS" = true ]; then
+  scripts/append-system-mode-convergence.sh "$TASK_DIR" "$PROJECT_DIR"
+fi
+
+# --- 6. Validate ALL complete gates (task-local + system ledger) ---
+echo "[6/6] Checking complete gates..."
+scripts/check-sdlc-gates.sh "$TASK_DIR" complete --project-dir "$PROJECT_DIR"
 ```
 
-### 4. Hook Enforcement (Optional — Advisory First)
+### 4. Advisory Hook (`hooks/scripts/warn-phase-transition.sh`)
 
-A `PostToolUse` hook on state.md writes that warns (not blocks) when phase transitions occur without gates passing. Advisory in v1 to avoid breaking existing workflows.
+Simplified contract: the hook re-runs `check-sdlc-gates.sh` against current filesystem state. No gate-run marker or stamp file — the check is idempotent and deterministic.
 
-```json
-{
-  "matcher": "Write|Edit",
-  "hooks": [{
-    "type": "command",
-    "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/warn-phase-transition.sh",
-    "timeout": 15
-  }]
-}
+```bash
+#!/bin/bash
+# Triggers on state.md Write/Edit. Warns if gate check fails.
+set -euo pipefail
+
+input=$(cat)
+file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty')
+
+# Only trigger on state.md writes
+[[ "$file_path" == */state.md ]] || exit 0
+
+TASK_DIR=$(dirname "$file_path")
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
+
+# Detect if a phase was marked complete by checking file content
+if grep -qE "complete.*$(date -u +%Y-%m-%d)" "$file_path" 2>/dev/null; then
+  # Run gate check — warn on failure, never block
+  if ! bash "${CLAUDE_PLUGIN_ROOT}/scripts/check-sdlc-gates.sh" "$TASK_DIR" complete --project-dir "$PROJECT_DIR" 2>/dev/null; then
+    echo "HOOK_WARNING: Phase marked complete but gate check failed. Run: bash scripts/run-complete-gates.sh $TASK_DIR $PROJECT_DIR" >&2
+  fi
+fi
+
+exit 0
 ```
-
-The hook checks if the written file is `state.md`, detects phase transitions, and warns if the corresponding gate script hasn't been run.
 
 ### 5. Backfill Script (`scripts/backfill-telemetry.sh`)
 
-Retroactively derives quality-budget.yaml for tasks that have bead data:
-
 ```bash
 #!/bin/bash
-# For each task with beads/*.md files containing Turbulence fields:
-#   1. Run derive-quality-budget.sh --status final
-#   2. Run classify-execution-mode.sh
-#   3. Run derive-mode-convergence-summary.sh --status final
-#   4. Append to system ledgers
+# Usage: backfill-telemetry.sh <sdlc-active-dir> <project-dir>
+# Retroactively derives telemetry for tasks that have bead data.
+set -euo pipefail
+
+ACTIVE_DIR="$1"
+PROJECT_DIR="$2"
+BACKFILLED=0
+
+for task_dir in "$ACTIVE_DIR"/*/; do
+  TASK_ID=$(basename "$task_dir")
+
+  # Skip tasks without beads
+  [ -d "$task_dir/beads" ] && ls "$task_dir/beads/"*.md &>/dev/null || continue
+
+  # Skip tasks that already have quality-budget.yaml
+  [ -f "$task_dir/quality-budget.yaml" ] && continue
+
+  echo "=== Backfilling: $TASK_ID ==="
+
+  # Derive quality budget
+  bash scripts/derive-quality-budget.sh "$task_dir" --status final 2>/dev/null && echo "  quality-budget.yaml created" || echo "  WARN: quality-budget derivation failed" >&2
+
+  # Derive mode-convergence
+  bash scripts/derive-mode-convergence-summary.sh "$task_dir" --status final 2>/dev/null && echo "  mode-convergence-summary.yaml created" || echo "  WARN: mode-convergence derivation failed" >&2
+
+  # Append to system ledgers
+  bash scripts/append-system-budget.sh "$task_dir" "$PROJECT_DIR" 2>/dev/null && echo "  system-budget.jsonl appended" || echo "  WARN: system-budget append failed" >&2
+  bash scripts/append-system-mode-convergence.sh "$task_dir" "$PROJECT_DIR" 2>/dev/null && echo "  system-mode-convergence.jsonl appended" || echo "  WARN: system-mode-convergence append failed" >&2
+
+  BACKFILLED=$((BACKFILLED + 1))
+done
+
+echo "=== Backfilled $BACKFILLED tasks ==="
 ```
 
 ### 6. Conductor Checklist Update
 
-Add to `skills/sdlc-orchestrate/SKILL.md` a prominent callout:
+Add to `skills/sdlc-orchestrate/SKILL.md`:
 
 ```markdown
 ## REQUIRED: Gate Automation
@@ -149,7 +310,13 @@ Add to `skills/sdlc-orchestrate/SKILL.md` a prominent callout:
 Before Synthesize: `bash scripts/run-synthesize-gates.sh <task-dir> <project-dir>`
 Before Complete: `bash scripts/run-complete-gates.sh <task-dir> <project-dir>`
 
-These scripts run all derivation, classification, and validation automatically.
+These scripts automatically:
+- Detect which telemetry lanes apply (STPA, AQS, stress) using deterministic rules
+- Run all applicable derivation scripts in the correct order
+- Append to all applicable system JSONL ledgers
+- Validate both task-local artifacts AND system ledger entries
+- Report pass/fail with details
+
 Do NOT manually update state.md phase log without running the appropriate gate script first.
 ```
 
@@ -161,18 +328,18 @@ Do NOT manually update state.md phase log without running the appropriate gate s
 
 | File | Purpose |
 |------|---------|
-| `scripts/check-sdlc-gates.sh` | Deterministic gate validator for synthesize/complete |
-| `scripts/run-synthesize-gates.sh` | Run all pre-Synthesize derivation + validation |
-| `scripts/run-complete-gates.sh` | Finalize artifacts + append ledgers + validate |
-| `scripts/backfill-telemetry.sh` | Retroactively derive telemetry for existing tasks |
-| `hooks/scripts/warn-phase-transition.sh` | Advisory hook warning on ungated transitions |
+| `scripts/check-sdlc-gates.sh` | Deterministic gate validator: task-local artifacts + system ledger entries |
+| `scripts/run-synthesize-gates.sh` | Automation: detect lanes → derive → validate |
+| `scripts/run-complete-gates.sh` | Automation: finalize → append ledgers → validate (includes stress finalization) |
+| `scripts/backfill-telemetry.sh` | Retroactively derive for tasks with bead data |
+| `hooks/scripts/warn-phase-transition.sh` | Advisory hook: re-run gate check on state.md writes |
 
 ### Files to Modify
 
 | File | Change |
 |------|--------|
 | `skills/sdlc-orchestrate/SKILL.md` | Add prominent REQUIRED gate automation callout |
-| `skills/sdlc-gate/SKILL.md` | Reference check-sdlc-gates.sh as the enforcement mechanism |
+| `skills/sdlc-gate/SKILL.md` | Reference check-sdlc-gates.sh as enforcement mechanism |
 | `hooks/hooks.json` | Add warn-phase-transition.sh PostToolUse hook |
 | `hooks/tests/test-hooks.sh` | Add tests for the new hook |
 | `README.md` | Update with gate automation instructions |
@@ -182,10 +349,11 @@ Do NOT manually update state.md phase log without running the appropriate gate s
 ## Scope
 
 ### In scope
-- Gate checker script
-- Synthesize/Complete automation scripts
-- Backfill script for existing tasks
-- Advisory phase-transition hook
+- Gate checker with system ledger verification
+- Synthesize/Complete automation with deterministic classification
+- Stress session finalization in Complete automation
+- Backfill for existing tasks with bead data
+- Advisory phase-transition hook (re-check, no stamp file)
 - Orchestrate SKILL.md update
 - Testing and verification
 
@@ -193,3 +361,4 @@ Do NOT manually update state.md phase log without running the appropriate gate s
 - Blocking (non-advisory) hook enforcement (v2)
 - Automatic turbulence population during bead execution (requires runner changes)
 - Dashboard/visualization of system ledger data
+- Automatic bead file creation for tasks that skip bead tracking
