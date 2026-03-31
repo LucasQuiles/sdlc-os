@@ -36,7 +36,7 @@ complexity_weight() {
   # Weights follow the Cynefin cost-of-quality ladder: clear=0 (routine), complicated=0.5
   # (expertise required), complex=1.0 (emergent), chaotic=1.5 (crisis). Normalised by total
   # so the result is independent of team size or bead count.
-  echo "scale=2; ($complicated * 0.5 + $complex * 1.0 + $chaotic * 1.5) / $total" | bc
+  json_decimal "$(echo "scale=2; ($complicated * 0.5 + $complex * 1.0 + $chaotic * 1.5) / $total" | bc)"
 }
 
 # Lookup threshold from rules file given complexity_weight

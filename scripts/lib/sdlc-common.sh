@@ -22,6 +22,20 @@ check_pyyaml() {
   python3 -c "import yaml" 2>/dev/null
 }
 
+# Normalize bc output for JSON embedding: .25 → 0.25, -.25 → -0.25
+# Usage: json_decimal "$(echo 'scale=2; 1/4' | bc)"
+json_decimal() {
+  local val="$1"
+  # Handle negative leading dot first: -.25 → -0.25
+  if [[ "$val" == -.* ]]; then
+    val="-0.${val:2}"
+  # Handle leading dot: .25 → 0.25
+  elif [[ "$val" == .* ]]; then
+    val="0${val}"
+  fi
+  echo "$val"
+}
+
 # Validate a value against an allowed set. Returns 0 if valid, 1 if not.
 # Usage: validate_enum "healthy" "healthy warning depleted"
 validate_enum() {

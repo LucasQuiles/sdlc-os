@@ -88,8 +88,8 @@ done
 
 # --- Compute metrics ---
 if [ "$COMPLETED" -gt 0 ]; then
-  ZTR=$(echo "scale=2; $ZERO_TURB / $COMPLETED" | bc)
-  TSPR=$(echo "scale=2; $TURB_SUM / $COMPLETED" | bc)
+  ZTR=$(json_decimal "$(echo "scale=2; $ZERO_TURB / $COMPLETED" | bc)")
+  TSPR=$(json_decimal "$(echo "scale=2; $TURB_SUM / $COMPLETED" | bc)")
 else
   ZTR="0.0"
   TSPR="null"

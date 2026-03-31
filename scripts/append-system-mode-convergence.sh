@@ -28,6 +28,8 @@ if [ -f "$LEDGER" ] && grep -qF "\"$_MC_TASK_ID\"" "$LEDGER" 2>/dev/null; then
   exit 0
 fi
 
+mkdir -p "$(dirname "$LEDGER")"
+
 python3 -c "
 import yaml, sys, json
 from collections import Counter

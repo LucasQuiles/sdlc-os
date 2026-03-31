@@ -146,7 +146,7 @@ compute_stress_yield() {
     echo "0.0"
     return
   fi
-  echo "scale=2; $caught / $applied" | bc
+  json_decimal "$(echo "scale=2; $caught / $applied" | bc)"
 }
 
 # compute_lindy_transition <lindy_status> <times_applied> <catch_rate> <last5_misses>

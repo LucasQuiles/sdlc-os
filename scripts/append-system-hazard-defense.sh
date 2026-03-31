@@ -24,6 +24,8 @@ if [ -f "$SYSTEM_LEDGER" ] && grep -qF "\"$_HDL_TASK_ID\"" "$SYSTEM_LEDGER" 2>/d
   exit 0
 fi
 
+mkdir -p "$(dirname "$SYSTEM_LEDGER")"
+
 # Build JSONL entry from final ledger
 python3 -c "
 import yaml, sys, json
