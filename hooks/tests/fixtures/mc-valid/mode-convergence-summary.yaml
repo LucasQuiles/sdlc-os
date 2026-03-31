@@ -1,7 +1,7 @@
 schema_version: 1
 task_id: "test-task-mc-001"
 artifact_status: final
-generated_at: "2026-03-30T00:00:00Z"
+derived_at: "2026-03-30T00:00:00Z"
 
 execution_mode:
   classification: rule_based
@@ -11,24 +11,27 @@ execution_mode:
     zero_turbulence_rate: 0.65
     review_latency_p95_s: 120
     escalation_count: 1
+    wip_beads: 2
 
 convergence_history:
-  - cycle: 1
-    new_findings: 5
-    repeated_findings: 1
-    evidence_rate: 0.833
-    severity_trend: stable
-    entropy_estimate: 1.522
-    convergence_state: converging
-    recommendation: continue
-  - cycle: 2
-    new_findings: 2
-    repeated_findings: 6
-    evidence_rate: 0.250
-    severity_trend: stable
-    entropy_estimate: 1.100
-    convergence_state: stable
-    recommendation: stop_early
+  - bead_id: B01
+    cycles:
+      - cycle: 1
+        new_findings: 5
+        repeated_findings: 1
+        evidence_rate: 0.833
+        severity_trend: stable
+        entropy_estimate: 1.522
+        convergence_state: converging
+        recommendation: continue
+      - cycle: 2
+        new_findings: 2
+        repeated_findings: 6
+        evidence_rate: 0.250
+        severity_trend: stable
+        entropy_estimate: 1.100
+        convergence_state: stable
+        recommendation: stop_early
 
 escalation_log:
   - cycle: 1

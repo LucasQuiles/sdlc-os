@@ -31,7 +31,7 @@ fi
 mkdir -p "$(dirname "$LEDGER")"
 
 python3 -c "
-import yaml, sys, json
+import yaml, sys, json, os, glob
 from collections import Counter
 
 with open(sys.argv[1]) as f:
@@ -72,7 +72,18 @@ if total_loop_iterations == 0:
 convergence_yield = round(early_stops / total_loop_iterations, 3) if total_loop_iterations > 0 else 0.0
 
 # bead count from quality-budget beads.total (NOT wip_beads which is a different concept)
-beads = int(data.get('_beads_total', exec_mode.get('signals', {}).get('wip_beads', 0)))
+# Bead count resolution: prefer explicit _beads_total, then count bead files, then wip_beads
+_beads_total = data.get('_beads_total')
+if _beads_total is not None:
+    beads = int(_beads_total)
+else:
+    # Count bead files in task directory as fallback
+    task_dir = os.path.dirname(sys.argv[1])
+    bead_files = glob.glob(os.path.join(task_dir, 'beads', '*.md'))
+    if bead_files:
+        beads = len(bead_files)
+    else:
+        beads = int(exec_mode.get('signals', {}).get('wip_beads', 0))
 
 entry = {
     'task_id':            task_id,

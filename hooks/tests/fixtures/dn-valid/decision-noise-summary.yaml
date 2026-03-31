@@ -1,20 +1,23 @@
 schema_version: 1
 task_id: "test-task-001"
 artifact_status: partial
-generated_at: "2026-03-30T00:00:00Z"
+derived_at: "2026-03-30T00:00:00Z"
+
+beads_reviewed: 3
+passes_total: 6
+repeat_review_pairs: 1
 
 metrics:
-  noise_index: null
-  verdict_agreement: null
-  map_convergence: null
-  anchoring_drift_detected: false
+  repeat_review_noise_index: null
+  weighted_verdict_agreement: null
+  map_convergence_score: null
+  anchoring_drift_rate: null
   natural_frequency_coverage: null
-  spot_check_coverage: null
-  review_pass_count: 1
+  high_severity_unbacked_claims: 0
+  spot_check_coverage_rate: null
 
 escalations:
   verdict_flips: 0
-  map_divergence_count: 0
-  anchoring_drift_count: 0
-  unbacked_high_severity_count: 0
-  triggered: []
+  map_divergence_2plus: 0
+  anchoring_drift_2plus: 0
+  unbacked_high_severity: 0
