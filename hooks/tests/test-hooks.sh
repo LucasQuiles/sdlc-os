@@ -595,6 +595,57 @@ run_test "skip: non-summary file ignored" \
 rm -rf "$_mc_tmp"
 
 echo ""
+echo "=== Phase-Transition Warning Tests ==="
+
+_pt_tmp=$(mktemp -d)
+mkdir -p "$_pt_tmp/beads"
+
+# Add a bead file so HAS_BEADS=true — gates will fail without artifacts
+cat > "$_pt_tmp/beads/B01.md" << 'BEAD'
+**Status:** merged
+**Cynefin domain:** complicated
+BEAD
+
+# Helper to create JSON fixture pointing at a real file
+_pt_json() { echo "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$1\"}}" > "$2"; }
+
+# 1. complete transition with no artifacts → advisory warning
+cat > "$_pt_tmp/state.md" << 'YAML'
+---
+task-id: test-gate-task
+current-phase: complete
+---
+YAML
+_pt_json "$_pt_tmp/state.md" "$_pt_tmp/pt-complete.json"
+run_test_advisory "warn: complete without artifacts" "$HOOKS_DIR/warn-phase-transition.sh" "$_pt_tmp/pt-complete.json" "yes"
+
+# 2. synthesize transition → also advisory warning
+cat > "$_pt_tmp/state.md" << 'YAML'
+---
+task-id: test-gate-task
+current-phase: synthesize
+---
+YAML
+_pt_json "$_pt_tmp/state.md" "$_pt_tmp/pt-synthesize.json"
+run_test_advisory "warn: synthesize without artifacts" "$HOOKS_DIR/warn-phase-transition.sh" "$_pt_tmp/pt-synthesize.json" "yes"
+
+# 3. execute transition → no warning
+cat > "$_pt_tmp/state.md" << 'YAML'
+---
+task-id: test-gate-task
+current-phase: execute
+---
+YAML
+_pt_json "$_pt_tmp/state.md" "$_pt_tmp/pt-execute.json"
+run_test_advisory "skip: execute phase (no warning)" "$HOOKS_DIR/warn-phase-transition.sh" "$_pt_tmp/pt-execute.json" "no"
+
+# 4. non-state file → skip
+_pt_json "/tmp/not-state.txt" "$_pt_tmp/pt-nonstate.json"
+run_test "skip: non-state file" "$HOOKS_DIR/warn-phase-transition.sh" "$_pt_tmp/pt-nonstate.json" 0
+
+rm -rf "$_pt_tmp"
+
+echo ""
 echo "=== Results ==="
 echo "PASS: $PASS  FAIL: $FAIL  TOTAL: $((PASS + FAIL))"
 
