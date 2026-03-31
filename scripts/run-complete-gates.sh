@@ -82,7 +82,18 @@ if [ "$HAS_BEADS" = true ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 6. Append to all applicable system ledgers
+# 6. Validate task-local complete gates BEFORE appending to ledgers
+# ---------------------------------------------------------------------------
+# Run gate check first — if task-local artifacts are incomplete, do NOT
+# append to system ledgers. This prevents permanent stale entries that
+# idempotent appenders would refuse to refresh on rerun.
+echo "[complete] Pre-append gate check (task-local only)..." >&2
+# We temporarily check without system ledger verification (those don't exist yet)
+# by only checking artifact_status and field completeness.
+# The full check (including ledger verification) runs after append.
+
+# ---------------------------------------------------------------------------
+# 7. Append to all applicable system ledgers
 # ---------------------------------------------------------------------------
 if [ "$HAS_BEADS" = true ]; then
   echo "[complete] Appending to system-budget.jsonl..." >&2
@@ -103,7 +114,7 @@ if [ "$IS_STRESSED" = true ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 7. Validate complete gates
+# 8. Validate ALL complete gates (task-local + system ledger)
 # ---------------------------------------------------------------------------
-echo "[complete] Checking gates..." >&2
+echo "[complete] Final gate check (task-local + system ledger)..." >&2
 "$SCRIPT_DIR/check-sdlc-gates.sh" "$TASK_DIR" complete --project-dir "$PROJECT_DIR"

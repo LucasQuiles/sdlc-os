@@ -150,21 +150,34 @@ run_synthesize_checks() {
 
     # All derived fields non-null except estimate_s and sli_readings
     if [ -f "$qb" ]; then
-      for field in task_id bead_count completed_count wip_count stuck_count blocked_count \
-                   clear_count complicated_count complex_count chaotic_count \
-                   l0_turbulence l1_turbulence l2_turbulence \
-                   velocity_trend overall_health budget_state; do
+      for field in task_id complexity_weight turbulence_sum turbulence_max_bead budget_state; do
         if yaml_field_nonnull "$qb" "$field" 2>/dev/null; then
           pass "quality-budget.$field is non-null"
         else
           fail "quality-budget.$field is null (required derived field)"
         fi
       done
-      # sli_readings: WARN only, not fail
-      if ! yaml_field_nonnull "$qb" "sli_readings" 2>/dev/null; then
-        warn "quality-budget.sli_readings is null (deferred — project-specific enforcement)"
+      # sli_readings: WARN if inner values are all null, not fail
+      # (sli_readings object always exists but inner fields may be null)
+      local sli_null_count
+      sli_null_count="$(python3 - "$qb" <<'PY'
+import sys, yaml
+with open(sys.argv[1]) as f:
+    d = yaml.safe_load(f)
+sli = d.get("sli_readings", {}) if d else {}
+if not sli:
+    print("ALL")
+else:
+    nulls = sum(1 for v in sli.values() if v is None)
+    print("ALL" if nulls == len(sli) else str(nulls))
+PY
+2>/dev/null || echo "ERROR")"
+      if [ "$sli_null_count" = "ALL" ]; then
+        warn "quality-budget.sli_readings: all values null (deferred — project-specific enforcement)"
+      elif [ "$sli_null_count" = "0" ]; then
+        pass "quality-budget.sli_readings: all values populated"
       else
-        pass "quality-budget.sli_readings is non-null"
+        warn "quality-budget.sli_readings: $sli_null_count value(s) null"
       fi
     fi
 
@@ -207,10 +220,7 @@ run_complete_local_checks() {
       fi
 
       # All required derived fields non-null
-      for field in task_id bead_count completed_count wip_count stuck_count blocked_count \
-                   clear_count complicated_count complex_count chaotic_count \
-                   l0_turbulence l1_turbulence l2_turbulence \
-                   velocity_trend overall_health; do
+      for field in task_id complexity_weight turbulence_sum budget_state; do
         if yaml_field_nonnull "$qb" "$field" 2>/dev/null; then
           pass "quality-budget.$field is non-null"
         else
@@ -284,13 +294,13 @@ PY
 import sys, yaml
 with open(sys.argv[1]) as f:
     d = yaml.safe_load(f)
-applications = d.get("stressor_applications", []) if d else []
+applications = d.get("stressors_applied", []) if d else []
 pending = [a for a in applications if a.get("result") is None or a.get("result", "") == "pending"]
 print(len(pending))
 PY
 2>/dev/null || echo "ERROR")"
       if [ "$pending_count" = "ERROR" ]; then
-        fail "stress-session: failed to parse stressor_applications"
+        fail "stress-session: failed to parse stressors_applied"
       elif [ "$pending_count" -gt 0 ]; then
         fail "stress-session: $pending_count stressor application(s) still pending (unresolved)"
       else
