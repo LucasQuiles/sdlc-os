@@ -106,7 +106,7 @@ Exit codes:
 
 **Complete gate checks (task-local):**
 - `quality-budget.yaml` exists with `artifact_status: final`
-- `sli_readings` populated (not null)
+- `sli_readings`: WARN on null (not fail). SLI population requires project-specific deterministic checks (lint, tsc, test coverage) that the automation scripts cannot run generically. Full enforcement deferred until Conductor or project hook populates them before calling run-complete-gates.sh.
 - `budget_state` computed
 - If STPA-required: HDL `artifact_status: final`, all records resolved
 - If stress-sampled: `stress-session.yaml` `artifact_status: final`

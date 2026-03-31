@@ -205,7 +205,7 @@ Expected: All tests pass (62/62 — 58 existing + 4 new).
 
 ```bash
 cd /Users/q/.claude/plugins/sdlc-os
-git add hooks/scripts/warn-phase-transition.sh hooks/hooks.json hooks/tests/test-hooks.sh hooks/tests/fixtures/state-*.json
+git add hooks/scripts/warn-phase-transition.sh hooks/hooks.json hooks/tests/test-hooks.sh
 git commit -m "feat: add advisory phase-transition hook
 
 Warns when state.md current-phase changes to synthesize/complete
