@@ -32,3 +32,26 @@ validate_enum() {
   echo "ERROR: Invalid value '$value'. Allowed: $allowed" >&2
   return 1
 }
+
+# classify_task_lanes <task-dir> <task-id> <project-dir>
+# Sets global variables: HAS_BEADS, IS_STPA, IS_AQS, IS_STRESSED
+classify_task_lanes() {
+  local task_dir="$1" task_id="$2" project_dir="$3"
+  HAS_BEADS=false; IS_STPA=false; IS_AQS=false; IS_STRESSED=false
+
+  # Artifact-first classification
+  [ -f "$task_dir/hazard-defense-ledger.yaml" ] && IS_STPA=true
+  [ -f "$task_dir/stress-session.yaml" ] && IS_STRESSED=true
+  # AQS: artifact-only, NO bead-domain fallback (AQS can be skipped for Chaotic/Clear/ACCIDENTAL)
+  [ -f "$task_dir/decision-noise-summary.yaml" ] && IS_AQS=true
+  grep -qF "\"$task_id\"" "$project_dir/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null && IS_AQS=true
+
+  # Bead metadata fallback (handles bold markdown)
+  if [ -d "$task_dir/beads" ] && ls "$task_dir/beads/"*.md &>/dev/null; then
+    HAS_BEADS=true
+    if [ "$IS_STPA" = false ]; then
+      grep -rlq "\*\*Cynefin domain:\*\*.*complex\|\*\*Security sensitive:\*\*.*true" "$task_dir/beads/" 2>/dev/null && IS_STPA=true
+    fi
+    # NO bead fallback for IS_AQS — artifact-only
+  fi
+}
