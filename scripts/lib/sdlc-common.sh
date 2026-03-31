@@ -40,17 +40,18 @@ classify_task_lanes() {
   HAS_BEADS=false; IS_STPA=false; IS_AQS=false; IS_STRESSED=false
 
   # Artifact-first classification
-  [ -f "$task_dir/hazard-defense-ledger.yaml" ] && IS_STPA=true
-  [ -f "$task_dir/stress-session.yaml" ] && IS_STRESSED=true
+  # Each line uses || true to prevent set -e from killing the function on false conditions
+  [ -f "$task_dir/hazard-defense-ledger.yaml" ] && IS_STPA=true || true
+  [ -f "$task_dir/stress-session.yaml" ] && IS_STRESSED=true || true
   # AQS: artifact-only, NO bead-domain fallback (AQS can be skipped for Chaotic/Clear/ACCIDENTAL)
-  [ -f "$task_dir/decision-noise-summary.yaml" ] && IS_AQS=true
-  grep -qF "\"$task_id\"" "$project_dir/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null && IS_AQS=true
+  [ -f "$task_dir/decision-noise-summary.yaml" ] && IS_AQS=true || true
+  grep -qF "\"$task_id\"" "$project_dir/docs/sdlc/decision-noise/review-passes.jsonl" 2>/dev/null && IS_AQS=true || true
 
   # Bead metadata fallback (handles bold markdown)
   if [ -d "$task_dir/beads" ] && ls "$task_dir/beads/"*.md &>/dev/null; then
     HAS_BEADS=true
     if [ "$IS_STPA" = false ]; then
-      grep -rlq "\*\*Cynefin domain:\*\*.*complex\|\*\*Security sensitive:\*\*.*true" "$task_dir/beads/" 2>/dev/null && IS_STPA=true
+      grep -rlq "\*\*Cynefin domain:\*\*.*complex\|\*\*Security sensitive:\*\*.*true" "$task_dir/beads/" 2>/dev/null && IS_STPA=true || true
     fi
     # NO bead fallback for IS_AQS — artifact-only
   fi
