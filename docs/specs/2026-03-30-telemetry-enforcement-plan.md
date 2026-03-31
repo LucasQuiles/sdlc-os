@@ -46,7 +46,8 @@ Create `scripts/check-sdlc-gates.sh`. Takes `<task-dir> <target-phase> --project
 
 **Complete checks (task-local):**
 - All of the above with `artifact_status: final`
-- `quality-budget.yaml` has `sli_readings` fully populated (not null) and `budget_state` computed
+- `quality-budget.yaml` has `budget_state` computed (not null)
+- `quality-budget.yaml` `sli_readings`: **relaxed in this phase.** sli_readings require project-specific deterministic checks (lint, tsc, test coverage) that the automation scripts cannot run generically. The gate checker WARNS on null sli_readings but does NOT fail. Full sli_readings enforcement is deferred until the Conductor or a project-specific hook populates them before calling run-complete-gates.sh.
 - If IS_STPA: HDL has every record with `status` in {caught, escaped, accepted_residual} — no `open` records remain. `summary.coverage_state` is computed.
 - If IS_STRESSED: `stress-session.yaml` has all stressor applications resolved (no pending results)
 - If IS_AQS: `decision-noise-summary.yaml` has `artifact_status: final`
@@ -167,6 +168,16 @@ cp "$_pt_tmp/state-exec.md" "$_pt_tmp/state.md"
 _pt_json "$_pt_tmp/state.md" "$_pt_tmp/state-execute.json"
 run_test "skip: execute phase (no warning)" "$HOOKS_DIR/warn-phase-transition.sh" "$_pt_tmp/state-execute.json" 0
 
+# state.md with current-phase: synthesize (should also trigger warning)
+cat > "$_pt_tmp/state.md" << 'YAML'
+---
+task-id: test-gate-task
+current-phase: synthesize
+---
+YAML
+_pt_json "$_pt_tmp/state.md" "$_pt_tmp/state-synthesize.json"
+run_test_advisory "warn: synthesize without artifacts" "$HOOKS_DIR/warn-phase-transition.sh" "$_pt_tmp/state-synthesize.json" "yes"
+
 # Non-state.md file (should skip entirely)
 _pt_json "/tmp/not-state.txt" "$_pt_tmp/non-state.json"
 run_test "skip: non-state file" "$HOOKS_DIR/warn-phase-transition.sh" "$_pt_tmp/non-state.json" 0
@@ -178,8 +189,9 @@ The `_pt_json` helper writes a JSON fixture with the file_path pointing at the r
 
 This tests:
 1. complete transition with no artifacts → HOOK_WARNING emitted (advisory, exit 0)
-2. execute transition → no warning, exit 0
-3. non-state.md file → skip, exit 0
+2. synthesize transition with no artifacts → HOOK_WARNING emitted (advisory, exit 0)
+3. execute transition → no warning, exit 0
+4. non-state.md file → skip, exit 0
 
 - [ ] **Step 3: Run tests**
 
@@ -224,21 +236,38 @@ if [ -f "$LEDGER" ] && grep -qF "\"$TASK_ID\"" "$LEDGER" 2>/dev/null; then
 fi
 ```
 
-**Python-based scripts** (`append-system-hazard-defense.sh`, `append-system-stress.sh`):
-These append inside a Python block. Add the duplicate guard inside the Python code, before the `print()` or file write:
+**`append-system-hazard-defense.sh`** (Python block at line 22, appends via `print() >> "$SYSTEM_LEDGER"` at line 63-64):
+
+The Python code reads the ledger YAML and prints JSON to stdout, which the shell redirects to the ledger. The task_id is in `data['task_id']` and the ledger path is `$SYSTEM_LEDGER` (shell variable). Add the guard in SHELL before the Python block:
+
+```bash
+# Duplicate guard (before the python3 -c block)
+if [ -f "$SYSTEM_LEDGER" ] && grep -qF "\"task_id\":\"$(python3 -c "import yaml; print(yaml.safe_load(open('$LEDGER'))['task_id'])")\"" "$SYSTEM_LEDGER" 2>/dev/null; then
+  echo "SKIP: task already in $(basename "$SYSTEM_LEDGER") (idempotent)" >&2
+  exit 0
+fi
+```
+
+Insert this AFTER `[ -f "$LEDGER" ]` check (line 19) and BEFORE the `python3 -c` block (line 22).
+
+**`append-system-stress.sh`** (Python heredoc at line 28, appends via `f.write()` at line 66-67):
+
+The Python code receives both the session path and ledger path as `sys.argv[1]` and `sys.argv[2]`. The task_id is `session['task_id']` and the ledger path is `sys.argv[2]`. Add the guard INSIDE the Python block, after reading the session but before writing:
+
 ```python
-# Duplicate guard: check if task_id already in ledger
+# After "session = yaml.safe_load(f)" (line 35) and status check (line 37-40):
+# Duplicate guard
 import os
-ledger_path = sys.argv[N]  # or however the script references the ledger path
 if os.path.exists(ledger_path):
     with open(ledger_path) as lf:
+        task_id = session.get('task_id', '')
         for line in lf:
             if f'"task_id":"{task_id}"' in line or f'"task_id": "{task_id}"' in line:
                 print(f'SKIP: {task_id} already in ledger (idempotent)', file=sys.stderr)
                 sys.exit(0)
 ```
 
-Read each file to identify the exact structure (shell append vs Python append) and the correct insertion point. The variable names for task_id and ledger path differ per script.
+Insert after line 40 (status check) and before line 42 (summary extraction).
 
 - [ ] **Step 2: Commit**
 
@@ -447,7 +476,7 @@ rm -rf "$_e2e" "$PROJECT_E2E"
 Expected results:
 1. Synthesize without artifacts → exit 1 (PASS: correctly rejected)
 2. Synthesize after automation → exit 0 (PASS: gate passed)
-3. Complete after automation → exit 0 (PASS: gate passed)
+3. Complete after automation → exit 0 (PASS: gate passed — sli_readings null produces WARN, not failure)
 4. System ledger populated with 1 entry
 5. Rerun produces no duplicate (still 1 line)
 
