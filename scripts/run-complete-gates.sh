@@ -82,55 +82,19 @@ if [ "$HAS_BEADS" = true ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 6. Validate task-local artifacts BEFORE appending to system ledgers
+# 6. Run FULL task-local complete gate BEFORE appending to system ledgers
 # ---------------------------------------------------------------------------
-# If task-local artifacts are incomplete, abort before appending to prevent
-# permanent stale entries that idempotent appenders refuse to refresh.
-echo "[complete] Pre-append validation (task-local only)..." >&2
-
-PRE_APPEND_FAIL=0
-
-if [ "$HAS_BEADS" = true ]; then
-  # quality-budget.yaml must exist with artifact_status: final and budget_state non-null
-  if [ ! -f "$TASK_DIR/quality-budget.yaml" ]; then
-    echo "FAIL: quality-budget.yaml not found — aborting ledger append" >&2
-    PRE_APPEND_FAIL=1
-  else
-    _qb_status=$(python3 -c "import yaml; d=yaml.safe_load(open('$TASK_DIR/quality-budget.yaml')); print(d.get('artifact_status',''))" 2>/dev/null || echo "")
-    _qb_budget=$(python3 -c "import yaml; d=yaml.safe_load(open('$TASK_DIR/quality-budget.yaml')); print(d.get('budget_state',''))" 2>/dev/null || echo "")
-    if [ "$_qb_status" != "final" ]; then
-      echo "FAIL: quality-budget.yaml artifact_status='$_qb_status' (need 'final') — aborting" >&2
-      PRE_APPEND_FAIL=1
-    fi
-    if [ -z "$_qb_budget" ] || [ "$_qb_budget" = "null" ]; then
-      echo "FAIL: quality-budget.yaml budget_state is null — aborting" >&2
-      PRE_APPEND_FAIL=1
-    fi
-  fi
-fi
-
-if [ "$IS_STPA" = true ] && [ -f "$TASK_DIR/hazard-defense-ledger.yaml" ]; then
-  _hdl_status=$(python3 -c "import yaml; d=yaml.safe_load(open('$TASK_DIR/hazard-defense-ledger.yaml')); print(d.get('artifact_status',''))" 2>/dev/null || echo "")
-  if [ "$_hdl_status" != "final" ]; then
-    echo "FAIL: hazard-defense-ledger.yaml artifact_status='$_hdl_status' (need 'final') — aborting" >&2
-    PRE_APPEND_FAIL=1
-  fi
-fi
-
-if [ "$IS_STRESSED" = true ] && [ -f "$TASK_DIR/stress-session.yaml" ]; then
-  _ss_status=$(python3 -c "import yaml; d=yaml.safe_load(open('$TASK_DIR/stress-session.yaml')); print(d.get('artifact_status',''))" 2>/dev/null || echo "")
-  if [ "$_ss_status" != "final" ]; then
-    echo "FAIL: stress-session.yaml artifact_status='$_ss_status' (need 'final') — aborting" >&2
-    PRE_APPEND_FAIL=1
-  fi
-fi
-
-if [ "$PRE_APPEND_FAIL" -ne 0 ]; then
-  echo "ERROR: Pre-append validation failed. System ledgers NOT modified." >&2
+# This is the complete-local phase of check-sdlc-gates.sh — it runs ALL
+# task-local checks including artifact_status: final, budget_state, HDL
+# open-record resolution, stress pending-result resolution, and AQS finality.
+# If ANY check fails, we abort before touching system ledgers.
+echo "[complete] Pre-append gate check (complete-local)..." >&2
+if ! "$SCRIPT_DIR/check-sdlc-gates.sh" "$TASK_DIR" complete-local --project-dir "$PROJECT_DIR"; then
+  echo "ERROR: Task-local complete gate failed. System ledgers NOT modified." >&2
+  echo "Fix the failing checks above, then re-run run-complete-gates.sh." >&2
   exit 1
 fi
-
-echo "[complete] Pre-append validation passed." >&2
+echo "[complete] Pre-append gate check passed." >&2
 
 # ---------------------------------------------------------------------------
 # 7. Append to all applicable system ledgers

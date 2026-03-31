@@ -2,7 +2,7 @@
 # check-sdlc-gates.sh — Validate SDLC telemetry gates for a task
 # Usage: check-sdlc-gates.sh <task-dir> <target-phase> --project-dir <dir>
 #
-# <target-phase>: synthesize | complete
+# <target-phase>: synthesize | complete-local | complete
 #
 # Exit codes:
 #   0 — all applicable gates pass
@@ -425,7 +425,13 @@ case "$TARGET_PHASE" in
   synthesize)
     run_synthesize_checks
     ;;
+  complete-local)
+    # Task-local complete checks only — no system ledger verification.
+    # Used by run-complete-gates.sh BEFORE appending to system ledgers.
+    run_complete_local_checks
+    ;;
   complete)
+    # Full complete: task-local + system ledger verification.
     run_complete_local_checks
     run_complete_system_checks
     ;;
