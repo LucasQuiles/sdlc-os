@@ -1,0 +1,57 @@
+schema_version: 1
+task_id: "quality-budget-enforcement-20260329"
+artifact_status: final
+budget_state: depleted
+derived_at: "2026-03-31T04:45:11Z"
+last_updated: "2026-03-31T04:45:11Z"
+
+cynefin_mix:
+  clear: 9
+  complicated: 5
+  complex: 0
+  chaotic: 0
+complexity_weight: .17
+
+beads:
+  total: 14
+  completed: 0
+  wip: 0
+  stuck: 0
+  blocked: 0
+  wip_age_max_s: 0
+
+corrections:
+  L0: 0
+  L1: 0
+  L2: 0
+  L2_5: 0
+  L2_75: 0
+
+turbulence_sum: 0
+turbulence_max_bead: null
+
+metrics:
+  zero_turbulence_rate: 0.0
+  turbulence_sum_per_bead: null
+  review_pass_rate: 0.0
+  queue_depth_peak: 0
+  buffer_hits: 0
+  review_latency_avg_s: 0
+  review_latency_p95_s: 0
+
+timing:
+  estimate_s: null
+  actual_s: null
+
+sli_readings:
+  lint_clean: null
+  types_clean: null
+  test_coverage_delta: null
+  complexity_delta: null
+  critical_findings: null
+
+escapes:
+  known_at_close: 0
+
+overrides: []
+notes: ""

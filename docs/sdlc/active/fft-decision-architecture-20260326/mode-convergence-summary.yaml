@@ -1,0 +1,24 @@
+schema_version: 1
+task_id: fft-decision-architecture-20260326
+artifact_status: final
+derived_at: '2026-03-31T04:45:10Z'
+execution_mode:
+  classification: skill_based
+  confidence: high
+  signals:
+    wip_beads: 0
+    turbulence_sum_per_bead: 0.0
+    review_latency_p95_s: 0.0
+    zero_turbulence_rate: 1.0
+    escalation_count: 0
+convergence_history: []
+escalation_log: []
+_beads_total: 4
+summary:
+  total_escalations: 0
+  reason_distribution: {}
+  dominant_reason: null
+  early_stops: 0
+  budget_extensions: 0
+  approach_changes: 0
+  mode_transitions: 0
