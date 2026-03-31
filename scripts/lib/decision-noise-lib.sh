@@ -13,13 +13,12 @@ generate_review_pass_id() {
 # Usage: map_distance '{"evidence_strength":4,...}' '{"evidence_strength":2,...}'
 map_distance() {
   local map1="$1" map2="$2"
-  python3 -c "
-import json, math
-m1 = json.loads('''$map1''')
-m2 = json.loads('''$map2''')
+  printf '%s\n%s\n' "$map1" "$map2" | python3 -c "
+import json, math, sys
+lines = sys.stdin.read().strip().split('\n')
+m1 = json.loads(lines[0])
+m2 = json.loads(lines[1])
 dims = ['evidence_strength', 'impact_severity', 'pattern_familiarity', 'decision_confidence']
-# base_rate_frequency is a nested struct (not a scalar) because it carries both the bucket
-# and reference_class_state; we extract only bucket for distance arithmetic.
 b1 = m1.get('base_rate_frequency', {}).get('bucket', 3)
 b2 = m2.get('base_rate_frequency', {}).get('bucket', 3)
 vals = [(m1.get(d, 3) - m2.get(d, 3))**2 for d in dims] + [(b1 - b2)**2]
@@ -70,14 +69,14 @@ append_review_pass() {
 # Usage: detect_escalations '{"map":{...},"verdict":{...}}' '{"map":{...},"verdict":{...}}' <rules_file>
 detect_escalations() {
   local pass1="$1" pass2="$2" rules="$3"
-  python3 -c "
+  printf '%s\n%s\n' "$pass1" "$pass2" | python3 -c "
 import json, sys, yaml
 
-p1 = json.loads('''$pass1''')
-p2 = json.loads('''$pass2''')
+lines = sys.stdin.read().strip().split('\n')
+p1 = json.loads(lines[0])
+p2 = json.loads(lines[1])
 
-# Read thresholds from rules file (not hardcoded)
-with open('$rules') as rf:
+with open(sys.argv[1]) as rf:
     rules = yaml.safe_load(rf)
 esc_rules = rules.get('soft_escalation', {})
 divergence_threshold = esc_rules.get('map_bucket_divergence', 2)
@@ -85,42 +84,33 @@ drift_threshold = esc_rules.get('anchoring_drift_buckets', 2)
 
 escalations = []
 
-# Verdict flip
 if esc_rules.get('verdict_flip', True):
     if p1.get('verdict',{}).get('decision') != p2.get('verdict',{}).get('decision'):
         escalations.append('verdict_flip')
 
-# MAP bucket divergence (threshold from rules)
 m1 = p1.get('map', {}); m2 = p2.get('map', {})
 for dim in ['evidence_strength', 'impact_severity']:
     if abs(m1.get(dim, 3) - m2.get(dim, 3)) >= divergence_threshold:
         escalations.append(f'map_divergence_{dim}')
 
-# Unbacked high-severity claims (available reference class but no hits/sample)
 if esc_rules.get('unbacked_high_severity', True):
     for pj in p2.get('probability_judgments', []):
         if pj.get('severity') == 'high' and pj.get('hits') is None:
-            # Only escalate if a reference class is available but not used
             brf = m2.get('base_rate_frequency', {})
             if brf.get('reference_class_state') == 'available':
                 escalations.append('unbacked_high_severity')
 
-# Anchoring drift: the exposed pass moved closer to the anchor than the blind pass was.
-# We only check this when the pass has a parent (blind→exposed pair); without a blind
-# baseline there is nothing to compare against for drift direction.
 if p2.get('parent_review_pass_id') and p2.get('anchor_map_targets_seen'):
     anchor = p2['anchor_map_targets_seen'][0] if p2['anchor_map_targets_seen'] else {}
     for dim in ['evidence_strength', 'impact_severity', 'pattern_familiarity']:
         blind_val = m1.get(dim, 3)
         exposed_val = m2.get(dim, 3)
         anchor_val = anchor.get(dim, 3) if isinstance(anchor, dict) else 3
-        # Closer to anchor AND shifted by at least drift_threshold buckets → genuine drift,
-        # not just normal rating variance between independent passes.
         if abs(exposed_val - anchor_val) < abs(blind_val - anchor_val) and abs(exposed_val - blind_val) >= drift_threshold:
             escalations.append(f'anchoring_drift_{dim}')
 
 print(json.dumps(escalations))
-"
+" "$rules"
 }
 
 # Compute noise index across a set of paired passes

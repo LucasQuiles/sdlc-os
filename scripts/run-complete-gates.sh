@@ -51,6 +51,7 @@ fi
 # ---------------------------------------------------------------------------
 if [ "$IS_STRESSED" = true ]; then
   echo "[complete] Finalizing stress session (artifact_status: final)..." >&2
+  check_pyyaml || { echo "ERROR: python3 with PyYAML is required for stress session finalization. Install: pip3 install pyyaml" >&2; exit 1; }
   python3 - "$TASK_DIR/stress-session.yaml" <<'PY'
 import sys, yaml
 

@@ -37,12 +37,12 @@ NOW=$(now_utc)
 NOISE_RESULT=$(compute_noise_index "$LEDGER" "$TASK_ID")
 
 # Compute all remaining metrics in a single Python pass over the ledger
-METRICS=$(python3 << PYEOF
+METRICS=$(python3 - "$TASK_ID" "$LEDGER" "$RULES_FILE" << 'PYEOF'
 import json, math, sys, yaml
 
-task_id    = "$TASK_ID"
-ledger_path = "$LEDGER"
-rules_path  = "$RULES_FILE"
+task_id     = sys.argv[1]
+ledger_path = sys.argv[2]
+rules_path  = sys.argv[3]
 
 passes = []
 with open(ledger_path) as f:
@@ -221,18 +221,23 @@ NOISE_INDEX=$(echo "$NOISE_RESULT" | python3 -c "import json,sys; r=json.load(sy
 
 mkdir -p "$OUTPUT_DIR"
 
-python3 << PYEOF
-import json, yaml
+echo "$METRICS" | python3 - "$NOISE_INDEX" "$TASK_ID" "$STATUS" "$NOW" "$OUTPUT" << 'PYEOF'
+import json, yaml, sys
 
-metrics_raw = json.loads('$METRICS')
-noise_index_raw = '$NOISE_INDEX'
+metrics_raw = json.loads(sys.stdin.read())
+noise_index_raw = sys.argv[1]
+task_id = sys.argv[2]
+status = sys.argv[3]
+now = sys.argv[4]
+output_path = sys.argv[5]
+
 ni = None if noise_index_raw == 'null' else float(noise_index_raw)
 
 data = {
     'schema_version':  1,
-    'task_id':         '$TASK_ID',
-    'artifact_status': '$STATUS',
-    'derived_at':      '$NOW',
+    'task_id':         task_id,
+    'artifact_status': status,
+    'derived_at':      now,
 
     'beads_reviewed':      metrics_raw['beads_reviewed'],
     'passes_total':        metrics_raw['passes_total'],
@@ -256,9 +261,9 @@ data = {
     },
 }
 
-with open('$OUTPUT', 'w') as f:
+with open(output_path, 'w') as f:
     yaml.dump(data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
 
-print(f"Derived $OUTPUT")
-print(f"  passes={data['passes_total']}  beads={data['beads_reviewed']}  noise_index={data['metrics']['repeat_review_noise_index']}  status=$STATUS")
+print(f"Derived {output_path}")
+print(f"  passes={data['passes_total']}  beads={data['beads_reviewed']}  noise_index={data['metrics']['repeat_review_noise_index']}  status={status}")
 PYEOF
