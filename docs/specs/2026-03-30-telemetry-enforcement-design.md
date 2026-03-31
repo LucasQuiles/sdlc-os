@@ -68,9 +68,8 @@ classify_task_lanes() {
     if [ "$IS_STPA" = false ]; then
       grep -rlq "\*\*Cynefin domain:\*\*.*complex\|\*\*Security sensitive:\*\*.*true" "$task_dir/beads/" 2>/dev/null && IS_STPA=true
     fi
-    if [ "$IS_AQS" = false ]; then
-      grep -rlq "\*\*Cynefin domain:\*\*.*complicated\|\*\*Cynefin domain:\*\*.*complex\|\*\*Cynefin domain:\*\*.*chaotic" "$task_dir/beads/" 2>/dev/null && IS_AQS=true
-    fi
+    # NOTE: Implementation uses artifact-only IS_AQS (no bead fallback).
+    # See scripts/lib/sdlc-common.sh classify_task_lanes() for current logic.
   fi
 }
 ```

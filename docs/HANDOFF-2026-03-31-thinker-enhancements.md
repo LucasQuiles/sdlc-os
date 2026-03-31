@@ -71,7 +71,7 @@ Seven major deliverables across a single long-running session:
 
 **Gate scripts (4):** `check-sdlc-gates.sh`, `run-synthesize-gates.sh`, `run-complete-gates.sh`, `backfill-telemetry.sh`
 
-**Hook scripts (5 new):** `validate-quality-budget.sh`, `validate-hazard-defense-ledger.sh`, `validate-stress-session.sh`, `validate-decision-noise-summary.sh`, `validate-mode-convergence-summary.sh`, `warn-phase-transition.sh`
+**Hook scripts (6 new):** `hooks/scripts/validate-quality-budget.sh`, `hooks/scripts/validate-hazard-defense-ledger.sh`, `hooks/scripts/validate-stress-session.sh`, `hooks/scripts/validate-decision-noise-summary.sh`, `hooks/scripts/validate-mode-convergence-summary.sh`, `hooks/scripts/warn-phase-transition.sh`
 
 **Other:** `stressor-library.yaml` (empty seed), `commands/stress.md`
 
@@ -164,7 +164,15 @@ Create a temp task, run both gate scripts, verify success + failure + idempotenc
 
 2. **Missing `mkdir -p` in 2 append scripts:** `append-system-hazard-defense.sh` and `append-system-mode-convergence.sh` don't ensure `docs/sdlc/` directory exists. Will fail on a fresh project. Add `mkdir -p "$(dirname "$LEDGER")"` before the append line.
 
-3. **Backfill doesn't cover STPA/AQS/stress lanes:** Only derives quality-budget + mode-convergence. If an HDL/stress/decision-noise artifact has `artifact_status: final` but was never appended to its system ledger, backfill won't catch it.
+3. **Backfill doesn't cover STPA/AQS/stress lanes:** Only derives quality-budget + mode-convergence. If an HDL/stress/decision-noise artifact has `artifact_status: final` but was never appended to its system ledger, backfill won't catch it. **Partially fixed:** backfill now covers hazard-defense and stress lanes.
+
+4. **Invalid JSONL from `bc` bare decimals:** Fixed in commit (C1). `bc` produced `.25` instead of `0.25`. Centralized via `json_decimal()` in `sdlc-common.sh`.
+
+5. **Shell-to-Python injection in decision-noise scripts:** Fixed in commit (C2). `'''$var'''` pattern replaced with stdin/sys.argv.
+
+6. **Missing PyYAML guard in `run-complete-gates.sh`:** Fixed in commit (I6).
+
+7. **Hardcoded Lindy thresholds in `update-stressor-library.sh`:** Fixed in commit (I7). Now reads from `stressor-rules.yaml`.
 
 ### v2 deferrals (documented, not started)
 

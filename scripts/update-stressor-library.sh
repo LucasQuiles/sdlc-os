@@ -29,11 +29,20 @@ EVENTS_LEDGER="$PROJECT_DIR/docs/sdlc/system-stress-events.jsonl"
 
 mkdir -p "$(dirname "$EVENTS_LEDGER")"
 
-python3 - "$SESSION_FILE" "$LIBRARY_PATH" "$EVENTS_LEDGER" <<'PYEOF'
+python3 - "$SESSION_FILE" "$LIBRARY_PATH" "$EVENTS_LEDGER" "$SCRIPT_DIR/../references/stressor-rules.yaml" <<'PYEOF'
 import sys, yaml, json, os
 from datetime import datetime, timezone
 
 session_path, library_path, events_path = sys.argv[1], sys.argv[2], sys.argv[3]
+rules_path = sys.argv[4]
+
+with open(rules_path) as f:
+    rules = yaml.safe_load(f)
+lindy = rules.get('lindy', {})
+prov_to_est = lindy.get('provisional_to_established_min_applications', 3)
+prov_to_ret = lindy.get('provisional_to_retired_min_applications', 5)
+est_to_ret = lindy.get('established_to_retired_min_applications', 10)
+catch_rate_change_thresh = lindy.get('catch_rate_change_threshold', 0.20)
 
 with open(session_path) as f:
     session = yaml.safe_load(f)
@@ -84,9 +93,9 @@ for app in (session.get('stressors_applied') or []):
     new_status = status
 
     if status == 'provisional':
-        if ta >= 3 and new_catch_rate is not None and new_catch_rate > 0:
+        if ta >= prov_to_est and new_catch_rate is not None and new_catch_rate > 0:
             new_status = 'established'
-        elif ta >= 5 and (new_catch_rate is None or new_catch_rate == 0.0):
+        elif ta >= prov_to_ret and (new_catch_rate is None or new_catch_rate == 0.0):
             new_status = 'retired'
 
     elif status == 'established':
@@ -98,7 +107,7 @@ for app in (session.get('stressors_applied') or []):
         # The full last-5-misses check requires application history — approximate
         # with: times_caught hasn't changed in the last 5 applications.
         # Since we only have aggregate data, use: ta >= 10 AND catch_rate == 0
-        if ta >= 10 and (new_catch_rate is None or new_catch_rate == 0.0):
+        if ta >= est_to_ret and (new_catch_rate is None or new_catch_rate == 0.0):
             new_status = 'retired'
 
     if new_status != status:
@@ -115,7 +124,7 @@ for app in (session.get('stressors_applied') or []):
 
     # Emit catch_rate_update if > 20% delta
     if (prev_catch_rate is not None and new_catch_rate is not None
-            and abs(new_catch_rate - prev_catch_rate) > 0.20):
+            and abs(new_catch_rate - prev_catch_rate) > catch_rate_change_thresh):
         events.append({
             'stressor_id': stressor_id,
             'event': 'catch_rate_update',

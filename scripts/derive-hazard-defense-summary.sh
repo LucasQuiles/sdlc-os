@@ -12,7 +12,14 @@ if ! python3 -c "import yaml" 2>/dev/null; then
 fi
 
 TASK_DIR="${1:?Usage: derive-hazard-defense-summary.sh <task-dir> [--status active|final]}"
-STATUS="${3:-active}"
+STATUS="active"
+shift
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --status) STATUS="${2:-active}"; shift 2 ;;
+    *) shift ;;
+  esac
+done
 LEDGER="$TASK_DIR/hazard-defense-ledger.yaml"
 
 [ -f "$LEDGER" ] || { echo "ERROR: hazard-defense-ledger.yaml not found" >&2; exit 1; }
