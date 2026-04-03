@@ -3,7 +3,8 @@ import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync } from 'nod
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
-import { bridgeUpdateBead, bridgeCommitBeadUpdate } from './bridge.js';
+import Database from 'better-sqlite3';
+import { bridgeUpdateBead, bridgeCommitBeadUpdate, markBridgeSynced } from './bridge.js';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -23,6 +24,26 @@ function writeValidOutput(cloneDir: string): void {
   const sentinel = '<!-- BEAD_OUTPUT_COMPLETE -->';
   const content = 'x'.repeat(80) + '\n' + sentinel + '\n' + 'y'.repeat(20) + '\n';
   writeFileSync(join(cloneDir, 'bead-output.md'), content, 'utf-8');
+}
+
+/**
+ * Initialize a git repo with an initial commit and a remote "origin"
+ * pointing at a bare clone, so origin/main exists for SC-COL-26 checks.
+ */
+function initGitRepoWithOrigin(dir: string): void {
+  execFileSync('git', ['init', dir], { encoding: 'utf-8' });
+  execFileSync('git', ['-C', dir, 'config', 'user.email', 'test@test.com'], { encoding: 'utf-8' });
+  execFileSync('git', ['-C', dir, 'config', 'user.name', 'Test'], { encoding: 'utf-8' });
+  const readmePath = join(dir, 'README.md');
+  writeFileSync(readmePath, '# Test\n', 'utf-8');
+  execFileSync('git', ['-C', dir, 'add', '--', 'README.md'], { encoding: 'utf-8' });
+  execFileSync('git', ['-C', dir, 'commit', '-m', 'init'], { encoding: 'utf-8' });
+
+  // Create a bare clone to serve as "origin"
+  const bareDir = dir + '-bare';
+  execFileSync('git', ['clone', '--bare', dir, bareDir], { encoding: 'utf-8' });
+  execFileSync('git', ['-C', dir, 'remote', 'add', 'origin', bareDir], { encoding: 'utf-8' });
+  execFileSync('git', ['-C', dir, 'fetch', 'origin'], { encoding: 'utf-8' });
 }
 
 const RUNNING_BEAD = `# Bead
@@ -57,9 +78,17 @@ describe('bridgeUpdateBead', () => {
   afterEach(() => {
     rmSync(beadDir, { recursive: true, force: true });
     rmSync(cloneDir, { recursive: true, force: true });
+    // Clean up bare repos if they exist
+    try { rmSync(cloneDir + '-bare', { recursive: true, force: true }); } catch {}
   });
 
   it('L0 complete: running -> submitted', () => {
+    initGitRepoWithOrigin(cloneDir);
+    // Add a commit beyond origin/main
+    writeFileSync(join(cloneDir, 'work.ts'), 'export const x = 1;\n', 'utf-8');
+    execFileSync('git', ['-C', cloneDir, 'add', '--', 'work.ts'], { encoding: 'utf-8' });
+    execFileSync('git', ['-C', cloneDir, 'commit', '-m', 'worker commit'], { encoding: 'utf-8' });
+
     const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
     writeValidOutput(cloneDir);
 
@@ -271,6 +300,14 @@ describe('bridgeUpdateBead', () => {
     const garbageContent = ' '.repeat(200) + sentinel + '\n';
     writeFileSync(join(cloneDir, 'bead-output.md'), garbageContent, 'utf-8');
 
+    // Clone needs commits for L0 check -- init a git repo with origin
+    initGitRepoWithOrigin(cloneDir);
+    writeFileSync(join(cloneDir, 'work.ts'), 'export const x = 1;\n', 'utf-8');
+    execFileSync('git', ['-C', cloneDir, 'add', '--', 'work.ts'], { encoding: 'utf-8' });
+    execFileSync('git', ['-C', cloneDir, 'commit', '-m', 'worker commit'], { encoding: 'utf-8' });
+    // Re-write the output after git init overwrote it
+    writeFileSync(join(cloneDir, 'bead-output.md'), garbageContent, 'utf-8');
+
     const result = bridgeUpdateBead({
       beadFilePath: beadPath,
       cloneDir,
@@ -291,6 +328,14 @@ describe('bridgeUpdateBead', () => {
     const padding = 'x'.repeat(100 - sentinel.length);
     const content = padding + sentinel;
     expect(Buffer.byteLength(content, 'utf-8')).toBe(100);
+    writeFileSync(join(cloneDir, 'bead-output.md'), content, 'utf-8');
+
+    // Clone needs commits for L0 -- init git repo with origin
+    initGitRepoWithOrigin(cloneDir);
+    writeFileSync(join(cloneDir, 'work.ts'), 'export const x = 1;\n', 'utf-8');
+    execFileSync('git', ['-C', cloneDir, 'add', '--', 'work.ts'], { encoding: 'utf-8' });
+    execFileSync('git', ['-C', cloneDir, 'commit', '-m', 'worker commit'], { encoding: 'utf-8' });
+    // Re-write output after git init
     writeFileSync(join(cloneDir, 'bead-output.md'), content, 'utf-8');
 
     const result = bridgeUpdateBead({
@@ -322,6 +367,46 @@ describe('bridgeUpdateBead', () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('too small');
+  });
+
+  // --- SC-COL-26: Clone commit verification ---
+
+  it('SC-COL-26: rejects L0 advancement when clone has no commits beyond origin', () => {
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+    writeValidOutput(cloneDir);
+
+    // Init git repo with origin but make NO additional commits
+    initGitRepoWithOrigin(cloneDir);
+    // Re-write output after git init
+    writeValidOutput(cloneDir);
+
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: true,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('SC-COL-26');
+    expect(result.error).toContain('no commits beyond source HEAD');
+  });
+
+  it('SC-COL-26: allows L1 advancement without commit check', () => {
+    const beadPath = writeBeadFile(beadDir, SUBMITTED_BEAD);
+    writeValidOutput(cloneDir);
+
+    // L1 does not check for commits, so no git repo needed in cloneDir
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L1',
+      taskCompleted: true,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.action).toBe('advanced');
+    expect(result.newStatus).toBe('verified');
   });
 });
 
@@ -407,5 +492,73 @@ describe('bridgeCommitBeadUpdate', () => {
     expect(result.success).toBe(false);
     expect(result.error).toContain('SC-COL-30');
     expect(result.error).toContain('branch mismatch');
+  });
+
+  it('returns taskId in result when provided', () => {
+    const beadPath = join(projectDir, 'bead-001.md');
+    writeFileSync(beadPath, '**BeadID:** bead-001\n**Status:** submitted\n', 'utf-8');
+
+    const result = bridgeCommitBeadUpdate(
+      projectDir,
+      beadPath,
+      'bead-001',
+      'L0',
+      'main',
+      'task-abc-123',
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.taskId).toBe('task-abc-123');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// markBridgeSynced tests (Gap 1)
+// ---------------------------------------------------------------------------
+
+describe('markBridgeSynced', () => {
+  let dbPath: string;
+  let tmpDir: string;
+
+  beforeEach(() => {
+    tmpDir = makeTmpDir();
+    dbPath = join(tmpDir, 'test-tmup.db');
+    const db = new Database(dbPath);
+    db.exec(`
+      CREATE TABLE tasks (
+        id TEXT PRIMARY KEY,
+        bridge_synced INTEGER DEFAULT 0
+      );
+      INSERT INTO tasks (id, bridge_synced) VALUES ('task-001', 0);
+      INSERT INTO tasks (id, bridge_synced) VALUES ('task-002', 0);
+    `);
+    db.close();
+  });
+
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it('sets bridge_synced to 1 for the specified task', () => {
+    markBridgeSynced(dbPath, 'task-001');
+
+    const db = new Database(dbPath, { readonly: true });
+    const row = db.prepare('SELECT bridge_synced FROM tasks WHERE id = ?').get('task-001') as { bridge_synced: number };
+    const other = db.prepare('SELECT bridge_synced FROM tasks WHERE id = ?').get('task-002') as { bridge_synced: number };
+    db.close();
+
+    expect(row.bridge_synced).toBe(1);
+    expect(other.bridge_synced).toBe(0);
+  });
+
+  it('is idempotent (calling twice does not error)', () => {
+    markBridgeSynced(dbPath, 'task-001');
+    markBridgeSynced(dbPath, 'task-001');
+
+    const db = new Database(dbPath, { readonly: true });
+    const row = db.prepare('SELECT bridge_synced FROM tasks WHERE id = ?').get('task-001') as { bridge_synced: number };
+    db.close();
+
+    expect(row.bridge_synced).toBe(1);
   });
 });
