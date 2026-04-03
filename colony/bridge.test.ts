@@ -414,6 +414,31 @@ describe('bridgeUpdateBead', () => {
     expect(result.error).toContain('no commits beyond source HEAD');
   });
 
+  it('SC-COL-26: fails when clone has no origin remote (unresolvable ref)', () => {
+    // Init git repo WITHOUT any remote -- verifyCloneHasCommits should return valid: false
+    execFileSync('git', ['init', cloneDir], { encoding: 'utf-8' });
+    execFileSync('git', ['-C', cloneDir, 'config', 'user.email', 'test@test.com'], { encoding: 'utf-8' });
+    execFileSync('git', ['-C', cloneDir, 'config', 'user.name', 'Test'], { encoding: 'utf-8' });
+    writeFileSync(join(cloneDir, 'README.md'), '# Test\n', 'utf-8');
+    execFileSync('git', ['-C', cloneDir, 'add', '--', 'README.md'], { encoding: 'utf-8' });
+    execFileSync('git', ['-C', cloneDir, 'commit', '-m', 'init'], { encoding: 'utf-8' });
+    // No remote added -- origin/main and origin/master are unresolvable
+
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+    writeValidOutput(cloneDir);
+
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: true,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('SC-COL-26');
+    expect(result.error).toContain('Could not resolve remote ref');
+  });
+
   it('SC-COL-26: allows L1 advancement without commit check', () => {
     const beadPath = writeBeadFile(beadDir, SUBMITTED_BEAD);
     writeValidOutput(cloneDir);

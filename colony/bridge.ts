@@ -130,8 +130,8 @@ function verifyCloneHasCommits(cloneDir: string): { valid: boolean; error?: stri
       }
       return { valid: true };
     } catch {
-      // Cannot determine remote HEAD; skip SC-COL-26 check gracefully
-      return { valid: true };
+      // SC-COL-26: Cannot determine remote HEAD; fail rather than silently skip
+      return { valid: false, error: 'Could not resolve remote ref for SC-COL-26 verification' };
     }
   }
 }
@@ -226,19 +226,9 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
     };
   }
 
-  // SC-COL-26: Verify clone has commits at L0 (first advancement)
-  if (loopLevel === 'L0') {
-    const commitCheck = verifyCloneHasCommits(cloneDir);
-    if (!commitCheck.valid) {
-      return {
-        success: false,
-        action: 'error',
-        error: commitCheck.error!,
-      };
-    }
-  }
-
   // SC-COL-15: Compare-and-swap on bead status
+  // Status checks run BEFORE SC-COL-26 so that idempotent skips and CAS
+  // rejections short-circuit without requiring clone verification.
   const currentStatus = beadFields.Status;
   const currentIdx = statusIndex(currentStatus);
   const targetIdx = statusIndex(transition.to);
@@ -280,6 +270,19 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
       action: 'error',
       error: `status mismatch: expected '${transition.from}', found '${currentStatus}'`,
     };
+  }
+
+  // SC-COL-26: Verify clone has commits at L0 (first advancement)
+  // Runs after status checks so idempotent skips don't need clone verification.
+  if (loopLevel === 'L0') {
+    const commitCheck = verifyCloneHasCommits(cloneDir);
+    if (!commitCheck.valid) {
+      return {
+        success: false,
+        action: 'error',
+        error: commitCheck.error!,
+      };
+    }
   }
 
   // Apply status transition
