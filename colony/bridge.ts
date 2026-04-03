@@ -14,7 +14,7 @@
  *   SC-COL-30: Verify branch before commit
  */
 
-import { readFileSync, writeFileSync, renameSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, appendFileSync, renameSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import Database from 'better-sqlite3';
@@ -46,6 +46,29 @@ export interface CommitResult {
   commitHash?: string;
   error?: string;
   taskId?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Bridge telemetry
+// ---------------------------------------------------------------------------
+
+export interface BridgeLogEntry {
+  timestamp: string;
+  bead_id: string;
+  loop_level: string;
+  action: 'advanced' | 'correction' | 'skipped' | 'error';
+  elapsed_ms: number;
+  safety_constraints: string[];
+  error?: string;
+}
+
+/**
+ * Append a JSON-line log entry to the bridge log file.
+ * Path is taken from COLONY_BRIDGE_LOG env var, defaulting to ./colony-bridge.log.
+ */
+export function logBridgeCall(entry: BridgeLogEntry): void {
+  const logPath = process.env['COLONY_BRIDGE_LOG'] || './colony-bridge.log';
+  appendFileSync(logPath, JSON.stringify(entry) + '\n', 'utf-8');
 }
 
 // ---------------------------------------------------------------------------
@@ -169,15 +192,35 @@ export function markBridgeSynced(dbPath: string, taskId: string): void {
 // ---------------------------------------------------------------------------
 
 export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
+  const startMs = Date.now();
   const { beadFilePath, cloneDir, loopLevel, taskCompleted, finding, cycle } = input;
+  const constraintsChecked: string[] = [];
+
+  // Extract bead ID from file path for logging
+  const beadId = beadFilePath.replace(/.*\//, '').replace(/\.md$/, '');
+
+  function finalize(result: BridgeResult): BridgeResult {
+    const elapsed = Date.now() - startMs;
+    logBridgeCall({
+      timestamp: new Date().toISOString(),
+      bead_id: beadId,
+      loop_level: loopLevel ?? 'null',
+      action: result.action,
+      elapsed_ms: elapsed,
+      safety_constraints: constraintsChecked,
+      ...(result.error ? { error: result.error } : {}),
+    });
+    return result;
+  }
 
   // SC-COL-14: NULL loop level is fatal
+  constraintsChecked.push('SC-COL-14');
   if (loopLevel === null || loopLevel === undefined || loopLevel === '') {
-    return {
+    return finalize({
       success: false,
       action: 'error',
       error: 'SC-COL-14: NULL loop level is a fatal error',
-    };
+    });
   }
 
   // Read current bead file
@@ -185,11 +228,11 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
   try {
     beadContent = readFileSync(beadFilePath, 'utf-8');
   } catch (err) {
-    return {
+    return finalize({
       success: false,
       action: 'error',
       error: `Failed to read bead file: ${(err as Error).message}`,
-    };
+    });
   }
 
   const beadFields = parseBeadFile(beadContent);
@@ -199,36 +242,40 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
     const correctionText = finding || 'Task failed (no finding provided)';
     const correctionCycle = cycle ?? 0;
     const updatedContent = appendCorrection(beadContent, loopLevel, correctionCycle, correctionText);
+    // SC-COL-28: atomic write
+    constraintsChecked.push('SC-COL-28');
     atomicWriteFile(beadFilePath, updatedContent);
-    return {
+    return finalize({
       success: true,
       action: 'correction',
-    };
+    });
   }
 
   // Task completed -- validate output (SC-COL-22)
+  constraintsChecked.push('SC-COL-22');
   const outputCheck = validateOutput(cloneDir);
   if (!outputCheck.valid) {
-    return {
+    return finalize({
       success: false,
       action: 'error',
       error: `SC-COL-22: ${outputCheck.error}`,
-    };
+    });
   }
 
   // Look up expected transition
   const transition = STATUS_TRANSITIONS[loopLevel];
   if (!transition) {
-    return {
+    return finalize({
       success: false,
       action: 'error',
       error: `Unknown loop level: ${loopLevel}`,
-    };
+    });
   }
 
   // SC-COL-15: Compare-and-swap on bead status
   // Status checks run BEFORE SC-COL-26 so that idempotent skips and CAS
   // rejections short-circuit without requiring clone verification.
+  constraintsChecked.push('SC-COL-15');
   const currentStatus = beadFields.Status;
   const currentIdx = statusIndex(currentStatus);
   const targetIdx = statusIndex(transition.to);
@@ -237,63 +284,65 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
   // Compare-and-swap takes priority over idempotent skip.
   if (input.expectedSourceStatus !== undefined) {
     if (currentStatus !== input.expectedSourceStatus) {
-      return {
+      return finalize({
         success: false,
         action: 'error',
         error: `status mismatch: expected '${input.expectedSourceStatus}', found '${currentStatus}'`,
-      };
+      });
     }
   }
 
   // Guard: reject unknown/corrupted bead status
   if (currentIdx === -1) {
-    return {
+    return finalize({
       success: false,
       action: 'error',
       error: `Bead status not recognized: '${currentStatus}'. Cannot advance from unknown state.`,
-    };
+    });
   }
 
   // Idempotent: if already at or beyond target, skip
   if (currentIdx >= targetIdx && targetIdx !== -1) {
-    return {
+    return finalize({
       success: true,
       action: 'skipped',
       newStatus: currentStatus,
-    };
+    });
   }
 
   // Default check (no explicit expectedSourceStatus): current must match transition.from
   if (input.expectedSourceStatus === undefined && currentStatus !== transition.from) {
-    return {
+    return finalize({
       success: false,
       action: 'error',
       error: `status mismatch: expected '${transition.from}', found '${currentStatus}'`,
-    };
+    });
   }
 
   // SC-COL-26: Verify clone has commits at L0 (first advancement)
   // Runs after status checks so idempotent skips don't need clone verification.
   if (loopLevel === 'L0') {
+    constraintsChecked.push('SC-COL-26');
     const commitCheck = verifyCloneHasCommits(cloneDir);
     if (!commitCheck.valid) {
-      return {
+      return finalize({
         success: false,
         action: 'error',
         error: commitCheck.error!,
-      };
+      });
     }
   }
 
-  // Apply status transition
+  // Apply status transition (SC-COL-28: atomic write)
+  constraintsChecked.push('SC-COL-28');
   const updatedContent = updateBeadField(beadContent, 'Status', transition.to);
   atomicWriteFile(beadFilePath, updatedContent);
 
-  return {
+  return finalize({
     success: true,
     action: 'advanced',
     newStatus: transition.to,
-  };
+  });
 }
 
 // ---------------------------------------------------------------------------

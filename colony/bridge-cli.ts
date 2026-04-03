@@ -90,13 +90,17 @@ function parseArgs(argv: string[]): {
 // ---------------------------------------------------------------------------
 
 function main(): void {
+  const startMs = Date.now();
+
   let parsed;
   try {
     parsed = parseArgs(process.argv);
   } catch (err) {
+    const elapsedMs = Date.now() - startMs;
     const output = {
       success: false,
       error: (err as Error).message,
+      elapsed_ms: elapsedMs,
     };
     process.stdout.write(JSON.stringify(output, null, 2) + '\n');
     process.exit(1);
@@ -116,7 +120,8 @@ function main(): void {
   const beadResult = bridgeUpdateBead(bridgeInput);
 
   if (!beadResult.success) {
-    process.stdout.write(JSON.stringify({ beadUpdate: beadResult }, null, 2) + '\n');
+    const elapsedMs = Date.now() - startMs;
+    process.stdout.write(JSON.stringify({ beadUpdate: beadResult, elapsed_ms: elapsedMs }, null, 2) + '\n');
     process.exit(1);
   }
 
@@ -124,7 +129,8 @@ function main(): void {
   // bridgeUpdateBead returns {action: 'skipped'} when bead is already at or beyond
   // the target status. Attempting git commit on an unmodified file would fail.
   if (beadResult.action === 'skipped') {
-    process.stdout.write(JSON.stringify({ beadUpdate: beadResult }, null, 2) + '\n');
+    const elapsedMs = Date.now() - startMs;
+    process.stdout.write(JSON.stringify({ beadUpdate: beadResult, elapsed_ms: elapsedMs }, null, 2) + '\n');
     process.exit(0);
   }
 
@@ -148,9 +154,11 @@ function main(): void {
     }
   }
 
+  const elapsedMs = Date.now() - startMs;
   const output = {
     beadUpdate: beadResult,
     commit: commitResult,
+    elapsed_ms: elapsedMs,
   };
 
   process.stdout.write(JSON.stringify(output, null, 2) + '\n');

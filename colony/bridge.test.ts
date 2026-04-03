@@ -1,10 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import Database from 'better-sqlite3';
-import { bridgeUpdateBead, bridgeCommitBeadUpdate, markBridgeSynced } from './bridge.js';
+import { bridgeUpdateBead, bridgeCommitBeadUpdate, markBridgeSynced, logBridgeCall } from './bridge.js';
+import type { BridgeLogEntry } from './bridge.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -607,5 +612,226 @@ describe('markBridgeSynced', () => {
     db.close();
 
     expect(row.bridge_synced).toBe(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Telemetry: logBridgeCall tests
+// ---------------------------------------------------------------------------
+
+describe('logBridgeCall', () => {
+  let tmpDir: string;
+  let logPath: string;
+  const origEnv = process.env['COLONY_BRIDGE_LOG'];
+
+  beforeEach(() => {
+    tmpDir = makeTmpDir();
+    logPath = join(tmpDir, 'test-bridge.log');
+    process.env['COLONY_BRIDGE_LOG'] = logPath;
+  });
+
+  afterEach(() => {
+    if (origEnv === undefined) {
+      delete process.env['COLONY_BRIDGE_LOG'];
+    } else {
+      process.env['COLONY_BRIDGE_LOG'] = origEnv;
+    }
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it('writes valid JSON line to log file', () => {
+    const entry: BridgeLogEntry = {
+      timestamp: new Date().toISOString(),
+      bead_id: 'bead-test-001',
+      loop_level: 'L0',
+      action: 'advanced',
+      elapsed_ms: 42,
+      safety_constraints: ['SC-COL-14', 'SC-COL-22'],
+    };
+
+    logBridgeCall(entry);
+
+    const content = readFileSync(logPath, 'utf-8').trim();
+    const parsed = JSON.parse(content);
+    expect(parsed.bead_id).toBe('bead-test-001');
+    expect(parsed.loop_level).toBe('L0');
+    expect(parsed.action).toBe('advanced');
+    expect(parsed.elapsed_ms).toBe(42);
+    expect(parsed.safety_constraints).toEqual(['SC-COL-14', 'SC-COL-22']);
+    expect(parsed.timestamp).toBeDefined();
+  });
+
+  it('appends multiple entries as separate lines', () => {
+    logBridgeCall({
+      timestamp: new Date().toISOString(),
+      bead_id: 'bead-a',
+      loop_level: 'L0',
+      action: 'advanced',
+      elapsed_ms: 10,
+      safety_constraints: [],
+    });
+    logBridgeCall({
+      timestamp: new Date().toISOString(),
+      bead_id: 'bead-b',
+      loop_level: 'L1',
+      action: 'error',
+      elapsed_ms: 20,
+      safety_constraints: ['SC-COL-14'],
+      error: 'test error',
+    });
+
+    const lines = readFileSync(logPath, 'utf-8').trim().split('\n');
+    expect(lines).toHaveLength(2);
+    expect(JSON.parse(lines[0]).bead_id).toBe('bead-a');
+    expect(JSON.parse(lines[1]).bead_id).toBe('bead-b');
+    expect(JSON.parse(lines[1]).error).toBe('test error');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Telemetry: constraintsChecked tracking tests
+// ---------------------------------------------------------------------------
+
+describe('bridgeUpdateBead constraintsChecked telemetry', () => {
+  let beadDir: string;
+  let cloneDir: string;
+  let logPath: string;
+  const origEnv = process.env['COLONY_BRIDGE_LOG'];
+
+  beforeEach(() => {
+    beadDir = makeTmpDir();
+    cloneDir = makeTmpDir();
+    logPath = join(beadDir, 'telemetry.log');
+    process.env['COLONY_BRIDGE_LOG'] = logPath;
+  });
+
+  afterEach(() => {
+    if (origEnv === undefined) {
+      delete process.env['COLONY_BRIDGE_LOG'];
+    } else {
+      process.env['COLONY_BRIDGE_LOG'] = origEnv;
+    }
+    rmSync(beadDir, { recursive: true, force: true });
+    rmSync(cloneDir, { recursive: true, force: true });
+    try { rmSync(cloneDir + '-bare', { recursive: true, force: true }); } catch {}
+  });
+
+  it('L0 completion logs SC-COL-14, SC-COL-22, SC-COL-15, SC-COL-26, SC-COL-28', () => {
+    initGitRepoWithOrigin(cloneDir);
+    writeFileSync(join(cloneDir, 'work.ts'), 'export const x = 1;\n', 'utf-8');
+    execFileSync('git', ['-C', cloneDir, 'add', '--', 'work.ts'], { encoding: 'utf-8' });
+    execFileSync('git', ['-C', cloneDir, 'commit', '-m', 'worker commit'], { encoding: 'utf-8' });
+
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+    writeValidOutput(cloneDir);
+
+    bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: true,
+    });
+
+    const logContent = readFileSync(logPath, 'utf-8').trim();
+    const entry = JSON.parse(logContent) as BridgeLogEntry;
+    expect(entry.safety_constraints).toContain('SC-COL-14');
+    expect(entry.safety_constraints).toContain('SC-COL-22');
+    expect(entry.safety_constraints).toContain('SC-COL-15');
+    expect(entry.safety_constraints).toContain('SC-COL-26');
+    expect(entry.safety_constraints).toContain('SC-COL-28');
+    expect(entry.action).toBe('advanced');
+    expect(entry.elapsed_ms).toBeGreaterThanOrEqual(0);
+  });
+
+  it('SC-COL-14 error logs only SC-COL-14 constraint', () => {
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+
+    bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: null,
+      taskCompleted: true,
+    });
+
+    const logContent = readFileSync(logPath, 'utf-8').trim();
+    const entry = JSON.parse(logContent) as BridgeLogEntry;
+    expect(entry.safety_constraints).toEqual(['SC-COL-14']);
+    expect(entry.action).toBe('error');
+  });
+
+  it('correction logs SC-COL-14 and SC-COL-28', () => {
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+
+    bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: false,
+      finding: 'test failure',
+      cycle: 1,
+    });
+
+    const logContent = readFileSync(logPath, 'utf-8').trim();
+    const entry = JSON.parse(logContent) as BridgeLogEntry;
+    expect(entry.safety_constraints).toContain('SC-COL-14');
+    expect(entry.safety_constraints).toContain('SC-COL-28');
+    expect(entry.action).toBe('correction');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// bridge-cli timing: elapsed_ms in output
+// ---------------------------------------------------------------------------
+
+describe('bridge-cli elapsed_ms', () => {
+  let beadDir: string;
+  let cloneDir: string;
+  let logPath: string;
+  const origEnv = process.env['COLONY_BRIDGE_LOG'];
+
+  beforeEach(() => {
+    beadDir = makeTmpDir();
+    cloneDir = makeTmpDir();
+    logPath = join(beadDir, 'cli-telemetry.log');
+    process.env['COLONY_BRIDGE_LOG'] = logPath;
+  });
+
+  afterEach(() => {
+    if (origEnv === undefined) {
+      delete process.env['COLONY_BRIDGE_LOG'];
+    } else {
+      process.env['COLONY_BRIDGE_LOG'] = origEnv;
+    }
+    rmSync(beadDir, { recursive: true, force: true });
+    rmSync(cloneDir, { recursive: true, force: true });
+  });
+
+  it('bridge-cli output includes elapsed_ms field', () => {
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+
+    // Run bridge-cli with a null loop-level to trigger an error (simplest path)
+    // We pass an empty string loop level which triggers SC-COL-14
+    let output: string;
+    try {
+      output = execFileSync(
+        'npx',
+        ['tsx', join(__dirname, 'bridge-cli.ts'),
+          '--bead-file', beadPath,
+          '--clone-dir', cloneDir,
+          '--loop-level', '',
+          '--project-dir', beadDir,
+          '--expected-branch', 'main',
+        ],
+        { encoding: 'utf-8', cwd: join(__dirname) },
+      );
+    } catch (err) {
+      // bridge-cli exits non-zero on error, but stdout still has the JSON
+      output = (err as { stdout: string }).stdout;
+    }
+
+    const parsed = JSON.parse(output);
+    expect(parsed.elapsed_ms).toBeDefined();
+    expect(typeof parsed.elapsed_ms).toBe('number');
+    expect(parsed.elapsed_ms).toBeGreaterThanOrEqual(0);
   });
 });
