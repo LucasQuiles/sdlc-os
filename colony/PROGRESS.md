@@ -2,10 +2,10 @@
 ## Format Version: 1
 
 ## Current State
-**Active trunk:** T2
+**Active trunk:** T3
 **Blocked on:** nothing
-**Last gate passed:** T1.GATE (2026-04-03T21:37:40Z) (2026-04-03T20:58:01Z)
-**Next action:** T2.1 clone-manager.sh
+**Last gate passed:** T2.GATE (2026-04-03T21:42:06Z) (2026-04-03T21:37:40Z) (2026-04-03T20:58:01Z)
+**Next action:** T3.1 bead parser
 **Session count:** 1
 **Total cost:** $0.00
 **Total plan budget:** $200.00
@@ -17,6 +17,7 @@
 
 | T0.5.GATE | PASS | 2026-04-03T21:04:18Z | n/a | TS+Python infra bootstrapped. vitest exit 0, tsc exit 0, pytest installed. |
 | T1.GATE | PASS | 2026-04-03T21:37:40Z | PASS | 12/12 checks, 698 tests, 0 regressions. SC-COL-19/20 verified. |
+| T2.GATE | PASS | 2026-04-03T21:42:06Z | n/a | 16/16 clone tests, 698 tmup tests, syntax OK |
 
 ## Correction Log
 | Trunk | Task | Loop Level | Cycle | Finding | Resolution |
