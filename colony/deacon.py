@@ -38,6 +38,15 @@ COLONY_BASE = "/tmp/sdlc-colony/"
 STALE_LOCK_TIMEOUT_S = 180  # 3 minutes
 BRIDGE_STALE_TIMEOUT_S = 60  # 1 minute
 HEARTBEAT_STALE_THRESHOLD_S = 300  # 5 minutes default
+
+# SC-COL-20: Per-domain heartbeat thresholds (seconds)
+HEARTBEAT_THRESHOLDS: dict[str, int] = {
+    "clear": 300,
+    "complicated": 900,
+    "complex": 1800,
+    "chaotic": 300,
+    "confusion": 900,
+}
 CONDUCTOR_TIMEOUT_DISPATCH_S = 30 * 60  # 30 minutes
 CONDUCTOR_TIMEOUT_SYNTHESIZE_S = 60 * 60  # 60 minutes
 DEBOUNCE_S = 2.0
@@ -80,6 +89,7 @@ class Deacon:
     conductor_process: subprocess.Popen[bytes] | None = None
     active_session_type: str = "DISPATCH"
     _last_timer_fire: float = field(default_factory=time.monotonic)
+    _spawn_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
 
     # -- Lock helpers --------------------------------------------------------
 
@@ -148,13 +158,13 @@ class Deacon:
 
     # -- check_for_work ------------------------------------------------------
 
-    def check_for_work(self) -> bool:
+    def check_for_work(self) -> str | bool:
         """Query tmup DB for actionable colony tasks.
 
-        Returns True if there are:
-        - pending tasks with sdlc_loop_level IS NOT NULL
-        - completed tasks with bridge_synced=0
-        - tasks needing review (status='needs_review')
+        Returns:
+        - "synthesize" if all colony beads are at terminal status and bridge-synced
+        - True if there are actionable tasks (pending, unsynced completed, needs_review)
+        - False if no work to do
         """
         try:
             conn = self._connect()
@@ -170,7 +180,33 @@ class Deacon:
                       )
                     """
                 ).fetchone()
-                return bool(row and row["cnt"] > 0)
+                if row and row["cnt"] > 0:
+                    return True
+
+                # Check if all colony beads are terminal (completed/cancelled)
+                # and bridge_synced -- triggers SYNTHESIZE session
+                total_row = conn.execute(
+                    """
+                    SELECT COUNT(*) as total FROM tasks
+                    WHERE bead_id IS NOT NULL
+                    """
+                ).fetchone()
+                total = total_row["total"] if total_row else 0
+
+                if total > 0:
+                    terminal_row = conn.execute(
+                        """
+                        SELECT COUNT(*) as terminal FROM tasks
+                        WHERE bead_id IS NOT NULL
+                          AND status IN ('completed', 'cancelled')
+                          AND bridge_synced = 1
+                        """
+                    ).fetchone()
+                    terminal = terminal_row["terminal"] if terminal_row else 0
+                    if terminal == total:
+                        return "synthesize"
+
+                return False
             finally:
                 conn.close()
         except sqlite3.Error:
@@ -238,9 +274,26 @@ class Deacon:
 
     # -- recover_stale_claims ------------------------------------------------
 
+    @staticmethod
+    def _get_heartbeat_threshold(description: str | None) -> int:
+        """Extract cynefin_domain from task description JSON and return threshold.
+
+        SC-COL-20: Per-domain heartbeat thresholds.
+        Returns the domain-specific threshold in seconds, or the default (300s).
+        """
+        if not description:
+            return HEARTBEAT_STALE_THRESHOLD_S
+        try:
+            desc_data = json.loads(description)
+            domain = desc_data.get("cynefin_domain", "").lower().strip()
+            return HEARTBEAT_THRESHOLDS.get(domain, HEARTBEAT_STALE_THRESHOLD_S)
+        except (json.JSONDecodeError, AttributeError):
+            return HEARTBEAT_STALE_THRESHOLD_S
+
     def recover_stale_claims(self) -> int:
         """Find claimed tasks with stale heartbeats and reset them.
 
+        SC-COL-20: Uses per-domain heartbeat thresholds based on cynefin_domain.
         Returns count of recovered tasks.
         """
         self.state = DeaconState.RECOVERING
@@ -249,23 +302,40 @@ class Deacon:
         try:
             conn = self._connect()
             try:
-                threshold = time.time() - HEARTBEAT_STALE_THRESHOLD_S
-                threshold_iso = time.strftime(
-                    "%Y-%m-%dT%H:%M:%SZ", time.gmtime(threshold)
-                )
-
-                # Find stale claimed tasks
-                stale = conn.execute(
+                # Fetch all claimed colony tasks with their agent heartbeats
+                candidates = conn.execute(
                     """
-                    SELECT t.id, t.retry_count, t.max_retries, t.clone_dir
+                    SELECT t.id, t.retry_count, t.max_retries, t.clone_dir,
+                           t.description, a.last_heartbeat_at
                     FROM tasks t
                     JOIN agents a ON t.owner = a.id
                     WHERE t.status = 'claimed'
                       AND t.sdlc_loop_level IS NOT NULL
-                      AND a.last_heartbeat_at < ?
-                    """,
-                    (threshold_iso,),
+                    """
                 ).fetchall()
+
+                import calendar as _calendar
+
+                now = time.time()
+                stale = []
+                for candidate in candidates:
+                    heartbeat_iso = candidate["last_heartbeat_at"]
+                    if not heartbeat_iso:
+                        stale.append(candidate)
+                        continue
+                    try:
+                        heartbeat_epoch = _calendar.timegm(
+                            time.strptime(heartbeat_iso, "%Y-%m-%dT%H:%M:%SZ")
+                        )
+                    except (ValueError, OverflowError):
+                        stale.append(candidate)
+                        continue
+
+                    threshold_s = self._get_heartbeat_threshold(
+                        candidate["description"]
+                    )
+                    if now - heartbeat_epoch > threshold_s:
+                        stale.append(candidate)
 
                 for task in stale:
                     task_id = task["id"]
@@ -394,8 +464,11 @@ async def run_deacon(deacon: Deacon) -> None:
             _sd_notify("WATCHDOG=1")
 
             if deacon.state == DeaconState.WATCHING:
-                if deacon.check_for_work() and deacon.can_spawn_conductor():
-                    deacon.spawn_conductor("DISPATCH")
+                async with deacon._spawn_lock:
+                    work = deacon.check_for_work()
+                    if work and deacon.can_spawn_conductor():
+                        session_type = "SYNTHESIZE" if work == "synthesize" else "DISPATCH"
+                        deacon.spawn_conductor(session_type)
 
             elif deacon.state == DeaconState.CONDUCTING:
                 proc = deacon.conductor_process
@@ -579,12 +652,12 @@ async def watch_db_changes(deacon: Deacon) -> None:
                 )
             except asyncio.TimeoutError:
                 # Safety net: check anyway on timeout
-                if (
-                    deacon.state == DeaconState.WATCHING
-                    and deacon.check_for_work()
-                    and deacon.can_spawn_conductor()
-                ):
-                    deacon.spawn_conductor("DISPATCH")
+                if deacon.state == DeaconState.WATCHING:
+                    async with deacon._spawn_lock:
+                        work = deacon.check_for_work()
+                        if work and deacon.can_spawn_conductor():
+                            session_type = "SYNTHESIZE" if work == "synthesize" else "DISPATCH"
+                            deacon.spawn_conductor(session_type)
                 continue
 
             if not line:
@@ -602,12 +675,12 @@ async def watch_db_changes(deacon: Deacon) -> None:
                     break
 
             # Check for work after draining
-            if (
-                deacon.state == DeaconState.WATCHING
-                and deacon.check_for_work()
-                and deacon.can_spawn_conductor()
-            ):
-                deacon.spawn_conductor("DISPATCH")
+            if deacon.state == DeaconState.WATCHING:
+                async with deacon._spawn_lock:
+                    work = deacon.check_for_work()
+                    if work and deacon.can_spawn_conductor():
+                        session_type = "SYNTHESIZE" if work == "synthesize" else "DISPATCH"
+                        deacon.spawn_conductor(session_type)
     except asyncio.CancelledError:
         proc.terminate()
         await proc.wait()

@@ -23,6 +23,7 @@ import os
 import sqlite3
 import time
 from pathlib import Path
+import json
 from unittest.mock import patch, MagicMock
 
 import pytest
@@ -37,6 +38,7 @@ from deacon import (
     COLONY_BASE,
     CONDUCTOR_TIMEOUT_DISPATCH_S,
     CONDUCTOR_TIMEOUT_SYNTHESIZE_S,
+    HEARTBEAT_THRESHOLDS,
     _is_bridge_lock_stale,
     _parse_conductor_output,
     _check_conductor_timeout,
@@ -74,7 +76,8 @@ def tmp_db(tmp_path: Path) -> str:
             sdlc_loop_level TEXT,
             bridge_synced INTEGER DEFAULT 0,
             clone_dir TEXT,
-            description TEXT
+            description TEXT,
+            bead_id TEXT
         );
         """
     )
@@ -179,6 +182,62 @@ class TestCheckForWork:
         conn.commit()
         conn.close()
 
+        assert deacon.check_for_work() is False
+
+    def test_synthesize_when_all_beads_terminal(self, deacon: Deacon) -> None:
+        """All bead tasks completed+synced should return 'synthesize'."""
+        conn = sqlite3.connect(deacon.db_path)
+        conn.execute(
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
+               VALUES (?, ?, ?, ?)""",
+            ("task-s1", "completed", "bead-001", 1),
+        )
+        conn.execute(
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
+               VALUES (?, ?, ?, ?)""",
+            ("task-s2", "cancelled", "bead-002", 1),
+        )
+        conn.commit()
+        conn.close()
+
+        assert deacon.check_for_work() == "synthesize"
+
+    def test_no_synthesize_when_bead_not_synced(self, deacon: Deacon) -> None:
+        """Bead tasks not all synced should not trigger synthesize."""
+        conn = sqlite3.connect(deacon.db_path)
+        conn.execute(
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
+               VALUES (?, ?, ?, ?)""",
+            ("task-s3", "completed", "bead-001", 1),
+        )
+        conn.execute(
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
+               VALUES (?, ?, ?, ?)""",
+            ("task-s4", "completed", "bead-002", 0),
+        )
+        conn.commit()
+        conn.close()
+
+        # Should return False because not all are synced
+        assert deacon.check_for_work() is False
+
+    def test_no_synthesize_when_bead_still_running(self, deacon: Deacon) -> None:
+        """Bead tasks still running should not trigger synthesize."""
+        conn = sqlite3.connect(deacon.db_path)
+        conn.execute(
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
+               VALUES (?, ?, ?, ?)""",
+            ("task-s5", "completed", "bead-001", 1),
+        )
+        conn.execute(
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
+               VALUES (?, ?, ?, ?)""",
+            ("task-s6", "claimed", "bead-002", 0),
+        )
+        conn.commit()
+        conn.close()
+
+        # Should return False because not all are terminal
         assert deacon.check_for_work() is False
 
 
@@ -560,3 +619,140 @@ class TestConductorTimeoutCleanup:
         mock_proc.kill.assert_called_once()
         assert mock_proc.communicate.call_count == 2
         assert not LOCK_FILE.exists()
+
+
+class TestSpawnLock:
+    """Adversarial A3: _spawn_lock must exist and be an asyncio.Lock."""
+
+    def test_spawn_lock_exists(self, deacon: Deacon) -> None:
+        """Deacon must have a _spawn_lock attribute."""
+        assert hasattr(deacon, "_spawn_lock")
+
+    def test_spawn_lock_is_asyncio_lock(self, deacon: Deacon) -> None:
+        """_spawn_lock must be an asyncio.Lock instance."""
+        import asyncio
+        assert isinstance(deacon._spawn_lock, asyncio.Lock)
+
+
+class TestSynthesizeSessionSpawn:
+    """Bead 1: SYNTHESIZE session is spawned when all beads are terminal."""
+
+    def test_synthesize_spawned_when_all_beads_terminal(self, deacon: Deacon) -> None:
+        """When check_for_work returns 'synthesize', spawn_conductor gets SYNTHESIZE."""
+        conn = sqlite3.connect(deacon.db_path)
+        conn.execute(
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
+               VALUES (?, ?, ?, ?)""",
+            ("task-syn-1", "completed", "bead-001", 1),
+        )
+        conn.execute(
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
+               VALUES (?, ?, ?, ?)""",
+            ("task-syn-2", "cancelled", "bead-002", 1),
+        )
+        conn.commit()
+        conn.close()
+
+        assert deacon.check_for_work() == "synthesize"
+
+        with patch("deacon.subprocess.Popen") as mock_popen:
+            mock_proc = MagicMock()
+            mock_proc.pid = 99999
+            mock_popen.return_value = mock_proc
+
+            work = deacon.check_for_work()
+            session_type = "SYNTHESIZE" if work == "synthesize" else "DISPATCH"
+            deacon.spawn_conductor(session_type)
+
+            assert deacon.active_session_type == "SYNTHESIZE"
+
+
+class TestDomainCalibratedHeartbeat:
+    """Bead 2 / SC-COL-20: Per-domain heartbeat thresholds."""
+
+    def test_complex_task_not_stale_at_600s(self, deacon: Deacon) -> None:
+        """COMPLEX domain has 1800s threshold -- 600s elapsed is NOT stale."""
+        conn = sqlite3.connect(deacon.db_path)
+        # Agent heartbeat 600s ago
+        heartbeat = time.strftime(
+            "%Y-%m-%dT%H:%M:%SZ",
+            time.gmtime(time.time() - 600),
+        )
+        conn.execute(
+            "INSERT INTO agents (id, status, last_heartbeat_at) VALUES (?, ?, ?)",
+            ("agent-complex", "active", heartbeat),
+        )
+        desc = json.dumps({"cynefin_domain": "complex", "title": "hard task"})
+        conn.execute(
+            """INSERT INTO tasks (id, status, owner, sdlc_loop_level,
+               retry_count, max_retries, description)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            ("task-complex", "claimed", "agent-complex", "L0", 0, 3, desc),
+        )
+        conn.commit()
+        conn.close()
+
+        recovered = deacon.recover_stale_claims()
+        assert recovered == 0, "COMPLEX task at 600s should NOT be recovered (threshold=1800s)"
+
+    def test_complex_task_stale_at_2000s(self, deacon: Deacon) -> None:
+        """COMPLEX domain has 1800s threshold -- 2000s elapsed IS stale."""
+        conn = sqlite3.connect(deacon.db_path)
+        heartbeat = time.strftime(
+            "%Y-%m-%dT%H:%M:%SZ",
+            time.gmtime(time.time() - 2000),
+        )
+        conn.execute(
+            "INSERT INTO agents (id, status, last_heartbeat_at) VALUES (?, ?, ?)",
+            ("agent-complex-2", "active", heartbeat),
+        )
+        desc = json.dumps({"cynefin_domain": "complex"})
+        conn.execute(
+            """INSERT INTO tasks (id, status, owner, sdlc_loop_level,
+               retry_count, max_retries, description)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            ("task-complex-2", "claimed", "agent-complex-2", "L0", 0, 3, desc),
+        )
+        conn.commit()
+        conn.close()
+
+        recovered = deacon.recover_stale_claims()
+        assert recovered == 1, "COMPLEX task at 2000s should be recovered (threshold=1800s)"
+
+        conn = sqlite3.connect(deacon.db_path)
+        row = conn.execute(
+            "SELECT status FROM tasks WHERE id = ?", ("task-complex-2",)
+        ).fetchone()
+        conn.close()
+        assert row[0] == "pending"
+
+    def test_clear_domain_default_threshold(self, deacon: Deacon) -> None:
+        """CLEAR domain uses 300s threshold (same as default)."""
+        threshold = Deacon._get_heartbeat_threshold(
+            json.dumps({"cynefin_domain": "clear"})
+        )
+        assert threshold == 300
+
+    def test_complicated_domain_threshold(self, deacon: Deacon) -> None:
+        """COMPLICATED domain uses 900s threshold."""
+        threshold = Deacon._get_heartbeat_threshold(
+            json.dumps({"cynefin_domain": "complicated"})
+        )
+        assert threshold == 900
+
+    def test_unknown_domain_uses_default(self, deacon: Deacon) -> None:
+        """Unknown domain falls back to 300s default."""
+        threshold = Deacon._get_heartbeat_threshold(
+            json.dumps({"cynefin_domain": "unknown"})
+        )
+        assert threshold == 300
+
+    def test_no_description_uses_default(self, deacon: Deacon) -> None:
+        """No description falls back to 300s default."""
+        threshold = Deacon._get_heartbeat_threshold(None)
+        assert threshold == 300
+
+    def test_invalid_json_uses_default(self, deacon: Deacon) -> None:
+        """Invalid JSON description falls back to 300s default."""
+        threshold = Deacon._get_heartbeat_threshold("not json")
+        assert threshold == 300
