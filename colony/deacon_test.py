@@ -221,6 +221,25 @@ class TestCheckForWork:
         # Should return False because not all are synced
         assert deacon.check_for_work() is False
 
+    def test_true_with_mix_pending_and_completed_beads(self, deacon: Deacon) -> None:
+        """Mix of pending+completed bead tasks should return True (not 'synthesize')."""
+        conn = sqlite3.connect(deacon.db_path)
+        conn.execute(
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level)
+               VALUES (?, ?, ?, ?, ?)""",
+            ("task-mix-1", "completed", "bead-001", 1, "L0"),
+        )
+        conn.execute(
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level)
+               VALUES (?, ?, ?, ?, ?)""",
+            ("task-mix-2", "pending", "bead-002", 0, "L0"),
+        )
+        conn.commit()
+        conn.close()
+
+        result = deacon.check_for_work()
+        assert result is True
+
     def test_no_synthesize_when_bead_still_running(self, deacon: Deacon) -> None:
         """Bead tasks still running should not trigger synthesize."""
         conn = sqlite3.connect(deacon.db_path)

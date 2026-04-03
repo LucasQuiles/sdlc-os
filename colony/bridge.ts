@@ -131,7 +131,7 @@ function verifyCloneHasCommits(cloneDir: string): { valid: boolean; error?: stri
       return { valid: true };
     } catch {
       // SC-COL-26: Cannot determine remote HEAD; fail rather than silently skip
-      return { valid: false, error: 'Could not resolve remote ref for SC-COL-26 verification' };
+      return { valid: false, error: 'SC-COL-26: could not resolve remote ref for commit verification' };
     }
   }
 }
