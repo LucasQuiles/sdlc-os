@@ -13,7 +13,9 @@
  *     --completed \
  *     --project-dir /path/to/project \
  *     --expected-branch main \
- *     --expected-status running
+ *     --expected-status running \
+ *     --task-id <tmup-task-id> \
+ *     --db-path /path/to/tmup.db
  *
  * On failure (not completed):
  *   npx tsx bridge-cli.ts \
@@ -26,7 +28,7 @@
  *     --expected-branch main
  */
 
-import { bridgeUpdateBead, bridgeCommitBeadUpdate } from './bridge.js';
+import { bridgeUpdateBead, bridgeCommitBeadUpdate, markBridgeSynced } from './bridge.js';
 import type { BridgeInput } from './bridge.js';
 import { basename } from 'node:path';
 
@@ -44,6 +46,8 @@ function parseArgs(argv: string[]): {
   projectDir: string;
   expectedBranch: string;
   expectedStatus?: string;
+  taskId?: string;
+  dbPath?: string;
 } {
   const args: Record<string, string> = {};
   const flags = new Set<string>();
@@ -76,6 +80,8 @@ function parseArgs(argv: string[]): {
     projectDir: required('project-dir'),
     expectedBranch: required('expected-branch'),
     expectedStatus: args['expected-status'],
+    taskId: args['task-id'],
+    dbPath: args['db-path'],
   };
 }
 
@@ -121,7 +127,18 @@ function main(): void {
     basename(parsed.beadFile, '.md'), // beadId extracted from filename
     parsed.loopLevel,
     parsed.expectedBranch,
+    parsed.taskId,
   );
+
+  // Step 3: Mark bridge_synced if commit succeeded and taskId + dbPath provided
+  if (commitResult.success && parsed.taskId && parsed.dbPath) {
+    try {
+      markBridgeSynced(parsed.dbPath, parsed.taskId);
+    } catch (err) {
+      // Non-fatal: log but don't fail the overall bridge operation
+      console.error(`[bridge-cli] Warning: failed to mark bridge_synced: ${(err as Error).message}`);
+    }
+  }
 
   const output = {
     beadUpdate: beadResult,

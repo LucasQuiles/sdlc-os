@@ -8,6 +8,7 @@
  *   SC-COL-14: NULL loop level = fatal error
  *   SC-COL-15: Compare-and-swap on bead status
  *   SC-COL-22: Verify bead-output.md exists, >100 bytes, has sentinel
+ *   SC-COL-26: Verify clone has commits beyond source HEAD before advancement
  *   SC-COL-28: Atomic write via temp + rename
  *   SC-COL-29: git add -- specific file only
  *   SC-COL-30: Verify branch before commit
@@ -16,6 +17,7 @@
 import { readFileSync, writeFileSync, renameSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import Database from 'better-sqlite3';
 import { parseBeadFile, updateBeadField, appendCorrection } from './bead-parser.js';
 
 // ---------------------------------------------------------------------------
@@ -43,6 +45,7 @@ export interface CommitResult {
   success: boolean;
   commitHash?: string;
   error?: string;
+  taskId?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -98,6 +101,42 @@ function validateOutput(cloneDir: string): { valid: boolean; error?: string } {
 }
 
 // ---------------------------------------------------------------------------
+// Clone commit verification (SC-COL-26)
+// ---------------------------------------------------------------------------
+
+function verifyCloneHasCommits(cloneDir: string): { valid: boolean; error?: string } {
+  try {
+    const output = execFileSync(
+      'git',
+      ['-C', cloneDir, 'log', '--oneline', 'origin/main..HEAD'],
+      { encoding: 'utf-8' },
+    ).trim();
+
+    if (output.length === 0) {
+      return { valid: false, error: 'SC-COL-26: clone has no commits beyond source HEAD' };
+    }
+    return { valid: true };
+  } catch {
+    // If origin/main doesn't exist, try origin/master, else skip check
+    try {
+      const output = execFileSync(
+        'git',
+        ['-C', cloneDir, 'log', '--oneline', 'origin/master..HEAD'],
+        { encoding: 'utf-8' },
+      ).trim();
+
+      if (output.length === 0) {
+        return { valid: false, error: 'SC-COL-26: clone has no commits beyond source HEAD' };
+      }
+      return { valid: true };
+    } catch {
+      // Cannot determine remote HEAD; skip SC-COL-26 check gracefully
+      return { valid: true };
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Atomic file write (SC-COL-28)
 // ---------------------------------------------------------------------------
 
@@ -105,6 +144,24 @@ function atomicWriteFile(filePath: string, content: string): void {
   const tmpPath = filePath + '.tmp.' + process.pid;
   writeFileSync(tmpPath, content, 'utf-8');
   renameSync(tmpPath, filePath);
+}
+
+// ---------------------------------------------------------------------------
+// Mark bridge_synced in tmup DB (Gap 1 fix)
+// ---------------------------------------------------------------------------
+
+/**
+ * Set bridge_synced = 1 for a task in the tmup SQLite DB.
+ * Called after successful bead commit so clone pruning, check_for_work,
+ * and recovery know this task's bead file has been synced.
+ */
+export function markBridgeSynced(dbPath: string, taskId: string): void {
+  const db = new Database(dbPath);
+  try {
+    db.prepare('UPDATE tasks SET bridge_synced = 1 WHERE id = ?').run(taskId);
+  } finally {
+    db.close();
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -167,6 +224,18 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
       action: 'error',
       error: `Unknown loop level: ${loopLevel}`,
     };
+  }
+
+  // SC-COL-26: Verify clone has commits at L0 (first advancement)
+  if (loopLevel === 'L0') {
+    const commitCheck = verifyCloneHasCommits(cloneDir);
+    if (!commitCheck.valid) {
+      return {
+        success: false,
+        action: 'error',
+        error: commitCheck.error!,
+      };
+    }
   }
 
   // SC-COL-15: Compare-and-swap on bead status
@@ -234,6 +303,8 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
  * SC-COL-29: Uses `git add -- specific-file` (never git add -A).
  *            Uses execFileSync (no shell injection).
  * SC-COL-30: Verifies current branch matches expectedBranch before committing.
+ *
+ * @param taskId - Optional tmup task ID; returned in result so caller can call markBridgeSynced.
  */
 export function bridgeCommitBeadUpdate(
   projectDir: string,
@@ -241,6 +312,7 @@ export function bridgeCommitBeadUpdate(
   beadId: string,
   loopLevel: string,
   expectedBranch: string,
+  taskId?: string,
 ): CommitResult {
   // SC-COL-30: Verify branch
   let currentBranch: string;
@@ -306,5 +378,6 @@ export function bridgeCommitBeadUpdate(
   return {
     success: true,
     commitHash,
+    taskId,
   };
 }
