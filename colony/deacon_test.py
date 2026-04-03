@@ -39,6 +39,7 @@ from deacon import (
     CONDUCTOR_TIMEOUT_SYNTHESIZE_S,
     _is_bridge_lock_stale,
     _parse_conductor_output,
+    _check_conductor_timeout,
     _self_watchdog_task,
 )
 
@@ -499,3 +500,63 @@ class TestSelfWatchdogTask:
         """_self_watchdog_task should be an async coroutine function."""
         import asyncio
         assert asyncio.iscoroutinefunction(_self_watchdog_task)
+
+
+class TestConductorTimeoutCleanup:
+    """Adversarial A2: After timeout kill, communicate() must be called and lock file cleaned up."""
+
+    def test_communicate_called_after_terminate(self, deacon: Deacon) -> None:
+        """After conductor timeout, proc.communicate() must be called to drain pipes."""
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None  # process is still running
+        mock_proc.communicate.return_value = (b"", b"")
+        deacon.conductor_process = mock_proc
+        deacon.state = DeaconState.CONDUCTING
+
+        # Write lock file with old timestamp to trigger timeout
+        old_time = time.time() - CONDUCTOR_TIMEOUT_DISPATCH_S - 10
+        LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
+
+        _check_conductor_timeout(deacon)
+
+        mock_proc.terminate.assert_called_once()
+        mock_proc.communicate.assert_called_once_with(timeout=5)
+
+    def test_lock_file_removed_after_timeout(self, deacon: Deacon) -> None:
+        """After conductor timeout, LOCK_FILE must be cleaned up via _release_lock()."""
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None
+        mock_proc.communicate.return_value = (b"", b"")
+        deacon.conductor_process = mock_proc
+        deacon.state = DeaconState.CONDUCTING
+
+        old_time = time.time() - CONDUCTOR_TIMEOUT_DISPATCH_S - 10
+        LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
+
+        _check_conductor_timeout(deacon)
+
+        assert not LOCK_FILE.exists(), "Lock file should be removed after timeout cleanup"
+
+    def test_kill_and_communicate_on_stubborn_process(self, deacon: Deacon) -> None:
+        """If communicate() times out after terminate, kill+communicate must follow."""
+        import subprocess as sp
+
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None
+        # First communicate() raises TimeoutExpired, second succeeds
+        mock_proc.communicate.side_effect = [
+            sp.TimeoutExpired(cmd="claude", timeout=5),
+            (b"", b""),
+        ]
+        deacon.conductor_process = mock_proc
+        deacon.state = DeaconState.CONDUCTING
+
+        old_time = time.time() - CONDUCTOR_TIMEOUT_DISPATCH_S - 10
+        LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
+
+        _check_conductor_timeout(deacon)
+
+        mock_proc.terminate.assert_called_once()
+        mock_proc.kill.assert_called_once()
+        assert mock_proc.communicate.call_count == 2
+        assert not LOCK_FILE.exists()

@@ -81,6 +81,12 @@ class Deacon:
     active_session_type: str = "DISPATCH"
     _last_timer_fire: float = field(default_factory=time.monotonic)
 
+    # -- Lock helpers --------------------------------------------------------
+
+    def _release_lock(self) -> None:
+        """Remove the conductor lock file."""
+        LOCK_FILE.unlink(missing_ok=True)
+
     # -- DB helpers ----------------------------------------------------------
 
     def _connect(self) -> sqlite3.Connection:
@@ -520,9 +526,11 @@ def _check_conductor_timeout(deacon: Deacon) -> None:
 
                     proc.terminate()  # SIGTERM
                     try:
-                        proc.wait(timeout=10)
+                        proc.communicate(timeout=5)
                     except subprocess.TimeoutExpired:
-                        proc.kill()  # SIGKILL
+                        proc.kill()
+                        proc.communicate()
+                    deacon._release_lock()
                     deacon.conductor_process = None
                     deacon.state = DeaconState.RECOVERING
         except (ValueError, OSError):
