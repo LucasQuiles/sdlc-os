@@ -15,6 +15,13 @@ set -euo pipefail
 
 COLONY_BASE="${COLONY_BASE:-/tmp/sdlc-colony}"
 
+# _colony_log <event> <key:val pairs...>
+# Appends a timestamped JSON line to ${COLONY_BASE}/clone-events.log
+_colony_log() {
+  local event="$1" && shift
+  echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"event\":\"${event}\",$@}" >> "${COLONY_BASE}/clone-events.log"
+}
+
 # colony_clone_create <source_dir> <session_name> <agent_id>
 # Creates an isolated git clone for a worker.
 # Prints the clone directory path on stdout.
@@ -24,6 +31,7 @@ colony_clone_create() {
   local agent_id="${3:?colony_clone_create: agent_id required}"
 
   local clone_dir="${COLONY_BASE}/${session_name}/worker-${agent_id}"
+  local start_ns=$(date +%s%N)
 
   # Ensure parent directory exists
   mkdir -p "$(dirname "$clone_dir")"
@@ -42,6 +50,10 @@ colony_clone_create() {
 
   # Prevent accidental pushes from workers (SC-COL-27)
   git -C "${clone_dir}" remote set-url --push origin no-push
+
+  local elapsed_ms=$(( ($(date +%s%N) - start_ns) / 1000000 ))
+  local clone_bytes=$(du -sb "${clone_dir}" | cut -f1)
+  _colony_log "clone_created" "\"source\":\"${source}\",\"session\":\"${session_name}\",\"agent_id\":\"${agent_id}\",\"clone_dir\":\"${clone_dir}\",\"elapsed_ms\":${elapsed_ms},\"clone_bytes\":${clone_bytes}"
 
   # Return the clone path on stdout
   echo "${clone_dir}"
@@ -64,12 +76,14 @@ colony_clone_verify() {
   # Check path is under COLONY_BASE (SC-COL-12)
   if [[ "${resolved_dir}" != "${COLONY_BASE}"/* ]]; then
     echo "ERROR: Clone directory not under ${COLONY_BASE}/: ${resolved_dir}" >&2
+    _colony_log "clone_verified" "\"clone_dir\":\"${clone_dir}\",\"valid\":false"
     return 1
   fi
 
   # Check .git exists (SC-COL-12)
   if [[ ! -d "${clone_dir}/.git" ]]; then
     echo "ERROR: No .git directory in ${clone_dir}" >&2
+    _colony_log "clone_verified" "\"clone_dir\":\"${clone_dir}\",\"valid\":false"
     return 1
   fi
 
@@ -78,9 +92,11 @@ colony_clone_verify() {
   push_url="$(git -C "${clone_dir}" remote get-url --push origin 2>/dev/null || true)"
   if [[ "${push_url}" != "no-push" ]]; then
     echo "ERROR: Push URL is not 'no-push': ${push_url}" >&2
+    _colony_log "clone_verified" "\"clone_dir\":\"${clone_dir}\",\"valid\":false"
     return 1
   fi
 
+  _colony_log "clone_verified" "\"clone_dir\":\"${clone_dir}\",\"valid\":true"
   return 0
 }
 
@@ -99,6 +115,8 @@ colony_clone_has_commits() {
   local commit_count
   commit_count="$(git -C "${clone_dir}" log --oneline origin/main..HEAD 2>/dev/null | wc -l)"
 
+  _colony_log "clone_commit_check" "\"clone_dir\":\"${clone_dir}\",\"commit_count\":${commit_count}"
+
   if [[ "${commit_count}" -ge 1 ]]; then
     return 0
   else
@@ -112,6 +130,7 @@ colony_clone_has_commits() {
 colony_clone_prune() {
   local clone_dir="${1:?colony_clone_prune: clone_dir required}"
   local bridge_synced="${2:?colony_clone_prune: bridge_synced required}"
+  local start_ns=$(date +%s%N)
 
   # Refuse prune if bridge has not synced (SC-COL-21)
   if [[ "${bridge_synced}" != "1" ]]; then
@@ -132,6 +151,8 @@ colony_clone_prune() {
   fi
 
   rm -rf "${clone_dir}"
+  local elapsed_ms=$(( ($(date +%s%N) - start_ns) / 1000000 ))
+  _colony_log "clone_pruned" "\"clone_dir\":\"${clone_dir}\",\"bridge_synced\":${bridge_synced},\"elapsed_ms\":${elapsed_ms}"
   return 0
 }
 
@@ -160,8 +181,11 @@ colony_clone_recover_output() {
 
   if [[ "${found}" -eq 0 ]]; then
     echo "WARNING: No output files found in ${clone_dir}" >&2
+    _colony_log "clone_output_recovered" "\"clone_dir\":\"${clone_dir}\",\"task_id\":\"${task_id}\",\"output_bytes\":0"
     return 1
   fi
 
+  local output_bytes=$(du -sb "${recover_dir}" | cut -f1)
+  _colony_log "clone_output_recovered" "\"clone_dir\":\"${clone_dir}\",\"task_id\":\"${task_id}\",\"output_bytes\":${output_bytes}"
   return 0
 }
