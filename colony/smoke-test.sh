@@ -140,24 +140,15 @@ st01_bridge_cli_roundtrip() {
     --loop-level L0 \
     --completed \
     --project-dir "$repo" \
-    --expected-branch main 2>&1)" || true
-  exit_code=${PIPESTATUS[0]:-$?}
+    --expected-branch main 2>&1)"
+  exit_code=$?
 
-  # Re-run to capture exit code properly
-  if npx tsx "${SCRIPT_DIR}/bridge-cli.ts" \
-    --bead-file "$bead_file" \
-    --clone-dir "$clone" \
-    --loop-level L0 \
-    --completed \
-    --project-dir "$repo" \
-    --expected-branch main > /dev/null 2>&1; then
-    exit_code=0
-  else
-    exit_code=$?
+  if [[ "$exit_code" -ne 0 ]]; then
+    fail "ST-01" "bridge-cli exited with code ${exit_code}: ${output}"
+    do_cleanup; return
   fi
 
-  # The first run does the actual work. Second run will see 'submitted' and skip.
-  # Check bead status from first run.
+  # Check bead status.
   local bead_status
   bead_status="$(grep '^\*\*Status:\*\*' "$bead_file" | head -1 | sed 's/\*\*Status:\*\*\s*//')"
 
