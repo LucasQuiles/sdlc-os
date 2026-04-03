@@ -176,6 +176,129 @@ else
 fi
 
 echo ""
+echo "=== Test: structured logging ==="
+
+LOG_FILE="${TEST_BASE}/clone-events.log"
+
+# T17: clone-events.log exists after colony_clone_create
+if [[ -f "${LOG_FILE}" ]]; then
+  pass "clone-events.log created after colony_clone_create"
+else
+  fail "clone-events.log not found"
+fi
+
+# T18: All log entries are valid JSON
+INVALID_JSON=0
+while IFS= read -r line; do
+  if ! echo "${line}" | python3 -m json.tool >/dev/null 2>&1; then
+    INVALID_JSON=1
+    break
+  fi
+done < "${LOG_FILE}"
+if [[ "${INVALID_JSON}" -eq 0 ]]; then
+  pass "all log entries are valid JSON"
+else
+  fail "found invalid JSON in clone-events.log"
+fi
+
+# T19: elapsed_ms > 0 in clone_created entry
+CREATE_ELAPSED=$(python3 -c "
+import json, sys
+for line in open('${LOG_FILE}'):
+    obj = json.loads(line)
+    if obj.get('event') == 'clone_created':
+        print(obj.get('elapsed_ms', -1))
+        break
+")
+if [[ "${CREATE_ELAPSED}" -gt 0 ]]; then
+  pass "elapsed_ms > 0 in clone_created entry"
+else
+  fail "elapsed_ms not > 0 in clone_created entry (got ${CREATE_ELAPSED})"
+fi
+
+# T20: clone_bytes > 0 in clone_created entry
+CREATE_BYTES=$(python3 -c "
+import json, sys
+for line in open('${LOG_FILE}'):
+    obj = json.loads(line)
+    if obj.get('event') == 'clone_created':
+        print(obj.get('clone_bytes', -1))
+        break
+")
+if [[ "${CREATE_BYTES}" -gt 0 ]]; then
+  pass "clone_bytes > 0 in clone_created entry"
+else
+  fail "clone_bytes not > 0 (got ${CREATE_BYTES})"
+fi
+
+# T21: clone_verified events present with valid field
+VERIFIED_COUNT=$(python3 -c "
+import json
+count = 0
+for line in open('${LOG_FILE}'):
+    obj = json.loads(line)
+    if obj.get('event') == 'clone_verified' and 'valid' in obj:
+        count += 1
+print(count)
+")
+if [[ "${VERIFIED_COUNT}" -ge 1 ]]; then
+  pass "clone_verified events logged with valid field"
+else
+  fail "no clone_verified events found"
+fi
+
+# T22: clone_commit_check events present with commit_count
+COMMIT_CHECK=$(python3 -c "
+import json
+for line in open('${LOG_FILE}'):
+    obj = json.loads(line)
+    if obj.get('event') == 'clone_commit_check' and 'commit_count' in obj:
+        print('found')
+        break
+else:
+    print('missing')
+")
+if [[ "${COMMIT_CHECK}" == "found" ]]; then
+  pass "clone_commit_check event logged with commit_count"
+else
+  fail "clone_commit_check event not found"
+fi
+
+# T23: clone_pruned event present with elapsed_ms
+PRUNED_ELAPSED=$(python3 -c "
+import json
+for line in open('${LOG_FILE}'):
+    obj = json.loads(line)
+    if obj.get('event') == 'clone_pruned' and 'elapsed_ms' in obj:
+        print(obj['elapsed_ms'])
+        break
+else:
+    print(-1)
+")
+if [[ "${PRUNED_ELAPSED}" -ge 0 ]]; then
+  pass "clone_pruned event logged with elapsed_ms"
+else
+  fail "clone_pruned event not found"
+fi
+
+# T24: clone_output_recovered event present with output_bytes
+RECOVER_BYTES=$(python3 -c "
+import json
+for line in open('${LOG_FILE}'):
+    obj = json.loads(line)
+    if obj.get('event') == 'clone_output_recovered' and 'output_bytes' in obj:
+        print(obj['output_bytes'])
+        break
+else:
+    print(-1)
+")
+if [[ "${RECOVER_BYTES}" -ge 0 ]]; then
+  pass "clone_output_recovered event logged with output_bytes"
+else
+  fail "clone_output_recovered event not found"
+fi
+
+echo ""
 echo "=== Results ==="
 echo "Passed: ${PASS}"
 echo "Failed: ${FAIL}"
