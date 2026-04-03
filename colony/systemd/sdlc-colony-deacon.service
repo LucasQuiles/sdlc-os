@@ -1,0 +1,20 @@
+[Unit]
+Description=SDLC-OS Colony Deacon
+After=network.target
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/python3 /home/q/.claude/plugins/sdlc-os/colony/deacon.py
+Restart=on-failure
+RestartSec=15
+RestartSteps=5
+RestartMaxDelaySec=120
+WatchdogSec=120
+Environment=PYTHONUNBUFFERED=1
+Environment=SDLC_PROJECT_DIR=/path/to/project
+Environment=TMUP_DB_PATH=/path/to/tmup.db
+Environment=CONDUCTOR_BUDGET_USD=10.00
+Environment=EXPECTED_BRANCH=main
+
+[Install]
+WantedBy=default.target
