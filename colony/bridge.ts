@@ -102,7 +102,7 @@ function validateOutput(cloneDir: string): { valid: boolean; error?: string } {
 // ---------------------------------------------------------------------------
 
 function atomicWriteFile(filePath: string, content: string): void {
-  const tmpPath = filePath + '.tmp';
+  const tmpPath = filePath + '.tmp.' + process.pid;
   writeFileSync(tmpPath, content, 'utf-8');
   renameSync(tmpPath, filePath);
 }
@@ -184,6 +184,15 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
         error: `status mismatch: expected '${input.expectedSourceStatus}', found '${currentStatus}'`,
       };
     }
+  }
+
+  // Guard: reject unknown/corrupted bead status
+  if (currentIdx === -1) {
+    return {
+      success: false,
+      action: 'error',
+      error: `Bead status not recognized: '${currentStatus}'. Cannot advance from unknown state.`,
+    };
   }
 
   // Idempotent: if already at or beyond target, skip

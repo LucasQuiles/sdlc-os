@@ -222,6 +222,107 @@ describe('bridgeUpdateBead', () => {
     expect(updated).toContain('- [L0 cycle 1] Tests failed: assertion error in line 42');
     expect(updated).not.toContain('(none)');
   });
+
+  // --- Adversarial audit tests ---
+
+  it('CRITICAL: rejects CAS bypass via unknown/corrupted status', () => {
+    const CORRUPTED_BEAD = `# Bead
+
+**BeadID:** bead-001
+**Status:** corrupted
+**LoopLevel:** L0
+**CorrectionHistory:** (none)
+`;
+    const beadPath = writeBeadFile(beadDir, CORRUPTED_BEAD);
+    writeValidOutput(cloneDir);
+
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: true,
+      expectedSourceStatus: 'corrupted',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('not recognized');
+  });
+
+  it('HIGH: rejects unknown loop level with taskCompleted=true', () => {
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+    writeValidOutput(cloneDir);
+
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L99',
+      taskCompleted: true,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('Unknown loop level');
+  });
+
+  it('HIGH: sentinel-with-garbage passes (content quality is Conductor concern)', () => {
+    // 200 spaces + sentinel = valid per bridge rules.
+    // Content quality enforcement is the Conductor's responsibility, not the bridge's.
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+    const sentinel = '<!-- BEAD_OUTPUT_COMPLETE -->';
+    const garbageContent = ' '.repeat(200) + sentinel + '\n';
+    writeFileSync(join(cloneDir, 'bead-output.md'), garbageContent, 'utf-8');
+
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: true,
+    });
+
+    // This passes because the bridge only checks size + sentinel presence.
+    // Documenting this as a known limitation per adversarial audit.
+    expect(result.success).toBe(true);
+    expect(result.action).toBe('advanced');
+  });
+
+  it('MEDIUM: exactly 100 bytes with sentinel succeeds', () => {
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+    const sentinel = '<!-- BEAD_OUTPUT_COMPLETE -->';
+    // sentinel is 28 bytes, need 72 more bytes of content to reach exactly 100
+    const padding = 'x'.repeat(100 - sentinel.length);
+    const content = padding + sentinel;
+    expect(Buffer.byteLength(content, 'utf-8')).toBe(100);
+    writeFileSync(join(cloneDir, 'bead-output.md'), content, 'utf-8');
+
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: true,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.action).toBe('advanced');
+  });
+
+  it('MEDIUM: exactly 99 bytes with sentinel fails', () => {
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+    const sentinel = '<!-- BEAD_OUTPUT_COMPLETE -->';
+    // sentinel is 28 bytes, need 71 more bytes of content to reach exactly 99
+    const padding = 'x'.repeat(99 - sentinel.length);
+    const content = padding + sentinel;
+    expect(Buffer.byteLength(content, 'utf-8')).toBe(99);
+    writeFileSync(join(cloneDir, 'bead-output.md'), content, 'utf-8');
+
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: true,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('too small');
+  });
 });
 
 // ---------------------------------------------------------------------------
