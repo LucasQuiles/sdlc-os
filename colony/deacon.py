@@ -89,17 +89,20 @@ class Deacon:
     conductor_process: subprocess.Popen[bytes] | None = None
     active_session_type: str = "DISPATCH"
     _last_timer_fire: float = field(default_factory=time.monotonic)
+    _state_entered_at: float = field(default_factory=time.monotonic)
     _spawn_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     _conductor_start_time: float = 0.0
     _bridge_deferral_count: int = 0
     _bridge_deferral_start: float = 0.0
+    _last_conductor_stdout: bytes | None = None
 
     # -- State transition helper -----------------------------------------------
 
     def _transition_to(self, new_state: DeaconState, trigger: str) -> None:
         """Log and execute a state machine transition."""
         old_state = self.state
-        elapsed = time.monotonic() - self._last_timer_fire
+        elapsed = time.monotonic() - self._state_entered_at
+        self._state_entered_at = time.monotonic()
         log.info(
             "state_transition old=%s new=%s elapsed_s=%.1f trigger=%s",
             old_state.value,
@@ -553,55 +556,68 @@ async def run_deacon(deacon: Deacon) -> None:
 def _parse_conductor_output(proc: subprocess.Popen[bytes], deacon: Deacon | None = None) -> None:
     """Parse JSON output from Conductor for cost tracking."""
     try:
-        # Use communicate() instead of stdout.read() to avoid deadlock
-        stdout, _stderr = proc.communicate(timeout=10)
+        # Use stored stdout from timeout drain if available (IMPORTANT-4),
+        # otherwise call communicate() once.
+        if deacon is not None and deacon._last_conductor_stdout is not None:
+            stdout = deacon._last_conductor_stdout
+            deacon._last_conductor_stdout = None
+        else:
+            stdout, _stderr = proc.communicate(timeout=10)
+
+        # Parse output or use sentinel values (IMPORTANT-3)
+        session_id = "unknown"
+        cost = 0.0
         if stdout:
-            data: dict[str, Any] = json.loads(stdout)
-            session_id = data.get("session_id", "unknown")
-            cost = data.get("total_cost_usd", 0.0)
-            log.info("Conductor session %s cost $%.4f", session_id, cost)
+            try:
+                data: dict[str, Any] = json.loads(stdout)
+                session_id = data.get("session_id", "unknown")
+                cost = data.get("total_cost_usd", 0.0)
+            except json.JSONDecodeError:
+                log.warning("Failed to parse conductor JSON output, using sentinel values")
 
-            # Compute wall clock time
-            wall_clock_s = 0.0
-            if deacon is not None and deacon._conductor_start_time > 0:
-                wall_clock_s = time.monotonic() - deacon._conductor_start_time
+        log.info("Conductor session %s cost $%.4f", session_id, cost)
 
-            # Collect bead_ids from DB
-            bead_ids: list[str] = []
-            if deacon is not None:
+        # Compute wall clock time
+        wall_clock_s = 0.0
+        if deacon is not None and deacon._conductor_start_time > 0:
+            wall_clock_s = time.monotonic() - deacon._conductor_start_time
+
+        # Collect bead_ids from DB
+        bead_ids: list[str] = []
+        if deacon is not None:
+            try:
+                conn = deacon._connect()
                 try:
-                    conn = deacon._connect()
-                    try:
-                        rows = conn.execute(
-                            "SELECT bead_id FROM tasks WHERE bead_id IS NOT NULL"
-                        ).fetchall()
-                        bead_ids = [r["bead_id"] for r in rows]
-                    finally:
-                        conn.close()
-                except sqlite3.Error:
-                    log.exception("Failed to fetch bead_ids for session log")
+                    rows = conn.execute(
+                        "SELECT bead_id FROM tasks WHERE bead_id IS NOT NULL"
+                    ).fetchall()
+                    bead_ids = [r["bead_id"] for r in rows]
+                finally:
+                    conn.close()
+            except sqlite3.Error:
+                log.exception("Failed to fetch bead_ids for session log")
 
-            # Build log record
-            record: dict[str, Any] = {
-                "session_id": session_id,
-                "total_cost_usd": cost,
-                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                "session_type": deacon.active_session_type if deacon else "unknown",
-                "exit_code": proc.returncode,
-                "wall_clock_s": round(wall_clock_s, 1),
-                "bead_ids": bead_ids,
-            }
+        # Build log record
+        record: dict[str, Any] = {
+            "session_id": session_id,
+            "total_cost_usd": cost,
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "session_type": deacon.active_session_type if deacon else "unknown",
+            "exit_code": proc.returncode,
+            "wall_clock_s": round(wall_clock_s, 1),
+            "bead_ids": bead_ids,
+        }
 
-            # Append to session log
-            log_path = Path(__file__).parent / "colony-sessions.log"
-            with open(log_path, "a") as f:
-                f.write(json.dumps(record) + "\n")
+        # Append to session log
+        log_path = Path(__file__).parent / "colony-sessions.log"
+        with open(log_path, "a") as f:
+            f.write(json.dumps(record) + "\n")
     except subprocess.TimeoutExpired:
         log.warning("Timeout reading conductor output, killing process")
         proc.kill()
         proc.wait()
-    except (json.JSONDecodeError, OSError):
-        log.exception("Failed to parse conductor output")
+    except OSError:
+        log.exception("Failed to write conductor session log")
 
 
 def _is_bridge_lock_stale() -> bool:
@@ -679,10 +695,12 @@ def _check_conductor_timeout(deacon: Deacon) -> None:
                     deacon._bridge_deferral_start = 0.0
                     proc.terminate()  # SIGTERM
                     try:
-                        proc.communicate(timeout=5)
+                        stdout, _stderr = proc.communicate(timeout=5)
+                        deacon._last_conductor_stdout = stdout
                     except subprocess.TimeoutExpired:
                         proc.kill()
-                        proc.communicate()
+                        stdout, _stderr = proc.communicate()
+                        deacon._last_conductor_stdout = stdout
                     deacon._release_lock()
                     deacon.conductor_process = None
                     deacon._transition_to(DeaconState.RECOVERING, "conductor_timeout")

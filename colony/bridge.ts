@@ -67,8 +67,12 @@ export interface BridgeLogEntry {
  * Path is taken from COLONY_BRIDGE_LOG env var, defaulting to ./colony-bridge.log.
  */
 export function logBridgeCall(entry: BridgeLogEntry): void {
-  const logPath = process.env['COLONY_BRIDGE_LOG'] || './colony-bridge.log';
-  appendFileSync(logPath, JSON.stringify(entry) + '\n', 'utf-8');
+  try {
+    const logPath = process.env['COLONY_BRIDGE_LOG'] || '/tmp/sdlc-colony/colony-bridge.log';
+    appendFileSync(logPath, JSON.stringify(entry) + '\n', 'utf-8');
+  } catch {
+    // Logging must never crash the bridge
+  }
 }
 
 // ---------------------------------------------------------------------------

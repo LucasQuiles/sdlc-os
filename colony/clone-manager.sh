@@ -15,11 +15,19 @@ set -euo pipefail
 
 COLONY_BASE="${COLONY_BASE:-/tmp/sdlc-colony}"
 
-# _colony_log <event> <key:val pairs...>
+# _colony_log <event> <key=val pairs...>
 # Appends a timestamped JSON line to ${COLONY_BASE}/clone-events.log
 _colony_log() {
   local event="$1" && shift
-  echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"event\":\"${event}\",$@}" >> "${COLONY_BASE}/clone-events.log"
+  python3 -c "
+import json,sys
+obj={'timestamp':sys.argv[1],'event':sys.argv[2]}
+for a in sys.argv[3:]:
+  k,v=a.split('=',1)
+  try: obj[k]=json.loads(v)
+  except: obj[k]=v
+print(json.dumps(obj))
+" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$event" "$@" >> "${COLONY_BASE}/clone-events.log" 2>/dev/null || true
 }
 
 # colony_clone_create <source_dir> <session_name> <agent_id>
@@ -53,7 +61,7 @@ colony_clone_create() {
 
   local elapsed_ms=$(( ($(date +%s%N) - start_ns) / 1000000 ))
   local clone_bytes=$(du -sb "${clone_dir}" | cut -f1)
-  _colony_log "clone_created" "\"source\":\"${source}\",\"session\":\"${session_name}\",\"agent_id\":\"${agent_id}\",\"clone_dir\":\"${clone_dir}\",\"elapsed_ms\":${elapsed_ms},\"clone_bytes\":${clone_bytes}"
+  _colony_log "clone_created" "source=${source}" "session=${session_name}" "agent_id=${agent_id}" "clone_dir=${clone_dir}" "elapsed_ms=${elapsed_ms}" "clone_bytes=${clone_bytes}"
 
   # Return the clone path on stdout
   echo "${clone_dir}"
@@ -76,14 +84,14 @@ colony_clone_verify() {
   # Check path is under COLONY_BASE (SC-COL-12)
   if [[ "${resolved_dir}" != "${COLONY_BASE}"/* ]]; then
     echo "ERROR: Clone directory not under ${COLONY_BASE}/: ${resolved_dir}" >&2
-    _colony_log "clone_verified" "\"clone_dir\":\"${clone_dir}\",\"valid\":false"
+    _colony_log "clone_verified" "clone_dir=${clone_dir}" "valid=false"
     return 1
   fi
 
   # Check .git exists (SC-COL-12)
   if [[ ! -d "${clone_dir}/.git" ]]; then
     echo "ERROR: No .git directory in ${clone_dir}" >&2
-    _colony_log "clone_verified" "\"clone_dir\":\"${clone_dir}\",\"valid\":false"
+    _colony_log "clone_verified" "clone_dir=${clone_dir}" "valid=false"
     return 1
   fi
 
@@ -92,11 +100,11 @@ colony_clone_verify() {
   push_url="$(git -C "${clone_dir}" remote get-url --push origin 2>/dev/null || true)"
   if [[ "${push_url}" != "no-push" ]]; then
     echo "ERROR: Push URL is not 'no-push': ${push_url}" >&2
-    _colony_log "clone_verified" "\"clone_dir\":\"${clone_dir}\",\"valid\":false"
+    _colony_log "clone_verified" "clone_dir=${clone_dir}" "valid=false"
     return 1
   fi
 
-  _colony_log "clone_verified" "\"clone_dir\":\"${clone_dir}\",\"valid\":true"
+  _colony_log "clone_verified" "clone_dir=${clone_dir}" "valid=true"
   return 0
 }
 
@@ -115,7 +123,7 @@ colony_clone_has_commits() {
   local commit_count
   commit_count="$(git -C "${clone_dir}" log --oneline origin/main..HEAD 2>/dev/null | wc -l)"
 
-  _colony_log "clone_commit_check" "\"clone_dir\":\"${clone_dir}\",\"commit_count\":${commit_count}"
+  _colony_log "clone_commit_check" "clone_dir=${clone_dir}" "commit_count=${commit_count}"
 
   if [[ "${commit_count}" -ge 1 ]]; then
     return 0
@@ -152,7 +160,7 @@ colony_clone_prune() {
 
   rm -rf "${clone_dir}"
   local elapsed_ms=$(( ($(date +%s%N) - start_ns) / 1000000 ))
-  _colony_log "clone_pruned" "\"clone_dir\":\"${clone_dir}\",\"bridge_synced\":${bridge_synced},\"elapsed_ms\":${elapsed_ms}"
+  _colony_log "clone_pruned" "clone_dir=${clone_dir}" "bridge_synced=${bridge_synced}" "elapsed_ms=${elapsed_ms}"
   return 0
 }
 
@@ -181,11 +189,11 @@ colony_clone_recover_output() {
 
   if [[ "${found}" -eq 0 ]]; then
     echo "WARNING: No output files found in ${clone_dir}" >&2
-    _colony_log "clone_output_recovered" "\"clone_dir\":\"${clone_dir}\",\"task_id\":\"${task_id}\",\"output_bytes\":0"
+    _colony_log "clone_output_recovered" "clone_dir=${clone_dir}" "task_id=${task_id}" "output_bytes=0"
     return 1
   fi
 
   local output_bytes=$(du -sb "${recover_dir}" | cut -f1)
-  _colony_log "clone_output_recovered" "\"clone_dir\":\"${clone_dir}\",\"task_id\":\"${task_id}\",\"output_bytes\":${output_bytes}"
+  _colony_log "clone_output_recovered" "clone_dir=${clone_dir}" "task_id=${task_id}" "output_bytes=${output_bytes}"
   return 0
 }
