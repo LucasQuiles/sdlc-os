@@ -28,6 +28,7 @@
 
 import { bridgeUpdateBead, bridgeCommitBeadUpdate } from './bridge.js';
 import type { BridgeInput } from './bridge.js';
+import { basename } from 'node:path';
 
 // ---------------------------------------------------------------------------
 // Argument parsing
@@ -117,7 +118,7 @@ function main(): void {
   const commitResult = bridgeCommitBeadUpdate(
     parsed.projectDir,
     parsed.beadFile,
-    '', // beadId extracted from file by bridge if needed
+    basename(parsed.beadFile, '.md'), // beadId extracted from filename
     parsed.loopLevel,
     parsed.expectedBranch,
   );
