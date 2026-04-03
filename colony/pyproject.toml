@@ -1,0 +1,18 @@
+[project]
+name = "sdlc-os-colony"
+version = "0.0.1"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["."]
+python_files = ["*_test.py"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.black]
+target-version = ["py312"]
