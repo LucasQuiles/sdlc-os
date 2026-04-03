@@ -436,7 +436,7 @@ describe('bridgeUpdateBead', () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('SC-COL-26');
-    expect(result.error).toContain('Could not resolve remote ref');
+    expect(result.error).toContain('SC-COL-26: could not resolve remote ref');
   });
 
   it('SC-COL-26: allows L1 advancement without commit check', () => {
