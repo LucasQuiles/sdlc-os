@@ -35,8 +35,11 @@ from deacon import (
     STALE_LOCK_TIMEOUT_S,
     BRIDGE_STALE_TIMEOUT_S,
     COLONY_BASE,
+    CONDUCTOR_TIMEOUT_DISPATCH_S,
+    CONDUCTOR_TIMEOUT_SYNTHESIZE_S,
     _is_bridge_lock_stale,
     _parse_conductor_output,
+    _self_watchdog_task,
 )
 
 
@@ -393,6 +396,42 @@ class TestRecoverStaleClaims:
         conn.close()
         assert row[0] == "pending"
 
+    def test_path_traversal_prefix_attack_blocked(self, deacon: Deacon) -> None:
+        """clone_dir like /tmp/sdlc-colony-evil/task should be blocked by is_relative_to().
+
+        This verifies the fix for the str.startswith() bypass where a path like
+        /tmp/sdlc-colony-evil/ would pass startswith('/tmp/sdlc-colony')
+        but correctly fails is_relative_to().
+        """
+        conn = sqlite3.connect(deacon.db_path)
+        old_time = time.strftime(
+            "%Y-%m-%dT%H:%M:%SZ",
+            time.gmtime(time.time() - 600),
+        )
+        conn.execute(
+            "INSERT INTO agents (id, status, last_heartbeat_at) VALUES (?, ?, ?)",
+            ("agent-4", "active", old_time),
+        )
+        conn.execute(
+            """INSERT INTO tasks (id, status, owner, sdlc_loop_level, retry_count, max_retries, clone_dir)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            ("task-prefix", "claimed", "agent-4", "L0", 0, 3, "/tmp/sdlc-colony-evil/task"),
+        )
+        conn.commit()
+        conn.close()
+
+        # Should recover the task but skip file operations (path traversal blocked)
+        recovered = deacon.recover_stale_claims()
+        assert recovered == 1
+
+        # Task should still be reset to pending
+        conn = sqlite3.connect(deacon.db_path)
+        row = conn.execute(
+            "SELECT status FROM tasks WHERE id = ?", ("task-prefix",)
+        ).fetchone()
+        conn.close()
+        assert row[0] == "pending"
+
 
 class TestBridgeLockStaleness:
     def test_no_bridge_lock_is_stale(self) -> None:
@@ -433,3 +472,30 @@ class TestParseOutput:
         mock_proc.communicate.assert_called_once_with(timeout=10)
         # stdout.read should NOT be called
         mock_proc.stdout.read.assert_not_called()
+
+
+class TestActiveSessionType:
+    def test_default_session_type_is_dispatch(self, deacon: Deacon) -> None:
+        """Default active_session_type should be DISPATCH."""
+        assert deacon.active_session_type == "DISPATCH"
+
+    def test_spawn_conductor_sets_session_type(self, deacon: Deacon) -> None:
+        """spawn_conductor should set active_session_type."""
+        with patch("deacon.subprocess.Popen") as mock_popen:
+            mock_proc = MagicMock()
+            mock_proc.pid = 12345
+            mock_popen.return_value = mock_proc
+
+            deacon.spawn_conductor("SYNTHESIZE")
+            assert deacon.active_session_type == "SYNTHESIZE"
+
+    def test_synthesize_timeout_is_longer(self) -> None:
+        """SYNTHESIZE timeout should be longer than DISPATCH."""
+        assert CONDUCTOR_TIMEOUT_SYNTHESIZE_S > CONDUCTOR_TIMEOUT_DISPATCH_S
+
+
+class TestSelfWatchdogTask:
+    def test_watchdog_is_coroutine(self) -> None:
+        """_self_watchdog_task should be an async coroutine function."""
+        import asyncio
+        assert asyncio.iscoroutinefunction(_self_watchdog_task)

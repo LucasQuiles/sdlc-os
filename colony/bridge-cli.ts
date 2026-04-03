@@ -130,8 +130,8 @@ function main(): void {
     parsed.taskId,
   );
 
-  // Step 3: Mark bridge_synced if commit succeeded and taskId + dbPath provided
-  if (commitResult.success && parsed.taskId && parsed.dbPath) {
+  // Step 3: Mark bridge_synced only on successful advancement (not corrections)
+  if (commitResult.success && beadResult.action === 'advanced' && parsed.taskId && parsed.dbPath) {
     try {
       markBridgeSynced(parsed.dbPath, parsed.taskId);
     } catch (err) {
