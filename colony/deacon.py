@@ -90,6 +90,24 @@ class Deacon:
     active_session_type: str = "DISPATCH"
     _last_timer_fire: float = field(default_factory=time.monotonic)
     _spawn_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+    _conductor_start_time: float = 0.0
+    _bridge_deferral_count: int = 0
+    _bridge_deferral_start: float = 0.0
+
+    # -- State transition helper -----------------------------------------------
+
+    def _transition_to(self, new_state: DeaconState, trigger: str) -> None:
+        """Log and execute a state machine transition."""
+        old_state = self.state
+        elapsed = time.monotonic() - self._last_timer_fire
+        log.info(
+            "state_transition old=%s new=%s elapsed_s=%.1f trigger=%s",
+            old_state.value,
+            new_state.value,
+            elapsed,
+            trigger,
+        )
+        self.state = new_state
 
     # -- Lock helpers --------------------------------------------------------
 
@@ -243,7 +261,8 @@ class Deacon:
 
         self.conductor_process = proc
         self.active_session_type = session_type
-        self.state = DeaconState.CONDUCTING
+        self._conductor_start_time = time.monotonic()
+        self._transition_to(DeaconState.CONDUCTING, f"spawn_conductor:{session_type}")
         return proc
 
     def _build_conductor_command(self, session_type: str, prompt_text: str) -> list[str]:
@@ -296,7 +315,7 @@ class Deacon:
         SC-COL-20: Uses per-domain heartbeat thresholds based on cynefin_domain.
         Returns count of recovered tasks.
         """
-        self.state = DeaconState.RECOVERING
+        self._transition_to(DeaconState.RECOVERING, "recover_stale_claims")
         recovered = 0
 
         try:
@@ -334,7 +353,30 @@ class Deacon:
                     threshold_s = self._get_heartbeat_threshold(
                         candidate["description"]
                     )
-                    if now - heartbeat_epoch > threshold_s:
+                    actual_elapsed_s = now - heartbeat_epoch
+                    # Extract domain for logging
+                    _domain = "unknown"
+                    if candidate["description"]:
+                        try:
+                            _desc = json.loads(candidate["description"])
+                            _domain = _desc.get("cynefin_domain", "unknown")
+                        except (json.JSONDecodeError, AttributeError):
+                            pass
+                    log.debug(
+                        "heartbeat_check domain=%s threshold_s=%d actual_elapsed_s=%.1f task=%s",
+                        _domain,
+                        threshold_s,
+                        actual_elapsed_s,
+                        candidate["id"],
+                    )
+                    if actual_elapsed_s > threshold_s:
+                        log.info(
+                            "heartbeat_stale domain=%s threshold_s=%d actual_elapsed_s=%.1f task=%s",
+                            _domain,
+                            threshold_s,
+                            actual_elapsed_s,
+                            candidate["id"],
+                        )
                         stale.append(candidate)
 
                 for task in stale:
@@ -402,7 +444,7 @@ class Deacon:
             except (ValueError, OSError):
                 LOCK_FILE.unlink(missing_ok=True)
 
-        self.state = DeaconState.WATCHING
+        self._transition_to(DeaconState.WATCHING, "recovery_complete")
         return recovered
 
 
@@ -430,6 +472,8 @@ async def _self_watchdog_task(deacon: Deacon) -> None:
     while True:
         await asyncio.sleep(TIMER_INTERVAL_S)
         elapsed = time.monotonic() - deacon._last_timer_fire
+        if elapsed > 60 and elapsed <= WATCHDOG_SELF_TIMEOUT_S:
+            log.warning("watchdog_near_miss elapsed_s=%.1f threshold_s=90", elapsed)
         if elapsed > WATCHDOG_SELF_TIMEOUT_S:
             log.error(
                 "Self-watchdog triggered: timer hasn't fired in %.0fs (>%ds), sending SIGTERM",
@@ -476,12 +520,12 @@ async def run_deacon(deacon: Deacon) -> None:
                     ret = proc.poll()
                     if ret is not None:
                         # Conductor exited
-                        await asyncio.to_thread(_parse_conductor_output, proc)
+                        await asyncio.to_thread(_parse_conductor_output, proc, deacon)
                         deacon.conductor_process = None
                         LOCK_FILE.unlink(missing_ok=True)
                         log.info("Conductor exited with code %d, debouncing", ret)
                         await asyncio.sleep(DEBOUNCE_S)
-                        deacon.state = DeaconState.WATCHING
+                        deacon._transition_to(DeaconState.WATCHING, f"conductor_exit:{ret}")
 
                     else:
                         # SC-COL-05: Check wall-clock timeout
@@ -506,7 +550,7 @@ async def run_deacon(deacon: Deacon) -> None:
                 pass
 
 
-def _parse_conductor_output(proc: subprocess.Popen[bytes]) -> None:
+def _parse_conductor_output(proc: subprocess.Popen[bytes], deacon: Deacon | None = None) -> None:
     """Parse JSON output from Conductor for cost tracking."""
     try:
         # Use communicate() instead of stdout.read() to avoid deadlock
@@ -517,19 +561,41 @@ def _parse_conductor_output(proc: subprocess.Popen[bytes]) -> None:
             cost = data.get("total_cost_usd", 0.0)
             log.info("Conductor session %s cost $%.4f", session_id, cost)
 
+            # Compute wall clock time
+            wall_clock_s = 0.0
+            if deacon is not None and deacon._conductor_start_time > 0:
+                wall_clock_s = time.monotonic() - deacon._conductor_start_time
+
+            # Collect bead_ids from DB
+            bead_ids: list[str] = []
+            if deacon is not None:
+                try:
+                    conn = deacon._connect()
+                    try:
+                        rows = conn.execute(
+                            "SELECT bead_id FROM tasks WHERE bead_id IS NOT NULL"
+                        ).fetchall()
+                        bead_ids = [r["bead_id"] for r in rows]
+                    finally:
+                        conn.close()
+                except sqlite3.Error:
+                    log.exception("Failed to fetch bead_ids for session log")
+
+            # Build log record
+            record: dict[str, Any] = {
+                "session_id": session_id,
+                "total_cost_usd": cost,
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "session_type": deacon.active_session_type if deacon else "unknown",
+                "exit_code": proc.returncode,
+                "wall_clock_s": round(wall_clock_s, 1),
+                "bead_ids": bead_ids,
+            }
+
             # Append to session log
             log_path = Path(__file__).parent / "colony-sessions.log"
             with open(log_path, "a") as f:
-                f.write(
-                    json.dumps(
-                        {
-                            "session_id": session_id,
-                            "total_cost_usd": cost,
-                            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                        }
-                    )
-                    + "\n"
-                )
+                f.write(json.dumps(record) + "\n")
     except subprocess.TimeoutExpired:
         log.warning("Timeout reading conductor output, killing process")
         proc.kill()
@@ -588,15 +654,29 @@ def _check_conductor_timeout(deacon: Deacon) -> None:
                 timeout = CONDUCTOR_TIMEOUT_SYNTHESIZE_S if deacon.active_session_type == "SYNTHESIZE" else CONDUCTOR_TIMEOUT_DISPATCH_S
 
                 if elapsed > timeout:
-                    log.warning("Conductor timeout after %.0fs", elapsed)
+                    log.warning(
+                        "conductor_timeout elapsed_s=%.1f session_type=%s timeout_threshold_s=%d",
+                        elapsed,
+                        deacon.active_session_type,
+                        timeout,
+                    )
                     # SC-COL-06: Check bridge lock before SIGTERM
                     # Use staleness check so dead bridge processes don't block forever
                     if BRIDGE_LOCK_FILE.exists() and not _is_bridge_lock_stale():
+                        deacon._bridge_deferral_count += 1
+                        if deacon._bridge_deferral_start == 0.0:
+                            deacon._bridge_deferral_start = time.monotonic()
+                        total_wait = time.monotonic() - deacon._bridge_deferral_start
                         log.warning(
-                            "Bridge lock active, waiting for bridge to finish"
+                            "bridge_lock_deferral deferral_count=%d total_wait_s=%.1f",
+                            deacon._bridge_deferral_count,
+                            total_wait,
                         )
                         return
 
+                    # Reset deferral counters on actual termination
+                    deacon._bridge_deferral_count = 0
+                    deacon._bridge_deferral_start = 0.0
                     proc.terminate()  # SIGTERM
                     try:
                         proc.communicate(timeout=5)
@@ -605,7 +685,7 @@ def _check_conductor_timeout(deacon: Deacon) -> None:
                         proc.communicate()
                     deacon._release_lock()
                     deacon.conductor_process = None
-                    deacon.state = DeaconState.RECOVERING
+                    deacon._transition_to(DeaconState.RECOVERING, "conductor_timeout")
         except (ValueError, OSError):
             pass
 
@@ -652,6 +732,7 @@ async def watch_db_changes(deacon: Deacon) -> None:
                 )
             except asyncio.TimeoutError:
                 # Safety net: check anyway on timeout
+                log.info("timer_fallback reason=no_inotify_events")
                 if deacon.state == DeaconState.WATCHING:
                     async with deacon._spawn_lock:
                         work = deacon.check_for_work()
@@ -664,6 +745,7 @@ async def watch_db_changes(deacon: Deacon) -> None:
                 break
 
             # Drain buffer -- read any additional lines without blocking
+            drain_count = 1  # count the initial line
             while True:
                 try:
                     extra = await asyncio.wait_for(
@@ -671,8 +753,10 @@ async def watch_db_changes(deacon: Deacon) -> None:
                     )
                     if not extra:
                         break
+                    drain_count += 1
                 except asyncio.TimeoutError:
                     break
+            log.debug("inotify_drain count=%d", drain_count)
 
             # Check for work after draining
             if deacon.state == DeaconState.WATCHING:
