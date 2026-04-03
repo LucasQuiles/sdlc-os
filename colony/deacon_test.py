@@ -9,20 +9,35 @@ Covers:
 - Stale lock detected (dead PID + old timestamp)
 - recover_stale_claims resets stale claimed tasks
 - spawn_conductor command string validation (M5)
+- Lock file stores Conductor PID (not Deacon PID)
+- Lock file written after Popen (not before)
+- Bridge lock staleness check
+- Path traversal prevention in recover_stale_claims
+- Self-watchdog measures previous iteration, not current
+- _parse_conductor_output uses communicate() (no deadlock)
 """
 
 from __future__ import annotations
 
 import os
 import sqlite3
-import tempfile
 import time
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
 
-from deacon import Deacon, DeaconState, LOCK_FILE, STALE_LOCK_TIMEOUT_S
+from deacon import (
+    Deacon,
+    DeaconState,
+    LOCK_FILE,
+    BRIDGE_LOCK_FILE,
+    STALE_LOCK_TIMEOUT_S,
+    BRIDGE_STALE_TIMEOUT_S,
+    COLONY_BASE,
+    _is_bridge_lock_stale,
+    _parse_conductor_output,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -75,11 +90,13 @@ def deacon(tmp_db: str, tmp_path: Path) -> Deacon:
 
 
 @pytest.fixture(autouse=True)
-def clean_lock_file() -> None:
-    """Ensure no stale lock file between tests."""
+def clean_lock_files() -> None:
+    """Ensure no stale lock files between tests."""
     LOCK_FILE.unlink(missing_ok=True)
+    BRIDGE_LOCK_FILE.unlink(missing_ok=True)
     yield  # type: ignore[misc]
     LOCK_FILE.unlink(missing_ok=True)
+    BRIDGE_LOCK_FILE.unlink(missing_ok=True)
 
 
 # ---------------------------------------------------------------------------
@@ -224,6 +241,7 @@ class TestSpawnConductor:
         """spawn_conductor should transition to CONDUCTING state."""
         with patch("deacon.subprocess.Popen") as mock_popen:
             mock_proc = MagicMock()
+            mock_proc.pid = 12345
             mock_popen.return_value = mock_proc
 
             deacon.spawn_conductor("DISPATCH")
@@ -231,10 +249,12 @@ class TestSpawnConductor:
             assert deacon.state == DeaconState.CONDUCTING
             assert deacon.conductor_process is mock_proc
 
-    def test_writes_lock_file(self, deacon: Deacon) -> None:
-        """spawn_conductor should write lock file."""
+    def test_writes_lock_file_with_conductor_pid(self, deacon: Deacon) -> None:
+        """spawn_conductor should write lock file with Conductor PID (not Deacon PID)."""
         with patch("deacon.subprocess.Popen") as mock_popen:
-            mock_popen.return_value = MagicMock()
+            mock_proc = MagicMock()
+            mock_proc.pid = 12345
+            mock_popen.return_value = mock_proc
 
             deacon.spawn_conductor("DISPATCH")
 
@@ -242,12 +262,25 @@ class TestSpawnConductor:
             content = LOCK_FILE.read_text().strip()
             lines = content.split("\n")
             assert len(lines) == 2
-            assert int(lines[0]) == os.getpid()
+            # CRITICAL 1 fix: lock file stores Conductor PID, not Deacon PID
+            assert int(lines[0]) == 12345
+
+    def test_lock_not_written_on_popen_failure(self, deacon: Deacon) -> None:
+        """If Popen raises, no lock file should be left behind (CRITICAL 4)."""
+        with patch("deacon.subprocess.Popen") as mock_popen:
+            mock_popen.side_effect = OSError("spawn failed")
+
+            with pytest.raises(OSError, match="spawn failed"):
+                deacon.spawn_conductor("DISPATCH")
+
+            assert not LOCK_FILE.exists()
 
     def test_stdin_devnull(self, deacon: Deacon) -> None:
         """spawn_conductor should pass stdin=DEVNULL."""
         with patch("deacon.subprocess.Popen") as mock_popen:
-            mock_popen.return_value = MagicMock()
+            mock_proc = MagicMock()
+            mock_proc.pid = 12345
+            mock_popen.return_value = mock_proc
 
             deacon.spawn_conductor("DISPATCH")
 
@@ -328,3 +361,75 @@ class TestRecoverStaleClaims:
     def test_no_stale_tasks(self, deacon: Deacon) -> None:
         """No stale tasks should return 0."""
         assert deacon.recover_stale_claims() == 0
+
+    def test_path_traversal_blocked(self, deacon: Deacon) -> None:
+        """clone_dir outside COLONY_BASE should be skipped with warning."""
+        conn = sqlite3.connect(deacon.db_path)
+        old_time = time.strftime(
+            "%Y-%m-%dT%H:%M:%SZ",
+            time.gmtime(time.time() - 600),
+        )
+        conn.execute(
+            "INSERT INTO agents (id, status, last_heartbeat_at) VALUES (?, ?, ?)",
+            ("agent-3", "active", old_time),
+        )
+        conn.execute(
+            """INSERT INTO tasks (id, status, owner, sdlc_loop_level, retry_count, max_retries, clone_dir)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            ("task-traversal", "claimed", "agent-3", "L0", 0, 3, "/etc/passwd/../../../tmp/evil"),
+        )
+        conn.commit()
+        conn.close()
+
+        # Should still recover the task (reset status) but skip file operations
+        recovered = deacon.recover_stale_claims()
+        assert recovered == 1
+
+        # Task should still be reset to pending
+        conn = sqlite3.connect(deacon.db_path)
+        row = conn.execute(
+            "SELECT status FROM tasks WHERE id = ?", ("task-traversal",)
+        ).fetchone()
+        conn.close()
+        assert row[0] == "pending"
+
+
+class TestBridgeLockStaleness:
+    def test_no_bridge_lock_is_stale(self) -> None:
+        """No bridge lock file means stale (safe to proceed)."""
+        assert _is_bridge_lock_stale() is True
+
+    def test_live_bridge_lock_not_stale(self) -> None:
+        """Bridge lock with live PID and fresh timestamp is not stale."""
+        BRIDGE_LOCK_FILE.write_text(f"{os.getpid()}\n{time.time()}\n")
+        assert _is_bridge_lock_stale() is False
+
+    def test_dead_pid_bridge_lock_is_stale(self) -> None:
+        """Bridge lock with dead PID is stale."""
+        BRIDGE_LOCK_FILE.write_text(f"99999999\n{time.time()}\n")
+        assert _is_bridge_lock_stale() is True
+
+    def test_old_timestamp_bridge_lock_is_stale(self) -> None:
+        """Bridge lock with old timestamp is stale even if PID is alive."""
+        old_time = time.time() - BRIDGE_STALE_TIMEOUT_S - 10
+        BRIDGE_LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
+        assert _is_bridge_lock_stale() is True
+
+    def test_malformed_bridge_lock_is_stale(self) -> None:
+        """Malformed bridge lock file is treated as stale."""
+        BRIDGE_LOCK_FILE.write_text("garbage\n")
+        assert _is_bridge_lock_stale() is True
+
+
+class TestParseOutput:
+    def test_uses_communicate(self) -> None:
+        """_parse_conductor_output should use communicate() not stdout.read()."""
+        mock_proc = MagicMock()
+        mock_proc.communicate.return_value = (b'{"session_id": "s1", "total_cost_usd": 1.5}', b"")
+
+        with patch("builtins.open", MagicMock()):
+            _parse_conductor_output(mock_proc)
+
+        mock_proc.communicate.assert_called_once_with(timeout=10)
+        # stdout.read should NOT be called
+        mock_proc.stdout.read.assert_not_called()

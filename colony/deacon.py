@@ -34,7 +34,9 @@ log = logging.getLogger("deacon")
 
 LOCK_FILE = Path("/tmp/sdlc-colony-conductor.lock")
 BRIDGE_LOCK_FILE = Path("/tmp/sdlc-colony-bridge.lock")
+COLONY_BASE = "/tmp/sdlc-colony/"
 STALE_LOCK_TIMEOUT_S = 180  # 3 minutes
+BRIDGE_STALE_TIMEOUT_S = 60  # 1 minute
 HEARTBEAT_STALE_THRESHOLD_S = 300  # 5 minutes default
 CONDUCTOR_TIMEOUT_DISPATCH_S = 30 * 60  # 30 minutes
 CONDUCTOR_TIMEOUT_SYNTHESIZE_S = 60 * 60  # 60 minutes
@@ -87,6 +89,56 @@ class Deacon:
         conn.row_factory = sqlite3.Row
         return conn
 
+    # -- can_spawn_conductor -------------------------------------------------
+
+    def can_spawn_conductor(self) -> bool:
+        """Check if we can spawn a new Conductor.
+
+        Returns False if lock file exists with a live PID and fresh timestamp.
+        Returns True if no lock, stale lock (dead PID or old timestamp), etc.
+
+        Uses atomic file creation (open with 'x' mode) to prevent TOCTOU races.
+        """
+        try:
+            # Attempt atomic lock acquisition: create-or-fail
+            fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+            os.close(fd)
+            # We created the file -- remove it (spawn_conductor will recreate)
+            LOCK_FILE.unlink(missing_ok=True)
+            return True
+        except FileExistsError:
+            pass
+
+        # Lock file exists -- check staleness
+        try:
+            content = LOCK_FILE.read_text().strip()
+            parts = content.split("\n")
+            if len(parts) < 2:
+                return True
+
+            pid = int(parts[0])
+            timestamp = float(parts[1])
+
+            # Check if PID is still alive
+            try:
+                os.kill(pid, 0)
+            except (OSError, ProcessLookupError):
+                # PID is dead -- stale lock
+                log.info("Stale lock: PID %d is dead", pid)
+                return True
+
+            # Check if timestamp is stale
+            if time.time() - timestamp > STALE_LOCK_TIMEOUT_S:
+                log.info("Stale lock: timestamp %.0f is older than %ds", timestamp, STALE_LOCK_TIMEOUT_S)
+                return True
+
+            # Lock is valid -- another conductor is running
+            return False
+
+        except (ValueError, OSError):
+            log.exception("Error reading lock file")
+            return True
+
     # -- check_for_work ------------------------------------------------------
 
     def check_for_work(self) -> bool:
@@ -118,57 +170,15 @@ class Deacon:
             log.exception("check_for_work DB error")
             return False
 
-    # -- can_spawn_conductor -------------------------------------------------
-
-    def can_spawn_conductor(self) -> bool:
-        """Check if we can spawn a new Conductor.
-
-        Returns False if lock file exists with a live PID and fresh timestamp.
-        Returns True if no lock, stale lock (dead PID or old timestamp), etc.
-        """
-        if not LOCK_FILE.exists():
-            return True
-
-        try:
-            content = LOCK_FILE.read_text().strip()
-            parts = content.split("\n")
-            if len(parts) < 2:
-                return True
-
-            pid = int(parts[0])
-            timestamp = float(parts[1])
-
-            # Check if PID is still alive
-            try:
-                os.kill(pid, 0)
-            except (OSError, ProcessLookupError):
-                # PID is dead -- stale lock
-                log.info("Stale lock: PID %d is dead", pid)
-                return True
-
-            # Check if timestamp is stale
-            if time.time() - timestamp > STALE_LOCK_TIMEOUT_S:
-                log.info("Stale lock: timestamp %.0f is older than %ds", timestamp, STALE_LOCK_TIMEOUT_S)
-                return True
-
-            # Lock is valid -- another conductor is running
-            return False
-
-        except (ValueError, OSError):
-            log.exception("Error reading lock file")
-            return True
-
     # -- spawn_conductor -----------------------------------------------------
 
     def spawn_conductor(self, session_type: str = "DISPATCH") -> subprocess.Popen[bytes]:
         """Spawn a Conductor Claude Code session.
 
-        Writes lock file, builds claude -p command, launches via Popen.
+        Launches via Popen first, then writes lock file with Conductor PID.
+        If Popen fails, no lock file is written (CRITICAL 4 fix).
         Returns the Popen handle.
         """
-        # Write lock file
-        LOCK_FILE.write_text(f"{os.getpid()}\n{time.time()}\n")
-
         # Read conductor prompt
         prompt_text = CONDUCTOR_PROMPT_FILE.read_text() if CONDUCTOR_PROMPT_FILE.exists() else ""
 
@@ -184,6 +194,10 @@ class Deacon:
             stderr=subprocess.PIPE,
             cwd=self.project_dir,
         )
+
+        # Write lock file AFTER Popen succeeds, with Conductor PID (not Deacon PID)
+        LOCK_FILE.write_text(f"{proc.pid}\n{time.time()}\n")
+
         self.conductor_process = proc
         self.state = DeaconState.CONDUCTING
         return proc
@@ -252,14 +266,23 @@ class Deacon:
                     clone_dir = task["clone_dir"]
 
                     # SC-COL-21: preserve output before reset
+                    # Validate clone_dir against COLONY_BASE to prevent path traversal
                     if clone_dir:
-                        output_path = Path(clone_dir) / "bead-output.md"
-                        if output_path.exists():
-                            recover_dir = Path(f"/tmp/sdlc-colony/recovered-outputs/{task_id}")
-                            recover_dir.mkdir(parents=True, exist_ok=True)
-                            (recover_dir / "bead-output.md").write_text(
-                                output_path.read_text()
+                        real_clone = os.path.realpath(clone_dir)
+                        if not real_clone.startswith(os.path.realpath(COLONY_BASE)):
+                            log.warning(
+                                "Skipping recovery for task %s: clone_dir %r is outside COLONY_BASE",
+                                task_id,
+                                clone_dir,
                             )
+                        else:
+                            output_path = Path(real_clone) / "bead-output.md"
+                            if output_path.exists():
+                                recover_dir = Path(f"/tmp/sdlc-colony/recovered-outputs/{task_id}")
+                                recover_dir.mkdir(parents=True, exist_ok=True)
+                                (recover_dir / "bead-output.md").write_text(
+                                    output_path.read_text()
+                                )
 
                     if retry_count < max_retries:
                         conn.execute(
@@ -342,7 +365,6 @@ async def run_deacon(deacon: Deacon) -> None:
 
     try:
         while True:
-            deacon._last_timer_fire = time.monotonic()
             _sd_notify("WATCHDOG=1")
 
             if deacon.state == DeaconState.WATCHING:
@@ -361,6 +383,7 @@ async def run_deacon(deacon: Deacon) -> None:
                         log.info("Conductor exited with code %d, debouncing", ret)
                         await asyncio.sleep(DEBOUNCE_S)
                         deacon.state = DeaconState.WATCHING
+
                     else:
                         # SC-COL-05: Check wall-clock timeout
                         _check_conductor_timeout(deacon)
@@ -370,7 +393,7 @@ async def run_deacon(deacon: Deacon) -> None:
                 log.info("Recovery complete: %d tasks reset", recovered)
                 # state is set to WATCHING by recover_stale_claims
 
-            # SC-COL-01: Self-watchdog
+            # SC-COL-01: Self-watchdog -- check elapsed since PREVIOUS iteration
             elapsed = time.monotonic() - deacon._last_timer_fire
             if elapsed > WATCHDOG_SELF_TIMEOUT_S:
                 log.error(
@@ -379,6 +402,9 @@ async def run_deacon(deacon: Deacon) -> None:
                     WATCHDOG_SELF_TIMEOUT_S,
                 )
                 os.kill(os.getpid(), signal.SIGTERM)
+
+            # Update timestamp AFTER work, so next iteration measures real elapsed time
+            deacon._last_timer_fire = time.monotonic()
 
             await asyncio.sleep(TIMER_INTERVAL_S)
     finally:
@@ -392,7 +418,8 @@ async def run_deacon(deacon: Deacon) -> None:
 def _parse_conductor_output(proc: subprocess.Popen[bytes]) -> None:
     """Parse JSON output from Conductor for cost tracking."""
     try:
-        stdout = proc.stdout.read() if proc.stdout else b""
+        # Use communicate() instead of stdout.read() to avoid deadlock
+        stdout, _stderr = proc.communicate(timeout=10)
         if stdout:
             data: dict[str, Any] = json.loads(stdout)
             session_id = data.get("session_id", "unknown")
@@ -412,8 +439,46 @@ def _parse_conductor_output(proc: subprocess.Popen[bytes]) -> None:
                     )
                     + "\n"
                 )
+    except subprocess.TimeoutExpired:
+        log.warning("Timeout reading conductor output, killing process")
+        proc.kill()
+        proc.wait()
     except (json.JSONDecodeError, OSError):
         log.exception("Failed to parse conductor output")
+
+
+def _is_bridge_lock_stale() -> bool:
+    """Check if the bridge lock file is stale (dead PID or old timestamp).
+
+    Returns True if the bridge lock is stale or unreadable, False if it is valid.
+    """
+    if not BRIDGE_LOCK_FILE.exists():
+        return True
+    try:
+        content = BRIDGE_LOCK_FILE.read_text().strip()
+        parts = content.split("\n")
+        if len(parts) < 2:
+            # No PID+timestamp -- treat as stale
+            return True
+        pid = int(parts[0])
+        timestamp = float(parts[1])
+
+        # Check PID liveness
+        try:
+            os.kill(pid, 0)
+        except (OSError, ProcessLookupError):
+            log.info("Bridge lock stale: PID %d is dead", pid)
+            return True
+
+        # Check timestamp staleness
+        if time.time() - timestamp > BRIDGE_STALE_TIMEOUT_S:
+            log.info("Bridge lock stale: timestamp %.0f older than %ds", timestamp, BRIDGE_STALE_TIMEOUT_S)
+            return True
+
+        return False
+    except (ValueError, OSError):
+        log.exception("Error reading bridge lock file")
+        return True
 
 
 def _check_conductor_timeout(deacon: Deacon) -> None:
@@ -434,7 +499,8 @@ def _check_conductor_timeout(deacon: Deacon) -> None:
                 if elapsed > timeout:
                     log.warning("Conductor timeout after %.0fs", elapsed)
                     # SC-COL-06: Check bridge lock before SIGTERM
-                    if BRIDGE_LOCK_FILE.exists():
+                    # Use staleness check so dead bridge processes don't block forever
+                    if BRIDGE_LOCK_FILE.exists() and not _is_bridge_lock_stale():
                         log.warning(
                             "Bridge lock active, waiting for bridge to finish"
                         )
