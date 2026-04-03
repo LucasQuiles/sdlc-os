@@ -518,3 +518,13 @@ When all beads are proven, hardened (or AQS-skipped), and merged:
 | Architect | sonnet-designer + safety-analyst (if STPA applies) | haiku-verifier | — | — | Choose approach, create bead manifest |
 | Execute | sonnet-implementer (parallel OK) or tmup-managed Codex lanes (when warm context / interactive supervision helps) + crossmodel-supervisor (if FFT-14) | haiku-verifier + drift-detector + convention-enforcer + simplicity-auditor + safety-constraints-guardian | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
 | Synthesize | sonnet-reviewer + gap-analyst (Finisher) + normalizer (Final Pass) + losa-observer + reliability-ledger + llm-self-security | haiku-handoff | oracle L1+L2+L3 (integration) | fitness report (full, includes Conventions) | Merge results, deliver |
+
+## Colony Mode (tmup Multi-Agent Dispatch)
+
+If tmup is available, the Conductor uses colony dispatch for parallel worker execution in isolated git clones. Detection happens after Phase 3 (Architect) produces the bead manifest.
+
+**Detection:** Call `tmup_status`. If it returns a valid session, use colony dispatch per `colony-mode.md`. If no session exists (or tmup plugin is not loaded), use sync Agent tool dispatch as described above.
+
+**Backward compatible.** All sync behavior is preserved. Colony mode is purely additive — it changes how beads are dispatched and evaluated, not the bead structure, loop mechanics, or quality system. The same phases, roles, and correction loops apply in both modes.
+
+See `colony-mode.md` for the full colony dispatch sequence, `colony/conductor-prompt.md` for Conductor session protocol.
