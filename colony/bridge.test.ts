@@ -182,6 +182,28 @@ describe('bridgeUpdateBead', () => {
     expect(result.action).toBe('skipped');
   });
 
+  it('Adversarial A1: skipped action means no git commit is attempted', () => {
+    // When bead is already at target status, bridgeUpdateBead returns {action: 'skipped'}.
+    // bridge-cli must NOT call bridgeCommitBeadUpdate in this case.
+    // We verify the invariant at the bridgeUpdateBead level: skipped result is
+    // success=true with action='skipped', so bridge-cli will short-circuit.
+    const beadPath = writeBeadFile(beadDir, SUBMITTED_BEAD);
+    writeValidOutput(cloneDir);
+
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: true,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.action).toBe('skipped');
+    // Verify the bead file was NOT modified (no write occurred)
+    const content = readFileSync(beadPath, 'utf-8');
+    expect(content).toBe(SUBMITTED_BEAD);
+  });
+
   it('SC-COL-22: rejects missing bead-output.md', () => {
     const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
     // No output file written to cloneDir

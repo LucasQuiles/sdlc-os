@@ -120,6 +120,14 @@ function main(): void {
     process.exit(1);
   }
 
+  // Adversarial A1: If bead is already at target status, skip commit entirely.
+  // bridgeUpdateBead returns {action: 'skipped'} when bead is already at or beyond
+  // the target status. Attempting git commit on an unmodified file would fail.
+  if (beadResult.action === 'skipped') {
+    process.stdout.write(JSON.stringify({ beadUpdate: beadResult }, null, 2) + '\n');
+    process.exit(0);
+  }
+
   // Step 2: Commit the bead update to git
   const commitResult = bridgeCommitBeadUpdate(
     parsed.projectDir,
