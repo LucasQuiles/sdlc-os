@@ -78,6 +78,7 @@ class Deacon:
     expected_branch: str = "main"
     state: DeaconState = DeaconState.WATCHING
     conductor_process: subprocess.Popen[bytes] | None = None
+    active_session_type: str = "DISPATCH"
     _last_timer_fire: float = field(default_factory=time.monotonic)
 
     # -- DB helpers ----------------------------------------------------------
@@ -199,6 +200,7 @@ class Deacon:
         LOCK_FILE.write_text(f"{proc.pid}\n{time.time()}\n")
 
         self.conductor_process = proc
+        self.active_session_type = session_type
         self.state = DeaconState.CONDUCTING
         return proc
 
@@ -269,10 +271,9 @@ class Deacon:
                     # Validate clone_dir against COLONY_BASE to prevent path traversal
                     if clone_dir:
                         real_clone = os.path.realpath(clone_dir)
-                        if not real_clone.startswith(os.path.realpath(COLONY_BASE)):
+                        if not Path(real_clone).is_relative_to(Path(os.path.realpath(COLONY_BASE))):
                             log.warning(
-                                "Skipping recovery for task %s: clone_dir %r is outside COLONY_BASE",
-                                task_id,
+                                "Path traversal blocked: %s",
                                 clone_dir,
                             )
                         else:
@@ -344,6 +345,24 @@ def _sd_notify(msg: str) -> None:
         pass
 
 
+async def _self_watchdog_task(deacon: Deacon) -> None:
+    """SC-COL-01: Independent self-watchdog coroutine.
+
+    Runs as a separate asyncio task so it can fire even if the main loop blocks.
+    Checks that deacon._last_timer_fire has been updated within WATCHDOG_SELF_TIMEOUT_S.
+    """
+    while True:
+        await asyncio.sleep(TIMER_INTERVAL_S)
+        elapsed = time.monotonic() - deacon._last_timer_fire
+        if elapsed > WATCHDOG_SELF_TIMEOUT_S:
+            log.error(
+                "Self-watchdog triggered: timer hasn't fired in %.0fs (>%ds), sending SIGTERM",
+                elapsed,
+                WATCHDOG_SELF_TIMEOUT_S,
+            )
+            os.kill(os.getpid(), signal.SIGTERM)
+
+
 async def run_deacon(deacon: Deacon) -> None:
     """Main Deacon async event loop.
 
@@ -360,8 +379,9 @@ async def run_deacon(deacon: Deacon) -> None:
         deacon.conductor_budget,
     )
 
-    # Launch inotifywait watcher as concurrent task
+    # Launch inotifywait watcher and self-watchdog as concurrent tasks
     watcher_task = asyncio.create_task(watch_db_changes(deacon))
+    watchdog_task = asyncio.create_task(_self_watchdog_task(deacon))
 
     try:
         while True:
@@ -377,7 +397,7 @@ async def run_deacon(deacon: Deacon) -> None:
                     ret = proc.poll()
                     if ret is not None:
                         # Conductor exited
-                        _parse_conductor_output(proc)
+                        await asyncio.to_thread(_parse_conductor_output, proc)
                         deacon.conductor_process = None
                         LOCK_FILE.unlink(missing_ok=True)
                         log.info("Conductor exited with code %d, debouncing", ret)
@@ -393,26 +413,18 @@ async def run_deacon(deacon: Deacon) -> None:
                 log.info("Recovery complete: %d tasks reset", recovered)
                 # state is set to WATCHING by recover_stale_claims
 
-            # SC-COL-01: Self-watchdog -- check elapsed since PREVIOUS iteration
-            elapsed = time.monotonic() - deacon._last_timer_fire
-            if elapsed > WATCHDOG_SELF_TIMEOUT_S:
-                log.error(
-                    "Self-watchdog triggered: timer hasn't fired in %.0fs (>%ds), sending SIGTERM",
-                    elapsed,
-                    WATCHDOG_SELF_TIMEOUT_S,
-                )
-                os.kill(os.getpid(), signal.SIGTERM)
-
-            # Update timestamp AFTER work, so next iteration measures real elapsed time
+            # Update timestamp AFTER work, so watchdog task measures real elapsed time
             deacon._last_timer_fire = time.monotonic()
 
             await asyncio.sleep(TIMER_INTERVAL_S)
     finally:
         watcher_task.cancel()
-        try:
-            await watcher_task
-        except asyncio.CancelledError:
-            pass
+        watchdog_task.cancel()
+        for task in (watcher_task, watchdog_task):
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
 
 
 def _parse_conductor_output(proc: subprocess.Popen[bytes]) -> None:
@@ -494,7 +506,7 @@ def _check_conductor_timeout(deacon: Deacon) -> None:
             if len(parts) >= 2:
                 start_time = float(parts[1])
                 elapsed = time.time() - start_time
-                timeout = CONDUCTOR_TIMEOUT_DISPATCH_S  # default
+                timeout = CONDUCTOR_TIMEOUT_SYNTHESIZE_S if deacon.active_session_type == "SYNTHESIZE" else CONDUCTOR_TIMEOUT_DISPATCH_S
 
                 if elapsed > timeout:
                     log.warning("Conductor timeout after %.0fs", elapsed)
