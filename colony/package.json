@@ -1,0 +1,19 @@
+{
+  "name": "@sdlc-os/colony",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.4",
+    "vitest": "^3.0",
+    "@types/node": "^22"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0"
+  }
+}

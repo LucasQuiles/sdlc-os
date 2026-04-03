@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.js
+*.d.ts
+*.js.map
+__pycache__/
+.pytest_cache/
+*.pyc
