@@ -991,3 +991,44 @@ class TestBehavioralWatchdog:
             asyncio.run(_self_watchdog_task_once(deacon))
 
         assert deacon.state == DeaconState.CONDUCTING  # 100 < 3700, no trigger
+
+
+class TestEscalation:
+    """SC-COL-36: Bead failure tracking, blacklisting, and escalation."""
+
+    def test_three_failures_triggers_blacklist(self, tmp_db: str, tmp_path: Path) -> None:
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        bead = "bead-001"
+        now = time.time()
+        deacon._bead_failure_counts[bead] = [now - 60, now - 30, now]
+        deacon._evaluate_escalation(bead, "test error")
+        assert bead in deacon._blacklisted_beads
+
+    def test_blacklist_excludes_from_work(self, tmp_db: str, tmp_path: Path) -> None:
+        conn = sqlite3.connect(tmp_db)
+        conn.execute(
+            "INSERT INTO tasks (id, status, sdlc_loop_level, bead_id) VALUES (?, ?, ?, ?)",
+            ("t1", "pending", "L0", "bead-blocked"),
+        )
+        conn.commit()
+        conn.close()
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        deacon._blacklisted_beads.add("bead-blocked")
+        assert deacon.check_for_work() is False
+
+    def test_sigusr1_clears_blacklist(self, tmp_db: str, tmp_path: Path) -> None:
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        deacon._blacklisted_beads.add("bead-x")
+        deacon._clear_blacklist()
+        assert len(deacon._blacklisted_beads) == 0
+
+    def test_dead_letter_on_alert_timeout(self, tmp_db: str, tmp_path: Path) -> None:
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        dl_path = tmp_path / "escalation-deadletter.jsonl"
+        import asyncio
+        with patch.dict(os.environ, {"ESCALATION_DEADLETTER": str(dl_path)}):
+            with patch("asyncio.create_subprocess_exec", side_effect=OSError("fail")):
+                asyncio.run(deacon._send_escalation_alert("bead-x", "err"))
+        assert dl_path.exists()
+        data = json.loads(dl_path.read_text().strip())
+        assert data["bead_id"] == "bead-x"
