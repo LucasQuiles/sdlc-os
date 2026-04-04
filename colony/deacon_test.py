@@ -30,6 +30,8 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
+import shutil
+
 from deacon import (
     log,
     Deacon,
@@ -50,6 +52,7 @@ from deacon import (
     _check_conductor_timeout,
     _self_watchdog_task,
     _self_watchdog_task_once,
+    _rotate_log,
 )
 
 
@@ -1032,3 +1035,88 @@ class TestEscalation:
         assert dl_path.exists()
         data = json.loads(dl_path.read_text().strip())
         assert data["bead_id"] == "bead-x"
+
+
+class TestClonePruning:
+    """SC-COL-31: Prune stale clone directories."""
+
+    def test_prune_synced_clone(self, tmp_db: str, tmp_path: Path) -> None:
+        """Synced completed clone with no active tasks should be pruned."""
+        colony_base = tmp_path / "colony"
+        colony_base.mkdir()
+        clone = colony_base / "clone-1"
+        clone.mkdir()
+        conn = sqlite3.connect(tmp_db)
+        conn.execute(
+            "INSERT INTO tasks (id, status, bead_id, bridge_synced, clone_dir, sdlc_loop_level) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            ("t1", "completed", "b1", 1, str(clone), "L0"),
+        )
+        conn.commit()
+        conn.close()
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        import deacon as deacon_mod
+        with patch.object(deacon_mod, "COLONY_BASE", str(colony_base) + "/"):
+            deacon._prune_stale_clones()
+        assert not clone.exists()
+
+    def test_refuse_if_active_tasks_remain(self, tmp_db: str, tmp_path: Path) -> None:
+        """Clone shared by active task should NOT be pruned."""
+        colony_base = tmp_path / "colony"
+        colony_base.mkdir()
+        clone = colony_base / "clone-shared"
+        clone.mkdir()
+        conn = sqlite3.connect(tmp_db)
+        conn.execute(
+            "INSERT INTO tasks (id, status, bead_id, bridge_synced, clone_dir, sdlc_loop_level) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            ("t1", "completed", "b1", 1, str(clone), "L0"),
+        )
+        conn.execute(
+            "INSERT INTO tasks (id, status, bead_id, bridge_synced, clone_dir, sdlc_loop_level) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            ("t2", "claimed", "b2", 0, str(clone), "L1"),
+        )
+        conn.commit()
+        conn.close()
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        import deacon as deacon_mod
+        with patch.object(deacon_mod, "COLONY_BASE", str(colony_base) + "/"):
+            deacon._prune_stale_clones()
+        assert clone.exists()  # NOT pruned
+
+    def test_24h_age_override(self, tmp_db: str, tmp_path: Path) -> None:
+        """Clone older than 24h should be pruned even if not synced."""
+        colony_base = tmp_path / "colony"
+        colony_base.mkdir()
+        clone = colony_base / "clone-old"
+        clone.mkdir()
+        # Set mtime to 25h ago
+        old_time = time.time() - 25 * 3600
+        os.utime(str(clone), (old_time, old_time))
+        conn = sqlite3.connect(tmp_db)
+        conn.execute(
+            "INSERT INTO tasks (id, status, bead_id, bridge_synced, clone_dir, sdlc_loop_level) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            ("t1", "completed", "b1", 0, str(clone), "L0"),  # NOT synced
+        )
+        conn.commit()
+        conn.close()
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        import deacon as deacon_mod
+        with patch.object(deacon_mod, "COLONY_BASE", str(colony_base) + "/"):
+            deacon._prune_stale_clones()
+        assert not clone.exists()  # pruned by age
+
+    def test_log_rotation(self, tmp_path: Path) -> None:
+        """Log file exceeding 10MB should be truncated."""
+        log_file = tmp_path / "colony-sessions.log"
+        # Write >10MB as many lines
+        line = "x" * 200 + "\n"
+        num_lines = (11 * 1024 * 1024) // len(line) + 1
+        log_file.write_text(line * num_lines)
+        assert os.path.getsize(str(log_file)) > 10 * 1024 * 1024
+        _rotate_log(str(log_file), max_bytes=10 * 1024 * 1024, keep_lines=1000)
+        content = log_file.read_text()
+        assert len(content) < 10 * 1024 * 1024
+        assert content.count("\n") == 1000
