@@ -102,6 +102,11 @@ Similarly, Phase 4.5 Harden (L2.75) runs inline in the Conductor.
 
 After AQS and Harden complete inline, call the bridge CLI to update the bead status to `hardened` then `reliability-proven`.
 
+### Cross-Model Review (FFT-14)
+After AQS completes for a bead, evaluate FFT-14 from `references/fft-decision-trees.md`:
+- If FFT-14 returns **FULL** or **TARGETED**: invoke `sdlc-os:sdlc-crossmodel` with the bead context and AQS structured exit block. Codex workers are dispatched via `tmup_dispatch` with `worker_type: codex`. The `crossmodel-triage` agent deduplicates findings against same-model AQS results. Net-new findings are HIGH priority corrections — route to blue team defenders before advancing bead to `hardened`.
+- If FFT-14 returns **SKIP** or **SKIP_UNAVAILABLE**: proceed directly to `hardened`. Log decision in bead decision trace.
+
 ### SYNTHESIZE
 
 **Trigger:** All beads have reached terminal status (reliability-proven or merged).
