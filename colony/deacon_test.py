@@ -49,6 +49,7 @@ from deacon import (
     _parse_conductor_output,
     _check_conductor_timeout,
     _self_watchdog_task,
+    _self_watchdog_task_once,
 )
 
 
@@ -965,3 +966,28 @@ class TestWatchdogNearMiss:
         deacon._last_timer_fire = time.monotonic() - 50
         elapsed = time.monotonic() - deacon._last_timer_fire
         assert elapsed <= 60, "Should not trigger near-miss at 50s"
+
+
+class TestBehavioralWatchdog:
+    """SC-COL-35: Watchdog forces RECOVERING if state exceeds max duration."""
+
+    def test_watchdog_forces_recovering_on_state_timeout(self, tmp_db: str, tmp_path: Path) -> None:
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        deacon._state_entered_at = time.monotonic() - 5000  # far in the past
+        deacon.state = DeaconState.CONDUCTING
+
+        import asyncio
+        asyncio.run(_self_watchdog_task_once(deacon))
+
+        assert deacon.state == DeaconState.RECOVERING
+
+    def test_watchdog_respects_configurable_threshold(self, tmp_db: str, tmp_path: Path) -> None:
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        deacon._state_entered_at = time.monotonic() - 100  # only 100s
+        deacon.state = DeaconState.CONDUCTING
+
+        import asyncio
+        with patch.dict(os.environ, {"WATCHDOG_MAX_STATE_DURATION_S": "3700"}):
+            asyncio.run(_self_watchdog_task_once(deacon))
+
+        assert deacon.state == DeaconState.CONDUCTING  # 100 < 3700, no trigger

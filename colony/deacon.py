@@ -53,6 +53,9 @@ CONDUCTOR_TIMEOUT_SYNTHESIZE_S = 60 * 60  # 60 minutes
 DEBOUNCE_S = 2.0
 TIMER_INTERVAL_S = 60
 WATCHDOG_SELF_TIMEOUT_S = 90  # SC-COL-01
+WATCHDOG_MAX_STATE_DURATION_S = int(
+    os.environ.get("WATCHDOG_MAX_STATE_DURATION_S", str(CONDUCTOR_TIMEOUT_SYNTHESIZE_S + 300))
+)
 CONDUCTOR_PROMPT_FILE = Path(__file__).parent / "conductor-prompt.md"
 TMUP_PLUGIN_DIR = Path("/home/q/.claude/plugins/tmup")
 SDLC_PLUGIN_DIR = Path("/home/q/.claude/plugins/sdlc-os")
@@ -484,14 +487,35 @@ def _sd_notify(msg: str) -> None:
         pass
 
 
+async def _self_watchdog_task_once(deacon: Deacon) -> None:
+    """Single watchdog iteration (for testing)."""
+    # SC-COL-35: time-in-state check
+    max_dur = int(
+        os.environ.get(
+            "WATCHDOG_MAX_STATE_DURATION_S", str(CONDUCTOR_TIMEOUT_SYNTHESIZE_S + 300)
+        )
+    )
+    state_elapsed = time.monotonic() - deacon._state_entered_at
+    if state_elapsed > max_dur:
+        log.warning(
+            "watchdog_state_timeout state=%s elapsed_s=%.1f max_s=%.1f",
+            deacon.state.value,
+            state_elapsed,
+            float(max_dur),
+        )
+        deacon._transition_to(DeaconState.RECOVERING, "watchdog_state_timeout")
+
+
 async def _self_watchdog_task(deacon: Deacon) -> None:
-    """SC-COL-01: Independent self-watchdog coroutine.
+    """SC-COL-01 + SC-COL-35: Independent self-watchdog coroutine.
 
     Runs as a separate asyncio task so it can fire even if the main loop blocks.
     Checks that deacon._last_timer_fire has been updated within WATCHDOG_SELF_TIMEOUT_S.
+    Also checks time-in-state to force RECOVERING if stuck too long.
     """
     while True:
         await asyncio.sleep(TIMER_INTERVAL_S)
+        # SC-COL-01: timer-fire liveness
         elapsed = time.monotonic() - deacon._last_timer_fire
         if elapsed > 60 and elapsed <= WATCHDOG_SELF_TIMEOUT_S:
             log.warning("watchdog_near_miss elapsed_s=%.1f threshold_s=90", elapsed)
@@ -502,6 +526,9 @@ async def _self_watchdog_task(deacon: Deacon) -> None:
                 WATCHDOG_SELF_TIMEOUT_S,
             )
             os.kill(os.getpid(), signal.SIGTERM)
+
+        # SC-COL-35: time-in-state check
+        await _self_watchdog_task_once(deacon)
 
 
 async def run_deacon(deacon: Deacon) -> None:
