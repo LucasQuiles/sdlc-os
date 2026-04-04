@@ -137,5 +137,56 @@ else
   echo "  (no bridge log found at ${BRIDGE_LOG})"
 fi
 
+# ---------------------------------------------------------------------------
+# Per-Bead Cost, Completion Rate, Wall Clock Percentiles (spec 3.6)
+# ---------------------------------------------------------------------------
+
+echo "--- Per-Bead Cost & Completion ---"
+
+if [[ -f "$SESSIONS_LOG" ]]; then
+  python3 -c "
+import json, sys
+from collections import defaultdict
+
+bead_costs = defaultdict(float)
+dispatched = set()
+merged = set()
+wall_clocks = []
+
+for line in open('${SESSIONS_LOG}'):
+    line = line.strip()
+    if not line: continue
+    try:
+        data = json.loads(line)
+        bead_ids = data.get('bead_ids', [])
+        cost = data.get('total_cost_usd', 0)
+        st = data.get('session_type', '')
+        wc = data.get('wall_clock_s', 0)
+        if isinstance(wc, (int, float)) and wc > 0:
+            wall_clocks.append(wc)
+        if st == 'DISPATCH': dispatched.update(bead_ids)
+        elif st == 'SYNTHESIZE': merged.update(bead_ids)
+        if bead_ids and isinstance(cost, (int, float)):
+            share = cost / len(bead_ids)
+            for b in bead_ids:
+                bead_costs[b] += share
+    except: continue
+
+if bead_costs:
+    print('Per-bead costs:')
+    for b, c in sorted(bead_costs.items(), key=lambda x: -x[1]):
+        print(f'  {b}: \${c:.2f}')
+
+rate = len(merged) / len(dispatched) if dispatched else 0
+print(f'Completion rate: {rate:.1%} ({len(merged)}/{len(dispatched)})')
+
+if wall_clocks:
+    wall_clocks.sort()
+    p50 = wall_clocks[len(wall_clocks)//2]
+    p95 = wall_clocks[int(len(wall_clocks)*0.95)]
+    print(f'Wall clock p50: {p50:.0f}s  p95: {p95:.0f}s')
+" 2>/dev/null || echo "  (parse error)"
+fi
+
 echo ""
 echo "--- End of Report ---"
