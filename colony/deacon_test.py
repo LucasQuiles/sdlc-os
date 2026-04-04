@@ -1037,6 +1037,86 @@ class TestEscalation:
         assert data["bead_id"] == "bead-x"
 
 
+class TestSynthesizeTimeout:
+    """SC-COL-05: SYNTHESIZE uses 60-min timeout, not 30-min."""
+
+    def test_synthesize_timeout_is_60min(self, tmp_db: str, tmp_path: Path) -> None:
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        deacon.active_session_type = SessionType.SYNTHESIZE
+
+        # Mock conductor running for 35 min -- should NOT be killed
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None
+        mock_proc.pid = 99999
+        deacon.conductor_process = mock_proc
+        deacon._conductor_start_time = time.monotonic() - 35 * 60
+
+        # Write lock file with start time 35 min ago
+        LOCK_FILE.write_text(f"99999\n{time.time() - 35 * 60}\n")
+        try:
+            _check_conductor_timeout(deacon)
+            mock_proc.terminate.assert_not_called()  # 35 min < 60 min
+        finally:
+            LOCK_FILE.unlink(missing_ok=True)
+
+    def test_synthesize_timeout_triggers_at_60min(self, tmp_db: str, tmp_path: Path) -> None:
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        deacon.active_session_type = SessionType.SYNTHESIZE
+
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None
+        mock_proc.pid = 99999
+        mock_proc.communicate.return_value = (b'{}', b'')
+        deacon.conductor_process = mock_proc
+        deacon._conductor_start_time = time.monotonic() - 61 * 60
+
+        LOCK_FILE.write_text(f"99999\n{time.time() - 61 * 60}\n")
+        try:
+            with patch("deacon._parse_conductor_output"):
+                _check_conductor_timeout(deacon)
+            mock_proc.terminate.assert_called_once()
+        finally:
+            LOCK_FILE.unlink(missing_ok=True)
+
+    def test_dispatch_timeout_at_31min_fires(self, tmp_db: str, tmp_path: Path) -> None:
+        """DISPATCH session at 31 min should fire (existing behavior)."""
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        deacon.active_session_type = SessionType.DISPATCH
+
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None
+        mock_proc.pid = 99999
+        mock_proc.communicate.return_value = (b'{}', b'')
+        deacon.conductor_process = mock_proc
+        deacon._conductor_start_time = time.monotonic() - 31 * 60
+
+        LOCK_FILE.write_text(f"99999\n{time.time() - 31 * 60}\n")
+        try:
+            with patch("deacon._parse_conductor_output"):
+                _check_conductor_timeout(deacon)
+            mock_proc.terminate.assert_called_once()
+        finally:
+            LOCK_FILE.unlink(missing_ok=True)
+
+    def test_synthesize_at_31min_does_not_fire(self, tmp_db: str, tmp_path: Path) -> None:
+        """SYNTHESIZE session at 31 min should NOT fire."""
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        deacon.active_session_type = SessionType.SYNTHESIZE
+
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None
+        mock_proc.pid = 99999
+        deacon.conductor_process = mock_proc
+        deacon._conductor_start_time = time.monotonic() - 31 * 60
+
+        LOCK_FILE.write_text(f"99999\n{time.time() - 31 * 60}\n")
+        try:
+            _check_conductor_timeout(deacon)
+            mock_proc.terminate.assert_not_called()
+        finally:
+            LOCK_FILE.unlink(missing_ok=True)
+
+
 class TestClonePruning:
     """SC-COL-31: Prune stale clone directories."""
 
