@@ -156,6 +156,8 @@ class Deacon:
     _bridge_deferral_count: int = 0
     _bridge_deferral_start: float = 0.0
     _db: sqlite3.Connection | None = None
+    _bead_failure_counts: dict[str, list[float]] = field(default_factory=dict)
+    _blacklisted_beads: set[str] = field(default_factory=set)
 
     # -- State transition helper -----------------------------------------------
 
@@ -199,6 +201,61 @@ class Deacon:
             except sqlite3.Error:
                 pass
             self._db = None
+
+    # -- Escalation helpers (SC-COL-36) ---------------------------------------
+
+    def _record_bead_failure(self, bead_ids: list[str], error: str) -> None:
+        """Record failure timestamps per bead. Trigger escalation at 3 within 1 hour."""
+        now = time.time()
+        for bead_id in bead_ids:
+            timestamps = self._bead_failure_counts.setdefault(bead_id, [])
+            timestamps.append(now)
+            # Keep only last hour
+            cutoff = now - 3600
+            self._bead_failure_counts[bead_id] = [t for t in timestamps if t > cutoff]
+            if len(self._bead_failure_counts[bead_id]) >= 3:
+                self._evaluate_escalation(bead_id, error)
+
+    def _evaluate_escalation(self, bead_id: str, error: str) -> None:
+        """Blacklist bead and fire async alert."""
+        self._blacklisted_beads.add(bead_id)
+        log.warning("bead_blacklisted bead_id=%s reason=3_failures_1h", bead_id)
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(self._send_escalation_alert(bead_id, error))
+        except RuntimeError:
+            # No running event loop (called from sync context / tests)
+            pass
+
+    async def _send_escalation_alert(self, bead_id: str, error: str) -> None:
+        """SC-COL-36: Non-blocking alert. Dead-letter on failure."""
+        dl_path = os.environ.get(
+            "ESCALATION_DEADLETTER",
+            os.path.expanduser("~/agents/lab/escalation-deadletter.jsonl"),
+        )
+        record = {"bead_id": bead_id, "error": error, "timestamp": time.time()}
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "curl", "-sf", "-X", "POST",
+                "-H", "Content-Type: application/json",
+                "-d", json.dumps({"text": f"Colony escalation: bead {bead_id} failed 3x: {error}"}),
+                os.environ.get("ESCALATION_WEBHOOK_URL", "http://localhost:9999/noop"),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+            await asyncio.wait_for(proc.wait(), timeout=10)
+            if proc.returncode != 0:
+                raise RuntimeError(f"curl exit {proc.returncode}")
+        except Exception:
+            log.warning("escalation_deadletter bead_id=%s", bead_id)
+            with open(dl_path, "a") as f:
+                f.write(json.dumps(record) + "\n")
+
+    def _clear_blacklist(self) -> None:
+        """SIGUSR1 handler target: clear blacklist and failure counts."""
+        self._blacklisted_beads.clear()
+        self._bead_failure_counts.clear()
+        log.info("blacklist_cleared")
 
     # -- can_spawn_conductor -------------------------------------------------
 
@@ -247,6 +304,24 @@ class Deacon:
                 """
             ).fetchone()
             if row and row["cnt"] > 0:
+                # SC-COL-36: If blacklisted beads exist, re-check excluding them
+                if self._blacklisted_beads:
+                    placeholders = ",".join("?" * len(self._blacklisted_beads))
+                    row2 = conn.execute(
+                        f"""
+                        SELECT COUNT(*) as cnt FROM tasks
+                        WHERE sdlc_loop_level IS NOT NULL
+                          AND (bead_id IS NULL OR bead_id NOT IN ({placeholders}))
+                          AND (
+                            status = 'pending'
+                            OR (status = 'completed' AND bridge_synced = 0)
+                            OR status = 'needs_review'
+                          )
+                        """,
+                        tuple(self._blacklisted_beads),
+                    ).fetchone()
+                    if not (row2 and row2["cnt"] > 0):
+                        return False
                 return True
 
             # Check if all colony beads are terminal (completed/cancelled)
@@ -572,6 +647,19 @@ async def run_deacon(deacon: Deacon) -> None:
                         deacon.conductor_process = None
                         LOCK_FILE.unlink(missing_ok=True)
                         log.info("Conductor exited with code %d, debouncing", ret)
+                        # SC-COL-36: Record bead failures on non-zero exit
+                        if ret != 0:
+                            try:
+                                conn = deacon._get_db()
+                                bead_rows = conn.execute(
+                                    "SELECT DISTINCT bead_id FROM tasks "
+                                    "WHERE bead_id IS NOT NULL AND sdlc_loop_level IS NOT NULL"
+                                ).fetchall()
+                                bead_ids = [r["bead_id"] for r in bead_rows]
+                                if bead_ids:
+                                    deacon._record_bead_failure(bead_ids, f"conductor_exit:{ret}")
+                            except sqlite3.Error:
+                                log.exception("Failed to record bead failure")
                         await asyncio.sleep(DEBOUNCE_S)
                         deacon._transition_to(DeaconState.WATCHING, f"conductor_exit:{ret}")
 
@@ -863,6 +951,13 @@ def main() -> None:
         deacon.state = DeaconState.RECOVERING
 
     signal.signal(signal.SIGUSR2, _sigusr2_handler)
+
+    # SIGUSR1 handler -> clear blacklist
+    def _sigusr1_handler(signum: int, frame: Any) -> None:
+        log.info("SIGUSR1 received, clearing blacklist")
+        deacon._clear_blacklist()
+
+    signal.signal(signal.SIGUSR1, _sigusr1_handler)
 
     asyncio.run(run_deacon(deacon))
 
