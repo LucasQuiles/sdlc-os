@@ -57,6 +57,7 @@ WATCHDOG_SELF_TIMEOUT_S = 90  # SC-COL-01
 WATCHDOG_MAX_STATE_DURATION_S = int(
     os.environ.get("WATCHDOG_MAX_STATE_DURATION_S", str(CONDUCTOR_TIMEOUT_SYNTHESIZE_S + 300))
 )
+BEAD_COST_CEILING_USD = float(os.environ.get("BEAD_COST_CEILING_USD", "50.0"))
 CONDUCTOR_PROMPT_FILE = Path(__file__).parent / "conductor-prompt.md"
 TMUP_PLUGIN_DIR = Path("/home/q/.claude/plugins/tmup")
 SDLC_PLUGIN_DIR = Path("/home/q/.claude/plugins/sdlc-os")
@@ -372,6 +373,31 @@ class Deacon:
         # Lock file exists -- check staleness via shared helper
         return _is_lock_stale(LOCK_FILE, STALE_LOCK_TIMEOUT_S)
 
+    # -- Cost aggregation -----------------------------------------------------
+
+    def _aggregate_bead_cost(self, bead_id: str, log_path: str | None = None) -> float:
+        """Sum cost attributed to bead_id across all sessions. Cost apportioned equally."""
+        if log_path is None:
+            log_path = str(Path(__file__).parent / "colony-sessions.log")
+        total = 0.0
+        try:
+            with open(log_path) as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        data = json.loads(line)
+                        bead_ids = data.get("bead_ids", [])
+                        cost = data.get("total_cost_usd", 0.0)
+                        if bead_id in bead_ids and len(bead_ids) > 0:
+                            total += cost / len(bead_ids)
+                    except json.JSONDecodeError:
+                        continue
+        except FileNotFoundError:
+            pass
+        return total
+
     # -- check_for_work ------------------------------------------------------
 
     def check_for_work(self) -> str | bool:
@@ -396,6 +422,17 @@ class Deacon:
                 """
             ).fetchone()
             if row and row["cnt"] > 0:
+                # Cost ceiling check -- blacklist beads exceeding budget
+                bead_rows = conn.execute(
+                    "SELECT DISTINCT bead_id FROM tasks WHERE sdlc_loop_level IS NOT NULL "
+                    "AND bead_id IS NOT NULL AND status = 'pending'"
+                ).fetchall()
+                for br in bead_rows:
+                    bid = br["bead_id"]
+                    if bid not in self._blacklisted_beads and self._aggregate_bead_cost(bid) >= BEAD_COST_CEILING_USD:
+                        self._blacklisted_beads.add(bid)
+                        log.warning("bead_cost_ceiling bead_id=%s", bid)
+
                 # SC-COL-36: If blacklisted beads exist, re-check excluding them
                 if self._blacklisted_beads:
                     placeholders = ",".join("?" * len(self._blacklisted_beads))
@@ -637,6 +674,35 @@ class Deacon:
 
         self._transition_to(DeaconState.WATCHING, "recovery_complete")
         return recovered
+
+
+# ---------------------------------------------------------------------------
+# Completion metrics (spec 3.6)
+# ---------------------------------------------------------------------------
+
+
+def bead_completion_rate(log_path: str | None = None) -> float:
+    """Compute beads_merged / beads_dispatched from session log."""
+    if log_path is None:
+        log_path = str(Path(__file__).parent / "colony-sessions.log")
+    dispatched: set[str] = set()
+    merged: set[str] = set()
+    try:
+        with open(log_path) as f:
+            for line in f:
+                try:
+                    data = json.loads(line.strip())
+                    bead_ids = data.get("bead_ids", [])
+                    st = data.get("session_type", "")
+                    if st == "DISPATCH":
+                        dispatched.update(bead_ids)
+                    elif st == "SYNTHESIZE":
+                        merged.update(bead_ids)
+                except (json.JSONDecodeError, AttributeError):
+                    continue
+    except FileNotFoundError:
+        pass
+    return len(merged) / len(dispatched) if dispatched else 0.0
 
 
 # ---------------------------------------------------------------------------

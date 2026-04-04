@@ -53,6 +53,8 @@ from deacon import (
     _self_watchdog_task,
     _self_watchdog_task_once,
     _rotate_log,
+    bead_completion_rate,
+    BEAD_COST_CEILING_USD,
 )
 
 
@@ -1200,3 +1202,87 @@ class TestClonePruning:
         content = log_file.read_text()
         assert len(content) < 10 * 1024 * 1024
         assert content.count("\n") == 1000
+
+
+# ---------------------------------------------------------------------------
+# Helpers for Task 6 tests
+# ---------------------------------------------------------------------------
+
+
+def _create_test_db(db_path: str) -> None:
+    """Create a minimal tmup-like SQLite DB for standalone tests."""
+    conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS agents (
+            id TEXT PRIMARY KEY,
+            status TEXT DEFAULT 'idle',
+            last_heartbeat_at TEXT
+        );
+        CREATE TABLE IF NOT EXISTS tasks (
+            id TEXT PRIMARY KEY,
+            title TEXT,
+            status TEXT DEFAULT 'pending',
+            owner TEXT REFERENCES agents(id),
+            claimed_at TEXT,
+            retry_count INTEGER DEFAULT 0,
+            max_retries INTEGER DEFAULT 3,
+            sdlc_loop_level TEXT,
+            bridge_synced INTEGER DEFAULT 0,
+            clone_dir TEXT,
+            description TEXT,
+            bead_id TEXT
+        );
+        """
+    )
+    conn.commit()
+    conn.close()
+
+
+# ---------------------------------------------------------------------------
+# T6 Tests: Completion Metrics + Cost Ceiling (spec 3.6)
+# ---------------------------------------------------------------------------
+
+
+class TestCompletionMetrics:
+    def test_aggregate_bead_cost(self, tmp_path: Path) -> None:
+        log_path = tmp_path / "colony-sessions.log"
+        log_path.write_text(
+            json.dumps({"total_cost_usd": 10.0, "bead_ids": ["b1", "b2"]}) + "\n"
+            + json.dumps({"total_cost_usd": 6.0, "bead_ids": ["b1"]}) + "\n"
+        )
+        db_path = str(tmp_path / "tasks.db")
+        _create_test_db(db_path)
+        deacon = Deacon(db_path=db_path, project_dir=str(tmp_path))
+        # b1: 10/2 + 6/1 = 11.0
+        cost = deacon._aggregate_bead_cost("b1", str(log_path))
+        assert cost == 11.0
+
+    def test_cost_ceiling_blocks_bead(self, tmp_path: Path) -> None:
+        log_path = tmp_path / "colony-sessions.log"
+        log_path.write_text(
+            json.dumps({"total_cost_usd": 55.0, "bead_ids": ["b-expensive"]}) + "\n"
+        )
+        db_path = str(tmp_path / "tasks.db")
+        _create_test_db(db_path)
+        conn = sqlite3.connect(db_path)
+        conn.execute(
+            "INSERT INTO tasks (id, status, sdlc_loop_level, bead_id) VALUES (?, ?, ?, ?)",
+            ("t1", "pending", "L0", "b-expensive"),
+        )
+        conn.commit()
+        conn.close()
+        deacon = Deacon(db_path=db_path, project_dir=str(tmp_path))
+        with patch.object(deacon, "_aggregate_bead_cost", return_value=55.0):
+            work = deacon.check_for_work()
+        assert "b-expensive" in deacon._blacklisted_beads
+
+    def test_bead_completion_rate(self, tmp_path: Path) -> None:
+        log_path = tmp_path / "colony-sessions.log"
+        log_path.write_text(
+            json.dumps({"session_type": "DISPATCH", "bead_ids": ["b1", "b2", "b3"]}) + "\n"
+            + json.dumps({"session_type": "SYNTHESIZE", "bead_ids": ["b1", "b2"]}) + "\n"
+        )
+        rate = bead_completion_rate(str(log_path))
+        assert abs(rate - 2 / 3) < 0.01
