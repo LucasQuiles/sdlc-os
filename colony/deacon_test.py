@@ -46,8 +46,10 @@ from deacon import (
     CONDUCTOR_TIMEOUT_SYNTHESIZE_S,
     HEARTBEAT_THRESHOLDS,
     WATCHDOG_SELF_TIMEOUT_S,
+    MAX_BRIDGE_DEFERRAL_COUNT,
     _is_lock_stale,
     _is_bridge_lock_stale,
+    watch_db_changes,
     _parse_conductor_output,
     _check_conductor_timeout,
     _self_watchdog_task,
@@ -202,14 +204,14 @@ class TestCheckForWork:
         """All bead tasks completed+synced should return 'synthesize'."""
         conn = sqlite3.connect(deacon.db_path)
         conn.execute(
-            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
-               VALUES (?, ?, ?, ?)""",
-            ("task-s1", "completed", "bead-001", 1),
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level)
+               VALUES (?, ?, ?, ?, ?)""",
+            ("task-s1", "completed", "bead-001", 1, "L0"),
         )
         conn.execute(
-            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
-               VALUES (?, ?, ?, ?)""",
-            ("task-s2", "cancelled", "bead-002", 1),
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level)
+               VALUES (?, ?, ?, ?, ?)""",
+            ("task-s2", "cancelled", "bead-002", 1, "L0"),
         )
         conn.commit()
         conn.close()
@@ -217,23 +219,23 @@ class TestCheckForWork:
         assert deacon.check_for_work() == "synthesize"
 
     def test_no_synthesize_when_bead_not_synced(self, deacon: Deacon) -> None:
-        """Bead tasks not all synced should not trigger synthesize."""
+        """Bead tasks not all synced should return True (actionable work), not 'synthesize'."""
         conn = sqlite3.connect(deacon.db_path)
         conn.execute(
-            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
-               VALUES (?, ?, ?, ?)""",
-            ("task-s3", "completed", "bead-001", 1),
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level)
+               VALUES (?, ?, ?, ?, ?)""",
+            ("task-s3", "completed", "bead-001", 1, "L0"),
         )
         conn.execute(
-            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
-               VALUES (?, ?, ?, ?)""",
-            ("task-s4", "completed", "bead-002", 0),
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level)
+               VALUES (?, ?, ?, ?, ?)""",
+            ("task-s4", "completed", "bead-002", 0, "L0"),
         )
         conn.commit()
         conn.close()
 
-        # Should return False because not all are synced
-        assert deacon.check_for_work() is False
+        # Unsynced completed task is actionable work (bridge sync needed)
+        assert deacon.check_for_work() is True
 
     def test_true_with_mix_pending_and_completed_beads(self, deacon: Deacon) -> None:
         """Mix of pending+completed bead tasks should return True (not 'synthesize')."""
@@ -258,14 +260,14 @@ class TestCheckForWork:
         """Bead tasks still running should not trigger synthesize."""
         conn = sqlite3.connect(deacon.db_path)
         conn.execute(
-            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
-               VALUES (?, ?, ?, ?)""",
-            ("task-s5", "completed", "bead-001", 1),
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level)
+               VALUES (?, ?, ?, ?, ?)""",
+            ("task-s5", "completed", "bead-001", 1, "L0"),
         )
         conn.execute(
-            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
-               VALUES (?, ?, ?, ?)""",
-            ("task-s6", "claimed", "bead-002", 0),
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level)
+               VALUES (?, ?, ?, ?, ?)""",
+            ("task-s6", "claimed", "bead-002", 0, "L0"),
         )
         conn.commit()
         conn.close()
@@ -678,14 +680,14 @@ class TestSynthesizeSessionSpawn:
         """When check_for_work returns 'synthesize', spawn_conductor gets SYNTHESIZE."""
         conn = sqlite3.connect(deacon.db_path)
         conn.execute(
-            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
-               VALUES (?, ?, ?, ?)""",
-            ("task-syn-1", "completed", "bead-001", 1),
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level)
+               VALUES (?, ?, ?, ?, ?)""",
+            ("task-syn-1", "completed", "bead-001", 1, "L0"),
         )
         conn.execute(
-            """INSERT INTO tasks (id, status, bead_id, bridge_synced)
-               VALUES (?, ?, ?, ?)""",
-            ("task-syn-2", "cancelled", "bead-002", 1),
+            """INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level)
+               VALUES (?, ?, ?, ?, ?)""",
+            ("task-syn-2", "cancelled", "bead-002", 1, "L0"),
         )
         conn.commit()
         conn.close()
@@ -1286,3 +1288,100 @@ class TestCompletionMetrics:
         )
         rate = bead_completion_rate(str(log_path))
         assert abs(rate - 2 / 3) < 0.01
+
+
+# ---------------------------------------------------------------------------
+# T7 Tests: Reliability Fixes (RRT-02/03/04/05, SC-COL-37)
+# ---------------------------------------------------------------------------
+
+
+class TestReliabilityFixes:
+    def test_rrt02_watcher_restart_on_empty_readline(self, tmp_path: Path) -> None:
+        """RRT-02: watch_db_changes logs WARNING on empty readline (watcher died)."""
+        import asyncio
+
+        db_path = str(tmp_path / "tasks.db")
+        _create_test_db(db_path)
+        deacon = Deacon(db_path=db_path, project_dir=str(tmp_path))
+
+        async def run_test() -> list[str]:
+            mock_proc = MagicMock()
+
+            async def mock_readline() -> bytes:
+                return b""
+
+            async def mock_wait() -> int:
+                return 0
+
+            mock_proc.stdout = MagicMock()
+            mock_proc.stdout.readline = mock_readline
+            mock_proc.returncode = None
+            mock_proc.terminate = MagicMock()
+            mock_proc.wait = mock_wait
+
+            async def mock_create_subprocess(*args: object, **kwargs: object) -> MagicMock:
+                return mock_proc
+
+            with patch("deacon.asyncio.create_subprocess_exec", side_effect=mock_create_subprocess):
+                with patch("deacon.log") as mock_log:
+                    await watch_db_changes(deacon)
+                    return [str(call) for call in mock_log.warning.call_args_list]
+
+        warnings = asyncio.run(run_test())
+        assert any("watcher_died" in w for w in warnings)
+
+    def test_rrt03_recovery_handles_unbound_local(self, tmp_path: Path) -> None:
+        """RRT-03: recover_stale_claims catches _get_db failure without crashing."""
+        db_path = str(tmp_path / "tasks.db")
+        _create_test_db(db_path)
+        deacon = Deacon(db_path=db_path, project_dir=str(tmp_path))
+        with patch.object(deacon, "_get_db", side_effect=sqlite3.OperationalError("locked")):
+            recovered = deacon.recover_stale_claims()
+        assert recovered == 0
+        assert deacon.state == DeaconState.WATCHING
+
+    def test_rrt05_max_bridge_deferral(self, tmp_path: Path) -> None:
+        """RRT-05: Force-kill after MAX_BRIDGE_DEFERRAL_COUNT deferrals."""
+        db_path = str(tmp_path / "tasks.db")
+        _create_test_db(db_path)
+        deacon = Deacon(db_path=db_path, project_dir=str(tmp_path))
+        deacon.active_session_type = SessionType.DISPATCH
+        deacon._bridge_deferral_count = MAX_BRIDGE_DEFERRAL_COUNT
+
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None
+        mock_proc.pid = 99999
+        mock_proc.returncode = 0
+        mock_proc.communicate.return_value = (b'{}', b'')
+        deacon.conductor_process = mock_proc
+
+        LOCK_FILE.write_text(f"99999\n{time.time() - 35 * 60}\n")
+        BRIDGE_LOCK_FILE.write_text(f"99999\n{time.time()}\n")
+        try:
+            with patch("deacon.os.kill"):  # mock os.kill so PID check passes
+                _check_conductor_timeout(deacon)
+            mock_proc.terminate.assert_called_once()  # forced despite bridge lock
+        finally:
+            LOCK_FILE.unlink(missing_ok=True)
+            BRIDGE_LOCK_FILE.unlink(missing_ok=True)
+
+    def test_rrt05_synthesize_query_scope(self, tmp_path: Path) -> None:
+        """RRT-05: Synthesize total-count query matches actionable-work scope."""
+        db_path = str(tmp_path / "tasks.db")
+        _create_test_db(db_path)
+        conn = sqlite3.connect(db_path)
+        # Non-colony task (no sdlc_loop_level) should not affect synthesize check
+        conn.execute(
+            "INSERT INTO tasks (id, status, bead_id, bridge_synced) VALUES (?, ?, ?, ?)",
+            ("t-non-colony", "pending", "b-nc", 0),
+        )
+        conn.execute(
+            "INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level) "
+            "VALUES (?, ?, ?, ?, ?)",
+            ("t1", "completed", "b1", 1, "L0"),
+        )
+        conn.commit()
+        conn.close()
+        deacon = Deacon(db_path=db_path, project_dir=str(tmp_path))
+        result = deacon.check_for_work()
+        assert result == "synthesize"  # non-colony task excluded

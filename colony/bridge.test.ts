@@ -592,7 +592,9 @@ describe('markBridgeSynced', () => {
   });
 
   it('sets bridge_synced to 1 for the specified task', () => {
-    markBridgeSynced(dbPath, 'task-001');
+    const result = markBridgeSynced(dbPath, 'task-001');
+
+    expect(result.success).toBe(true);
 
     const db = new Database(dbPath, { readonly: true });
     const row = db.prepare('SELECT bridge_synced FROM tasks WHERE id = ?').get('task-001') as { bridge_synced: number };
@@ -605,13 +607,21 @@ describe('markBridgeSynced', () => {
 
   it('is idempotent (calling twice does not error)', () => {
     markBridgeSynced(dbPath, 'task-001');
-    markBridgeSynced(dbPath, 'task-001');
+    const result = markBridgeSynced(dbPath, 'task-001');
+
+    expect(result.success).toBe(true);
 
     const db = new Database(dbPath, { readonly: true });
     const row = db.prepare('SELECT bridge_synced FROM tasks WHERE id = ?').get('task-001') as { bridge_synced: number };
     db.close();
 
     expect(row.bridge_synced).toBe(1);
+  });
+
+  it('returns error object on invalid DB path (RRT-04)', () => {
+    const result = markBridgeSynced('/nonexistent/path/db.sqlite', 'task-001');
+    expect(result.success).toBe(false);
+    expect(result.error).toBeDefined();
   });
 });
 
