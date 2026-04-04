@@ -458,6 +458,7 @@ class Deacon:
 
             conn.commit()
         except sqlite3.Error:
+            conn.rollback()
             log.exception("recover_stale_claims DB error")
 
         # Clean up stale lock file via shared helper
@@ -779,7 +780,7 @@ async def watch_db_changes(deacon: Deacon) -> None:
                 async with deacon._spawn_lock:
                     work = deacon.check_for_work()
                     if work and deacon.can_spawn_conductor():
-                        session_type = "SYNTHESIZE" if work == "synthesize" else "DISPATCH"
+                        session_type = SessionType.SYNTHESIZE.value if work == "synthesize" else SessionType.DISPATCH.value
                         deacon.spawn_conductor(session_type)
     except asyncio.CancelledError:
         proc.terminate()

@@ -33,6 +33,9 @@ _colony_log() {
       # Escape backslashes then quotes in value
       val="${val//\\/\\\\}"
       val="${val//\"/\\\"}"
+      val="${val//$'\n'/\\n}"
+      val="${val//$'\r'/\\r}"
+      val="${val//$'\t'/\\t}"
       json+=",\"${key}\":\"${val}\""
     fi
   done
