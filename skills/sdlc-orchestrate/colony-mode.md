@@ -93,6 +93,9 @@ Update the pre-flight handoff block in `state.md` with the list of dispatched ta
 
 The Conductor exits. The Deacon watches for worker completions and spawns an EVALUATE session.
 
+### Cross-Model Workers
+Cross-model review workers are dispatched via `tmup_dispatch` with `worker_type: codex` and `clone_isolation: true`. They review code independently from Claude-based AQS agents, providing inter-model adversarial leverage. Managed by `sdlc-os:sdlc-crossmodel` skill.
+
 ---
 
 ## bead-context.md Write Protocol
