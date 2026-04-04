@@ -24,6 +24,7 @@ import logging
 import os
 import sqlite3
 import time
+from collections.abc import Iterator
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
@@ -92,13 +93,15 @@ def tmp_db(tmp_path: Path) -> str:
 
 
 @pytest.fixture
-def deacon(tmp_db: str, tmp_path: Path) -> Deacon:
+def deacon(tmp_db: str, tmp_path: Path) -> Iterator[Deacon]:
     """Create a Deacon instance with a temp DB."""
-    return Deacon(
+    d = Deacon(
         db_path=tmp_db,
         project_dir=str(tmp_path),
         conductor_budget="5.00",
     )
+    yield d
+    d.close()
 
 
 @pytest.fixture(autouse=True)
