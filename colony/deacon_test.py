@@ -33,6 +33,7 @@ from deacon import (
     log,
     Deacon,
     DeaconState,
+    SessionType,
     LOCK_FILE,
     BRIDGE_LOCK_FILE,
     STALE_LOCK_TIMEOUT_S,
@@ -42,6 +43,7 @@ from deacon import (
     CONDUCTOR_TIMEOUT_SYNTHESIZE_S,
     HEARTBEAT_THRESHOLDS,
     WATCHDOG_SELF_TIMEOUT_S,
+    _is_lock_stale,
     _is_bridge_lock_stale,
     _parse_conductor_output,
     _check_conductor_timeout,
@@ -560,7 +562,7 @@ class TestParseOutput:
 class TestActiveSessionType:
     def test_default_session_type_is_dispatch(self, deacon: Deacon) -> None:
         """Default active_session_type should be DISPATCH."""
-        assert deacon.active_session_type == "DISPATCH"
+        assert deacon.active_session_type == SessionType.DISPATCH
 
     def test_spawn_conductor_sets_session_type(self, deacon: Deacon) -> None:
         """spawn_conductor should set active_session_type."""
@@ -570,7 +572,7 @@ class TestActiveSessionType:
             mock_popen.return_value = mock_proc
 
             deacon.spawn_conductor("SYNTHESIZE")
-            assert deacon.active_session_type == "SYNTHESIZE"
+            assert deacon.active_session_type == SessionType.SYNTHESIZE
 
     def test_synthesize_timeout_is_longer(self) -> None:
         """SYNTHESIZE timeout should be longer than DISPATCH."""
@@ -599,7 +601,8 @@ class TestConductorTimeoutCleanup:
         old_time = time.time() - CONDUCTOR_TIMEOUT_DISPATCH_S - 10
         LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
 
-        _check_conductor_timeout(deacon)
+        with patch("deacon._parse_conductor_output"):
+            _check_conductor_timeout(deacon)
 
         mock_proc.terminate.assert_called_once()
         mock_proc.communicate.assert_called_once_with(timeout=5)
@@ -615,7 +618,8 @@ class TestConductorTimeoutCleanup:
         old_time = time.time() - CONDUCTOR_TIMEOUT_DISPATCH_S - 10
         LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
 
-        _check_conductor_timeout(deacon)
+        with patch("deacon._parse_conductor_output"):
+            _check_conductor_timeout(deacon)
 
         assert not LOCK_FILE.exists(), "Lock file should be removed after timeout cleanup"
 
@@ -636,7 +640,8 @@ class TestConductorTimeoutCleanup:
         old_time = time.time() - CONDUCTOR_TIMEOUT_DISPATCH_S - 10
         LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
 
-        _check_conductor_timeout(deacon)
+        with patch("deacon._parse_conductor_output"):
+            _check_conductor_timeout(deacon)
 
         mock_proc.terminate.assert_called_once()
         mock_proc.kill.assert_called_once()
@@ -687,7 +692,7 @@ class TestSynthesizeSessionSpawn:
             session_type = "SYNTHESIZE" if work == "synthesize" else "DISPATCH"
             deacon.spawn_conductor(session_type)
 
-            assert deacon.active_session_type == "SYNTHESIZE"
+            assert deacon.active_session_type == SessionType.SYNTHESIZE
 
 
 class TestDomainCalibratedHeartbeat:
@@ -751,34 +756,38 @@ class TestDomainCalibratedHeartbeat:
 
     def test_clear_domain_default_threshold(self, deacon: Deacon) -> None:
         """CLEAR domain uses 300s threshold (same as default)."""
-        threshold = Deacon._get_heartbeat_threshold(
+        threshold, domain = Deacon._get_heartbeat_threshold(
             json.dumps({"cynefin_domain": "clear"})
         )
         assert threshold == 300
+        assert domain == "clear"
 
     def test_complicated_domain_threshold(self, deacon: Deacon) -> None:
         """COMPLICATED domain uses 900s threshold."""
-        threshold = Deacon._get_heartbeat_threshold(
+        threshold, domain = Deacon._get_heartbeat_threshold(
             json.dumps({"cynefin_domain": "complicated"})
         )
         assert threshold == 900
+        assert domain == "complicated"
 
     def test_unknown_domain_uses_default(self, deacon: Deacon) -> None:
         """Unknown domain falls back to 300s default."""
-        threshold = Deacon._get_heartbeat_threshold(
+        threshold, domain = Deacon._get_heartbeat_threshold(
             json.dumps({"cynefin_domain": "unknown"})
         )
         assert threshold == 300
 
     def test_no_description_uses_default(self, deacon: Deacon) -> None:
         """No description falls back to 300s default."""
-        threshold = Deacon._get_heartbeat_threshold(None)
+        threshold, domain = Deacon._get_heartbeat_threshold(None)
         assert threshold == 300
+        assert domain == "unknown"
 
     def test_invalid_json_uses_default(self, deacon: Deacon) -> None:
         """Invalid JSON description falls back to 300s default."""
-        threshold = Deacon._get_heartbeat_threshold("not json")
+        threshold, domain = Deacon._get_heartbeat_threshold("not json")
         assert threshold == 300
+        assert domain == "unknown"
 
 
 class TestTransitionTo:
@@ -821,7 +830,7 @@ class TestParseOutputEnhanced:
     def test_writes_all_required_fields(self, deacon: Deacon) -> None:
         """Session log must include session_type, exit_code, wall_clock_s, bead_ids."""
         deacon._conductor_start_time = time.monotonic() - 120
-        deacon.active_session_type = "DISPATCH"
+        deacon.active_session_type = SessionType.DISPATCH
 
         # Insert a bead task
         conn = sqlite3.connect(deacon.db_path)
@@ -865,7 +874,7 @@ class TestParseOutputEnhanced:
     def test_writes_synthesize_fields(self, deacon: Deacon) -> None:
         """Verify SYNTHESIZE session type and multiple bead_ids are recorded."""
         deacon._conductor_start_time = time.monotonic() - 60
-        deacon.active_session_type = "SYNTHESIZE"
+        deacon.active_session_type = SessionType.SYNTHESIZE
 
         conn = sqlite3.connect(deacon.db_path)
         conn.execute(
