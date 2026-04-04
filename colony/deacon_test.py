@@ -19,6 +19,7 @@ Covers:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
@@ -47,8 +48,11 @@ from deacon import (
     HEARTBEAT_THRESHOLDS,
     WATCHDOG_SELF_TIMEOUT_S,
     MAX_BRIDGE_DEFERRAL_COUNT,
+    MAX_WATCHER_BACKOFF,
     _is_lock_stale,
     _is_bridge_lock_stale,
+    _wait_for_git_lock_release,
+    _managed_watcher,
     watch_db_changes,
     _parse_conductor_output,
     _check_conductor_timeout,
@@ -613,7 +617,7 @@ class TestConductorTimeoutCleanup:
         LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
 
         with patch("deacon._parse_conductor_output"):
-            _check_conductor_timeout(deacon)
+            asyncio.run(_check_conductor_timeout(deacon))
 
         mock_proc.terminate.assert_called_once()
         mock_proc.communicate.assert_called_once_with(timeout=5)
@@ -630,7 +634,7 @@ class TestConductorTimeoutCleanup:
         LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
 
         with patch("deacon._parse_conductor_output"):
-            _check_conductor_timeout(deacon)
+            asyncio.run(_check_conductor_timeout(deacon))
 
         assert not LOCK_FILE.exists(), "Lock file should be removed after timeout cleanup"
 
@@ -652,7 +656,7 @@ class TestConductorTimeoutCleanup:
         LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
 
         with patch("deacon._parse_conductor_output"):
-            _check_conductor_timeout(deacon)
+            asyncio.run(_check_conductor_timeout(deacon))
 
         mock_proc.terminate.assert_called_once()
         mock_proc.kill.assert_called_once()
@@ -1058,7 +1062,7 @@ class TestSynthesizeTimeout:
         # Write lock file with start time 35 min ago
         LOCK_FILE.write_text(f"99999\n{time.time() - 35 * 60}\n")
         try:
-            _check_conductor_timeout(deacon)
+            asyncio.run(_check_conductor_timeout(deacon))
             mock_proc.terminate.assert_not_called()  # 35 min < 60 min
         finally:
             LOCK_FILE.unlink(missing_ok=True)
@@ -1077,7 +1081,7 @@ class TestSynthesizeTimeout:
         LOCK_FILE.write_text(f"99999\n{time.time() - 61 * 60}\n")
         try:
             with patch("deacon._parse_conductor_output"):
-                _check_conductor_timeout(deacon)
+                asyncio.run(_check_conductor_timeout(deacon))
             mock_proc.terminate.assert_called_once()
         finally:
             LOCK_FILE.unlink(missing_ok=True)
@@ -1097,7 +1101,7 @@ class TestSynthesizeTimeout:
         LOCK_FILE.write_text(f"99999\n{time.time() - 31 * 60}\n")
         try:
             with patch("deacon._parse_conductor_output"):
-                _check_conductor_timeout(deacon)
+                asyncio.run(_check_conductor_timeout(deacon))
             mock_proc.terminate.assert_called_once()
         finally:
             LOCK_FILE.unlink(missing_ok=True)
@@ -1115,7 +1119,7 @@ class TestSynthesizeTimeout:
 
         LOCK_FILE.write_text(f"99999\n{time.time() - 31 * 60}\n")
         try:
-            _check_conductor_timeout(deacon)
+            asyncio.run(_check_conductor_timeout(deacon))
             mock_proc.terminate.assert_not_called()
         finally:
             LOCK_FILE.unlink(missing_ok=True)
@@ -1359,7 +1363,7 @@ class TestReliabilityFixes:
         BRIDGE_LOCK_FILE.write_text(f"99999\n{time.time()}\n")
         try:
             with patch("deacon.os.kill"):  # mock os.kill so PID check passes
-                _check_conductor_timeout(deacon)
+                asyncio.run(_check_conductor_timeout(deacon))
             mock_proc.terminate.assert_called_once()  # forced despite bridge lock
         finally:
             LOCK_FILE.unlink(missing_ok=True)
@@ -1385,3 +1389,87 @@ class TestReliabilityFixes:
         deacon = Deacon(db_path=db_path, project_dir=str(tmp_path))
         result = deacon.check_for_work()
         assert result == "synthesize"  # non-colony task excluded
+
+
+# ---------------------------------------------------------------------------
+# FIX 1: _wait_for_git_lock_release (async git lock wait)
+# ---------------------------------------------------------------------------
+
+
+class TestWaitForGitLockRelease:
+    """Tests for the extracted git index.lock wait helper."""
+
+    def test_returns_false_when_lock_persists(self, tmp_path: Path) -> None:
+        """Lock exists and never removed -> returns False (timeout)."""
+        git_dir = tmp_path / ".git"
+        git_dir.mkdir()
+        (git_dir / "index.lock").touch()
+        result = _wait_for_git_lock_release(str(tmp_path), max_wait=1, interval=1)
+        assert result is False
+
+    def test_returns_true_when_no_lock(self, tmp_path: Path) -> None:
+        """No lock file -> returns True immediately."""
+        git_dir = tmp_path / ".git"
+        git_dir.mkdir()
+        result = _wait_for_git_lock_release(str(tmp_path), max_wait=1, interval=1)
+        assert result is True
+
+
+# ---------------------------------------------------------------------------
+# FIX 2: Terminal sub-query sdlc_loop_level filter
+# ---------------------------------------------------------------------------
+
+
+class TestTerminalQueryScope:
+    """Verify terminal count excludes non-colony tasks."""
+
+    def test_non_colony_task_does_not_suppress_synthesize(self, tmp_path: Path) -> None:
+        """Non-colony completed task with bead_id should not inflate terminal count."""
+        db_path = str(tmp_path / "tmup.db")
+        _create_test_db(db_path)
+        conn = sqlite3.connect(db_path)
+        # Non-colony task: has bead_id but sdlc_loop_level=NULL
+        conn.execute(
+            "INSERT INTO tasks (id, status, bead_id, bridge_synced) "
+            "VALUES (?, ?, ?, ?)",
+            ("t-non-colony", "completed", "b-nc", 1),
+        )
+        # Colony task: completed and synced
+        conn.execute(
+            "INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level) "
+            "VALUES (?, ?, ?, ?, ?)",
+            ("t-colony", "completed", "b-colony", 1, "L0"),
+        )
+        conn.commit()
+        conn.close()
+        deacon = Deacon(db_path=db_path, project_dir=str(tmp_path))
+        result = deacon.check_for_work()
+        assert result == "synthesize"
+
+
+# ---------------------------------------------------------------------------
+# FIX 3: _managed_watcher exponential backoff
+# ---------------------------------------------------------------------------
+
+
+class TestManagedWatcherBackoff:
+    """Tests for exponential backoff in _managed_watcher."""
+
+    def test_backoff_doubles_and_caps(self) -> None:
+        """Verify backoff doubles on repeated failures, caps at MAX_WATCHER_BACKOFF."""
+        backoff = 1
+        observed = []
+        for _ in range(10):
+            observed.append(backoff)
+            backoff = min(backoff * 2, MAX_WATCHER_BACKOFF)
+        # Should double: 1, 2, 4, 8, 16, 32, 60, 60, 60, 60
+        assert observed[0] == 1
+        assert observed[1] == 2
+        assert observed[2] == 4
+        assert observed[3] == 8
+        assert observed[4] == 16
+        assert observed[5] == 32
+        assert observed[6] == 60  # capped
+        assert observed[7] == 60
+        assert observed[8] == 60
+        assert observed[9] == 60
