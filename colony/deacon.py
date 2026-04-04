@@ -19,6 +19,7 @@ import enum
 import json
 import logging
 import os
+import shutil
 import signal
 import sqlite3
 import subprocess
@@ -127,6 +128,27 @@ def _is_lock_stale(lock_path: Path, timeout_s: float) -> bool:
     except (ValueError, OSError):
         log.exception("Error reading lock file %s", lock_path)
         return True
+
+
+# ---------------------------------------------------------------------------
+# Log rotation helper
+# ---------------------------------------------------------------------------
+
+
+def _rotate_log(path: str, max_bytes: int = 10 * 1024 * 1024, keep_lines: int = 1000) -> None:
+    """Truncate log file if it exceeds max_bytes, keeping last keep_lines lines."""
+    try:
+        if not os.path.isfile(path):
+            return
+        if os.path.getsize(path) <= max_bytes:
+            return
+        with open(path) as f:
+            lines = f.readlines()
+        with open(path, "w") as f:
+            f.writelines(lines[-keep_lines:])
+        log.info("log_rotated path=%s kept=%d", path, keep_lines)
+    except OSError:
+        log.exception("log_rotate_error path=%s", path)
 
 
 # ---------------------------------------------------------------------------
@@ -256,6 +278,76 @@ class Deacon:
         self._blacklisted_beads.clear()
         self._bead_failure_counts.clear()
         log.info("blacklist_cleared")
+
+    # -- Clone pruning (SC-COL-31) -------------------------------------------
+
+    def _prune_stale_clones(self) -> None:
+        """Prune clone dirs for completed tasks with no active references.
+
+        SC-COL-31: Only prune if zero active tasks reference the clone_dir.
+        Prune if bridge_synced=1 OR clone age > 24h.
+        """
+        try:
+            conn = self._get_db()
+            # Get all unique clone_dirs from tasks
+            candidates = conn.execute(
+                """
+                SELECT DISTINCT clone_dir FROM tasks
+                WHERE clone_dir IS NOT NULL
+                  AND sdlc_loop_level IS NOT NULL
+                """
+            ).fetchall()
+
+            for row in candidates:
+                clone_dir = row["clone_dir"]
+                if not os.path.isdir(clone_dir):
+                    continue
+
+                # Check if ANY active tasks reference this clone_dir
+                active = conn.execute(
+                    "SELECT COUNT(*) as cnt FROM tasks WHERE clone_dir = ? "
+                    "AND status NOT IN ('completed', 'cancelled')",
+                    (clone_dir,),
+                ).fetchone()
+                if active and active["cnt"] > 0:
+                    continue
+
+                # Check if bridge_synced for all tasks with this clone
+                synced = conn.execute(
+                    "SELECT COUNT(*) as cnt FROM tasks WHERE clone_dir = ? "
+                    "AND bridge_synced = 1",
+                    (clone_dir,),
+                ).fetchone()
+                synced_count = synced["cnt"] if synced else 0
+
+                # Check age
+                try:
+                    age_s = time.time() - os.path.getmtime(clone_dir)
+                except OSError:
+                    age_s = 0.0
+
+                if synced_count == 0 and age_s <= 24 * 3600:
+                    # Not synced and not old enough -- skip
+                    continue
+
+                # Path validation
+                real = os.path.realpath(clone_dir)
+                if not Path(real).is_relative_to(Path(os.path.realpath(COLONY_BASE))):
+                    log.warning("clone_prune_path_blocked dir=%s", clone_dir)
+                    continue
+
+                shutil.rmtree(real, ignore_errors=True)
+                reason = "bridge_synced" if synced_count > 0 else "age_24h"
+                log.info("clone_pruned dir=%s reason=%s", clone_dir, reason)
+                self._last_timer_fire = time.monotonic()
+
+        except sqlite3.Error:
+            log.exception("clone_prune_db_error")
+
+        # Log rotation
+        for log_name in ("colony-sessions.log", "colony-bridge.log", "clone-events.log"):
+            log_path = str(Path(__file__).parent / log_name)
+            _rotate_log(log_path)
 
     # -- can_spawn_conductor -------------------------------------------------
 
@@ -636,6 +728,8 @@ async def run_deacon(deacon: Deacon) -> None:
                     if work and deacon.can_spawn_conductor():
                         session_type = SessionType.SYNTHESIZE.value if work == "synthesize" else SessionType.DISPATCH.value
                         deacon.spawn_conductor(session_type)
+                # SC-COL-31: Prune stale clones and rotate logs
+                await asyncio.to_thread(deacon._prune_stale_clones)
 
             elif deacon.state == DeaconState.CONDUCTING:
                 proc = deacon.conductor_process
