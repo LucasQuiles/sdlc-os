@@ -14,6 +14,7 @@ Safety constraints:
 from __future__ import annotations
 
 import asyncio
+import calendar
 import enum
 import json
 import logging
@@ -68,6 +69,63 @@ class DeaconState(enum.Enum):
     RECOVERING = "RECOVERING"
 
 
+class SessionType(enum.Enum):
+    DISPATCH = "DISPATCH"
+    EVALUATE = "EVALUATE"
+    SYNTHESIZE = "SYNTHESIZE"
+    RECOVER = "RECOVER"
+
+
+# ---------------------------------------------------------------------------
+# Lock staleness helper (BLOCKING-1 fix: single implementation)
+# ---------------------------------------------------------------------------
+
+
+def _is_lock_stale(lock_path: Path, timeout_s: float) -> bool:
+    """Check if a PID+timestamp lock file is stale.
+
+    A lock is stale if:
+    - The file does not exist
+    - The file content is malformed (< 2 lines, unparseable)
+    - The PID recorded in the file is dead
+    - The timestamp is older than timeout_s seconds
+
+    Returns True if stale or unreadable, False if valid.
+    """
+    if not lock_path.exists():
+        return True
+    try:
+        content = lock_path.read_text().strip()
+        parts = content.split("\n")
+        if len(parts) < 2:
+            return True
+
+        pid = int(parts[0])
+        timestamp = float(parts[1])
+
+        # Check PID liveness
+        try:
+            os.kill(pid, 0)
+        except (OSError, ProcessLookupError):
+            log.info("Stale lock: PID %d is dead (%s)", pid, lock_path)
+            return True
+
+        # Check timestamp staleness
+        if time.time() - timestamp > timeout_s:
+            log.info(
+                "Stale lock: timestamp %.0f older than %ds (%s)",
+                timestamp,
+                int(timeout_s),
+                lock_path,
+            )
+            return True
+
+        return False
+    except (ValueError, OSError):
+        log.exception("Error reading lock file %s", lock_path)
+        return True
+
+
 # ---------------------------------------------------------------------------
 # Deacon Core
 # ---------------------------------------------------------------------------
@@ -87,14 +145,14 @@ class Deacon:
     expected_branch: str = "main"
     state: DeaconState = DeaconState.WATCHING
     conductor_process: subprocess.Popen[bytes] | None = None
-    active_session_type: str = "DISPATCH"
+    active_session_type: SessionType = SessionType.DISPATCH
     _last_timer_fire: float = field(default_factory=time.monotonic)
     _state_entered_at: float = field(default_factory=time.monotonic)
     _spawn_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     _conductor_start_time: float = 0.0
     _bridge_deferral_count: int = 0
     _bridge_deferral_start: float = 0.0
-    _last_conductor_stdout: bytes | None = None
+    _db: sqlite3.Connection | None = None
 
     # -- State transition helper -----------------------------------------------
 
@@ -120,12 +178,24 @@ class Deacon:
 
     # -- DB helpers ----------------------------------------------------------
 
-    def _connect(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.db_path, timeout=10)
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA busy_timeout=8000")
-        conn.row_factory = sqlite3.Row
-        return conn
+    def _get_db(self) -> sqlite3.Connection:
+        """Return a persistent DB connection, lazily opened with WAL mode."""
+        if self._db is None:
+            conn = sqlite3.connect(self.db_path, timeout=10)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=8000")
+            conn.row_factory = sqlite3.Row
+            self._db = conn
+        return self._db
+
+    def close(self) -> None:
+        """Close the persistent DB connection."""
+        if self._db is not None:
+            try:
+                self._db.close()
+            except sqlite3.Error:
+                pass
+            self._db = None
 
     # -- can_spawn_conductor -------------------------------------------------
 
@@ -147,35 +217,8 @@ class Deacon:
         except FileExistsError:
             pass
 
-        # Lock file exists -- check staleness
-        try:
-            content = LOCK_FILE.read_text().strip()
-            parts = content.split("\n")
-            if len(parts) < 2:
-                return True
-
-            pid = int(parts[0])
-            timestamp = float(parts[1])
-
-            # Check if PID is still alive
-            try:
-                os.kill(pid, 0)
-            except (OSError, ProcessLookupError):
-                # PID is dead -- stale lock
-                log.info("Stale lock: PID %d is dead", pid)
-                return True
-
-            # Check if timestamp is stale
-            if time.time() - timestamp > STALE_LOCK_TIMEOUT_S:
-                log.info("Stale lock: timestamp %.0f is older than %ds", timestamp, STALE_LOCK_TIMEOUT_S)
-                return True
-
-            # Lock is valid -- another conductor is running
-            return False
-
-        except (ValueError, OSError):
-            log.exception("Error reading lock file")
-            return True
+        # Lock file exists -- check staleness via shared helper
+        return _is_lock_stale(LOCK_FILE, STALE_LOCK_TIMEOUT_S)
 
     # -- check_for_work ------------------------------------------------------
 
@@ -188,48 +231,45 @@ class Deacon:
         - False if no work to do
         """
         try:
-            conn = self._connect()
-            try:
-                row = conn.execute(
-                    """
-                    SELECT COUNT(*) as cnt FROM tasks
-                    WHERE sdlc_loop_level IS NOT NULL
-                      AND (
-                        status = 'pending'
-                        OR (status = 'completed' AND bridge_synced = 0)
-                        OR status = 'needs_review'
-                      )
-                    """
-                ).fetchone()
-                if row and row["cnt"] > 0:
-                    return True
+            conn = self._get_db()
+            row = conn.execute(
+                """
+                SELECT COUNT(*) as cnt FROM tasks
+                WHERE sdlc_loop_level IS NOT NULL
+                  AND (
+                    status = 'pending'
+                    OR (status = 'completed' AND bridge_synced = 0)
+                    OR status = 'needs_review'
+                  )
+                """
+            ).fetchone()
+            if row and row["cnt"] > 0:
+                return True
 
-                # Check if all colony beads are terminal (completed/cancelled)
-                # and bridge_synced -- triggers SYNTHESIZE session
-                total_row = conn.execute(
+            # Check if all colony beads are terminal (completed/cancelled)
+            # and bridge_synced -- triggers SYNTHESIZE session
+            total_row = conn.execute(
+                """
+                SELECT COUNT(*) as total FROM tasks
+                WHERE bead_id IS NOT NULL
+                """
+            ).fetchone()
+            total = total_row["total"] if total_row else 0
+
+            if total > 0:
+                terminal_row = conn.execute(
                     """
-                    SELECT COUNT(*) as total FROM tasks
+                    SELECT COUNT(*) as terminal FROM tasks
                     WHERE bead_id IS NOT NULL
+                      AND status IN ('completed', 'cancelled')
+                      AND bridge_synced = 1
                     """
                 ).fetchone()
-                total = total_row["total"] if total_row else 0
+                terminal = terminal_row["terminal"] if terminal_row else 0
+                if terminal == total:
+                    return "synthesize"
 
-                if total > 0:
-                    terminal_row = conn.execute(
-                        """
-                        SELECT COUNT(*) as terminal FROM tasks
-                        WHERE bead_id IS NOT NULL
-                          AND status IN ('completed', 'cancelled')
-                          AND bridge_synced = 1
-                        """
-                    ).fetchone()
-                    terminal = terminal_row["terminal"] if terminal_row else 0
-                    if terminal == total:
-                        return "synthesize"
-
-                return False
-            finally:
-                conn.close()
+            return False
         except sqlite3.Error:
             log.exception("check_for_work DB error")
             return False
@@ -243,6 +283,9 @@ class Deacon:
         If Popen fails, no lock file is written (CRITICAL 4 fix).
         Returns the Popen handle.
         """
+        # Resolve to enum
+        st = SessionType(session_type)
+
         # Read conductor prompt
         prompt_text = CONDUCTOR_PROMPT_FILE.read_text() if CONDUCTOR_PROMPT_FILE.exists() else ""
 
@@ -263,9 +306,9 @@ class Deacon:
         LOCK_FILE.write_text(f"{proc.pid}\n{time.time()}\n")
 
         self.conductor_process = proc
-        self.active_session_type = session_type
+        self.active_session_type = st
         self._conductor_start_time = time.monotonic()
-        self._transition_to(DeaconState.CONDUCTING, f"spawn_conductor:{session_type}")
+        self._transition_to(DeaconState.CONDUCTING, f"spawn_conductor:{st.value}")
         return proc
 
     def _build_conductor_command(self, session_type: str, prompt_text: str) -> list[str]:
@@ -297,20 +340,21 @@ class Deacon:
     # -- recover_stale_claims ------------------------------------------------
 
     @staticmethod
-    def _get_heartbeat_threshold(description: str | None) -> int:
-        """Extract cynefin_domain from task description JSON and return threshold.
+    def _get_heartbeat_threshold(description: str | None) -> tuple[int, str]:
+        """Extract cynefin_domain from task description JSON and return threshold + domain.
 
         SC-COL-20: Per-domain heartbeat thresholds.
-        Returns the domain-specific threshold in seconds, or the default (300s).
+        Returns (threshold_seconds, domain_string).
         """
         if not description:
-            return HEARTBEAT_STALE_THRESHOLD_S
+            return HEARTBEAT_STALE_THRESHOLD_S, "unknown"
         try:
             desc_data = json.loads(description)
             domain = desc_data.get("cynefin_domain", "").lower().strip()
-            return HEARTBEAT_THRESHOLDS.get(domain, HEARTBEAT_STALE_THRESHOLD_S)
+            threshold = HEARTBEAT_THRESHOLDS.get(domain, HEARTBEAT_STALE_THRESHOLD_S)
+            return threshold, domain or "unknown"
         except (json.JSONDecodeError, AttributeError):
-            return HEARTBEAT_STALE_THRESHOLD_S
+            return HEARTBEAT_STALE_THRESHOLD_S, "unknown"
 
     def recover_stale_claims(self) -> int:
         """Find claimed tasks with stale heartbeats and reset them.
@@ -322,130 +366,103 @@ class Deacon:
         recovered = 0
 
         try:
-            conn = self._connect()
-            try:
-                # Fetch all claimed colony tasks with their agent heartbeats
-                candidates = conn.execute(
-                    """
-                    SELECT t.id, t.retry_count, t.max_retries, t.clone_dir,
-                           t.description, a.last_heartbeat_at
-                    FROM tasks t
-                    JOIN agents a ON t.owner = a.id
-                    WHERE t.status = 'claimed'
-                      AND t.sdlc_loop_level IS NOT NULL
-                    """
-                ).fetchall()
+            conn = self._get_db()
+            # Fetch all claimed colony tasks with their agent heartbeats
+            candidates = conn.execute(
+                """
+                SELECT t.id, t.retry_count, t.max_retries, t.clone_dir,
+                       t.description, a.last_heartbeat_at
+                FROM tasks t
+                JOIN agents a ON t.owner = a.id
+                WHERE t.status = 'claimed'
+                  AND t.sdlc_loop_level IS NOT NULL
+                """
+            ).fetchall()
 
-                import calendar as _calendar
-
-                now = time.time()
-                stale = []
-                for candidate in candidates:
-                    heartbeat_iso = candidate["last_heartbeat_at"]
-                    if not heartbeat_iso:
-                        stale.append(candidate)
-                        continue
-                    try:
-                        heartbeat_epoch = _calendar.timegm(
-                            time.strptime(heartbeat_iso, "%Y-%m-%dT%H:%M:%SZ")
-                        )
-                    except (ValueError, OverflowError):
-                        stale.append(candidate)
-                        continue
-
-                    threshold_s = self._get_heartbeat_threshold(
-                        candidate["description"]
+            now = time.time()
+            stale = []
+            for candidate in candidates:
+                heartbeat_iso = candidate["last_heartbeat_at"]
+                if not heartbeat_iso:
+                    stale.append(candidate)
+                    continue
+                try:
+                    heartbeat_epoch = calendar.timegm(
+                        time.strptime(heartbeat_iso, "%Y-%m-%dT%H:%M:%SZ")
                     )
-                    actual_elapsed_s = now - heartbeat_epoch
-                    # Extract domain for logging
-                    _domain = "unknown"
-                    if candidate["description"]:
-                        try:
-                            _desc = json.loads(candidate["description"])
-                            _domain = _desc.get("cynefin_domain", "unknown")
-                        except (json.JSONDecodeError, AttributeError):
-                            pass
-                    log.debug(
-                        "heartbeat_check domain=%s threshold_s=%d actual_elapsed_s=%.1f task=%s",
-                        _domain,
+                except (ValueError, OverflowError):
+                    stale.append(candidate)
+                    continue
+
+                threshold_s, domain = self._get_heartbeat_threshold(
+                    candidate["description"]
+                )
+                actual_elapsed_s = now - heartbeat_epoch
+                log.debug(
+                    "heartbeat_check domain=%s threshold_s=%d actual_elapsed_s=%.1f task=%s",
+                    domain,
+                    threshold_s,
+                    actual_elapsed_s,
+                    candidate["id"],
+                )
+                if actual_elapsed_s > threshold_s:
+                    log.info(
+                        "heartbeat_stale domain=%s threshold_s=%d actual_elapsed_s=%.1f task=%s",
+                        domain,
                         threshold_s,
                         actual_elapsed_s,
                         candidate["id"],
                     )
-                    if actual_elapsed_s > threshold_s:
-                        log.info(
-                            "heartbeat_stale domain=%s threshold_s=%d actual_elapsed_s=%.1f task=%s",
-                            _domain,
-                            threshold_s,
-                            actual_elapsed_s,
-                            candidate["id"],
-                        )
-                        stale.append(candidate)
+                    stale.append(candidate)
 
-                for task in stale:
-                    task_id = task["id"]
-                    retry_count = task["retry_count"] or 0
-                    max_retries = task["max_retries"] or 3
-                    clone_dir = task["clone_dir"]
+            for task in stale:
+                task_id = task["id"]
+                retry_count = task["retry_count"] or 0
+                max_retries = task["max_retries"] or 3
+                clone_dir = task["clone_dir"]
 
-                    # SC-COL-21: preserve output before reset
-                    # Validate clone_dir against COLONY_BASE to prevent path traversal
-                    if clone_dir:
-                        real_clone = os.path.realpath(clone_dir)
-                        if not Path(real_clone).is_relative_to(Path(os.path.realpath(COLONY_BASE))):
-                            log.warning(
-                                "Path traversal blocked: %s",
-                                clone_dir,
-                            )
-                        else:
-                            output_path = Path(real_clone) / "bead-output.md"
-                            if output_path.exists():
-                                recover_dir = Path(f"/tmp/sdlc-colony/recovered-outputs/{task_id}")
-                                recover_dir.mkdir(parents=True, exist_ok=True)
-                                (recover_dir / "bead-output.md").write_text(
-                                    output_path.read_text()
-                                )
-
-                    if retry_count < max_retries:
-                        conn.execute(
-                            """
-                            UPDATE tasks SET status = 'pending',
-                              owner = NULL, claimed_at = NULL,
-                              retry_count = retry_count + 1
-                            WHERE id = ?
-                            """,
-                            (task_id,),
+                # SC-COL-21: preserve output before reset
+                # Validate clone_dir against COLONY_BASE to prevent path traversal
+                if clone_dir:
+                    real_clone = os.path.realpath(clone_dir)
+                    if not Path(real_clone).is_relative_to(Path(os.path.realpath(COLONY_BASE))):
+                        log.warning(
+                            "Path traversal blocked: %s",
+                            clone_dir,
                         )
                     else:
-                        conn.execute(
-                            "UPDATE tasks SET status = 'needs_review' WHERE id = ?",
-                            (task_id,),
-                        )
-                    recovered += 1
+                        output_path = Path(real_clone) / "bead-output.md"
+                        if output_path.exists():
+                            recover_dir = Path(COLONY_BASE) / "recovered-outputs" / task_id
+                            recover_dir.mkdir(parents=True, exist_ok=True)
+                            (recover_dir / "bead-output.md").write_text(
+                                output_path.read_text()
+                            )
 
-                conn.commit()
-            finally:
-                conn.close()
+                if retry_count < max_retries:
+                    conn.execute(
+                        """
+                        UPDATE tasks SET status = 'pending',
+                          owner = NULL, claimed_at = NULL,
+                          retry_count = retry_count + 1
+                        WHERE id = ?
+                        """,
+                        (task_id,),
+                    )
+                else:
+                    conn.execute(
+                        "UPDATE tasks SET status = 'needs_review' WHERE id = ?",
+                        (task_id,),
+                    )
+                recovered += 1
+
+            conn.commit()
         except sqlite3.Error:
             log.exception("recover_stale_claims DB error")
 
-        # Clean up stale lock file
-        if LOCK_FILE.exists():
-            try:
-                content = LOCK_FILE.read_text().strip()
-                parts = content.split("\n")
-                if len(parts) >= 2:
-                    pid = int(parts[0])
-                    timestamp = float(parts[1])
-                    pid_dead = False
-                    try:
-                        os.kill(pid, 0)
-                    except (OSError, ProcessLookupError):
-                        pid_dead = True
-                    if pid_dead or time.time() - timestamp > STALE_LOCK_TIMEOUT_S:
-                        LOCK_FILE.unlink(missing_ok=True)
-            except (ValueError, OSError):
-                LOCK_FILE.unlink(missing_ok=True)
+        # Clean up stale lock file via shared helper
+        if _is_lock_stale(LOCK_FILE, STALE_LOCK_TIMEOUT_S):
+            LOCK_FILE.unlink(missing_ok=True)
 
         self._transition_to(DeaconState.WATCHING, "recovery_complete")
         return recovered
@@ -514,7 +531,7 @@ async def run_deacon(deacon: Deacon) -> None:
                 async with deacon._spawn_lock:
                     work = deacon.check_for_work()
                     if work and deacon.can_spawn_conductor():
-                        session_type = "SYNTHESIZE" if work == "synthesize" else "DISPATCH"
+                        session_type = SessionType.SYNTHESIZE.value if work == "synthesize" else SessionType.DISPATCH.value
                         deacon.spawn_conductor(session_type)
 
             elif deacon.state == DeaconState.CONDUCTING:
@@ -551,20 +568,29 @@ async def run_deacon(deacon: Deacon) -> None:
                 await task
             except asyncio.CancelledError:
                 pass
+        deacon.close()
 
 
-def _parse_conductor_output(proc: subprocess.Popen[bytes], deacon: Deacon | None = None) -> None:
-    """Parse JSON output from Conductor for cost tracking."""
+def _parse_conductor_output(
+    proc: subprocess.Popen[bytes],
+    deacon: Deacon | None = None,
+    stdout_override: bytes | None = None,
+) -> None:
+    """Parse JSON output from Conductor for cost tracking.
+
+    Args:
+        proc: The conductor subprocess.
+        deacon: Optional Deacon instance for session metadata.
+        stdout_override: Pre-captured stdout (from timeout drain). If provided,
+            communicate() is not called.
+    """
     try:
-        # Use stored stdout from timeout drain if available (IMPORTANT-4),
-        # otherwise call communicate() once.
-        if deacon is not None and deacon._last_conductor_stdout is not None:
-            stdout = deacon._last_conductor_stdout
-            deacon._last_conductor_stdout = None
+        if stdout_override is not None:
+            stdout = stdout_override
         else:
             stdout, _stderr = proc.communicate(timeout=10)
 
-        # Parse output or use sentinel values (IMPORTANT-3)
+        # Parse output or use sentinel values
         session_id = "unknown"
         cost = 0.0
         if stdout:
@@ -586,14 +612,11 @@ def _parse_conductor_output(proc: subprocess.Popen[bytes], deacon: Deacon | None
         bead_ids: list[str] = []
         if deacon is not None:
             try:
-                conn = deacon._connect()
-                try:
-                    rows = conn.execute(
-                        "SELECT bead_id FROM tasks WHERE bead_id IS NOT NULL"
-                    ).fetchall()
-                    bead_ids = [r["bead_id"] for r in rows]
-                finally:
-                    conn.close()
+                conn = deacon._get_db()
+                rows = conn.execute(
+                    "SELECT bead_id FROM tasks WHERE bead_id IS NOT NULL"
+                ).fetchall()
+                bead_ids = [r["bead_id"] for r in rows]
             except sqlite3.Error:
                 log.exception("Failed to fetch bead_ids for session log")
 
@@ -602,7 +625,7 @@ def _parse_conductor_output(proc: subprocess.Popen[bytes], deacon: Deacon | None
             "session_id": session_id,
             "total_cost_usd": cost,
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "session_type": deacon.active_session_type if deacon else "unknown",
+            "session_type": deacon.active_session_type.value if deacon else "unknown",
             "exit_code": proc.returncode,
             "wall_clock_s": round(wall_clock_s, 1),
             "bead_ids": bead_ids,
@@ -624,34 +647,9 @@ def _is_bridge_lock_stale() -> bool:
     """Check if the bridge lock file is stale (dead PID or old timestamp).
 
     Returns True if the bridge lock is stale or unreadable, False if it is valid.
+    Delegates to the shared _is_lock_stale helper.
     """
-    if not BRIDGE_LOCK_FILE.exists():
-        return True
-    try:
-        content = BRIDGE_LOCK_FILE.read_text().strip()
-        parts = content.split("\n")
-        if len(parts) < 2:
-            # No PID+timestamp -- treat as stale
-            return True
-        pid = int(parts[0])
-        timestamp = float(parts[1])
-
-        # Check PID liveness
-        try:
-            os.kill(pid, 0)
-        except (OSError, ProcessLookupError):
-            log.info("Bridge lock stale: PID %d is dead", pid)
-            return True
-
-        # Check timestamp staleness
-        if time.time() - timestamp > BRIDGE_STALE_TIMEOUT_S:
-            log.info("Bridge lock stale: timestamp %.0f older than %ds", timestamp, BRIDGE_STALE_TIMEOUT_S)
-            return True
-
-        return False
-    except (ValueError, OSError):
-        log.exception("Error reading bridge lock file")
-        return True
+    return _is_lock_stale(BRIDGE_LOCK_FILE, BRIDGE_STALE_TIMEOUT_S)
 
 
 def _check_conductor_timeout(deacon: Deacon) -> None:
@@ -667,7 +665,7 @@ def _check_conductor_timeout(deacon: Deacon) -> None:
             if len(parts) >= 2:
                 start_time = float(parts[1])
                 elapsed = time.time() - start_time
-                timeout = CONDUCTOR_TIMEOUT_SYNTHESIZE_S if deacon.active_session_type == "SYNTHESIZE" else CONDUCTOR_TIMEOUT_DISPATCH_S
+                timeout = CONDUCTOR_TIMEOUT_SYNTHESIZE_S if deacon.active_session_type == SessionType.SYNTHESIZE else CONDUCTOR_TIMEOUT_DISPATCH_S
 
                 if elapsed > timeout:
                     log.warning(
@@ -696,11 +694,11 @@ def _check_conductor_timeout(deacon: Deacon) -> None:
                     proc.terminate()  # SIGTERM
                     try:
                         stdout, _stderr = proc.communicate(timeout=5)
-                        deacon._last_conductor_stdout = stdout
                     except subprocess.TimeoutExpired:
                         proc.kill()
                         stdout, _stderr = proc.communicate()
-                        deacon._last_conductor_stdout = stdout
+                    # Pass stdout directly to parser instead of side-channel
+                    _parse_conductor_output(proc, deacon, stdout_override=stdout)
                     deacon._release_lock()
                     deacon.conductor_process = None
                     deacon._transition_to(DeaconState.RECOVERING, "conductor_timeout")
@@ -755,7 +753,7 @@ async def watch_db_changes(deacon: Deacon) -> None:
                     async with deacon._spawn_lock:
                         work = deacon.check_for_work()
                         if work and deacon.can_spawn_conductor():
-                            session_type = "SYNTHESIZE" if work == "synthesize" else "DISPATCH"
+                            session_type = SessionType.SYNTHESIZE.value if work == "synthesize" else SessionType.DISPATCH.value
                             deacon.spawn_conductor(session_type)
                 continue
 

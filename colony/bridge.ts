@@ -14,7 +14,7 @@
  *   SC-COL-30: Verify branch before commit
  */
 
-import { readFileSync, writeFileSync, appendFileSync, renameSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, appendFileSync, renameSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import Database from 'better-sqlite3';
@@ -114,12 +114,13 @@ function validateOutput(cloneDir: string): { valid: boolean; error?: string } {
     return { valid: false, error: `bead-output.md not found at ${outputPath}` };
   }
 
-  const stat = statSync(outputPath);
-  if (stat.size < MIN_OUTPUT_BYTES) {
-    return { valid: false, error: `bead-output.md too small: ${stat.size} bytes (minimum ${MIN_OUTPUT_BYTES})` };
+  // Single read: derive size from buffer length instead of separate statSync
+  const content = readFileSync(outputPath, 'utf-8');
+  const byteSize = Buffer.byteLength(content, 'utf-8');
+  if (byteSize < MIN_OUTPUT_BYTES) {
+    return { valid: false, error: `bead-output.md too small: ${byteSize} bytes (minimum ${MIN_OUTPUT_BYTES})` };
   }
 
-  const content = readFileSync(outputPath, 'utf-8');
   if (!content.includes(OUTPUT_SENTINEL)) {
     return { valid: false, error: `bead-output.md missing sentinel: ${OUTPUT_SENTINEL}` };
   }
@@ -132,35 +133,24 @@ function validateOutput(cloneDir: string): { valid: boolean; error?: string } {
 // ---------------------------------------------------------------------------
 
 function verifyCloneHasCommits(cloneDir: string): { valid: boolean; error?: string } {
-  try {
-    const output = execFileSync(
-      'git',
-      ['-C', cloneDir, 'log', '--oneline', 'origin/main..HEAD'],
-      { encoding: 'utf-8' },
-    ).trim();
-
-    if (output.length === 0) {
-      return { valid: false, error: 'SC-COL-26: clone has no commits beyond source HEAD' };
-    }
-    return { valid: true };
-  } catch {
-    // If origin/main doesn't exist, try origin/master, else skip check
+  for (const ref of ['origin/main', 'origin/master']) {
     try {
       const output = execFileSync(
         'git',
-        ['-C', cloneDir, 'log', '--oneline', 'origin/master..HEAD'],
+        ['-C', cloneDir, 'log', '--oneline', `${ref}..HEAD`],
         { encoding: 'utf-8' },
       ).trim();
 
-      if (output.length === 0) {
-        return { valid: false, error: 'SC-COL-26: clone has no commits beyond source HEAD' };
+      const lines = output.split('\n').filter(l => l.length > 0);
+      if (lines.length >= 1) {
+        return { valid: true };
       }
-      return { valid: true };
+      return { valid: false, error: 'SC-COL-26: clone has no commits beyond source HEAD' };
     } catch {
-      // SC-COL-26: Cannot determine remote HEAD; fail rather than silently skip
-      return { valid: false, error: 'SC-COL-26: could not resolve remote ref for commit verification' };
+      continue;
     }
   }
+  return { valid: false, error: 'SC-COL-26: could not resolve remote ref for commit verification' };
 }
 
 // ---------------------------------------------------------------------------

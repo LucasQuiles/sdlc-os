@@ -17,17 +17,27 @@ COLONY_BASE="${COLONY_BASE:-/tmp/sdlc-colony}"
 
 # _colony_log <event> <key=val pairs...>
 # Appends a timestamped JSON line to ${COLONY_BASE}/clone-events.log
+# Pure-bash implementation (no python3 subprocess per call).
 _colony_log() {
   local event="$1" && shift
-  python3 -c "
-import json,sys
-obj={'timestamp':sys.argv[1],'event':sys.argv[2]}
-for a in sys.argv[3:]:
-  k,v=a.split('=',1)
-  try: obj[k]=json.loads(v)
-  except: obj[k]=v
-print(json.dumps(obj))
-" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$event" "$@" >> "${COLONY_BASE}/clone-events.log" 2>/dev/null || true
+  local ts
+  ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  local json="{\"timestamp\":\"${ts}\",\"event\":\"${event}\""
+  for arg in "$@"; do
+    local key="${arg%%=*}"
+    local val="${arg#*=}"
+    # Try to detect numeric values
+    if [[ "$val" =~ ^[0-9]+$ ]]; then
+      json+=",\"${key}\":${val}"
+    else
+      # Escape backslashes then quotes in value
+      val="${val//\\/\\\\}"
+      val="${val//\"/\\\"}"
+      json+=",\"${key}\":\"${val}\""
+    fi
+  done
+  json+="}"
+  echo "$json" >> "${COLONY_BASE}/clone-events.log" 2>/dev/null || true
 }
 
 # colony_clone_create <source_dir> <session_name> <agent_id>
