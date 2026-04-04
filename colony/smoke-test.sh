@@ -10,7 +10,7 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PASS_COUNT=0
 FAIL_COUNT=0
-TOTAL=6
+TOTAL=7
 RESULTS=()
 
 # ---------------------------------------------------------------------------
@@ -473,6 +473,54 @@ print(d.check_for_work())
 }
 
 # ---------------------------------------------------------------------------
+# ST-07: check_for_work returns "synthesize" when all tasks terminal+synced
+# ---------------------------------------------------------------------------
+
+st07_synthesize_trigger() {
+  echo "ST-07: Synthesize trigger"
+
+  local db_path
+  db_path="$(mktemp --suffix=.db)"
+  register_cleanup "$db_path"
+
+  # Create schema and insert terminal+synced tasks with bead_id
+  python3 -c "
+import sqlite3
+conn = sqlite3.connect('${db_path}')
+conn.execute('''CREATE TABLE IF NOT EXISTS tasks (
+  id TEXT, status TEXT, sdlc_loop_level TEXT,
+  bridge_synced INT DEFAULT 0, bead_id TEXT,
+  retry_count INT DEFAULT 0, max_retries INT DEFAULT 3,
+  clone_dir TEXT, description TEXT, owner TEXT
+)''')
+conn.execute('''CREATE TABLE IF NOT EXISTS agents (
+  id TEXT, last_heartbeat_at TEXT
+)''')
+conn.execute(\"INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level) VALUES ('t1', 'completed', 'b1', 1, 'L0')\")
+conn.execute(\"INSERT INTO tasks (id, status, bead_id, bridge_synced, sdlc_loop_level) VALUES ('t2', 'cancelled', 'b2', 1, 'L1')\")
+conn.commit()
+conn.close()
+" 2>/dev/null
+
+  local output
+  output="$(python3 -c "
+import sys
+sys.path.insert(0, '${SCRIPT_DIR}')
+from deacon import Deacon
+d = Deacon(db_path='${db_path}', project_dir='/tmp')
+print(d.check_for_work())
+" 2>/dev/null)"
+
+  if [[ "$output" == "synthesize" ]]; then
+    pass "ST-07"
+  else
+    fail "ST-07" "Expected synthesize, got: ${output}"
+  fi
+
+  do_cleanup
+}
+
+# ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
 
@@ -487,6 +535,7 @@ st03_bridge_cas_rejection
 st04_clone_manager_lifecycle
 st05_deacon_lock_behavior
 st06_deacon_check_for_work
+st07_synthesize_trigger
 
 echo ""
 echo "============================================"
