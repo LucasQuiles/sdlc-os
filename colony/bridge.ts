@@ -172,12 +172,17 @@ function atomicWriteFile(filePath: string, content: string): void {
  * Called after successful bead commit so clone pruning, check_for_work,
  * and recovery know this task's bead file has been synced.
  */
-export function markBridgeSynced(dbPath: string, taskId: string): void {
-  const db = new Database(dbPath);
+export function markBridgeSynced(dbPath: string, taskId: string): { success: boolean; error?: string } {
   try {
-    db.prepare('UPDATE tasks SET bridge_synced = 1 WHERE id = ?').run(taskId);
-  } finally {
-    db.close();
+    const db = new Database(dbPath, { timeout: 8000 });
+    try {
+      db.prepare('UPDATE tasks SET bridge_synced = 1 WHERE id = ?').run(taskId);
+      return { success: true };
+    } finally {
+      db.close();
+    }
+  } catch (err) {
+    return { success: false, error: (err as Error).message };
   }
 }
 

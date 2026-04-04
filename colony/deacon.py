@@ -58,6 +58,7 @@ WATCHDOG_MAX_STATE_DURATION_S = int(
     os.environ.get("WATCHDOG_MAX_STATE_DURATION_S", str(CONDUCTOR_TIMEOUT_SYNTHESIZE_S + 300))
 )
 BEAD_COST_CEILING_USD = float(os.environ.get("BEAD_COST_CEILING_USD", "50.0"))
+MAX_BRIDGE_DEFERRAL_COUNT = 10
 CONDUCTOR_PROMPT_FILE = Path(__file__).parent / "conductor-prompt.md"
 TMUP_PLUGIN_DIR = Path("/home/q/.claude/plugins/tmup")
 SDLC_PLUGIN_DIR = Path("/home/q/.claude/plugins/sdlc-os")
@@ -459,6 +460,7 @@ class Deacon:
                 """
                 SELECT COUNT(*) as total FROM tasks
                 WHERE bead_id IS NOT NULL
+                  AND sdlc_loop_level IS NOT NULL
                 """
             ).fetchone()
             total = total_row["total"] if total_row else 0
@@ -571,6 +573,7 @@ class Deacon:
         """
         self._transition_to(DeaconState.RECOVERING, "recover_stale_claims")
         recovered = 0
+        conn = None
 
         try:
             conn = self._get_db()
@@ -664,9 +667,13 @@ class Deacon:
                 recovered += 1
 
             conn.commit()
-        except sqlite3.Error:
-            conn.rollback()
-            log.exception("recover_stale_claims DB error")
+        except Exception:
+            if conn is not None:
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
+            log.exception("recover_stale_claims error")
 
         # Clean up stale lock file via shared helper
         if _is_lock_stale(LOCK_FILE, STALE_LOCK_TIMEOUT_S):
@@ -764,6 +771,14 @@ async def _self_watchdog_task(deacon: Deacon) -> None:
         await _self_watchdog_task_once(deacon)
 
 
+async def _managed_watcher(deacon: Deacon) -> None:
+    """Auto-restart watcher on silent death (RRT-02)."""
+    while True:
+        await watch_db_changes(deacon)
+        log.warning("watcher_restarting after_death")
+        await asyncio.sleep(1)
+
+
 async def run_deacon(deacon: Deacon) -> None:
     """Main Deacon async event loop.
 
@@ -781,7 +796,7 @@ async def run_deacon(deacon: Deacon) -> None:
     )
 
     # Launch inotifywait watcher and self-watchdog as concurrent tasks
-    watcher_task = asyncio.create_task(watch_db_changes(deacon))
+    watcher_task = asyncio.create_task(_managed_watcher(deacon))
     watchdog_task = asyncio.create_task(_self_watchdog_task(deacon))
 
     try:
@@ -962,7 +977,17 @@ def _check_conductor_timeout(deacon: Deacon) -> None:
                             deacon._bridge_deferral_count,
                             total_wait,
                         )
-                        return
+                        if deacon._bridge_deferral_count < MAX_BRIDGE_DEFERRAL_COUNT:
+                            return
+                        log.warning("bridge_lock_force_kill deferrals=%d", deacon._bridge_deferral_count)
+
+                    # RRT-05: Check .git/index.lock before terminating
+                    git_lock = Path(deacon.project_dir) / ".git" / "index.lock"
+                    if git_lock.exists():
+                        for _ in range(6):  # wait up to 30s
+                            time.sleep(5)
+                            if not git_lock.exists():
+                                break
 
                     # Reset deferral counters on actual termination
                     deacon._bridge_deferral_count = 0
@@ -1034,6 +1059,7 @@ async def watch_db_changes(deacon: Deacon) -> None:
                 continue
 
             if not line:
+                log.warning("watcher_died reason=empty_readline action=restart")
                 break
 
             # Drain buffer -- read any additional lines without blocking
