@@ -470,6 +470,7 @@ class Deacon:
                     """
                     SELECT COUNT(*) as terminal FROM tasks
                     WHERE bead_id IS NOT NULL
+                      AND sdlc_loop_level IS NOT NULL
                       AND status IN ('completed', 'cancelled')
                       AND bridge_synced = 1
                     """
@@ -771,12 +772,25 @@ async def _self_watchdog_task(deacon: Deacon) -> None:
         await _self_watchdog_task_once(deacon)
 
 
+MAX_WATCHER_BACKOFF = 60
+
+
 async def _managed_watcher(deacon: Deacon) -> None:
-    """Auto-restart watcher on silent death (RRT-02)."""
+    """Auto-restart watcher on silent death (RRT-02) with exponential backoff."""
+    backoff = 1
     while True:
-        await watch_db_changes(deacon)
-        log.warning("watcher_restarting after_death")
-        await asyncio.sleep(1)
+        start = time.monotonic()
+        try:
+            await watch_db_changes(deacon)
+        except Exception as e:
+            log.warning("watcher_error error=%s backoff=%d", e, backoff)
+        elapsed = time.monotonic() - start
+        # Reset backoff if watch_db_changes ran successfully for >60s
+        if elapsed > 60:
+            backoff = 1
+        log.warning("watcher_restarting after_death backoff=%d", backoff)
+        await asyncio.sleep(backoff)
+        backoff = min(backoff * 2, MAX_WATCHER_BACKOFF)
 
 
 async def run_deacon(deacon: Deacon) -> None:
@@ -840,7 +854,7 @@ async def run_deacon(deacon: Deacon) -> None:
 
                     else:
                         # SC-COL-05: Check wall-clock timeout
-                        _check_conductor_timeout(deacon)
+                        await _check_conductor_timeout(deacon)
 
             elif deacon.state == DeaconState.RECOVERING:
                 recovered = deacon.recover_stale_claims()
@@ -943,7 +957,17 @@ def _is_bridge_lock_stale() -> bool:
     return _is_lock_stale(BRIDGE_LOCK_FILE, BRIDGE_STALE_TIMEOUT_S)
 
 
-def _check_conductor_timeout(deacon: Deacon) -> None:
+def _wait_for_git_lock_release(project_dir: str, max_wait: int = 30, interval: int = 5) -> bool:
+    """Wait for .git/index.lock to be released. Returns True if released, False if timeout."""
+    lock_path = Path(project_dir) / ".git" / "index.lock"
+    waited = 0
+    while lock_path.exists() and waited < max_wait:
+        time.sleep(interval)
+        waited += interval
+    return not lock_path.exists()
+
+
+async def _check_conductor_timeout(deacon: Deacon) -> None:
     """SC-COL-05: Kill conductor if it exceeds wall-clock timeout."""
     proc = deacon.conductor_process
     if proc is None or proc.poll() is not None:
@@ -981,13 +1005,10 @@ def _check_conductor_timeout(deacon: Deacon) -> None:
                             return
                         log.warning("bridge_lock_force_kill deferrals=%d", deacon._bridge_deferral_count)
 
-                    # RRT-05: Check .git/index.lock before terminating
-                    git_lock = Path(deacon.project_dir) / ".git" / "index.lock"
-                    if git_lock.exists():
-                        for _ in range(6):  # wait up to 30s
-                            time.sleep(5)
-                            if not git_lock.exists():
-                                break
+                    # RRT-05: Check .git/index.lock before terminating (async-safe)
+                    released = await asyncio.to_thread(
+                        _wait_for_git_lock_release, deacon.project_dir
+                    )
 
                     # Reset deferral counters on actual termination
                     deacon._bridge_deferral_count = 0
