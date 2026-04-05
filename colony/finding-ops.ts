@@ -133,8 +133,6 @@ export function checkAutoPromotion(
   if (!f) return { promoted: false, reason: 'finding not found' };
   if (f.promotion_state !== 'open') return { promoted: false, reason: `already ${f.promotion_state}` };
 
-  // Phase 1: pattern-match check deferred per spec S14.1 cold-start relaxation
-
   // All conditions must be met for auto-promotion
   if (f.finding_type !== 'in_scope') {
     return { promoted: false, reason: `not in_scope (is ${f.finding_type})` };
@@ -149,6 +147,41 @@ export function checkAutoPromotion(
   }
   if (f.affected_scope && !f.affected_scope.startsWith(context.active_mission_scope)) {
     return { promoted: false, reason: `affected scope ${f.affected_scope} outside mission ${context.active_mission_scope}` };
+  }
+
+  // Pattern match check (spec §14.1)
+  try {
+    const db = getEventsDb();
+    const patterns = db.prepare(
+      'SELECT * FROM remediation_patterns WHERE confidence >= 0.5'
+    ).all() as Array<{ pattern_id: string; pattern_type: string; description: string; confidence: number; usage_count: number }>;
+
+    const evidenceStr = JSON.stringify(f.evidence).toLowerCase();
+    const matchedPattern = patterns.find(p => {
+      const keywords = p.description.toLowerCase().split(/\s+/);
+      // Match if at least 2 keywords from the pattern description appear in the evidence
+      const matchCount = keywords.filter(kw => kw.length > 3 && evidenceStr.includes(kw)).length;
+      return matchCount >= 2;
+    });
+
+    if (!matchedPattern) {
+      // Cold-start relaxation: check workstream count
+      const wsCount = (db.prepare('SELECT COUNT(*) as cnt FROM state_ledger').get() as { cnt: number }).cnt;
+      if (wsCount > 10) {
+        return { promoted: false, reason: 'no matching remediation pattern and system past cold-start (>10 workstreams)' };
+      }
+      // Cold-start: allow without pattern match
+    }
+
+    // If pattern matched, increment usage_count
+    if (matchedPattern) {
+      const now = new Date().toISOString();
+      db.prepare('UPDATE remediation_patterns SET usage_count = usage_count + 1, updated_at = ? WHERE pattern_id = ?')
+        .run(now, matchedPattern.pattern_id);
+    }
+  } catch (err) {
+    // G6: pattern match failure should not block promotion — log and continue
+    console.warn('checkAutoPromotion pattern match error:', err);
   }
 
   // Promote
