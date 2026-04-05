@@ -25,6 +25,7 @@ import sqlite3
 import subprocess
 import time
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -80,6 +81,7 @@ class SessionType(enum.Enum):
     EVALUATE = "EVALUATE"
     SYNTHESIZE = "SYNTHESIZE"
     RECOVER = "RECOVER"
+    DISCOVER = "DISCOVER"
 
 
 # ---------------------------------------------------------------------------
@@ -182,6 +184,14 @@ class Deacon:
     _db: sqlite3.Connection | None = None
     _bead_failure_counts: dict[str, list[float]] = field(default_factory=dict)
     _blacklisted_beads: set[str] = field(default_factory=set)
+    _last_discover_time: float = 0.0
+
+    @property
+    def events_db_path(self) -> str | None:
+        """Path to events.db, derived from the tmup DB path."""
+        if self.db_path:
+            return os.path.join(os.path.dirname(self.db_path), "events.db")
+        return None
 
     # -- State transition helper -----------------------------------------------
 
@@ -237,8 +247,14 @@ class Deacon:
             # Keep only last hour
             cutoff = now - 3600
             self._bead_failure_counts[bead_id] = [t for t in timestamps if t > cutoff]
-            if len(self._bead_failure_counts[bead_id]) >= 3:
+            failure_count = len(self._bead_failure_counts[bead_id])
+            if failure_count >= 3:
                 self._evaluate_escalation(bead_id, error)
+                self._persist_backpressure_event(bead_id, {
+                    "count": failure_count,
+                    "error": error,
+                    "timestamps": self._bead_failure_counts[bead_id],
+                })
 
     def _evaluate_escalation(self, bead_id: str, error: str) -> None:
         """Blacklist bead and fire async alert."""
@@ -280,6 +296,73 @@ class Deacon:
         self._blacklisted_beads.clear()
         self._bead_failure_counts.clear()
         log.info("blacklist_cleared")
+
+    # -- Backpressure persistence ---------------------------------------------
+
+    def _persist_backpressure_event(self, bead_id: str, failure_info: dict[str, Any]) -> None:
+        """Write retry_pattern_detected event to events.db."""
+        if not self.events_db_path:
+            return
+        try:
+            conn = sqlite3.connect(self.events_db_path, timeout=10)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=8000")
+            event_id = f"evt-{int(time.time() * 1000)}-{bead_id[:8]}"
+            idem_key = f"retry_pattern_detected:{bead_id}:{failure_info.get('count', 0)}"
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO events
+                (event_id, event_type, workstream_id, bead_id, timestamp, payload, processing_level, idempotency_key)
+                VALUES (?, 'retry_pattern_detected', ?, ?, ?, ?, 'pending', ?)
+                """,
+                (
+                    event_id,
+                    "",
+                    bead_id,
+                    datetime.now(timezone.utc).isoformat(),
+                    json.dumps(failure_info),
+                    idem_key,
+                ),
+            )
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            log.warning("Failed to persist backpressure event: %s", e)
+
+    # -- DISCOVER helpers -----------------------------------------------------
+
+    def _idle_panes_exist(self) -> bool:
+        """Check if there are idle agent panes (no claimed tasks)."""
+        try:
+            conn = self._get_db()
+            row = conn.execute(
+                "SELECT COUNT(*) as cnt FROM agents WHERE status = 'idle'"
+            ).fetchone()
+            return bool(row and row["cnt"] > 0)
+        except sqlite3.Error:
+            return False
+
+    def _pending_tasks_exist(self) -> bool:
+        """Check if there are pending colony tasks."""
+        try:
+            conn = self._get_db()
+            row = conn.execute(
+                """
+                SELECT COUNT(*) as cnt FROM tasks
+                WHERE sdlc_loop_level IS NOT NULL AND status = 'pending'
+                """
+            ).fetchone()
+            return bool(row and row["cnt"] > 0)
+        except sqlite3.Error:
+            return False
+
+    def _time_since_last_session(self, session_type: SessionType) -> float:
+        """Seconds since the last session of this type was spawned."""
+        if session_type == SessionType.DISCOVER:
+            if self._last_discover_time == 0.0:
+                return float("inf")
+            return time.monotonic() - self._last_discover_time
+        return float("inf")
 
     # -- Clone pruning (SC-COL-31) -------------------------------------------
 
@@ -486,15 +569,40 @@ class Deacon:
 
     # -- spawn_conductor -----------------------------------------------------
 
-    def spawn_conductor(self, session_type: str = "DISPATCH") -> subprocess.Popen[bytes]:
+    def spawn_conductor(self, session_type: str = "DISPATCH") -> subprocess.Popen[bytes] | None:
         """Spawn a Conductor Claude Code session.
 
         Launches via Popen first, then writes lock file with Conductor PID.
         If Popen fails, no lock file is written (CRITICAL 4 fix).
-        Returns the Popen handle.
+        Returns the Popen handle, or None if blocked by cost enforcement.
         """
         # Resolve to enum
         st = SessionType(session_type)
+
+        # Cost enforcement: check per-bead budgets before DISPATCH/DISCOVER
+        if st in (SessionType.DISPATCH, SessionType.DISCOVER):
+            try:
+                conn = self._get_db()
+                bead_rows = conn.execute(
+                    "SELECT DISTINCT bead_id FROM tasks "
+                    "WHERE sdlc_loop_level IS NOT NULL AND bead_id IS NOT NULL AND status = 'pending'"
+                ).fetchall()
+                ceiling = float(os.environ.get("BEAD_COST_CEILING_USD", "50.0"))
+                for br in bead_rows:
+                    bid = br["bead_id"]
+                    cost = self._aggregate_bead_cost(bid)
+                    ratio = cost / ceiling if ceiling > 0 else 0
+                    if ratio >= 1.0:
+                        log.warning(
+                            "Budget exceeded for %s: $%.2f / $%.2f — blocking dispatch",
+                            bid, cost, ceiling,
+                        )
+                        return None
+                    if ratio >= 0.8 and st == SessionType.DISCOVER:
+                        log.info("Budget warning for %s — discovery disabled", bid)
+                        return None
+            except sqlite3.Error:
+                log.exception("Cost enforcement check failed")
 
         # Read conductor prompt
         prompt_text = CONDUCTOR_PROMPT_FILE.read_text() if CONDUCTOR_PROMPT_FILE.exists() else ""
@@ -823,6 +931,13 @@ async def run_deacon(deacon: Deacon) -> None:
                     if work and deacon.can_spawn_conductor():
                         session_type = SessionType.SYNTHESIZE.value if work == "synthesize" else SessionType.DISPATCH.value
                         deacon.spawn_conductor(session_type)
+                    elif not work and deacon.can_spawn_conductor():
+                        # No pending work -- consider DISCOVER session
+                        if (deacon._idle_panes_exist()
+                                and not deacon._pending_tasks_exist()
+                                and deacon._time_since_last_session(SessionType.DISCOVER) > 1800):
+                            deacon._last_discover_time = time.monotonic()
+                            deacon.spawn_conductor(SessionType.DISCOVER.value)
                 # SC-COL-31: Prune stale clones and rotate logs
                 await asyncio.to_thread(deacon._prune_stale_clones)
 
