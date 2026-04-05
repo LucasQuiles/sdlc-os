@@ -163,7 +163,7 @@ describe('backpressure control loop', () => {
       insertEvent(makeEvent({
         event_type: 'bead_failed',
         bead_id: 'bead-review',
-        payload: { loop_level: 1, reason: 'reviewer rejected' },
+        payload: { loop_level: 'L1', reason: 'reviewer rejected' },
       }));
     }
 

@@ -288,7 +288,8 @@ function detectReviewDisagreement(
          WHERE workstream_id = ?
            AND event_type = 'bead_failed'
            AND bead_id IS NOT NULL
-           AND json_extract(payload, '$.loop_level') >= 1
+           AND json_extract(payload, '$.loop_level') IS NOT NULL
+           AND json_extract(payload, '$.loop_level') != 'L0'
          GROUP BY bead_id
          HAVING cnt >= ?`,
       )

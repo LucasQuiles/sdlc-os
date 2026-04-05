@@ -92,6 +92,13 @@ export function getLedger(workstreamId: string): StateLedgerRow | null {
  * Update specific fields on an existing state ledger row.
  * Only updates non-undefined fields (partial update).
  */
+const ALLOWED_COLUMNS = new Set([
+  'repo', 'branch', 'mission_id', 'scope_region', 'bead_lineage',
+  'active_beads', 'latest_commit', 'diff_summary', 'changed_files',
+  'hotspots', 'linked_artifacts', 'linked_findings', 'decision_anchors',
+  'unresolved', 'provenance', 'last_enriched_at', 'vector_refs',
+]);
+
 export function updateLedger(workstreamId: string, fields: Partial<StateLedgerRow>): void {
   try {
     const db = getEventsDb();
@@ -108,9 +115,18 @@ export function updateLedger(workstreamId: string, fields: Partial<StateLedgerRo
     const setClauses: string[] = [];
     const values: unknown[] = [];
 
-    for (const [key, value] of Object.entries(fields)) {
-      if (key === 'workstream_id' || value === undefined) continue;
+    const entries = Object.entries(fields).filter(
+      ([key, value]) => key !== 'workstream_id' && value !== undefined,
+    );
 
+    // Validate column names against whitelist to prevent SQL injection
+    for (const [column] of entries) {
+      if (!ALLOWED_COLUMNS.has(column)) {
+        throw new ColonyDbError(`Invalid column name: ${column}`);
+      }
+    }
+
+    for (const [key, value] of entries) {
       // Map TypeScript field names to SQL column names (they match in this schema)
       const column = key;
 

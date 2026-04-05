@@ -104,6 +104,16 @@ function makeEventId(beadId: string): string {
   return `evt-${Date.now()}-${beadId.slice(0, 8)}`;
 }
 
+/**
+ * Extract workstream ID from bead file path.
+ * Bead paths follow: docs/sdlc/active/{task-id}/beads/{bead-id}.md
+ * The task-id IS the workstream_id.
+ */
+function extractWorkstreamId(beadFilePath: string): string {
+  const match = beadFilePath.match(/docs\/sdlc\/active\/([^/]+)\//);
+  return match ? match[1] : '';
+}
+
 // ---------------------------------------------------------------------------
 // Status transition map (spec SS5.3)
 // ---------------------------------------------------------------------------
@@ -280,7 +290,7 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
       appendEventToInbox(inboxPath, {
         event_id: makeEventId(beadId),
         event_type: 'bead_failed',
-        workstream_id: '',
+        workstream_id: extractWorkstreamId(beadFilePath),
         bead_id: beadId,
         timestamp: new Date().toISOString(),
         payload: {
@@ -394,7 +404,7 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
     appendEventToInbox(inboxPath, {
       event_id: makeEventId(beadId),
       event_type: 'bead_completed',
-      workstream_id: '',
+      workstream_id: extractWorkstreamId(beadFilePath),
       bead_id: beadId,
       timestamp: new Date().toISOString(),
       payload: {
@@ -517,7 +527,7 @@ export function bridgeCommitBeadUpdate(
     appendEventToInbox(inboxPath, {
       event_id: makeEventId(beadId),
       event_type: 'commit_created',
-      workstream_id: '',
+      workstream_id: extractWorkstreamId(beadFilePath),
       bead_id: beadId,
       timestamp: new Date().toISOString(),
       payload: {
