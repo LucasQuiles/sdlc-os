@@ -12,7 +12,6 @@
  */
 
 import { getEventsDb } from './events-db.js';
-import { getOpenFindings } from './finding-ops.js';
 import { getLedger } from './state-ledger.js';
 
 // ---------------------------------------------------------------------------
@@ -59,7 +58,6 @@ const REVIEW_REJECTION_THRESHOLD = 3;
 interface ThresholdDetectorConfig {
   sql: string;
   params: unknown[];
-  threshold: number;
   signalType: BackpressureSignal;
   makeAction: (beadId: string, count: number) => BackpressureAction;
   makeEvidence: (beadId: string, count: number) => string;
@@ -103,7 +101,6 @@ function detectStuckTask(
          GROUP BY bead_id
          HAVING cnt >= ?`,
     params: [workstreamId, STUCK_RETRY_THRESHOLD],
-    threshold: STUCK_RETRY_THRESHOLD,
     signalType: 'stuck_task',
     makeEvidence: (beadId, count) => `bead ${beadId} retried ${count} times`,
     makeAction: (beadId, count) => ({
@@ -129,7 +126,6 @@ function detectOscillatingState(
          GROUP BY bead_id
          HAVING cnt >= ?`,
     params: [workstreamId, OSCILLATION_THRESHOLD],
-    threshold: OSCILLATION_THRESHOLD,
     signalType: 'oscillating_state',
     makeEvidence: (beadId, count) => {
       // Note: count here is the total (completions + failures) from the cnt column
@@ -282,7 +278,6 @@ function detectReviewDisagreement(
          GROUP BY bead_id
          HAVING cnt >= ?`,
     params: [workstreamId, REVIEW_REJECTION_THRESHOLD],
-    threshold: REVIEW_REJECTION_THRESHOLD,
     signalType: 'review_disagreement',
     makeEvidence: (beadId, count) => `bead ${beadId} rejected ${count} times at review level`,
     makeAction: (beadId, count) => ({
