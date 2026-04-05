@@ -968,7 +968,9 @@ async def _self_watchdog_task(deacon: Deacon) -> None:
         await asyncio.sleep(TIMER_INTERVAL_S)
         # SC-COL-01: timer-fire liveness
         elapsed = time.monotonic() - deacon._last_timer_fire
-        if elapsed > 60 and elapsed <= WATCHDOG_SELF_TIMEOUT_S:
+        # Warn only if significantly past the normal 60s cycle — allow 15s slack
+        # for work execution between sleep and timer update
+        if elapsed > 75 and elapsed <= WATCHDOG_SELF_TIMEOUT_S:
             log.warning("watchdog_near_miss elapsed_s=%.1f threshold_s=90", elapsed)
         if elapsed > WATCHDOG_SELF_TIMEOUT_S:
             log.error(
