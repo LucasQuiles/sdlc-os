@@ -11,7 +11,7 @@
  */
 
 import { getEventsDb, ColonyDbError } from './events-db.js';
-import { parseJsonField } from './db-utils.js';
+import { parseJsonField, readOne, readMany } from './db-utils.js';
 import type { ConductorJournalEntry } from './event-types.js';
 
 export function writeJournalEntry(entry: ConductorJournalEntry): void {
@@ -36,30 +36,21 @@ export function writeJournalEntry(entry: ConductorJournalEntry): void {
 }
 
 export function readLatestJournal(workstream_id: string): ConductorJournalEntry | null {
-  try {
-    const db = getEventsDb();
-    const row = db.prepare(
-      'SELECT * FROM conductor_journal WHERE workstream_id = ? ORDER BY timestamp DESC LIMIT 1'
-    ).get(workstream_id) as Record<string, unknown> | undefined;
-    if (!row) return null;
-    return rowToEntry(row);
-  } catch (err) {
-    console.warn(`[conductor-journal] readLatestJournal failed for ${workstream_id}:`, err);
-    return null;
-  }
+  return readOne(
+    'SELECT * FROM conductor_journal WHERE workstream_id = ? ORDER BY timestamp DESC LIMIT 1',
+    [workstream_id],
+    rowToEntry,
+    `readLatestJournal(${workstream_id})`,
+  );
 }
 
 export function readJournalHistory(workstream_id: string, limit: number = 10): ConductorJournalEntry[] {
-  try {
-    const db = getEventsDb();
-    const rows = db.prepare(
-      'SELECT * FROM conductor_journal WHERE workstream_id = ? ORDER BY timestamp DESC LIMIT ?'
-    ).all(workstream_id, limit) as Array<Record<string, unknown>>;
-    return rows.map(rowToEntry);
-  } catch (err) {
-    console.warn(`[conductor-journal] readJournalHistory failed for ${workstream_id}:`, err);
-    return [];
-  }
+  return readMany(
+    'SELECT * FROM conductor_journal WHERE workstream_id = ? ORDER BY timestamp DESC LIMIT ?',
+    [workstream_id, limit],
+    rowToEntry,
+    `readJournalHistory(${workstream_id})`,
+  );
 }
 
 function rowToEntry(row: Record<string, unknown>): ConductorJournalEntry {

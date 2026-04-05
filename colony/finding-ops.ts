@@ -7,7 +7,7 @@
  */
 
 import { getEventsDb, ColonyDbError } from './events-db.js';
-import { parseJsonField } from './db-utils.js';
+import { parseJsonField, readOne, readMany } from './db-utils.js';
 import type { Finding, FindingType } from './event-types.js';
 
 // ---------------------------------------------------------------------------
@@ -96,30 +96,21 @@ export function createFinding(opts: {
 }
 
 export function getFinding(finding_id: string): Finding | null {
-  try {
-    const db = getEventsDb();
-    const row = db.prepare('SELECT * FROM findings WHERE finding_id = ?').get(finding_id) as Record<string, unknown> | undefined;
-    if (!row) return null;
-    return rowToFinding(row);
-  } catch (err) {
-    // G6: read operations return null on error
-    console.warn('getFinding error:', err);
-    return null;
-  }
+  return readOne(
+    'SELECT * FROM findings WHERE finding_id = ?',
+    [finding_id],
+    rowToFinding,
+    'getFinding',
+  );
 }
 
 export function getOpenFindings(workstream_id: string): Finding[] {
-  try {
-    const db = getEventsDb();
-    const rows = db.prepare(
-      "SELECT * FROM findings WHERE workstream_id = ? AND promotion_state = 'open' ORDER BY salience DESC"
-    ).all(workstream_id) as Array<Record<string, unknown>>;
-    return rows.map(rowToFinding);
-  } catch (err) {
-    // G6: read operations return empty on error
-    console.warn('getOpenFindings error:', err);
-    return [];
-  }
+  return readMany(
+    "SELECT * FROM findings WHERE workstream_id = ? AND promotion_state = 'open' ORDER BY salience DESC",
+    [workstream_id],
+    rowToFinding,
+    'getOpenFindings',
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -194,37 +185,49 @@ export function checkAutoPromotion(
 // State transitions
 // ---------------------------------------------------------------------------
 
-export function promoteFinding(finding_id: string): void {
+/** Columns allowed in dynamic UPDATE on the findings table. */
+const ALLOWED_FINDING_COLUMNS = new Set([
+  'promotion_state', 'suppression_reason', 'salience', 'confidence',
+  'evidence', 'affected_scope', 'suspected_domain', 'related_findings',
+  'suggested_actions', 'resolved_at',
+]);
+
+function updateFindingState(
+  findingId: string,
+  updates: Record<string, unknown>,
+  action: string,
+): void {
   try {
     const db = getEventsDb();
     const now = new Date().toISOString();
-    db.prepare("UPDATE findings SET promotion_state = 'promoted', updated_at = ? WHERE finding_id = ?").run(now, finding_id);
+
+    // Validate column names against whitelist to prevent SQL injection
+    for (const column of Object.keys(updates)) {
+      if (!ALLOWED_FINDING_COLUMNS.has(column)) {
+        throw new ColonyDbError(`Invalid finding column: ${column}`);
+      }
+    }
+
+    const setClauses = Object.keys(updates).map(k => `${k} = ?`);
+    setClauses.push('updated_at = ?');
+    const values = [...Object.values(updates), now, findingId];
+    db.prepare(`UPDATE findings SET ${setClauses.join(', ')} WHERE finding_id = ?`).run(...values);
   } catch (err) {
     if (err instanceof ColonyDbError) throw err;
-    throw new ColonyDbError(`Failed to promote finding ${finding_id}`, err);
+    throw new ColonyDbError(`Failed to ${action} finding ${findingId}`, err);
   }
+}
+
+export function promoteFinding(finding_id: string): void {
+  updateFindingState(finding_id, { promotion_state: 'promoted' }, 'promote');
 }
 
 export function suppressFinding(finding_id: string, reason: string): void {
-  try {
-    const db = getEventsDb();
-    const now = new Date().toISOString();
-    db.prepare("UPDATE findings SET promotion_state = 'suppressed', suppression_reason = ?, updated_at = ? WHERE finding_id = ?").run(reason, now, finding_id);
-  } catch (err) {
-    if (err instanceof ColonyDbError) throw err;
-    throw new ColonyDbError(`Failed to suppress finding ${finding_id}`, err);
-  }
+  updateFindingState(finding_id, { promotion_state: 'suppressed', suppression_reason: reason }, 'suppress');
 }
 
 export function deferFinding(finding_id: string, reason: string): void {
-  try {
-    const db = getEventsDb();
-    const now = new Date().toISOString();
-    db.prepare("UPDATE findings SET promotion_state = 'deferred', suppression_reason = ?, salience = 0.1, updated_at = ? WHERE finding_id = ?").run(reason, now, finding_id);
-  } catch (err) {
-    if (err instanceof ColonyDbError) throw err;
-    throw new ColonyDbError(`Failed to defer finding ${finding_id}`, err);
-  }
+  updateFindingState(finding_id, { promotion_state: 'deferred', suppression_reason: reason, salience: 0.1 }, 'defer');
 }
 
 export function resurfaceFinding(finding_id: string, newEvidence: Record<string, unknown>): void {
