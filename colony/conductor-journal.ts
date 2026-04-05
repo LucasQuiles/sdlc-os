@@ -11,6 +11,7 @@
  */
 
 import { getEventsDb, ColonyDbError } from './events-db.js';
+import { parseJsonField } from './db-utils.js';
 import type { ConductorJournalEntry } from './event-types.js';
 
 export function writeJournalEntry(entry: ConductorJournalEntry): void {
@@ -67,7 +68,7 @@ function rowToEntry(row: Record<string, unknown>): ConductorJournalEntry {
     workstream_id: row.workstream_id as string,
     session_type: row.session_type as string,
     timestamp: row.timestamp as string,
-    structured: JSON.parse(row.structured as string),
+    structured: parseJsonField(row.structured, {}),
     narrative: row.narrative as string,
   };
 }
