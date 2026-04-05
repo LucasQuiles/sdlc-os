@@ -7,7 +7,7 @@
  */
 
 import { getEventsDb, ColonyDbError } from './events-db.js';
-import { parseJsonField, readOne, readMany } from './db-utils.js';
+import { parseJsonField, readOne, readMany, now } from './db-utils.js';
 import type { Finding, FindingType } from './event-types.js';
 
 // ---------------------------------------------------------------------------
@@ -38,8 +38,8 @@ function rowToFinding(row: Record<string, unknown>): Finding {
     confidence: row.confidence as number,
     affected_scope: row.affected_scope as string | undefined,
     suspected_domain: row.suspected_domain as string | undefined,
-    related_findings: JSON.parse((row.related_findings as string) || '[]'),
-    suggested_actions: JSON.parse((row.suggested_actions as string) || '[]'),
+    related_findings: parseJsonField(row.related_findings, []),
+    suggested_actions: parseJsonField(row.suggested_actions, []),
     promotion_state: row.promotion_state as Finding['promotion_state'],
     suppression_reason: row.suppression_reason as string | undefined,
     salience: row.salience as number,
@@ -68,7 +68,7 @@ export function createFinding(opts: {
   try {
     const db = getEventsDb();
     const id = generateId();
-    const now = new Date().toISOString();
+    const ts = now();
 
     db.prepare(`
       INSERT INTO findings
@@ -82,7 +82,7 @@ export function createFinding(opts: {
       opts.finding_type, JSON.stringify(opts.evidence), opts.confidence,
       opts.affected_scope ?? null, opts.suspected_domain ?? null,
       JSON.stringify(opts.related_findings ?? []),
-      JSON.stringify(opts.suggested_actions ?? []), now, now,
+      JSON.stringify(opts.suggested_actions ?? []), ts, ts,
     );
 
     // Enforce cap
@@ -167,9 +167,9 @@ export function checkAutoPromotion(
 
     // If pattern matched, increment usage_count
     if (matchedPattern) {
-      const now = new Date().toISOString();
+      const ts = now();
       db.prepare('UPDATE remediation_patterns SET usage_count = usage_count + 1, updated_at = ? WHERE pattern_id = ?')
-        .run(now, matchedPattern.pattern_id);
+        .run(ts, matchedPattern.pattern_id);
     }
   } catch (err) {
     // G6: pattern match failure should not block promotion — log and continue
@@ -199,7 +199,7 @@ function updateFindingState(
 ): void {
   try {
     const db = getEventsDb();
-    const now = new Date().toISOString();
+    const ts = now();
 
     // Validate column names against whitelist to prevent SQL injection
     for (const column of Object.keys(updates)) {
@@ -210,7 +210,7 @@ function updateFindingState(
 
     const setClauses = Object.keys(updates).map(k => `${k} = ?`);
     setClauses.push('updated_at = ?');
-    const values = [...Object.values(updates), now, findingId];
+    const values = [...Object.values(updates), ts, findingId];
     db.prepare(`UPDATE findings SET ${setClauses.join(', ')} WHERE finding_id = ?`).run(...values);
   } catch (err) {
     if (err instanceof ColonyDbError) throw err;
@@ -239,12 +239,12 @@ export function resurfaceFinding(finding_id: string, newEvidence: Record<string,
     }
 
     const db = getEventsDb();
-    const now = new Date().toISOString();
+    const ts = now();
     // Merge new evidence with existing
-    const mergedEvidence = { ...f.evidence, ...newEvidence, resurfaced_at: now };
+    const mergedEvidence = { ...f.evidence, ...newEvidence, resurfaced_at: ts };
     db.prepare(
       "UPDATE findings SET promotion_state = 'open', suppression_reason = NULL, evidence = ?, salience = 1.0, updated_at = ? WHERE finding_id = ?"
-    ).run(JSON.stringify(mergedEvidence), now, finding_id);
+    ).run(JSON.stringify(mergedEvidence), ts, finding_id);
   } catch (err) {
     if (err instanceof ColonyDbError) throw err;
     throw new ColonyDbError(`Failed to resurface finding ${finding_id}`, err);
@@ -258,20 +258,20 @@ export function resurfaceFinding(finding_id: string, newEvidence: Record<string,
 export function archiveStaleFindings(workstream_id: string): number {
   try {
     const db = getEventsDb();
-    const now = new Date().toISOString();
+    const ts = now();
 
     // Archive findings below salience threshold
     const salienceResult = db.prepare(`
       UPDATE findings SET promotion_state = 'archived', updated_at = ?
       WHERE workstream_id = ? AND promotion_state = 'open' AND salience < ?
-    `).run(now, workstream_id, SALIENCE_ARCHIVE_THRESHOLD);
+    `).run(ts, workstream_id, SALIENCE_ARCHIVE_THRESHOLD);
 
     // Archive findings past the hard TTL (30 days)
     const ttlCutoff = new Date(Date.now() - STALE_FINDING_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
     const ttlResult = db.prepare(`
       UPDATE findings SET promotion_state = 'archived', updated_at = ?
       WHERE workstream_id = ? AND promotion_state = 'open' AND updated_at < ?
-    `).run(now, workstream_id, ttlCutoff);
+    `).run(ts, workstream_id, ttlCutoff);
 
     return (salienceResult as { changes: number }).changes + (ttlResult as { changes: number }).changes;
   } catch (err) {
@@ -292,7 +292,7 @@ function enforceOpenFindingsCap(workstream_id: string): void {
 
   if (count > MAX_OPEN_FINDINGS_PER_WORKSTREAM) {
     const excess = count - MAX_OPEN_FINDINGS_PER_WORKSTREAM;
-    const now = new Date().toISOString();
+    const ts = now();
     // Archive lowest-salience findings
     db.prepare(`
       UPDATE findings SET promotion_state = 'archived', updated_at = ?
@@ -301,6 +301,6 @@ function enforceOpenFindingsCap(workstream_id: string): void {
         WHERE workstream_id = ? AND promotion_state = 'open'
         ORDER BY salience ASC LIMIT ?
       )
-    `).run(now, workstream_id, excess);
+    `).run(ts, workstream_id, excess);
   }
 }
