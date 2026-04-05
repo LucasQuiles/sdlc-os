@@ -434,6 +434,95 @@ class Deacon:
             log_path = str(Path(__file__).parent / log_name)
             _rotate_log(log_path)
 
+    # -- JSONL inbox ingestion ------------------------------------------------
+
+    def _ingest_jsonl_inbox(self, inbox_name: str) -> int:
+        """Batch-ingest typed events from a JSONL inbox file into events.db.
+
+        Args:
+            inbox_name: Filename of the inbox (e.g. 'events-inbox.jsonl').
+
+        Returns:
+            Number of events successfully ingested.
+        """
+        if not self.events_db_path:
+            return 0
+
+        inbox_path = os.path.join(os.path.dirname(self.db_path), inbox_name)
+        if not os.path.exists(inbox_path):
+            return 0
+
+        try:
+            with open(inbox_path, "r") as f:
+                lines = f.readlines()
+        except OSError as e:
+            log.warning("Failed to read %s: %s", inbox_name, e)
+            return 0
+
+        if not lines:
+            return 0
+
+        ingested = 0
+        try:
+            conn = sqlite3.connect(self.events_db_path, timeout=10)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=8000")
+
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    event = json.loads(line)
+                    conn.execute(
+                        """
+                        INSERT OR IGNORE INTO events
+                        (event_id, event_type, workstream_id, bead_id, agent_id,
+                         timestamp, payload, processing_level, idempotency_key)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            event.get("event_id", ""),
+                            event.get("event_type", ""),
+                            event.get("workstream_id", ""),
+                            event.get("bead_id"),
+                            event.get("agent_id"),
+                            event.get("timestamp", ""),
+                            json.dumps(event.get("payload", {})),
+                            event.get("processing_level", "pending"),
+                            event.get("idempotency_key", ""),
+                        ),
+                    )
+                    ingested += 1
+                except (json.JSONDecodeError, KeyError) as e:
+                    log.warning("Skipping malformed event line in %s: %s", inbox_name, e)
+                    continue
+
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            log.warning("Failed to ingest events from %s to DB: %s", inbox_name, e)
+            return 0
+
+        # Truncate inbox after successful ingest
+        try:
+            with open(inbox_path, "w") as f:
+                f.truncate(0)
+        except OSError:
+            pass  # Non-critical — idempotency keys prevent duplicates
+
+        if ingested > 0:
+            log.info("Ingested %d events from %s", ingested, inbox_name)
+        return ingested
+
+    def _ingest_event_inbox(self) -> int:
+        """Batch-ingest typed events from events-inbox.jsonl into events.db."""
+        return self._ingest_jsonl_inbox("events-inbox.jsonl")
+
+    def _ingest_enrichment_inbox(self) -> int:
+        """Batch-ingest enrichment outputs from enrichment-inbox.jsonl into events.db."""
+        return self._ingest_jsonl_inbox("enrichment-inbox.jsonl")
+
     # -- can_spawn_conductor -------------------------------------------------
 
     def can_spawn_conductor(self) -> bool:
@@ -940,6 +1029,9 @@ async def run_deacon(deacon: Deacon) -> None:
                             deacon.spawn_conductor(SessionType.DISCOVER.value)
                 # SC-COL-31: Prune stale clones and rotate logs
                 await asyncio.to_thread(deacon._prune_stale_clones)
+                # Batch-ingest JSONL inboxes into events.db
+                await asyncio.to_thread(deacon._ingest_event_inbox)
+                await asyncio.to_thread(deacon._ingest_enrichment_inbox)
 
             elif deacon.state == DeaconState.CONDUCTING:
                 proc = deacon.conductor_process
