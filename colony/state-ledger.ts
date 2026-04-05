@@ -11,6 +11,7 @@
  */
 
 import { getEventsDb, ColonyDbError } from './events-db.js';
+import { readOne } from './db-utils.js';
 import type { StateLedgerRow, ConductorJournalEntry, Finding } from './event-types.js';
 import { readJournalHistory } from './conductor-journal.js';
 import { getOpenFindings } from './finding-ops.js';
@@ -75,17 +76,12 @@ function rowToLedger(row: Record<string, unknown>): StateLedgerRow {
  * Returns null if workstream doesn't exist.
  */
 export function getLedger(workstreamId: string): StateLedgerRow | null {
-  try {
-    const db = getEventsDb();
-    const row = db.prepare(
-      'SELECT * FROM state_ledger WHERE workstream_id = ?',
-    ).get(workstreamId) as Record<string, unknown> | undefined;
-    if (!row) return null;
-    return rowToLedger(row);
-  } catch (err) {
-    console.warn(`[state-ledger] getLedger failed for ${workstreamId}:`, err);
-    return null;
-  }
+  return readOne(
+    'SELECT * FROM state_ledger WHERE workstream_id = ?',
+    [workstreamId],
+    rowToLedger,
+    `getLedger(${workstreamId})`,
+  );
 }
 
 /**
