@@ -20,6 +20,13 @@ Every Conductor session follows this exact sequence:
    This ensures any successor Conductor can determine what is already running without re-decomposing (SC-COL-04).
 3. **tmup_status** — Read current session state, agent roster, task statuses.
 4. **tmup_inbox** — Read all unread messages.
+5. **Read conductor journal** — Query events.db `conductor_journal` table for the latest 3 entries for this workstream. Extract:
+   - Prior decisions with evidence and alternatives
+   - Beads previously dispatched/evaluated
+   - Findings created/promoted/suppressed
+   - Unresolved questions and uncertainties
+   - Next actions recommended by previous session
+   Use this context to inform current session decisions. Do NOT re-derive decisions that were already made — inherit them.
 
 **Rule: NEVER re-decompose beads or change the design.** A new Conductor session inherits the manifest from the pre-flight handoff block and the bead files on disk.
 
@@ -49,7 +56,11 @@ Every Conductor session follows this exact sequence:
    b. Write `{clone_dir}/bead-context.md` to the worker's clone (see bead-context.md protocol below).
    c. Call `tmup_dispatch` with `worker_type` (`codex` or `claude_code`) and `clone_isolation: true`.
 6. Update pre-flight handoff block with dispatched task IDs.
-7. Exit.
+7. **Write conductor journal entry** — Record to events.db `conductor_journal` table:
+   - `structured`: beads dispatched/evaluated, findings created/promoted/suppressed, decisions with evidence/alternatives/uncertainty, next recommended actions, backpressure signals observed
+   - `narrative`: 2-3 sentence summary of what this session accomplished and what remains uncertain
+   This entry becomes the context anchor for the next Conductor session.
+8. Exit.
 
 ### EVALUATE
 
@@ -87,7 +98,11 @@ Every Conductor session follows this exact sequence:
    d. If latest task still IN-FLIGHT: skip (wait for next Deacon cycle).
 4. Check bead dependency graph before dispatching downstream beads (SC-COL-10).
 5. If all beads at terminal state: signal SYNTHESIZE needed (write to state.md).
-6. Exit.
+6. **Write conductor journal entry** — Record to events.db `conductor_journal` table:
+   - `structured`: beads dispatched/evaluated, findings created/promoted/suppressed, decisions with evidence/alternatives/uncertainty, next recommended actions, backpressure signals observed
+   - `narrative`: 2-3 sentence summary of what this session accomplished and what remains uncertain
+   This entry becomes the context anchor for the next Conductor session.
+7. Exit.
 ```
 
 ### AQS Inline Execution (L2.5)
@@ -128,7 +143,11 @@ After AQS completes for a bead, evaluate FFT-14 from `references/fft-decision-tr
 6. Write delivery summary to `delivery.md`.
 7. **Conflict detection:** If any merge abort occurs, do NOT proceed with remaining merges. Dispatch the resolver first, then re-enter SYNTHESIZE for remaining clones.
 8. Call `tmup_teardown` ONLY after all beads reach terminal status and all merges complete.
-9. Exit.
+9. **Write conductor journal entry** — Record to events.db `conductor_journal` table:
+   - `structured`: beads dispatched/evaluated, findings created/promoted/suppressed, decisions with evidence/alternatives/uncertainty, next recommended actions, backpressure signals observed
+   - `narrative`: 2-3 sentence summary of what this session accomplished and what remains uncertain
+   This entry becomes the context anchor for the next Conductor session.
+10. Exit.
 
 ### RECOVER
 
@@ -148,7 +167,45 @@ After AQS completes for a bead, evaluate FFT-14 from `references/fft-decision-tr
 3. **Re-dispatch stale tasks:** For tasks reset to `pending`, follow the DISPATCH logic (check SC-COL-09 for duplicates, write bead-context.md, dispatch).
 4. **Verify clone integrity:** Ensure all referenced clones exist and have valid `.git` directories.
 5. Update pre-flight handoff block with recovered state.
-6. Exit. Deacon will spawn the appropriate next session type.
+6. **Write conductor journal entry** — Record to events.db `conductor_journal` table:
+   - `structured`: beads dispatched/evaluated, findings created/promoted/suppressed, decisions with evidence/alternatives/uncertainty, next recommended actions, backpressure signals observed
+   - `narrative`: 2-3 sentence summary of what this session accomplished and what remains uncertain
+   This entry becomes the context anchor for the next Conductor session.
+7. Exit. Deacon will spawn the appropriate next session type.
+
+### DISCOVER
+
+**Trigger:** No pending work, agents idle, discovery budget allows (Deacon-enforced), 30+ minutes since last DISCOVER session.
+
+**Logic:**
+1. Run session bootstrap protocol.
+2. Read the findings store — query `findings` table in events.db for:
+   - Open findings with salience > 0.3 (potential work items)
+   - Backpressure signals (retry_pattern_detected events)
+   - Deferred findings that may have new corroborating evidence
+3. Read the state ledger for current workstream scope and recent hotspots.
+4. Run adjacency inspection:
+   - For each recently-completed bead, inspect neighboring code for:
+     - Lint/format issues
+     - Dead code
+     - Missing tests
+     - Type safety gaps
+     - Import anomalies
+   - Create findings for each discovered issue (in_scope or exploratory as appropriate).
+5. Run scheduled audit:
+   - Check test coverage in areas modified by recent beads
+   - Check for resurfacing patterns from operational memory
+   - Consolidate duplicate findings
+6. Process promotable findings:
+   - For each open finding with confidence >= 0.7 and finding_type 'in_scope':
+     call checkAutoPromotion(). If promoted, create a new bead.
+   - For exploratory/boundary-crossing findings: log but do NOT auto-promote.
+7. Archive stale findings (salience < 0.05 or updated_at > 30 days ago).
+8. Write conductor journal entry.
+9. If no promotable work found and no findings created: write journal noting "discovery pass complete, no actionable items." Deacon will not spawn another DISCOVER for 30 minutes.
+10. Exit.
+
+**Key constraint:** DISCOVER sessions operate within the current mission scope only. They do NOT create new missions or expand scope boundaries. Out-of-scope findings are logged as exploratory issues for machine adjudication, not acted upon autonomously.
 
 ---
 
