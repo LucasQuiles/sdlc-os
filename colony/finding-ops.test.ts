@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { bootstrapColony } from './bootstrap.ts';
+import { bootstrapColony, createWorkstream } from './bootstrap.ts';
 import { closeEventsDb, getEventsDb } from './events-db.ts';
 import {
   createFinding, getFinding, promoteFinding, suppressFinding,
@@ -208,5 +208,78 @@ describe('finding-ops', () => {
     const result = checkAutoPromotion(id, { active_mission_scope: 'src/' });
     expect(result.promoted).toBe(false);
     expect(result.reason).toContain('confidence below');
+  });
+
+  // -------------------------------------------------------------------------
+  // Remediation pattern matching (spec §14.1)
+  // -------------------------------------------------------------------------
+
+  it('pattern match: evidence matching seed pattern promotes finding', () => {
+    // Evidence with "dead" and "export" should match 'dead-code-removal' seed pattern
+    // ("Remove unused export/function" — keywords: remove, unused, export/function)
+    const id = createFinding({
+      workstream_id: 'ws-001',
+      finding_type: 'in_scope',
+      evidence: { observed: 'dead unused export in utils.ts', file_refs: ['src/utils.ts:10'] },
+      confidence: 0.8,
+      affected_scope: 'src/utils.ts',
+    });
+    const result = checkAutoPromotion(id, { active_mission_scope: 'src/' });
+    expect(result.promoted).toBe(true);
+  });
+
+  it('no pattern match, cold-start (<10 workstreams): still promoted with relaxation', () => {
+    // Evidence that does NOT match any seed pattern keywords
+    const id = createFinding({
+      workstream_id: 'ws-001',
+      finding_type: 'in_scope',
+      evidence: { observed: 'completely novel xyz qqq issue', file_refs: ['src/novel.ts:1'] },
+      confidence: 0.8,
+      affected_scope: 'src/novel.ts',
+    });
+    // No workstreams in state_ledger = cold-start, so relaxation allows promotion
+    const result = checkAutoPromotion(id, { active_mission_scope: 'src/' });
+    expect(result.promoted).toBe(true);
+  });
+
+  it('no pattern match, mature system (>10 workstreams): NOT promoted', () => {
+    // Create >10 workstreams to exit cold-start
+    for (let i = 0; i < 11; i++) {
+      createWorkstream({
+        workstream_id: `ws-mature-${i}`,
+        repo: 'test-repo',
+        branch: 'main',
+        mission_id: 'm-001',
+      });
+    }
+
+    const id = createFinding({
+      workstream_id: 'ws-mature-0',
+      finding_type: 'in_scope',
+      evidence: { observed: 'completely novel xyz qqq issue', file_refs: ['src/novel.ts:1'] },
+      confidence: 0.8,
+      affected_scope: 'src/novel.ts',
+    });
+    const result = checkAutoPromotion(id, { active_mission_scope: 'src/' });
+    expect(result.promoted).toBe(false);
+    expect(result.reason).toContain('no matching remediation pattern');
+  });
+
+  it('pattern usage_count incremented on match', () => {
+    const db = getEventsDb();
+    const before = db.prepare("SELECT usage_count FROM remediation_patterns WHERE pattern_id = 'dead-code-removal'").get() as { usage_count: number };
+    expect(before.usage_count).toBe(0);
+
+    const id = createFinding({
+      workstream_id: 'ws-001',
+      finding_type: 'in_scope',
+      evidence: { observed: 'remove unused export leftover', file_refs: ['src/foo.ts:5'] },
+      confidence: 0.8,
+      affected_scope: 'src/foo.ts',
+    });
+    checkAutoPromotion(id, { active_mission_scope: 'src/' });
+
+    const after = db.prepare("SELECT usage_count FROM remediation_patterns WHERE pattern_id = 'dead-code-removal'").get() as { usage_count: number };
+    expect(after.usage_count).toBe(1);
   });
 });
