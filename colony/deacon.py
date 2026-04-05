@@ -373,7 +373,12 @@ class Deacon:
         Prune if bridge_synced=1 OR clone age > 24h.
         """
         try:
-            conn = self._get_db()
+            # Open a fresh connection for this thread — _get_db() returns the
+            # main-thread connection which cannot be used from asyncio.to_thread.
+            conn = sqlite3.connect(self.db_path, timeout=10)
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=8000")
+            conn.row_factory = sqlite3.Row
             # Get all unique clone_dirs from tasks
             candidates = conn.execute(
                 """
@@ -428,6 +433,11 @@ class Deacon:
 
         except sqlite3.Error:
             log.exception("clone_prune_db_error")
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
         # Log rotation
         for log_name in ("colony-sessions.log", "colony-bridge.log", "clone-events.log"):
