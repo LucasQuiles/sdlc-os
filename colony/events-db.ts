@@ -38,16 +38,26 @@ export function openEventsDb(dbPath: string): void {
   if (db) return;
   try {
     db = new Database(dbPath);
+    // PRAGMAs must succeed — execute outside error-swallowing loop
+    db.pragma('journal_mode = WAL');
+    const mode = db.pragma('journal_mode', { simple: true });
+    if (mode !== 'wal') {
+      console.warn(`events-db: WAL mode not set (got ${mode})`);
+    }
+    db.pragma('busy_timeout = 8000');
+    db.pragma('foreign_keys = ON');
+
     const __dirname = dirname(fileURLToPath(import.meta.url));
     const schemaPath = join(__dirname, 'events-schema.sql');
     const schema = readFileSync(schemaPath, 'utf8');
-    // Execute each statement separately — better-sqlite3's exec handles multi-statement
-    // but we split to tolerate individual pragma/create failures gracefully
+    // Execute each CREATE TABLE/INDEX statement separately, tolerating collisions
     for (const stmt of schema.split(';').map(s => s.trim()).filter(Boolean)) {
+      // Skip PRAGMA statements — already handled above
+      if (/^\s*PRAGMA\b/i.test(stmt)) continue;
       try {
         db.exec(stmt);
       } catch {
-        // Ignore CREATE IF NOT EXISTS collisions and PRAGMA returns
+        // Ignore CREATE IF NOT EXISTS collisions
       }
     }
   } catch (err) {

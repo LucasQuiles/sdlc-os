@@ -504,12 +504,15 @@ class Deacon:
             log.warning("Failed to ingest events from %s to DB: %s", inbox_name, e)
             return 0
 
-        # Truncate inbox after successful ingest
+        # Atomic rename instead of truncate to avoid TOCTOU race.
+        # If bridge appends between our read and this rename, those events
+        # land in a new file and are caught on the next cycle.
         try:
-            with open(inbox_path, "w") as f:
-                f.truncate(0)
+            tmp = inbox_path + '.ingested'
+            os.rename(inbox_path, tmp)  # Atomic on same filesystem
+            os.unlink(tmp)
         except OSError:
-            pass  # Non-critical — idempotency keys prevent duplicates
+            pass  # Next cycle will re-read (idempotency keys prevent duplicates)
 
         if ingested > 0:
             log.info("Ingested %d events from %s", ingested, inbox_name)
