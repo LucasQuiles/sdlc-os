@@ -7,6 +7,7 @@
  */
 
 import { getEventsDb, ColonyDbError } from './events-db.js';
+import { parseJsonField } from './db-utils.js';
 import type { Finding, FindingType } from './event-types.js';
 
 // ---------------------------------------------------------------------------
@@ -33,7 +34,7 @@ function rowToFinding(row: Record<string, unknown>): Finding {
     source_bead_id: row.source_bead_id as string | undefined,
     source_agent_id: row.source_agent_id as string | undefined,
     finding_type: row.finding_type as Finding['finding_type'],
-    evidence: JSON.parse(row.evidence as string),
+    evidence: parseJsonField(row.evidence, {}),
     confidence: row.confidence as number,
     affected_scope: row.affected_scope as string | undefined,
     suspected_domain: row.suspected_domain as string | undefined,

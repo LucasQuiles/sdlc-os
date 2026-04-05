@@ -12,6 +12,7 @@ import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { TypedEvent } from './event-types.js';
+import { parseJsonField } from './db-utils.js';
 
 // ---------------------------------------------------------------------------
 // Error class (G6)
@@ -143,7 +144,7 @@ export function queryEvents(
       bead_id: (r.bead_id as string | null) ?? undefined,
       agent_id: (r.agent_id as string | null) ?? undefined,
       timestamp: r.timestamp as string,
-      payload: JSON.parse(r.payload as string),
+      payload: parseJsonField(r.payload, {}),
       processing_level: r.processing_level as TypedEvent['processing_level'],
       idempotency_key: r.idempotency_key as string,
     }));
