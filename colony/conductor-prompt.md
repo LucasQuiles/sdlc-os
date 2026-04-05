@@ -82,6 +82,11 @@ Every Conductor session follows this exact sequence:
    b. If latest task COMPLETED:
       - Read bead-output.md from clone (via task.output_path).
       - Verify output: file exists, >100 bytes, contains <!-- BEAD_OUTPUT_COMPLETE --> sentinel.
+      - **Brick preprocessing (optional):** If Brick MCP is available, call `brick_preprocess` with the worker's bead-output.md content + git diff:
+        - task_class: 'diff_review'
+        - format_hint: 'diff'
+        - intent_key: 'flag_risks'
+        If Brick returns flagged risks, factor them into evaluation. If Brick is unavailable, proceed without enrichment (degraded mode).
       - Call bridge CLI to update bead status:
         npx tsx colony/bridge-cli.ts \
           --bead-file <path> --clone-dir <dir> --loop-level <level> \
