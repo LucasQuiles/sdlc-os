@@ -114,6 +114,7 @@ Before every `tmup_dispatch` call, the Conductor MUST write `{clone_dir}/bead-co
 **Security Sensitive:** {true | false}
 **Profile:** {BUILD | INVESTIGATE | REPAIR | EVOLVE}
 **Loop Level:** {L0 | L1 | L2}
+**Prior Worker Type:** {claude_code | codex | none}
 
 ## Objective
 {Full objective from bead file — what the worker must accomplish}
@@ -164,6 +165,7 @@ Before every `tmup_dispatch` call, the Conductor MUST write `{clone_dir}/bead-co
 3. **Correction history**: Include ALL corrections from ALL prior cycles and loop levels. The worker must see what was already tried to avoid repeating failed approaches.
 4. **Output protocol**: Always include the output protocol section verbatim. Workers must know how to report results.
 5. **Scope enforcement**: The scope_files list is authoritative. Workers must not modify files outside it.
+6. **Prior worker type**: When dispatching a review bead, include the worker_type of the agent that produced the work being reviewed. This enables the reviewer to understand model-specific patterns in the code.
 
 ### When to Rewrite
 

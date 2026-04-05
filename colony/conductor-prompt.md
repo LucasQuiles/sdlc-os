@@ -54,6 +54,13 @@ Every Conductor session follows this exact sequence:
       }
       ```
    b. Write `{clone_dir}/bead-context.md` to the worker's clone (see bead-context.md protocol below).
+   c-1. **Select worker_type:**
+        - For implementation beads (L0): use bead's Cynefin domain to choose:
+          * CLEAR → codex (cheaper, faster)
+          * COMPLICATED → claude_code or codex (Conductor's choice based on task characteristics)
+          * COMPLEX → claude_code (better multi-file coordination)
+        - For review beads (L1+): alternate from the prior worker's model (cross-model protocol)
+        - For discovery beads: codex (cost-effective for exploratory work)
    c. Call `tmup_dispatch` with `worker_type` (`codex` or `claude_code`) and `clone_isolation: true`.
 6. Update pre-flight handoff block with dispatched task IDs.
 7. **Write conductor journal entry** — Record to events.db `conductor_journal` table:
@@ -86,6 +93,15 @@ Every Conductor session follows this exact sequence:
         * L2 complete -> run AQS INLINE (L2.5) — see AQS section below
         * L2.5 complete -> run Harden INLINE (L2.75)
         * L2.75 complete -> bead ready for merge
+      - **Cross-model review protocol:**
+        When dispatching review/sentinel beads (L1+):
+        * If the L0 worker used `worker_type: claude_code`, dispatch L1 review with `worker_type: codex`
+        * If the L0 worker used `worker_type: codex`, dispatch L1 review with `worker_type: claude_code`
+        * Query the completed task's `worker_type` field from tmup to determine which model authored the code
+        * This ensures adversarial-complementary review: the reviewing model is different from the authoring model
+        * Log the cross-model assignment in the conductor journal entry
+        * For L2 (Oracle) and beyond: worker_type follows the same alternation pattern
+        * Exception: if only one worker_type is available (e.g., Codex unavailable), same-model review is acceptable. Log the exception.
    c. If latest task FAILED (needs_review):
       - Read correction.json from clone: {clone_dir}/correction.json
       - Call bridge CLI to append correction to bead file:
