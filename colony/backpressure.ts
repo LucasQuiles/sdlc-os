@@ -53,93 +53,95 @@ const LOW_CONFIDENCE_COUNT = 10;
 const REVIEW_REJECTION_THRESHOLD = 3;
 
 // ---------------------------------------------------------------------------
+// Shared threshold detector helper
+// ---------------------------------------------------------------------------
+
+interface ThresholdDetectorConfig {
+  sql: string;
+  params: unknown[];
+  threshold: number;
+  signalType: BackpressureSignal;
+  makeAction: (beadId: string, count: number) => BackpressureAction;
+  makeEvidence: (beadId: string, count: number) => string;
+}
+
+function detectThreshold(
+  config: ThresholdDetectorConfig,
+): { signals: Array<{ signal: BackpressureSignal; evidence: string }>; actions: BackpressureAction[] } {
+  const signals: Array<{ signal: BackpressureSignal; evidence: string }> = [];
+  const actions: BackpressureAction[] = [];
+
+  try {
+    const db = getEventsDb();
+    const rows = db.prepare(config.sql).all(...config.params) as Array<Record<string, unknown>>;
+    for (const row of rows) {
+      const beadId = row.bead_id as string;
+      const count = (row.cnt as number) || 0;
+      if (count >= config.threshold) {
+        signals.push({ signal: config.signalType, evidence: config.makeEvidence(beadId, count) });
+        actions.push(config.makeAction(beadId, count));
+      }
+    }
+  } catch (err) {
+    // G6: read operations return empty on error
+    console.warn(`Backpressure ${config.signalType} detection failed:`, err);
+  }
+
+  return { signals, actions };
+}
+
+// ---------------------------------------------------------------------------
 // Signal detectors (each returns zero or more signal+action pairs)
 // ---------------------------------------------------------------------------
 
 function detectStuckTask(
   workstreamId: string,
 ): { signals: BackpressureEvaluation['signals']; actions: BackpressureAction[] } {
-  const signals: BackpressureEvaluation['signals'] = [];
-  const actions: BackpressureAction[] = [];
-
-  try {
-    const db = getEventsDb();
-    const rows = db
-      .prepare(
-        `SELECT bead_id, COUNT(*) as cnt
+  return detectThreshold({
+    sql: `SELECT bead_id, COUNT(*) as cnt
          FROM events
          WHERE workstream_id = ? AND event_type = 'retry_pattern_detected' AND bead_id IS NOT NULL
          GROUP BY bead_id
          HAVING cnt >= ?`,
-      )
-      .all(workstreamId, STUCK_RETRY_THRESHOLD) as Array<{ bead_id: string; cnt: number }>;
-
-    for (const row of rows) {
-      signals.push({
-        signal: 'stuck_task',
-        evidence: `bead ${row.bead_id} retried ${row.cnt} times`,
-      });
-      actions.push({
-        type: 'pause_retries',
-        beadId: row.bead_id,
-        reason: `bead ${row.bead_id} retried ${row.cnt} times (threshold: ${STUCK_RETRY_THRESHOLD})`,
-      });
-    }
-  } catch {
-    // G6: read failure -> skip signal
-  }
-
-  return { signals, actions };
+    params: [workstreamId, STUCK_RETRY_THRESHOLD],
+    threshold: STUCK_RETRY_THRESHOLD,
+    signalType: 'stuck_task',
+    makeEvidence: (beadId, count) => `bead ${beadId} retried ${count} times`,
+    makeAction: (beadId, count) => ({
+      type: 'pause_retries',
+      beadId,
+      reason: `bead ${beadId} retried ${count} times (threshold: ${STUCK_RETRY_THRESHOLD})`,
+    }),
+  });
 }
 
 function detectOscillatingState(
   workstreamId: string,
 ): { signals: BackpressureEvaluation['signals']; actions: BackpressureAction[] } {
-  const signals: BackpressureEvaluation['signals'] = [];
-  const actions: BackpressureAction[] = [];
-
-  try {
-    const db = getEventsDb();
-    // Find beads that have alternating completed/failed events.
-    // Count total completed+failed per bead; 3+ alternations means 3+ of each type
-    // (simplification: if a bead has >= OSCILLATION_THRESHOLD of each, it is oscillating)
-    const rows = db
-      .prepare(
-        `SELECT bead_id,
+  return detectThreshold({
+    sql: `SELECT bead_id,
                 SUM(CASE WHEN event_type = 'bead_completed' THEN 1 ELSE 0 END) as completions,
-                SUM(CASE WHEN event_type = 'bead_failed' THEN 1 ELSE 0 END) as failures
+                SUM(CASE WHEN event_type = 'bead_failed' THEN 1 ELSE 0 END) as failures,
+                COUNT(*) as cnt
          FROM events
          WHERE workstream_id = ?
            AND event_type IN ('bead_completed', 'bead_failed')
            AND bead_id IS NOT NULL
          GROUP BY bead_id
-         HAVING completions + failures >= ?`,
-      )
-      .all(workstreamId, OSCILLATION_THRESHOLD) as Array<{
-      bead_id: string;
-      completions: number;
-      failures: number;
-    }>;
-
-    for (const row of rows) {
-      const total = row.completions + row.failures;
-      if (total >= OSCILLATION_THRESHOLD) {
-        signals.push({
-          signal: 'oscillating_state',
-          evidence: `bead ${row.bead_id} bounced ${total} times (${row.completions} completions, ${row.failures} failures)`,
-        });
-        actions.push({
-          type: 'freeze_bead',
-          beadId: row.bead_id,
-          reason: `bead ${row.bead_id} oscillating with ${total} state changes`,
-        });
-      }
-    }
-  } catch {
-    // G6: read failure -> skip signal
-  }
-
-  return { signals, actions };
+         HAVING cnt >= ?`,
+    params: [workstreamId, OSCILLATION_THRESHOLD],
+    threshold: OSCILLATION_THRESHOLD,
+    signalType: 'oscillating_state',
+    makeEvidence: (beadId, count) => {
+      // Note: count here is the total (completions + failures) from the cnt column
+      return `bead ${beadId} bounced ${count} times`;
+    },
+    makeAction: (beadId, count) => ({
+      type: 'freeze_bead',
+      beadId,
+      reason: `bead ${beadId} oscillating with ${count} state changes`,
+    }),
+  });
 }
 
 function detectRisingEscalation(
@@ -275,15 +277,8 @@ function detectLowConfidenceFlood(
 function detectReviewDisagreement(
   workstreamId: string,
 ): { signals: BackpressureEvaluation['signals']; actions: BackpressureAction[] } {
-  const signals: BackpressureEvaluation['signals'] = [];
-  const actions: BackpressureAction[] = [];
-
-  try {
-    const db = getEventsDb();
-    // bead_failed events at L1+ loop level (payload.loop_level >= 1) grouped by bead
-    const rows = db
-      .prepare(
-        `SELECT bead_id, COUNT(*) as cnt
+  return detectThreshold({
+    sql: `SELECT bead_id, COUNT(*) as cnt
          FROM events
          WHERE workstream_id = ?
            AND event_type = 'bead_failed'
@@ -292,25 +287,16 @@ function detectReviewDisagreement(
            AND json_extract(payload, '$.loop_level') != 'L0'
          GROUP BY bead_id
          HAVING cnt >= ?`,
-      )
-      .all(workstreamId, REVIEW_REJECTION_THRESHOLD) as Array<{ bead_id: string; cnt: number }>;
-
-    for (const row of rows) {
-      signals.push({
-        signal: 'review_disagreement',
-        evidence: `bead ${row.bead_id} rejected ${row.cnt} times at review level`,
-      });
-      actions.push({
-        type: 'escalate_to_human',
-        beadId: row.bead_id,
-        reason: `bead ${row.bead_id} rejected ${row.cnt} times by reviewers (threshold: ${REVIEW_REJECTION_THRESHOLD})`,
-      });
-    }
-  } catch {
-    // G6: read failure -> skip signal
-  }
-
-  return { signals, actions };
+    params: [workstreamId, REVIEW_REJECTION_THRESHOLD],
+    threshold: REVIEW_REJECTION_THRESHOLD,
+    signalType: 'review_disagreement',
+    makeEvidence: (beadId, count) => `bead ${beadId} rejected ${count} times at review level`,
+    makeAction: (beadId, count) => ({
+      type: 'escalate_to_human',
+      beadId,
+      reason: `bead ${beadId} rejected ${count} times by reviewers (threshold: ${REVIEW_REJECTION_THRESHOLD})`,
+    }),
+  });
 }
 
 // ---------------------------------------------------------------------------
