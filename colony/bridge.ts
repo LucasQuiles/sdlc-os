@@ -15,7 +15,7 @@
  */
 
 import { readFileSync, writeFileSync, appendFileSync, renameSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import Database from 'better-sqlite3';
 import { parseBeadFile, updateBeadField, appendCorrection } from './bead-parser.js';
@@ -73,6 +73,35 @@ export function logBridgeCall(entry: BridgeLogEntry): void {
   } catch {
     // Logging must never crash the bridge
   }
+}
+
+// ---------------------------------------------------------------------------
+// Event emission (spec §11.4 — JSONL inbox for Deacon batch ingest)
+// ---------------------------------------------------------------------------
+
+export interface BridgeEvent {
+  event_id: string;
+  event_type: string;
+  workstream_id: string;
+  bead_id: string;
+  timestamp: string;
+  payload: Record<string, unknown>;
+  processing_level: string;
+  idempotency_key: string;
+}
+
+/**
+ * Append a typed event JSON line to the events inbox file.
+ * The Deacon batch-ingests from this file into events.db.
+ * Uses appendFileSync for atomic-at-line-level writes under concurrent access.
+ */
+export function appendEventToInbox(inboxPath: string, event: BridgeEvent): void {
+  const line = JSON.stringify(event) + '\n';
+  appendFileSync(inboxPath, line, 'utf8');
+}
+
+function makeEventId(beadId: string): string {
+  return `evt-${Date.now()}-${beadId.slice(0, 8)}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -244,6 +273,28 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
     // SC-COL-28: atomic write
     constraintsChecked.push('SC-COL-28');
     atomicWriteFile(beadFilePath, updatedContent);
+
+    // Emit bead_failed event to JSONL inbox
+    try {
+      const inboxPath = join(dirname(cloneDir), 'events-inbox.jsonl');
+      appendEventToInbox(inboxPath, {
+        event_id: makeEventId(beadId),
+        event_type: 'bead_failed',
+        workstream_id: '',
+        bead_id: beadId,
+        timestamp: new Date().toISOString(),
+        payload: {
+          finding: correctionText,
+          cycle: correctionCycle,
+          loop_level: loopLevel,
+        },
+        processing_level: loopLevel,
+        idempotency_key: `bead_failed:${beadId}:${loopLevel}:${correctionCycle}`,
+      });
+    } catch {
+      // Event emission must never crash the bridge
+    }
+
     return finalize({
       success: true,
       action: 'correction',
@@ -337,6 +388,27 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
   const updatedContent = updateBeadField(beadContent, 'Status', transition.to);
   atomicWriteFile(beadFilePath, updatedContent);
 
+  // Emit bead_completed event to JSONL inbox
+  try {
+    const inboxPath = join(dirname(cloneDir), 'events-inbox.jsonl');
+    appendEventToInbox(inboxPath, {
+      event_id: makeEventId(beadId),
+      event_type: 'bead_completed',
+      workstream_id: '',
+      bead_id: beadId,
+      timestamp: new Date().toISOString(),
+      payload: {
+        new_status: transition.to,
+        loop_level: loopLevel,
+        output_summary: `Bead ${beadId} advanced to ${transition.to}`,
+      },
+      processing_level: loopLevel,
+      idempotency_key: `bead_completed:${beadId}:${loopLevel}:${statusIndex(transition.to)}`,
+    });
+  } catch {
+    // Event emission must never crash the bridge
+  }
+
   return finalize({
     success: true,
     action: 'advanced',
@@ -424,6 +496,40 @@ export function bridgeCommitBeadUpdate(
     ).trim();
   } catch {
     commitHash = 'unknown';
+  }
+
+  // Get changed files for event payload
+  let changedFiles: string[] = [];
+  try {
+    const diffOutput = execFileSync(
+      'git',
+      ['-C', projectDir, 'diff', 'HEAD~1', 'HEAD', '--name-only'],
+      { encoding: 'utf-8' },
+    ).trim();
+    changedFiles = diffOutput.split('\n').filter(l => l.length > 0);
+  } catch {
+    changedFiles = [beadFilePath];
+  }
+
+  // Emit commit_created event to JSONL inbox
+  try {
+    const inboxPath = join(dirname(projectDir), 'events-inbox.jsonl');
+    appendEventToInbox(inboxPath, {
+      event_id: makeEventId(beadId),
+      event_type: 'commit_created',
+      workstream_id: '',
+      bead_id: beadId,
+      timestamp: new Date().toISOString(),
+      payload: {
+        commit_hash: commitHash,
+        changed_files: changedFiles,
+        loop_level: loopLevel,
+      },
+      processing_level: loopLevel,
+      idempotency_key: `commit_created:${beadId}:${loopLevel}:${commitHash.slice(0, 8)}`,
+    });
+  } catch {
+    // Event emission must never crash the bridge
   }
 
   return {

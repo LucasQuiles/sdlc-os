@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import Database from 'better-sqlite3';
-import { bridgeUpdateBead, bridgeCommitBeadUpdate, markBridgeSynced, logBridgeCall } from './bridge.js';
-import type { BridgeLogEntry } from './bridge.js';
+import { bridgeUpdateBead, bridgeCommitBeadUpdate, markBridgeSynced, logBridgeCall, appendEventToInbox } from './bridge.js';
+import type { BridgeLogEntry, BridgeEvent } from './bridge.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -843,5 +843,199 @@ describe('bridge-cli elapsed_ms', () => {
     expect(parsed.elapsed_ms).toBeDefined();
     expect(typeof parsed.elapsed_ms).toBe('number');
     expect(parsed.elapsed_ms).toBeGreaterThanOrEqual(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Event emission via JSONL inbox (spec §11.4)
+// ---------------------------------------------------------------------------
+
+describe('bridge event emission', () => {
+  let sessionDir: string;
+  let cloneDir: string;
+  let beadDir: string;
+  let inboxPath: string;
+
+  beforeEach(() => {
+    // sessionDir simulates the colony session directory.
+    // cloneDir is a child of sessionDir so dirname(cloneDir) = sessionDir.
+    sessionDir = makeTmpDir();
+    cloneDir = join(sessionDir, 'clone');
+    mkdirSync(cloneDir, { recursive: true });
+    beadDir = makeTmpDir();
+    inboxPath = join(sessionDir, 'events-inbox.jsonl');
+  });
+
+  afterEach(() => {
+    rmSync(sessionDir, { recursive: true, force: true });
+    rmSync(beadDir, { recursive: true, force: true });
+    try { rmSync(cloneDir + '-bare', { recursive: true, force: true }); } catch {}
+  });
+
+  it('emits bead_completed event on successful advancement', () => {
+    initGitRepoWithOrigin(cloneDir);
+    writeFileSync(join(cloneDir, 'work.ts'), 'export const x = 1;\n', 'utf-8');
+    execFileSync('git', ['-C', cloneDir, 'add', '--', 'work.ts'], { encoding: 'utf-8' });
+    execFileSync('git', ['-C', cloneDir, 'commit', '-m', 'worker commit'], { encoding: 'utf-8' });
+
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+    writeValidOutput(cloneDir);
+
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: true,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.action).toBe('advanced');
+
+    // Verify event was written to inbox
+    expect(existsSync(inboxPath)).toBe(true);
+    const lines = readFileSync(inboxPath, 'utf-8').trim().split('\n');
+    expect(lines.length).toBeGreaterThanOrEqual(1);
+
+    const event = JSON.parse(lines[lines.length - 1]) as BridgeEvent;
+    expect(event.event_type).toBe('bead_completed');
+    expect(event.bead_id).toBe('bead-001');
+    expect(event.event_id).toMatch(/^evt-\d+-bead-001$/);
+    expect(event.processing_level).toBe('L0');
+    expect(event.idempotency_key).toMatch(/^bead_completed:bead-001/);
+    expect(event.timestamp).toBeDefined();
+    expect(event.payload).toBeDefined();
+    expect((event.payload as Record<string, unknown>).new_status).toBe('submitted');
+    expect((event.payload as Record<string, unknown>).loop_level).toBe('L0');
+  });
+
+  it('emits bead_failed event on correction (finding)', () => {
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: false,
+      finding: 'Tests failed: assertion error in line 42',
+      cycle: 2,
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.action).toBe('correction');
+
+    // Verify event was written to inbox
+    expect(existsSync(inboxPath)).toBe(true);
+    const lines = readFileSync(inboxPath, 'utf-8').trim().split('\n');
+    expect(lines.length).toBeGreaterThanOrEqual(1);
+
+    const event = JSON.parse(lines[lines.length - 1]) as BridgeEvent;
+    expect(event.event_type).toBe('bead_failed');
+    expect(event.bead_id).toBe('bead-001');
+    expect(event.processing_level).toBe('L0');
+    expect(event.idempotency_key).toBe('bead_failed:bead-001:L0:2');
+    expect((event.payload as Record<string, unknown>).finding).toBe('Tests failed: assertion error in line 42');
+    expect((event.payload as Record<string, unknown>).cycle).toBe(2);
+    expect((event.payload as Record<string, unknown>).loop_level).toBe('L0');
+  });
+
+  it('emits commit_created event after successful git commit', () => {
+    // Set up a git repo inside sessionDir so dirname(projectDir) = sessionDir
+    const projectDir = join(sessionDir, 'project');
+    mkdirSync(projectDir, { recursive: true });
+    execFileSync('git', ['init', projectDir], { encoding: 'utf-8' });
+    execFileSync('git', ['-C', projectDir, 'config', 'user.email', 'test@test.com'], { encoding: 'utf-8' });
+    execFileSync('git', ['-C', projectDir, 'config', 'user.name', 'Test'], { encoding: 'utf-8' });
+    writeFileSync(join(projectDir, 'README.md'), '# Test\n', 'utf-8');
+    execFileSync('git', ['-C', projectDir, 'add', '--', 'README.md'], { encoding: 'utf-8' });
+    execFileSync('git', ['-C', projectDir, 'commit', '-m', 'init'], { encoding: 'utf-8' });
+
+    // Write bead file
+    const beadPath = join(projectDir, 'bead-001.md');
+    writeFileSync(beadPath, '**BeadID:** bead-001\n**Status:** submitted\n', 'utf-8');
+
+    const result = bridgeCommitBeadUpdate(
+      projectDir,
+      beadPath,
+      'bead-001',
+      'L0',
+      'main',
+    );
+
+    expect(result.success).toBe(true);
+
+    // Verify commit_created event
+    expect(existsSync(inboxPath)).toBe(true);
+    const lines = readFileSync(inboxPath, 'utf-8').trim().split('\n');
+    expect(lines.length).toBeGreaterThanOrEqual(1);
+
+    const event = JSON.parse(lines[lines.length - 1]) as BridgeEvent;
+    expect(event.event_type).toBe('commit_created');
+    expect(event.bead_id).toBe('bead-001');
+    expect(event.processing_level).toBe('L0');
+    expect((event.payload as Record<string, unknown>).commit_hash).toBe(result.commitHash);
+    expect((event.payload as Record<string, unknown>).changed_files).toBeDefined();
+    expect(event.idempotency_key).toMatch(/^commit_created:bead-001:L0:/);
+  });
+
+  it('all events have required fields and are valid JSON', () => {
+    initGitRepoWithOrigin(cloneDir);
+    writeFileSync(join(cloneDir, 'work.ts'), 'export const x = 1;\n', 'utf-8');
+    execFileSync('git', ['-C', cloneDir, 'add', '--', 'work.ts'], { encoding: 'utf-8' });
+    execFileSync('git', ['-C', cloneDir, 'commit', '-m', 'worker commit'], { encoding: 'utf-8' });
+
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+    writeValidOutput(cloneDir);
+
+    bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: true,
+    });
+
+    const lines = readFileSync(inboxPath, 'utf-8').trim().split('\n');
+    for (const line of lines) {
+      const event = JSON.parse(line) as BridgeEvent;
+      // All required fields present
+      expect(event.event_id).toBeDefined();
+      expect(event.event_type).toBeDefined();
+      expect(typeof event.workstream_id).toBe('string');
+      expect(event.bead_id).toBeDefined();
+      expect(event.timestamp).toBeDefined();
+      expect(event.payload).toBeDefined();
+      expect(typeof event.payload).toBe('object');
+      expect(event.processing_level).toBeDefined();
+      expect(event.idempotency_key).toBeDefined();
+    }
+  });
+
+  it('does not emit events on skipped (idempotent) updates', () => {
+    const beadPath = writeBeadFile(beadDir, SUBMITTED_BEAD);
+    writeValidOutput(cloneDir);
+
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: 'L0',
+      taskCompleted: true,
+    });
+
+    expect(result.action).toBe('skipped');
+    // No inbox file should be created for skipped actions
+    expect(existsSync(inboxPath)).toBe(false);
+  });
+
+  it('does not emit events on error results', () => {
+    const beadPath = writeBeadFile(beadDir, RUNNING_BEAD);
+
+    const result = bridgeUpdateBead({
+      beadFilePath: beadPath,
+      cloneDir,
+      loopLevel: null,
+      taskCompleted: true,
+    });
+
+    expect(result.action).toBe('error');
+    expect(existsSync(inboxPath)).toBe(false);
   });
 });
