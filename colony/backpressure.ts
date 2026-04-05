@@ -77,10 +77,9 @@ function detectThreshold(
     for (const row of rows) {
       const beadId = row.bead_id as string;
       const count = (row.cnt as number) || 0;
-      if (count >= config.threshold) {
-        signals.push({ signal: config.signalType, evidence: config.makeEvidence(beadId, count) });
-        actions.push(config.makeAction(beadId, count));
-      }
+      // SQL HAVING clause already filters below threshold — no re-check needed
+      signals.push({ signal: config.signalType, evidence: config.makeEvidence(beadId, count) });
+      actions.push(config.makeAction(beadId, count));
     }
   } catch (err) {
     // G6: read operations return empty on error
@@ -151,13 +150,8 @@ function detectRisingEscalation(
   const actions: BackpressureAction[] = [];
 
   try {
-    const findings = getOpenFindings(workstreamId);
-    if (findings.length === 0) return { signals, actions };
-
-    const escalated = findings.filter(f => f.promotion_state === 'escalated').length;
-    // getOpenFindings returns promotion_state='open' only, so we need to query all non-archived
     const db = getEventsDb();
-    const allOpen = db
+    const rows = db
       .prepare(
         `SELECT promotion_state, COUNT(*) as cnt
          FROM findings
@@ -168,7 +162,7 @@ function detectRisingEscalation(
 
     let total = 0;
     let escalatedCount = 0;
-    for (const row of allOpen) {
+    for (const row of rows) {
       total += row.cnt;
       if (row.promotion_state === 'escalated') {
         escalatedCount = row.cnt;
@@ -186,8 +180,8 @@ function detectRisingEscalation(
         reason: `${ratio}% escalation rate exceeds ${ESCALATION_RATIO_THRESHOLD * 100}% threshold`,
       });
     }
-  } catch {
-    // G6: read failure -> skip signal
+  } catch (err) {
+    console.warn('Backpressure rising_escalation detection failed:', err);
   }
 
   return { signals, actions };
