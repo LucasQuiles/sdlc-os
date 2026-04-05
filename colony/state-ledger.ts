@@ -11,7 +11,7 @@
  */
 
 import { getEventsDb, ColonyDbError } from './events-db.js';
-import { readOne } from './db-utils.js';
+import { readOne, parseJsonField, now } from './db-utils.js';
 import type { StateLedgerRow, ConductorJournalEntry, Finding } from './event-types.js';
 import { readJournalHistory } from './conductor-journal.js';
 import { getOpenFindings } from './finding-ops.js';
@@ -52,18 +52,18 @@ function rowToLedger(row: Record<string, unknown>): StateLedgerRow {
     mission_id: row.mission_id as string,
     scope_region: row.scope_region as string | undefined,
     bead_lineage: row.bead_lineage as string | undefined,
-    active_beads: JSON.parse((row.active_beads as string) || '{}'),
+    active_beads: parseJsonField(row.active_beads, {}),
     latest_commit: row.latest_commit as string | undefined,
     diff_summary: row.diff_summary as string | undefined,
-    changed_files: JSON.parse((row.changed_files as string) || '[]'),
-    hotspots: JSON.parse((row.hotspots as string) || '[]'),
-    linked_artifacts: JSON.parse((row.linked_artifacts as string) || '[]'),
-    linked_findings: JSON.parse((row.linked_findings as string) || '[]'),
-    decision_anchors: JSON.parse((row.decision_anchors as string) || '[]'),
-    unresolved: JSON.parse((row.unresolved as string) || '[]'),
-    provenance: JSON.parse((row.provenance as string) || '{}'),
+    changed_files: parseJsonField(row.changed_files, []),
+    hotspots: parseJsonField(row.hotspots, []),
+    linked_artifacts: parseJsonField(row.linked_artifacts, []),
+    linked_findings: parseJsonField(row.linked_findings, []),
+    decision_anchors: parseJsonField(row.decision_anchors, []),
+    unresolved: parseJsonField(row.unresolved, []),
+    provenance: parseJsonField(row.provenance, {}),
     last_enriched_at: row.last_enriched_at as string | undefined,
-    vector_refs: JSON.parse((row.vector_refs as string) || '[]'),
+    vector_refs: parseJsonField(row.vector_refs, []),
   };
 }
 
@@ -139,7 +139,7 @@ export function updateLedger(workstreamId: string, fields: Partial<StateLedgerRo
 
     // Always bump updated_at
     setClauses.push('updated_at = ?');
-    values.push(new Date().toISOString());
+    values.push(now());
 
     values.push(workstreamId);
 
@@ -175,7 +175,7 @@ export function rehydrateStatePacket(workstreamId: string): StatePacket | null {
       ledger,
       recentJournal,
       openFindings,
-      rehydratedAt: new Date().toISOString(),
+      rehydratedAt: now(),
     };
   } catch (err) {
     console.warn(`[state-ledger] rehydrateStatePacket failed for ${workstreamId}:`, err);
