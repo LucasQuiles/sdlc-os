@@ -69,7 +69,11 @@ fi
 
 # --- File Filtering ---
 
-mapfile -t ANALYZABLE < <(filter_analyzable_files "${FILES[@]+"${FILES[@]}"}")
+# POSIX-compatible alternative to mapfile (bash 4+ only, macOS ships 3.2)
+ANALYZABLE=()
+while IFS= read -r line; do
+  ANALYZABLE+=("$line")
+done < <(filter_analyzable_files "${FILES[@]+"${FILES[@]}"}")
 
 if [[ ${#ANALYZABLE[@]} -eq 0 ]]; then
   printf '{"status": "SKIP", "reason": "no analyzable files"}\n'

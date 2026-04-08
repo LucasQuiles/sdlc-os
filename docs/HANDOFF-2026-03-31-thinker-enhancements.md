@@ -138,7 +138,7 @@ grep "complete-local" scripts/run-complete-gates.sh
 
 ```bash
 # Quality budget fields match schema
-python3 -c "import yaml; d=yaml.safe_load(open('docs/sdlc/active/fft-decision-architecture-20260326/quality-budget.yaml')); print(sorted(d.keys()))"
+python3 -c "import yaml; d=yaml.safe_load(open('docs/sdlc/completed/fft-decision-architecture-20260326/quality-budget.yaml')); print(sorted(d.keys()))"
 # Expected: includes cynefin_mix, beads, corrections, metrics, timing, escapes, sli_readings
 
 # No stale quality-budget.md references
