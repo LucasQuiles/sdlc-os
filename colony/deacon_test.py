@@ -347,8 +347,8 @@ class TestSpawnConductor:
             # Two --plugin-dir flags (tmup and sdlc-os)
             plugin_dir_count = cmd.count("--plugin-dir")
             assert plugin_dir_count == 2, f"Expected 2 --plugin-dir flags, got {plugin_dir_count}"
-            assert "/home/q/.claude/plugins/tmup" in cmd_str, "Missing tmup plugin dir"
-            assert "/home/q/.claude/plugins/sdlc-os" in cmd_str, "Missing sdlc-os plugin dir"
+            assert str(Path.home() / ".claude" / "plugins" / "tmup") in cmd_str, "Missing tmup plugin dir"
+            assert str(Path.home() / ".claude" / "plugins" / "sdlc-os") in cmd_str, "Missing sdlc-os plugin dir"
 
     def test_sets_conducting_state(self, deacon: Deacon) -> None:
         """spawn_conductor should transition to CONDUCTING state."""
@@ -1167,10 +1167,20 @@ class TestMaintenanceWatchdog:
 
         args = captured["args"]
         assert isinstance(args, tuple)
-        assert args[0] == "/home/q/.local/bin/whatsapp-notify"
-        assert args[1] == "18454174651"
+        assert args[0] == "whatsapp-notify"
+        assert args[1] == ""
         assert "prune_stale_clones" in args[2]
         assert "3 consecutive failures" in args[2]
+
+    def test_maintenance_deadletter_creates_parent_dir(self, tmp_db: str, tmp_path: Path) -> None:
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        nested_dl = tmp_path / "nested" / "deep" / "deadletter.jsonl"
+        with patch.dict(os.environ, {"DEACON_MAINTENANCE_ALERT_DEADLETTER": str(nested_dl)}):
+            with patch("asyncio.create_subprocess_exec", side_effect=OSError("fail")):
+                asyncio.run(deacon._send_maintenance_alert("test_fn", RuntimeError("boom"), 3))
+        assert nested_dl.exists()
+        data = json.loads(nested_dl.read_text().strip())
+        assert data["maintenance_function"] == "test_fn"
 
 
 class TestSynthesizeTimeout:

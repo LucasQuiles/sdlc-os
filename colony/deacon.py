@@ -62,13 +62,13 @@ BEAD_COST_CEILING_USD = float(os.environ.get("BEAD_COST_CEILING_USD", "50.0"))
 MAX_BRIDGE_DEFERRAL_COUNT = 10
 MAINTENANCE_ALERT_THRESHOLD = int(os.environ.get("DEACON_MAINTENANCE_ALERT_THRESHOLD", "3"))
 MAINTENANCE_DEGRADED_THRESHOLD = int(os.environ.get("DEACON_MAINTENANCE_DEGRADED_THRESHOLD", "5"))
-MAINTENANCE_ALERT_TARGET = os.environ.get("DEACON_MAINTENANCE_ALERT_TARGET", "18454174651")
-MAINTENANCE_ALERT_BIN = os.environ.get("WHATSAPP_NOTIFY_BIN", "/home/q/.local/bin/whatsapp-notify")
+MAINTENANCE_ALERT_TARGET = os.environ.get("DEACON_MAINTENANCE_ALERT_TARGET", "")
+MAINTENANCE_ALERT_BIN = os.environ.get("WHATSAPP_NOTIFY_BIN", "whatsapp-notify")
 MAINTENANCE_ALERT_TIMEOUT_S = 10
 DEACON_EVENT_WORKSTREAM_ID = "deacon"
 CONDUCTOR_PROMPT_FILE = Path(__file__).parent / "conductor-prompt.md"
-TMUP_PLUGIN_DIR = Path("/home/q/.claude/plugins/tmup")
-SDLC_PLUGIN_DIR = Path("/home/q/.claude/plugins/sdlc-os")
+TMUP_PLUGIN_DIR = Path(os.environ.get("TMUP_PLUGIN_DIR", str(Path.home() / ".claude" / "plugins" / "tmup")))
+SDLC_PLUGIN_DIR = Path(os.environ.get("SDLC_PLUGIN_DIR", str(Path.home() / ".claude" / "plugins" / "sdlc-os")))
 
 
 # ---------------------------------------------------------------------------
