@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
-import { execSync as realExecSync } from 'node:child_process';
 
 let secretToolShouldFail = false;
 
