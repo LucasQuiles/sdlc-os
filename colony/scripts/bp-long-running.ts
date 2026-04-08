@@ -1,4 +1,4 @@
-import { openEventsDb, insertEvent, closeEventsDb } from './events-db.js';
+import { openEventsDb, insertEvent, closeEventsDb } from '../events-db.js';
 openEventsDb('/home/q/.local/state/tmup/colony-events.db');
 for (const taskId of ['018','019','020','021']) {
   insertEvent({
