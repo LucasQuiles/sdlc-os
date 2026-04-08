@@ -126,6 +126,17 @@ def clean_lock_files() -> None:
     BRIDGE_LOCK_FILE.unlink(missing_ok=True)
 
 
+def _init_events_db(tmp_db: str) -> Path:
+    """Bootstrap a minimal events.db alongside the tmup fixture DB."""
+    events_db = Path(tmp_db).with_name("events.db")
+    schema_path = Path(__file__).with_name("events-schema.sql")
+    conn = sqlite3.connect(events_db)
+    conn.executescript(schema_path.read_text())
+    conn.commit()
+    conn.close()
+    return events_db
+
+
 # ---------------------------------------------------------------------------
 # T5.1 Tests: State Machine Core
 # ---------------------------------------------------------------------------
@@ -1045,6 +1056,123 @@ class TestEscalation:
         assert data["bead_id"] == "bead-x"
 
 
+class TestMaintenanceWatchdog:
+    """Maintenance cycle failure tracking, alerting, and degraded mode."""
+
+    def test_maintenance_failure_logged_to_events_db(self, tmp_db: str, tmp_path: Path) -> None:
+        events_db = _init_events_db(tmp_db)
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+
+        asyncio.run(deacon._record_maintenance_failure("prune_stale_clones", RuntimeError("disk full")))
+
+        conn = sqlite3.connect(events_db)
+        row = conn.execute(
+            "SELECT event_type, payload FROM events ORDER BY timestamp DESC LIMIT 1"
+        ).fetchone()
+        conn.close()
+
+        assert row is not None
+        payload = json.loads(row[1])
+        assert row[0] == "deacon_maintenance_failure"
+        assert payload["maintenance_function"] == "prune_stale_clones"
+        assert payload["consecutive_failures"] == 1
+        assert payload["error_type"] == "RuntimeError"
+        assert payload["error"] == "disk full"
+
+    def test_three_maintenance_failures_trigger_alert_once(self, tmp_db: str, tmp_path: Path) -> None:
+        _init_events_db(tmp_db)
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+
+        with patch.object(deacon, "_schedule_maintenance_alert") as mock_alert:
+            for _ in range(3):
+                asyncio.run(
+                    deacon._record_maintenance_failure(
+                        "ingest_event_inbox",
+                        RuntimeError("bad inbox"),
+                    )
+                )
+
+        state = deacon._maintenance_failures["ingest_event_inbox"]
+        assert state.consecutive_failures == 3
+        assert state.alert_sent is True
+        mock_alert.assert_called_once()
+        assert mock_alert.call_args.args[0] == "ingest_event_inbox"
+
+    def test_five_maintenance_failures_enter_degraded_mode_and_skip_only_broken_task(
+        self,
+        tmp_db: str,
+        tmp_path: Path,
+    ) -> None:
+        _init_events_db(tmp_db)
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        calls = {"prune": 0, "events": 0, "enrichment": 0}
+
+        def failing_prune() -> None:
+            calls["prune"] += 1
+            raise RuntimeError("clone prune stuck")
+
+        def ok_events() -> int:
+            calls["events"] += 1
+            return 1
+
+        def ok_enrichment() -> int:
+            calls["enrichment"] += 1
+            return 1
+
+        deacon._prune_stale_clones = failing_prune  # type: ignore[method-assign]
+        deacon._ingest_event_inbox = ok_events  # type: ignore[method-assign]
+        deacon._ingest_enrichment_inbox = ok_enrichment  # type: ignore[method-assign]
+
+        with patch.object(deacon, "_schedule_maintenance_alert"):
+            for _ in range(5):
+                asyncio.run(deacon._run_maintenance_cycle())
+
+            state = deacon._maintenance_failures["prune_stale_clones"]
+            assert state.consecutive_failures == 5
+            assert state.degraded is True
+            assert calls["prune"] == 5
+            assert calls["events"] == 5
+            assert calls["enrichment"] == 5
+
+            asyncio.run(deacon._run_maintenance_cycle())
+
+        assert calls["prune"] == 5
+        assert calls["events"] == 6
+        assert calls["enrichment"] == 6
+
+    def test_send_maintenance_alert_targets_q_number(self, tmp_db: str, tmp_path: Path) -> None:
+        _init_events_db(tmp_db)
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        captured: dict[str, object] = {}
+
+        class DummyProc:
+            returncode = 0
+
+            async def wait(self) -> int:
+                return 0
+
+        async def fake_create_subprocess_exec(*args: object, **kwargs: object) -> DummyProc:
+            captured["args"] = args
+            captured["kwargs"] = kwargs
+            return DummyProc()
+
+        with patch("deacon.asyncio.create_subprocess_exec", side_effect=fake_create_subprocess_exec):
+            asyncio.run(
+                deacon._send_maintenance_alert(
+                    "prune_stale_clones",
+                    RuntimeError("disk full"),
+                    3,
+                )
+            )
+
+        args = captured["args"]
+        assert isinstance(args, tuple)
+        assert args[0] == "/home/q/.local/bin/whatsapp-notify"
+        assert args[1] == "18454174651"
+        assert "prune_stale_clones" in args[2]
+        assert "3 consecutive failures" in args[2]
+
+
 class TestSynthesizeTimeout:
     """SC-COL-05: SYNTHESIZE uses 60-min timeout, not 30-min."""
 
@@ -1473,3 +1601,130 @@ class TestManagedWatcherBackoff:
         assert observed[7] == 60
         assert observed[8] == 60
         assert observed[9] == 60
+
+
+# ---------------------------------------------------------------------------
+# JSONL Inbox Ingestion (P2-05)
+# ---------------------------------------------------------------------------
+
+
+class TestJsonlInboxIngestion:
+    """Tests for _ingest_jsonl_inbox / _ingest_event_inbox / _ingest_enrichment_inbox."""
+
+    def test_ingest_valid_events(self, deacon: Deacon, tmp_db: str) -> None:
+        """Valid JSONL lines are inserted into events.db."""
+        _init_events_db(tmp_db)
+        inbox = Path(tmp_db).with_name("events-inbox.jsonl")
+        events = [
+            {
+                "event_id": "evt-001",
+                "event_type": "bead_complete",
+                "workstream_id": "ws-1",
+                "bead_id": "B1",
+                "agent_id": "a1",
+                "timestamp": "2026-04-05T00:00:00Z",
+                "payload": {"status": "proven"},
+                "processing_level": "pending",
+                "idempotency_key": "idem-001",
+            },
+            {
+                "event_id": "evt-002",
+                "event_type": "finding_created",
+                "workstream_id": "ws-1",
+                "timestamp": "2026-04-05T00:01:00Z",
+                "payload": {},
+                "idempotency_key": "idem-002",
+            },
+        ]
+        inbox.write_text("\n".join(json.dumps(e) for e in events) + "\n")
+
+        count = deacon._ingest_event_inbox()
+
+        assert count == 2
+        # Inbox file should be removed after ingestion
+        assert not inbox.exists()
+        # Verify rows landed in events.db
+        conn = sqlite3.connect(deacon.events_db_path)
+        rows = conn.execute("SELECT event_id FROM events ORDER BY event_id").fetchall()
+        conn.close()
+        assert [r[0] for r in rows] == ["evt-001", "evt-002"]
+
+    def test_ingest_skips_malformed_lines(self, deacon: Deacon, tmp_db: str) -> None:
+        """Malformed JSON lines are skipped; valid lines still ingested."""
+        _init_events_db(tmp_db)
+        inbox = Path(tmp_db).with_name("events-inbox.jsonl")
+        valid_event = {
+            "event_id": "evt-good",
+            "event_type": "bead_complete",
+            "workstream_id": "ws-1",
+            "timestamp": "2026-04-05T00:00:00Z",
+            "payload": {},
+            "idempotency_key": "idem-good",
+        }
+        inbox.write_text(
+            "NOT VALID JSON\n"
+            + json.dumps(valid_event) + "\n"
+            + "{broken: json}\n"
+        )
+
+        count = deacon._ingest_event_inbox()
+
+        assert count == 1
+        conn = sqlite3.connect(deacon.events_db_path)
+        rows = conn.execute("SELECT event_id FROM events").fetchall()
+        conn.close()
+        assert rows[0][0] == "evt-good"
+
+    def test_ingest_idempotency(self, deacon: Deacon, tmp_db: str) -> None:
+        """Duplicate idempotency keys are silently ignored (INSERT OR IGNORE)."""
+        _init_events_db(tmp_db)
+        event = {
+            "event_id": "evt-dup",
+            "event_type": "bead_complete",
+            "workstream_id": "ws-1",
+            "timestamp": "2026-04-05T00:00:00Z",
+            "payload": {},
+            "idempotency_key": "idem-dup",
+        }
+        inbox = Path(tmp_db).with_name("events-inbox.jsonl")
+
+        # First ingestion
+        inbox.write_text(json.dumps(event) + "\n")
+        assert deacon._ingest_event_inbox() == 1
+
+        # Second ingestion with same idempotency key
+        inbox.write_text(json.dumps(event) + "\n")
+        assert deacon._ingest_event_inbox() == 1  # Still counts as "ingested" (INSERT OR IGNORE succeeds)
+
+        conn = sqlite3.connect(deacon.events_db_path)
+        rows = conn.execute("SELECT COUNT(*) FROM events").fetchone()
+        conn.close()
+        assert rows[0] == 1  # Only one row despite two ingestions
+
+    def test_ingest_missing_inbox_returns_zero(self, deacon: Deacon, tmp_db: str) -> None:
+        """Missing inbox file returns 0 without error."""
+        _init_events_db(tmp_db)
+        assert deacon._ingest_event_inbox() == 0
+
+    def test_ingest_enrichment_inbox(self, deacon: Deacon, tmp_db: str) -> None:
+        """enrichment-inbox.jsonl uses the same codepath."""
+        _init_events_db(tmp_db)
+        inbox = Path(tmp_db).with_name("enrichment-inbox.jsonl")
+        event = {
+            "event_id": "enrich-001",
+            "event_type": "enrichment_complete",
+            "workstream_id": "ws-2",
+            "timestamp": "2026-04-05T00:00:00Z",
+            "payload": {"enriched": True},
+            "idempotency_key": "idem-enrich-001",
+        }
+        inbox.write_text(json.dumps(event) + "\n")
+
+        count = deacon._ingest_enrichment_inbox()
+
+        assert count == 1
+        assert not inbox.exists()
+        conn = sqlite3.connect(deacon.events_db_path)
+        rows = conn.execute("SELECT event_id FROM events").fetchall()
+        conn.close()
+        assert rows[0][0] == "enrich-001"
