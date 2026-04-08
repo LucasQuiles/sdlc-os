@@ -354,6 +354,7 @@ class Deacon:
                 raise RuntimeError(f"curl exit {proc.returncode}")
         except Exception:
             log.warning("escalation_deadletter bead_id=%s", bead_id)
+            os.makedirs(os.path.dirname(dl_path), exist_ok=True)
             with open(dl_path, "a") as f:
                 f.write(json.dumps(record) + "\n")
 
@@ -431,6 +432,7 @@ class Deacon:
             )
         except Exception:
             log.warning("maintenance_alert_deadletter function=%s", maintenance_function)
+            os.makedirs(os.path.dirname(deadletter_path), exist_ok=True)
             with open(deadletter_path, "a") as f:
                 f.write(json.dumps(record) + "\n")
 
