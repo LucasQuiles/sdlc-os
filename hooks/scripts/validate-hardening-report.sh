@@ -9,7 +9,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 
-INPUT=$(cat)
+INPUT=$(timeout 2s cat || true)
+if [ -z "$INPUT" ]; then exit 0; fi
 FILE_PATH=$(read_hook_file_path "$INPUT")
 
 # Only validate hardening report files

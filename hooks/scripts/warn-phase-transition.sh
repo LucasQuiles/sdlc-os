@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
-input=$(cat)
+input=$(timeout 2s cat || true)
+if [ -z "$input" ]; then exit 0; fi
 file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty')
 
 [[ "$file_path" == */state.md ]] || exit 0

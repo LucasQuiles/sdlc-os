@@ -2,7 +2,8 @@
 # validate-quality-budget.sh — PostToolUse hook: validates quality-budget.yaml on Write/Edit
 set -euo pipefail
 
-input=$(cat)
+input=$(timeout 2s cat || true)
+if [ -z "$input" ]; then exit 0; fi
 tool_name=$(echo "$input" | jq -r '.tool_name // empty')
 file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty')
 

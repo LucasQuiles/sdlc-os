@@ -2,7 +2,8 @@
 # validate-decision-noise-summary.sh — PostToolUse hook: validates decision-noise-summary.yaml on Write/Edit
 set -euo pipefail
 
-input=$(cat)
+input=$(timeout 2s cat || true)
+if [ -z "$input" ]; then exit 0; fi
 file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty')
 
 # Only trigger on decision-noise-summary.yaml writes

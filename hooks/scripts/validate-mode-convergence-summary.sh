@@ -2,7 +2,8 @@
 # validate-mode-convergence-summary.sh — PostToolUse hook: validates mode-convergence-summary.yaml on Write/Edit
 set -euo pipefail
 
-input=$(cat)
+input=$(timeout 2s cat || true)
+if [ -z "$input" ]; then exit 0; fi
 file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty')
 
 # Only trigger on mode-convergence-summary.yaml writes
