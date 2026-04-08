@@ -1,7 +1,8 @@
 import { openEventsDb, closeEventsDb } from '../events-db.js';
 import { createFinding } from '../finding-ops.js';
 
-openEventsDb('/home/q/.local/state/tmup/colony-events.db');
+const dbPath = process.argv[2] || '/home/q/.local/state/tmup/colony-events.db';
+openEventsDb(dbPath);
 const WS = 'whatsoup-backlog-scan';
 
 // From episodic memory search
