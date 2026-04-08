@@ -4,7 +4,7 @@
 **Input files (existing research + implementation):**
 - `docs/specs/2026-03-25-aqs-v2-research-synthesis.md` (424 lines, 32 prioritized concepts)
 - `docs/plans/2026-03-25-v3-research-upgrade.md` (implementation plan, 5 streams)
-- `docs/sdlc/active/v3-research-upgrade-20260325/state.md` (status: complete)
+- `docs/sdlc/completed/v3-research-upgrade-20260325/state.md` (status: complete)
 - `docs/specs/2026-03-25-adversarial-quality-system-design.md` (AQS design spec)
 - Actual codebase: `skills/sdlc-adversarial/SKILL.md`, `skills/sdlc-loop/SKILL.md`, `skills/sdlc-harden/SKILL.md`, `references/calibration-protocol.md`, `references/precedent-system.md`, `references/quality-slos.md`, `skills/sdlc-adversarial/arbitration-protocol.md`
 
