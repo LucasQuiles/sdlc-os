@@ -9,7 +9,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 
-INPUT=$(read_hook_stdin)
+INPUT=$(read_hook_stdin) || exit 0
 FILE_PATH=$(read_hook_file_path "$INPUT")
 
 # Only validate hardening report files

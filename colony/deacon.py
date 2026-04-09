@@ -941,7 +941,7 @@ class Deacon:
                     "SELECT DISTINCT bead_id FROM tasks "
                     "WHERE sdlc_loop_level IS NOT NULL AND bead_id IS NOT NULL AND status = 'pending'"
                 ).fetchall()
-                ceiling = float(os.environ.get("BEAD_COST_CEILING_USD", "50.0"))
+                ceiling = BEAD_COST_CEILING_USD
                 cost_map = self._build_cost_map()
                 for br in bead_rows:
                     bid = br["bead_id"]

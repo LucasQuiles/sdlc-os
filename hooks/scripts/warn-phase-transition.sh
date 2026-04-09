@@ -3,7 +3,7 @@ set -euo pipefail
 
 source "$(dirname "$0")/../lib/common.sh"
 
-input=$(read_hook_stdin)
+input=$(read_hook_stdin) || exit 0
 file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty')
 
 [[ "$file_path" == */state.md ]] || exit 0

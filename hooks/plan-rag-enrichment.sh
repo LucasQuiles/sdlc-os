@@ -24,7 +24,7 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/lib/common.sh"
 
-INPUT=$(read_hook_stdin)
+INPUT=$(read_hook_stdin) || exit 0
 
 # Extract file_path from JSON
 FILE_PATH=$(echo "$INPUT" | python3 -c "
