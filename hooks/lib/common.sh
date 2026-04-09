@@ -199,7 +199,7 @@ detect_convention() {
 
 # --- Hook Input Parsing ---
 
-# read_hook_file_path: Extract .tool_input.file_path from hook JSON input.
+# read_hook_file_path: Extract file path from hook JSON input (.tool_input.file_path with .tool_input.path fallback).
 # Usage: FILE_PATH=$(read_hook_file_path "$INPUT")
 # Returns the path string, or empty string if not present or jq fails.
 read_hook_file_path() {
