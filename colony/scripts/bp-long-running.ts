@@ -1,12 +1,12 @@
 import { openEventsDb, insertEvent, closeEventsDb } from '../events-db.js';
-import { DEFAULT_EVENTS_DB } from './lib/defaults.js';
+import { DEFAULT_EVENTS_DB, BACKLOG_WORKSTREAM } from './lib/defaults.js';
 const dbPath = process.argv[2] || DEFAULT_EVENTS_DB;
 openEventsDb(dbPath);
 for (const taskId of ['018','019','020','021']) {
   insertEvent({
     event_id: 'bp-long-running-' + taskId + '-' + Date.now(),
     event_type: 'retry_pattern_detected',
-    workstream_id: 'whatsoup-backlog-scan',
+    workstream_id: BACKLOG_WORKSTREAM,
     bead_id: 'T-' + taskId,
     timestamp: new Date().toISOString(),
     payload: { signal: 'long_running_task', duration_minutes: 57, threshold_minutes: 15, task_id: taskId },
