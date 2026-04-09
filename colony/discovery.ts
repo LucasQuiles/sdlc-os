@@ -8,6 +8,7 @@ import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, basename, join, extname, resolve } from 'node:path';
 import { classifyFinding } from './boundary-detector.js';
 import { createFinding } from './finding-ops.js';
+import { escapeRegex } from './string-utils.js';
 import type { FindingType } from './event-types.js';
 
 // ---------------------------------------------------------------------------
@@ -344,6 +345,3 @@ function suggestedAction(check: DiscoveryCheck): string {
   }
 }
 
-function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
