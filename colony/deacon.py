@@ -69,6 +69,7 @@ DEACON_EVENT_WORKSTREAM_ID = "deacon"
 CONDUCTOR_PROMPT_FILE = Path(__file__).parent / "conductor-prompt.md"
 TMUP_PLUGIN_DIR = Path(os.environ.get("TMUP_PLUGIN_DIR", str(Path.home() / ".claude" / "plugins" / "tmup")))
 SDLC_PLUGIN_DIR = Path(os.environ.get("SDLC_PLUGIN_DIR", str(Path.home() / ".claude" / "plugins" / "sdlc-os")))
+_DEFAULT_SESSION_LOG = str(Path(__file__).parent / "colony-sessions.log")
 
 
 # ---------------------------------------------------------------------------
@@ -814,7 +815,7 @@ class Deacon:
         if log_path is None and self._cost_map_cache is not None:
             return self._cost_map_cache
         if log_path is None:
-            log_path = str(Path(__file__).parent / "colony-sessions.log")
+            log_path = _DEFAULT_SESSION_LOG
         costs: dict[str, float] = {}
         try:
             with open(log_path) as f:
@@ -834,7 +835,7 @@ class Deacon:
                         continue
         except FileNotFoundError:
             pass
-        if log_path == str(Path(__file__).parent / "colony-sessions.log"):
+        if log_path == _DEFAULT_SESSION_LOG:
             self._cost_map_cache = costs
         return costs
 
@@ -1551,6 +1552,7 @@ async def watch_db_changes(deacon: Deacon) -> None:
                 # Safety net: check anyway on timeout
                 log.info("timer_fallback reason=no_inotify_events")
                 if deacon.state == DeaconState.WATCHING:
+                    deacon._invalidate_cost_map_cache()
                     async with deacon._spawn_lock:
                         work = deacon.check_for_work()
                         if work and deacon.can_spawn_conductor():
@@ -1578,6 +1580,7 @@ async def watch_db_changes(deacon: Deacon) -> None:
 
             # Check for work after draining
             if deacon.state == DeaconState.WATCHING:
+                deacon._invalidate_cost_map_cache()
                 async with deacon._spawn_lock:
                     work = deacon.check_for_work()
                     if work and deacon.can_spawn_conductor():
