@@ -226,3 +226,19 @@ read_tool_content() {
   fi
   echo "$content"
 }
+
+# --- Hook Stdin Reading ---
+
+# read_hook_stdin: Read hook input from stdin with a timeout guard.
+# Prevents indefinite hangs when stdin is empty or not connected.
+# Usage: INPUT=$(read_hook_stdin) || exit 0
+# Returns stdin content (exit 0) or empty string with exit 1 on empty stdin.
+# The || exit 0 at the call site propagates the early exit from the subshell.
+read_hook_stdin() {
+  local input
+  input=$(timeout 2s cat || true)
+  if [ -z "$input" ]; then
+    return 1
+  fi
+  echo "$input"
+}

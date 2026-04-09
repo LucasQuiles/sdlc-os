@@ -8,7 +8,7 @@
 **Security sensitive:** false
 **Complexity source:** essential
 **Profile:** BUILD
-**Decision trace:** /home/q/LAB/sdlc-os/docs/sdlc/active/colony-phase2-20260404/beads/P2-05-decision-trace.md
+**Decision trace:** docs/sdlc/active/colony-phase2-20260404/beads/P2-05-decision-trace.md
 **Deterministic checks:** python -m pytest colony/deacon_test.py -v
 **Turbulence:** {L0: 0, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
 

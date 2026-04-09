@@ -21,10 +21,10 @@
 #   - **/docs/plans/*.md
 #   - **/Docs/plans/*.md
 
-INPUT=$(timeout 2s cat)
-if [ $? -ne 0 ] || [ -z "$INPUT" ]; then
-    exit 0
-fi
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib/common.sh"
+
+INPUT=$(read_hook_stdin) || exit 0
 
 # Extract file_path from JSON
 FILE_PATH=$(echo "$INPUT" | python3 -c "
