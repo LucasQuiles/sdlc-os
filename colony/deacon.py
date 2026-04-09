@@ -1163,7 +1163,7 @@ class Deacon:
 def bead_completion_rate(log_path: str | None = None) -> float:
     """Compute beads_merged / beads_dispatched from session log."""
     if log_path is None:
-        log_path = str(Path(__file__).parent / "colony-sessions.log")
+        log_path = _DEFAULT_SESSION_LOG
     dispatched: set[str] = set()
     merged: set[str] = set()
     try:
@@ -1417,7 +1417,7 @@ def _parse_conductor_output(
         }
 
         # Append to session log
-        log_path = Path(__file__).parent / "colony-sessions.log"
+        log_path = _DEFAULT_SESSION_LOG
         with open(log_path, "a") as f:
             f.write(json.dumps(record) + "\n")
     except subprocess.TimeoutExpired:
