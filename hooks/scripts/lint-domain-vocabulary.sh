@@ -9,8 +9,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 
-INPUT=$(timeout 2s cat || true)
-if [ -z "$INPUT" ]; then exit 0; fi
+INPUT=$(read_hook_stdin)
 FILE_PATH=$(read_hook_file_path "$INPUT")
 
 # Only lint SDLC artifacts

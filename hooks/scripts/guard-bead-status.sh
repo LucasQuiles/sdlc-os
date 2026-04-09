@@ -14,8 +14,7 @@ if ! command -v jq &>/dev/null; then
   exit 2
 fi
 
-INPUT=$(timeout 2s cat || true)
-if [ -z "$INPUT" ]; then exit 0; fi
+INPUT=$(read_hook_stdin)
 FILE_PATH=$(read_hook_file_path "$INPUT")
 
 # Only validate bead files (not AQS reports)
