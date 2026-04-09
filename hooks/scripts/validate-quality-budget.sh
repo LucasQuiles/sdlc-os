@@ -7,7 +7,7 @@ source "$SCRIPT_DIR/../lib/common.sh"
 
 input=$(read_hook_stdin) || exit 0
 tool_name=$(echo "$input" | jq -r '.tool_name // empty')
-file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty')
+file_path=$(read_hook_file_path "$input")
 
 # Only trigger on quality-budget.yaml writes
 if [[ "$file_path" != *"quality-budget.yaml" ]]; then
