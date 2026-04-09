@@ -37,19 +37,17 @@ export async function preprocessForEvaluation(
   cloneDir: string,
   beadId: string,
 ): Promise<BrickEvalResult> {
-  // 1. Verify bead output exists
   const outputPath = join(cloneDir, 'bead-output.md');
   if (!existsSync(outputPath)) {
     return { available: false, error: 'bead-output.md not found in clone' };
   }
 
-  // 2. Resolve API key before any file I/O
+  // Fail fast if API key is missing — avoids wasted file I/O
   const apiKey = getBrickApiKey();
   if (!apiKey) {
     return { available: false, error: 'BRICK_API_KEY not configured' };
   }
 
-  // 3. Read bead output
   let content: string;
   try {
     content = readFileSync(outputPath, 'utf8');
@@ -57,7 +55,6 @@ export async function preprocessForEvaluation(
     return { available: false, error: `Failed to read bead output: ${e}` };
   }
 
-  // 4. Try to read git diff
   let diffContent = '';
   try {
     diffContent = execSync('git diff HEAD~1', {
@@ -73,7 +70,6 @@ export async function preprocessForEvaluation(
     ? `## Bead Output\n${content}\n\n## Git Diff\n${diffContent}`
     : content;
 
-  // 5. Call Brick preprocess endpoint
   const params = buildBrickEvalParams(fullContent);
   try {
     const response = await fetch(`${BRICK_BASE_URL}/enrich/v1/preprocess`, {
