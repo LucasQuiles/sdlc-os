@@ -8,8 +8,8 @@
 **Security sensitive:** false
 **Complexity source:** accidental
 **Profile:** BUILD
-**Decision trace:** /home/q/LAB/sdlc-os/docs/sdlc/active/colony-e2e-20260404/beads/E2E-02-decision-trace.md
-**Deterministic checks:** wc -l /home/q/LAB/WhatSoup/HANDOFF-DEDUP-CONSOLIDATION.md
+**Decision trace:** docs/sdlc/active/colony-e2e-20260404/beads/E2E-02-decision-trace.md
+**Deterministic checks:** wc -l HANDOFF-DEDUP-CONSOLIDATION.md  # in WhatSoup repo
 **Turbulence:** {L0: 0, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
 
 ## Objective

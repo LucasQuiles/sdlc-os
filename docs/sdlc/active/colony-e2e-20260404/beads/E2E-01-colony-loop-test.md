@@ -8,7 +8,7 @@
 **Security sensitive:** false
 **Complexity source:** essential
 **Profile:** BUILD
-**Decision trace:** /home/q/LAB/sdlc-os/docs/sdlc/active/colony-e2e-20260404/beads/E2E-01-decision-trace.md
+**Decision trace:** docs/sdlc/active/colony-e2e-20260404/beads/E2E-01-decision-trace.md
 **Deterministic checks:** npx vitest run colony/e2e-colony-loop.test.ts
 **Turbulence:** {L0: 0, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
 
