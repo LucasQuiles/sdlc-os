@@ -1,9 +1,10 @@
 import { openEventsDb, closeEventsDb } from '../events-db.js';
 import { createFinding } from '../finding-ops.js';
+import { DEFAULT_EVENTS_DB, BACKLOG_WORKSTREAM } from './lib/defaults.js';
 
-const dbPath = process.argv[2] || '/home/q/.local/state/tmup/colony-events.db';
+const dbPath = process.argv[2] || DEFAULT_EVENTS_DB;
 openEventsDb(dbPath);
-const WS = 'whatsoup-backlog-scan';
+const WS = BACKLOG_WORKSTREAM;
 
 createFinding({ workstream_id: WS, finding_type: 'in_scope', evidence: { observed: 'TODO: send admin notification — missing feature in heal.ts', file_refs: ['src/core/heal.ts:82'] }, confidence: 0.85, affected_scope: 'src/core/heal.ts', suggested_actions: ['Implement admin notification via WhatsApp or webhook'] });
 

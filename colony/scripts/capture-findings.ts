@@ -4,11 +4,12 @@
  */
 import { openEventsDb, insertEvent, closeEventsDb } from '../events-db.js';
 import { createFinding } from '../finding-ops.js';
+import { DEFAULT_EVENTS_DB, BACKLOG_WORKSTREAM } from './lib/defaults.js';
 
-const dbPath = process.argv[2] || '/home/q/.local/state/tmup/colony-events.db';
+const dbPath = process.argv[2] || DEFAULT_EVENTS_DB;
 openEventsDb(dbPath);
 
-const WS = 'whatsoup-backlog-scan';
+const WS = BACKLOG_WORKSTREAM;
 
 // Finding 1: Deacon thread safety issue on startup
 createFinding({

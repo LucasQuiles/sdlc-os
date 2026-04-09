@@ -1,5 +1,6 @@
 import { openEventsDb, insertEvent, closeEventsDb } from '../events-db.js';
-const dbPath = process.argv[2] || '/home/q/.local/state/tmup/colony-events.db';
+import { DEFAULT_EVENTS_DB } from './lib/defaults.js';
+const dbPath = process.argv[2] || DEFAULT_EVENTS_DB;
 openEventsDb(dbPath);
 for (const taskId of ['018','019','020','021']) {
   insertEvent({

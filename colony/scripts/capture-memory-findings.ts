@@ -1,9 +1,10 @@
 import { openEventsDb, closeEventsDb } from '../events-db.js';
 import { createFinding } from '../finding-ops.js';
+import { DEFAULT_EVENTS_DB, BACKLOG_WORKSTREAM } from './lib/defaults.js';
 
-const dbPath = process.argv[2] || '/home/q/.local/state/tmup/colony-events.db';
+const dbPath = process.argv[2] || DEFAULT_EVENTS_DB;
 openEventsDb(dbPath);
-const WS = 'whatsoup-backlog-scan';
+const WS = BACKLOG_WORKSTREAM;
 
 // From episodic memory search
 createFinding({ workstream_id: WS, finding_type: 'exploratory', evidence: { observed: 'Repair protocol spec does not define handling of additional incidents during active repair — signal loss risk', source: 'episodic-memory conversation 2026-04-01' }, confidence: 0.7, affected_scope: 'docs/', suspected_domain: 'repair-protocol', suggested_actions: ['Update repair protocol spec with concurrent incident handling'] });
