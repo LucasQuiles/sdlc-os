@@ -276,7 +276,7 @@ class Deacon:
 
     @staticmethod
     def _fire_and_forget(coro) -> None:
-        """Schedule a coroutine as a fire-and-forget task. No-op outside event loop."""
+        """Schedule a coroutine as a fire-and-forget task. Closes the coroutine outside event loop."""
         try:
             asyncio.get_running_loop().create_task(coro)
         except RuntimeError:
@@ -824,17 +824,6 @@ class Deacon:
             pass
         return costs
 
-    def _aggregate_bead_cost(
-        self,
-        bead_id: str,
-        log_path: str | None = None,
-        _cost_map: dict[str, float] | None = None,
-    ) -> float:
-        """Sum cost attributed to bead_id across all sessions. Cost apportioned equally."""
-        if _cost_map is None:
-            _cost_map = self._build_cost_map(log_path)
-        return _cost_map.get(bead_id, 0.0)
-
     # -- check_for_work ------------------------------------------------------
 
     def check_for_work(self) -> str | bool:
@@ -867,7 +856,7 @@ class Deacon:
                 cost_map = self._build_cost_map()
                 for br in bead_rows:
                     bid = br["bead_id"]
-                    if bid not in self._blacklisted_beads and self._aggregate_bead_cost(bid, _cost_map=cost_map) >= BEAD_COST_CEILING_USD:
+                    if bid not in self._blacklisted_beads and cost_map.get(bid, 0.0) >= BEAD_COST_CEILING_USD:
                         self._blacklisted_beads.add(bid)
                         log.warning("bead_cost_ceiling bead_id=%s", bid)
 
@@ -945,7 +934,7 @@ class Deacon:
                 cost_map = self._build_cost_map()
                 for br in bead_rows:
                     bid = br["bead_id"]
-                    cost = self._aggregate_bead_cost(bid, _cost_map=cost_map)
+                    cost = cost_map.get(bid, 0.0)
                     ratio = cost / ceiling if ceiling > 0 else 0
                     if ratio >= 1.0:
                         log.warning(

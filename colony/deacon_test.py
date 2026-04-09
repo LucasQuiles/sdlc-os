@@ -1390,7 +1390,7 @@ def _create_test_db(db_path: str) -> None:
 
 
 class TestCompletionMetrics:
-    def test_aggregate_bead_cost(self, tmp_path: Path) -> None:
+    def test_build_cost_map(self, tmp_path: Path) -> None:
         log_path = tmp_path / "colony-sessions.log"
         log_path.write_text(
             json.dumps({"total_cost_usd": 10.0, "bead_ids": ["b1", "b2"]}) + "\n"
@@ -1400,8 +1400,8 @@ class TestCompletionMetrics:
         _create_test_db(db_path)
         deacon = Deacon(db_path=db_path, project_dir=str(tmp_path))
         # b1: 10/2 + 6/1 = 11.0
-        cost = deacon._aggregate_bead_cost("b1", str(log_path))
-        assert cost == 11.0
+        cost_map = deacon._build_cost_map(str(log_path))
+        assert cost_map.get("b1", 0.0) == 11.0
 
     def test_cost_ceiling_blocks_bead(self, tmp_path: Path) -> None:
         log_path = tmp_path / "colony-sessions.log"
@@ -1418,7 +1418,7 @@ class TestCompletionMetrics:
         conn.commit()
         conn.close()
         deacon = Deacon(db_path=db_path, project_dir=str(tmp_path))
-        with patch.object(deacon, "_aggregate_bead_cost", return_value=55.0):
+        with patch.object(deacon, "_build_cost_map", return_value={"b-expensive": 55.0}):
             work = deacon.check_for_work()
         assert "b-expensive" in deacon._blacklisted_beads
 
