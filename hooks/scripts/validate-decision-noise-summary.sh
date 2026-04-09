@@ -2,7 +2,8 @@
 # validate-decision-noise-summary.sh — PostToolUse hook: validates decision-noise-summary.yaml on Write/Edit
 set -euo pipefail
 
-source "$(dirname "$0")/../lib/common.sh"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../lib/common.sh"
 
 input=$(read_hook_stdin) || exit 0
 file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty')
