@@ -255,6 +255,33 @@ class Deacon:
                 pass
             self._db = None
 
+    def _connect_events_db(self) -> sqlite3.Connection:
+        """Open a fresh events DB connection with WAL mode.
+
+        Used by methods that run in background threads (asyncio.to_thread)
+        where the main-thread connection from _get_db() cannot be shared
+        due to sqlite3 thread affinity constraints.
+        """
+        conn = sqlite3.connect(self.events_db_path, timeout=10)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=8000")
+        return conn
+
+    @staticmethod
+    def _write_deadletter(path: str, record: dict[str, Any]) -> None:
+        """Append a JSON record to a dead-letter file, creating parent dirs."""
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        with open(path, "a") as f:
+            f.write(json.dumps(record) + "\n")
+
+    @staticmethod
+    def _fire_and_forget(coro) -> None:
+        """Schedule a coroutine as a fire-and-forget task. No-op outside event loop."""
+        try:
+            asyncio.get_running_loop().create_task(coro)
+        except RuntimeError:
+            pass
+
     def _persist_event(
         self,
         event_type: str,
@@ -270,9 +297,7 @@ class Deacon:
             return
         conn = None
         try:
-            conn = sqlite3.connect(self.events_db_path, timeout=10)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=8000")
+            conn = self._connect_events_db()
             event_id = f"evt-{time.time_ns()}-{event_type[:24]}"
             idem_key = idempotency_key or f"{event_type}:{time.time_ns()}"
             conn.execute(
@@ -326,12 +351,7 @@ class Deacon:
         """Blacklist bead and fire async alert."""
         self._blacklisted_beads.add(bead_id)
         log.warning("bead_blacklisted bead_id=%s reason=3_failures_1h", bead_id)
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(self._send_escalation_alert(bead_id, error))
-        except RuntimeError:
-            # No running event loop (called from sync context / tests)
-            pass
+        self._fire_and_forget(self._send_escalation_alert(bead_id, error))
 
     async def _send_escalation_alert(self, bead_id: str, error: str) -> None:
         """SC-COL-36: Non-blocking alert. Dead-letter on failure."""
@@ -354,9 +374,7 @@ class Deacon:
                 raise RuntimeError(f"curl exit {proc.returncode}")
         except Exception:
             log.warning("escalation_deadletter bead_id=%s", bead_id)
-            os.makedirs(os.path.dirname(dl_path), exist_ok=True)
-            with open(dl_path, "a") as f:
-                f.write(json.dumps(record) + "\n")
+            self._write_deadletter(dl_path, record)
 
     def _clear_blacklist(self) -> None:
         """SIGUSR1 handler target: clear blacklist and failure counts."""
@@ -432,9 +450,7 @@ class Deacon:
             )
         except Exception:
             log.warning("maintenance_alert_deadletter function=%s", maintenance_function)
-            os.makedirs(os.path.dirname(deadletter_path), exist_ok=True)
-            with open(deadletter_path, "a") as f:
-                f.write(json.dumps(record) + "\n")
+            self._write_deadletter(deadletter_path, record)
 
     def _schedule_maintenance_alert(
         self,
@@ -443,13 +459,9 @@ class Deacon:
         failure_count: int,
     ) -> None:
         """Fire and forget the threshold alert without blocking the main loop."""
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(
-                self._send_maintenance_alert(maintenance_function, error, failure_count)
-            )
-        except RuntimeError:
-            pass
+        self._fire_and_forget(
+            self._send_maintenance_alert(maintenance_function, error, failure_count)
+        )
 
     async def _record_maintenance_failure(
         self,
@@ -702,9 +714,7 @@ class Deacon:
 
         ingested = 0
         try:
-            conn = sqlite3.connect(self.events_db_path, timeout=10)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=8000")
+            conn = self._connect_events_db()
 
             for line in lines:
                 line = line.strip()
@@ -789,11 +799,11 @@ class Deacon:
 
     # -- Cost aggregation -----------------------------------------------------
 
-    def _aggregate_bead_cost(self, bead_id: str, log_path: str | None = None) -> float:
-        """Sum cost attributed to bead_id across all sessions. Cost apportioned equally."""
+    def _build_cost_map(self, log_path: str | None = None) -> dict[str, float]:
+        """Parse colony-sessions.log once, return {bead_id: total_cost} map."""
         if log_path is None:
             log_path = str(Path(__file__).parent / "colony-sessions.log")
-        total = 0.0
+        costs: dict[str, float] = {}
         try:
             with open(log_path) as f:
                 for line in f:
@@ -804,13 +814,26 @@ class Deacon:
                         data = json.loads(line)
                         bead_ids = data.get("bead_ids", [])
                         cost = data.get("total_cost_usd", 0.0)
-                        if bead_id in bead_ids and len(bead_ids) > 0:
-                            total += cost / len(bead_ids)
+                        if bead_ids and cost:
+                            share = cost / len(bead_ids)
+                            for bid in bead_ids:
+                                costs[bid] = costs.get(bid, 0.0) + share
                     except json.JSONDecodeError:
                         continue
         except FileNotFoundError:
             pass
-        return total
+        return costs
+
+    def _aggregate_bead_cost(
+        self,
+        bead_id: str,
+        log_path: str | None = None,
+        _cost_map: dict[str, float] | None = None,
+    ) -> float:
+        """Sum cost attributed to bead_id across all sessions. Cost apportioned equally."""
+        if _cost_map is None:
+            _cost_map = self._build_cost_map(log_path)
+        return _cost_map.get(bead_id, 0.0)
 
     # -- check_for_work ------------------------------------------------------
 
@@ -841,9 +864,10 @@ class Deacon:
                     "SELECT DISTINCT bead_id FROM tasks WHERE sdlc_loop_level IS NOT NULL "
                     "AND bead_id IS NOT NULL AND status = 'pending'"
                 ).fetchall()
+                cost_map = self._build_cost_map()
                 for br in bead_rows:
                     bid = br["bead_id"]
-                    if bid not in self._blacklisted_beads and self._aggregate_bead_cost(bid) >= BEAD_COST_CEILING_USD:
+                    if bid not in self._blacklisted_beads and self._aggregate_bead_cost(bid, _cost_map=cost_map) >= BEAD_COST_CEILING_USD:
                         self._blacklisted_beads.add(bid)
                         log.warning("bead_cost_ceiling bead_id=%s", bid)
 
@@ -918,9 +942,10 @@ class Deacon:
                     "WHERE sdlc_loop_level IS NOT NULL AND bead_id IS NOT NULL AND status = 'pending'"
                 ).fetchall()
                 ceiling = float(os.environ.get("BEAD_COST_CEILING_USD", "50.0"))
+                cost_map = self._build_cost_map()
                 for br in bead_rows:
                     bid = br["bead_id"]
-                    cost = self._aggregate_bead_cost(bid)
+                    cost = self._aggregate_bead_cost(bid, _cost_map=cost_map)
                     ratio = cost / ceiling if ceiling > 0 else 0
                     if ratio >= 1.0:
                         log.warning(
