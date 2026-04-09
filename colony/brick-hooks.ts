@@ -1,5 +1,9 @@
 import { readFileSync, existsSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import { join } from 'node:path';
+
+const BRICK_BASE_URL = 'https://brick.tail64ad01.ts.net:8443';
+const BRICK_TIMEOUT_MS = 30_000;
 
 export interface BrickEvalResult {
   available: boolean;
@@ -8,6 +12,18 @@ export interface BrickEvalResult {
   decisions_detected?: string[];
   uncertainties?: string[];
   error?: string;
+}
+
+function getBrickApiKey(): string | undefined {
+  if (process.env.BRICK_API_KEY) return process.env.BRICK_API_KEY;
+  try {
+    return execSync('secret-tool lookup service brick-api-key', {
+      encoding: 'utf8',
+      timeout: 5000,
+    }).trim();
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -21,10 +37,15 @@ export async function preprocessForEvaluation(
   cloneDir: string,
   beadId: string,
 ): Promise<BrickEvalResult> {
-  // 1. Read bead output
   const outputPath = join(cloneDir, 'bead-output.md');
   if (!existsSync(outputPath)) {
     return { available: false, error: 'bead-output.md not found in clone' };
+  }
+
+  // Fail fast if API key is missing — avoids wasted file I/O
+  const apiKey = getBrickApiKey();
+  if (!apiKey) {
+    return { available: false, error: 'BRICK_API_KEY not configured' };
   }
 
   let content: string;
@@ -34,10 +55,8 @@ export async function preprocessForEvaluation(
     return { available: false, error: `Failed to read bead output: ${e}` };
   }
 
-  // 2. Try to read git diff
   let diffContent = '';
   try {
-    const { execSync } = await import('node:child_process');
     diffContent = execSync('git diff HEAD~1', {
       cwd: cloneDir,
       encoding: 'utf8',
@@ -51,21 +70,46 @@ export async function preprocessForEvaluation(
     ? `## Bead Output\n${content}\n\n## Git Diff\n${diffContent}`
     : content;
 
-  // 3. Call Brick preprocess
-  // In production, this calls the brick_preprocess MCP tool.
-  // For now, we provide the interface and a fallback for when Brick is unavailable.
+  const params = buildBrickEvalParams(fullContent);
   try {
-    // The Conductor calls this function and then invokes brick_preprocess MCP tool
-    // with the returned content. This module structures the input, not the MCP call itself.
+    const response = await fetch(`${BRICK_BASE_URL}/enrich/v1/preprocess`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        ...params,
+        tree_depth: 2,
+      }),
+      signal: AbortSignal.timeout(BRICK_TIMEOUT_MS),
+    });
+
+    if (response.status === 503) {
+      return { available: false, error: 'Brick service unavailable (503)' };
+    }
+
+    if (!response.ok) {
+      return {
+        available: false,
+        error: `Brick returned HTTP ${response.status}: ${await response.text().catch(() => 'unknown')}`,
+      };
+    }
+
+    const data = await response.json();
+
+    // Brick API v1 returns fields at top level; v2 nests them under tree_manifest
     return {
       available: true,
-      summary: `Bead ${beadId} output: ${fullContent.length} chars, ${diffContent ? 'with diff' : 'no diff'}`,
-      flagged_risks: [],
-      decisions_detected: [],
-      uncertainties: [],
+      summary: data.summary ?? data.tree_manifest?.summary ?? `Bead ${beadId} preprocessed`,
+      flagged_risks: data.flagged_risks ?? data.tree_manifest?.flagged_risks ?? [],
+      decisions_detected: data.decisions_detected ?? data.tree_manifest?.decisions_detected ?? [],
+      uncertainties: data.uncertainties ?? data.tree_manifest?.uncertainties ?? [],
     };
   } catch (e) {
-    return { available: false, error: `Brick preprocessing failed: ${e}` };
+    // Network errors, timeouts — degrade gracefully
+    const message = e instanceof Error ? e.message : String(e);
+    return { available: false, error: `Brick preprocessing failed: ${message}` };
   }
 }
 

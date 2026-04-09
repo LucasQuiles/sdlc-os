@@ -60,9 +60,15 @@ WATCHDOG_MAX_STATE_DURATION_S = int(
 )
 BEAD_COST_CEILING_USD = float(os.environ.get("BEAD_COST_CEILING_USD", "50.0"))
 MAX_BRIDGE_DEFERRAL_COUNT = 10
+MAINTENANCE_ALERT_THRESHOLD = int(os.environ.get("DEACON_MAINTENANCE_ALERT_THRESHOLD", "3"))
+MAINTENANCE_DEGRADED_THRESHOLD = int(os.environ.get("DEACON_MAINTENANCE_DEGRADED_THRESHOLD", "5"))
+MAINTENANCE_ALERT_TARGET = os.environ.get("DEACON_MAINTENANCE_ALERT_TARGET", "")
+MAINTENANCE_ALERT_BIN = os.environ.get("WHATSAPP_NOTIFY_BIN", "whatsapp-notify")
+MAINTENANCE_ALERT_TIMEOUT_S = 10
+DEACON_EVENT_WORKSTREAM_ID = "deacon"
 CONDUCTOR_PROMPT_FILE = Path(__file__).parent / "conductor-prompt.md"
-TMUP_PLUGIN_DIR = Path("/home/q/.claude/plugins/tmup")
-SDLC_PLUGIN_DIR = Path("/home/q/.claude/plugins/sdlc-os")
+TMUP_PLUGIN_DIR = Path(os.environ.get("TMUP_PLUGIN_DIR", str(Path.home() / ".claude" / "plugins" / "tmup")))
+SDLC_PLUGIN_DIR = Path(os.environ.get("SDLC_PLUGIN_DIR", str(Path.home() / ".claude" / "plugins" / "sdlc-os")))
 
 
 # ---------------------------------------------------------------------------
@@ -82,6 +88,18 @@ class SessionType(enum.Enum):
     SYNTHESIZE = "SYNTHESIZE"
     RECOVER = "RECOVER"
     DISCOVER = "DISCOVER"
+
+
+@dataclass
+class MaintenanceTaskState:
+    """Track consecutive maintenance failures for degraded-mode decisions."""
+
+    consecutive_failures: int = 0
+    last_error: str = ""
+    last_error_type: str = ""
+    last_failure_at: float = 0.0
+    alert_sent: bool = False
+    degraded: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -185,6 +203,7 @@ class Deacon:
     _bead_failure_counts: dict[str, list[float]] = field(default_factory=dict)
     _blacklisted_beads: set[str] = field(default_factory=set)
     _last_discover_time: float = 0.0
+    _maintenance_failures: dict[str, MaintenanceTaskState] = field(default_factory=dict)
 
     @property
     def events_db_path(self) -> str | None:
@@ -236,6 +255,78 @@ class Deacon:
                 pass
             self._db = None
 
+    def _connect_events_db(self) -> sqlite3.Connection:
+        """Open a fresh events DB connection with WAL mode.
+
+        Used by methods that run in background threads (asyncio.to_thread)
+        where the main-thread connection from _get_db() cannot be shared
+        due to sqlite3 thread affinity constraints.
+        """
+        conn = sqlite3.connect(self.events_db_path, timeout=10)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=8000")
+        return conn
+
+    @staticmethod
+    def _write_deadletter(path: str, record: dict[str, Any]) -> None:
+        """Append a JSON record to a dead-letter file, creating parent dirs."""
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        with open(path, "a") as f:
+            f.write(json.dumps(record) + "\n")
+
+    @staticmethod
+    def _fire_and_forget(coro) -> None:
+        """Schedule a coroutine as a fire-and-forget task. Closes the coroutine outside event loop."""
+        try:
+            asyncio.get_running_loop().create_task(coro)
+        except RuntimeError:
+            coro.close()
+
+    def _persist_event(
+        self,
+        event_type: str,
+        payload: dict[str, Any],
+        *,
+        workstream_id: str = DEACON_EVENT_WORKSTREAM_ID,
+        bead_id: str | None = None,
+        agent_id: str | None = None,
+        idempotency_key: str | None = None,
+    ) -> None:
+        """Write a structured event to events.db when available."""
+        if not self.events_db_path:
+            return
+        conn = None
+        try:
+            conn = self._connect_events_db()
+            event_id = f"evt-{time.time_ns()}-{event_type[:24]}"
+            idem_key = idempotency_key or f"{event_type}:{time.time_ns()}"
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO events
+                (event_id, event_type, workstream_id, bead_id, agent_id, timestamp, payload, processing_level, idempotency_key)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+                """,
+                (
+                    event_id,
+                    event_type,
+                    workstream_id,
+                    bead_id,
+                    agent_id,
+                    datetime.now(timezone.utc).isoformat(),
+                    json.dumps(payload),
+                    idem_key,
+                ),
+            )
+            conn.commit()
+        except Exception as e:
+            log.warning("Failed to persist event %s: %s", event_type, e)
+        finally:
+            if conn is not None:
+                try:
+                    conn.close()
+                except sqlite3.Error:
+                    pass
+
     # -- Escalation helpers (SC-COL-36) ---------------------------------------
 
     def _record_bead_failure(self, bead_ids: list[str], error: str) -> None:
@@ -260,12 +351,7 @@ class Deacon:
         """Blacklist bead and fire async alert."""
         self._blacklisted_beads.add(bead_id)
         log.warning("bead_blacklisted bead_id=%s reason=3_failures_1h", bead_id)
-        try:
-            loop = asyncio.get_running_loop()
-            loop.create_task(self._send_escalation_alert(bead_id, error))
-        except RuntimeError:
-            # No running event loop (called from sync context / tests)
-            pass
+        self._fire_and_forget(self._send_escalation_alert(bead_id, error))
 
     async def _send_escalation_alert(self, bead_id: str, error: str) -> None:
         """SC-COL-36: Non-blocking alert. Dead-letter on failure."""
@@ -288,8 +374,7 @@ class Deacon:
                 raise RuntimeError(f"curl exit {proc.returncode}")
         except Exception:
             log.warning("escalation_deadletter bead_id=%s", bead_id)
-            with open(dl_path, "a") as f:
-                f.write(json.dumps(record) + "\n")
+            self._write_deadletter(dl_path, record)
 
     def _clear_blacklist(self) -> None:
         """SIGUSR1 handler target: clear blacklist and failure counts."""
@@ -301,33 +386,188 @@ class Deacon:
 
     def _persist_backpressure_event(self, bead_id: str, failure_info: dict[str, Any]) -> None:
         """Write retry_pattern_detected event to events.db."""
-        if not self.events_db_path:
-            return
+        idem_key = f"retry_pattern_detected:{bead_id}:{failure_info.get('count', 0)}"
+        self._persist_event(
+            "retry_pattern_detected",
+            failure_info,
+            workstream_id="",
+            bead_id=bead_id,
+            idempotency_key=idem_key,
+        )
+
+    # -- Maintenance watchdog helpers -----------------------------------------
+
+    async def _send_maintenance_alert(
+        self,
+        maintenance_function: str,
+        error: Exception,
+        failure_count: int,
+    ) -> None:
+        """Notify Q when a maintenance helper crosses the alert threshold."""
+        deadletter_path = os.environ.get(
+            "DEACON_MAINTENANCE_ALERT_DEADLETTER",
+            os.path.expanduser("~/agents/lab/deacon-maintenance-alert-deadletter.jsonl"),
+        )
+        error_type = type(error).__name__
+        error_text = str(error)
+        message = (
+            "[COLONY_DEACON_ALERT]\n"
+            f"summary=maintenance helper {maintenance_function} failed after {failure_count} consecutive failures\n"
+            f"function={maintenance_function}\n"
+            f"consecutive_failures={failure_count}\n"
+            f"error_type={error_type}\n"
+            f"error={error_text}\n"
+            "action=inspect deacon degraded mode and repair the failing maintenance helper"
+        )
+        record = {
+            "maintenance_function": maintenance_function,
+            "target": MAINTENANCE_ALERT_TARGET,
+            "failure_count": failure_count,
+            "error_type": error_type,
+            "error": error_text,
+            "timestamp": time.time(),
+        }
         try:
-            conn = sqlite3.connect(self.events_db_path, timeout=10)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=8000")
-            event_id = f"evt-{int(time.time() * 1000)}-{bead_id[:8]}"
-            idem_key = f"retry_pattern_detected:{bead_id}:{failure_info.get('count', 0)}"
-            conn.execute(
-                """
-                INSERT OR IGNORE INTO events
-                (event_id, event_type, workstream_id, bead_id, timestamp, payload, processing_level, idempotency_key)
-                VALUES (?, 'retry_pattern_detected', ?, ?, ?, ?, 'pending', ?)
-                """,
-                (
-                    event_id,
-                    "",
-                    bead_id,
-                    datetime.now(timezone.utc).isoformat(),
-                    json.dumps(failure_info),
-                    idem_key,
-                ),
+            proc = await asyncio.create_subprocess_exec(
+                MAINTENANCE_ALERT_BIN,
+                MAINTENANCE_ALERT_TARGET,
+                message,
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
             )
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            log.warning("Failed to persist backpressure event: %s", e)
+            await asyncio.wait_for(proc.wait(), timeout=MAINTENANCE_ALERT_TIMEOUT_S)
+            if proc.returncode != 0:
+                raise RuntimeError(f"whatsapp-notify exit {proc.returncode}")
+            await asyncio.to_thread(
+                self._persist_event,
+                "deacon_maintenance_alert_sent",
+                {
+                    "maintenance_function": maintenance_function,
+                    "target": MAINTENANCE_ALERT_TARGET,
+                    "consecutive_failures": failure_count,
+                },
+                idempotency_key=f"deacon_maintenance_alert_sent:{maintenance_function}:{failure_count}",
+            )
+        except Exception:
+            log.warning("maintenance_alert_deadletter function=%s", maintenance_function)
+            self._write_deadletter(deadletter_path, record)
+
+    def _schedule_maintenance_alert(
+        self,
+        maintenance_function: str,
+        error: Exception,
+        failure_count: int,
+    ) -> None:
+        """Fire and forget the threshold alert without blocking the main loop."""
+        self._fire_and_forget(
+            self._send_maintenance_alert(maintenance_function, error, failure_count)
+        )
+
+    async def _record_maintenance_failure(
+        self,
+        maintenance_function: str,
+        error: Exception,
+    ) -> None:
+        """Track a failed maintenance helper and escalate when thresholds are crossed."""
+        state = self._maintenance_failures.setdefault(
+            maintenance_function,
+            MaintenanceTaskState(),
+        )
+        state.consecutive_failures += 1
+        state.last_error = str(error)
+        state.last_error_type = type(error).__name__
+        state.last_failure_at = time.time()
+        failure_payload = {
+            "maintenance_function": maintenance_function,
+            "consecutive_failures": state.consecutive_failures,
+            "error_type": state.last_error_type,
+            "error": state.last_error,
+            "degraded": state.degraded,
+        }
+        log.warning(
+            "maintenance_failure function=%s consecutive_failures=%d error_type=%s error=%s",
+            maintenance_function,
+            state.consecutive_failures,
+            state.last_error_type,
+            state.last_error,
+        )
+        await asyncio.to_thread(
+            self._persist_event,
+            "deacon_maintenance_failure",
+            failure_payload,
+            idempotency_key=f"deacon_maintenance_failure:{maintenance_function}:{time.time_ns()}",
+        )
+        if state.consecutive_failures >= MAINTENANCE_ALERT_THRESHOLD and not state.alert_sent:
+            state.alert_sent = True
+            self._schedule_maintenance_alert(
+                maintenance_function,
+                error,
+                state.consecutive_failures,
+            )
+        if state.consecutive_failures >= MAINTENANCE_DEGRADED_THRESHOLD and not state.degraded:
+            state.degraded = True
+            degraded_payload = {
+                "maintenance_function": maintenance_function,
+                "consecutive_failures": state.consecutive_failures,
+                "error_type": state.last_error_type,
+                "error": state.last_error,
+            }
+            log.warning(
+                "maintenance_degraded function=%s consecutive_failures=%d",
+                maintenance_function,
+                state.consecutive_failures,
+            )
+            await asyncio.to_thread(
+                self._persist_event,
+                "deacon_maintenance_degraded",
+                degraded_payload,
+                idempotency_key=f"deacon_maintenance_degraded:{maintenance_function}",
+            )
+
+    async def _record_maintenance_success(self, maintenance_function: str) -> None:
+        """Clear consecutive-failure state after a healthy maintenance run."""
+        state = self._maintenance_failures.get(maintenance_function)
+        if state is None or state.consecutive_failures == 0:
+            return
+        recovered_from = state.consecutive_failures
+        self._maintenance_failures.pop(maintenance_function, None)
+        log.info(
+            "maintenance_recovered function=%s previous_failures=%d",
+            maintenance_function,
+            recovered_from,
+        )
+        await asyncio.to_thread(
+            self._persist_event,
+            "deacon_maintenance_recovered",
+            {
+                "maintenance_function": maintenance_function,
+                "previous_failures": recovered_from,
+            },
+            idempotency_key=f"deacon_maintenance_recovered:{maintenance_function}:{time.time_ns()}",
+        )
+
+    async def _run_maintenance_cycle(self) -> None:
+        """Run deacon maintenance tasks with per-helper failure isolation."""
+        maintenance_tasks = (
+            ("prune_stale_clones", self._prune_stale_clones),
+            ("ingest_event_inbox", self._ingest_event_inbox),
+            ("ingest_enrichment_inbox", self._ingest_enrichment_inbox),
+        )
+        for maintenance_function, fn in maintenance_tasks:
+            state = self._maintenance_failures.get(maintenance_function)
+            if state is not None and state.degraded:
+                log.warning(
+                    "maintenance_skip_degraded function=%s consecutive_failures=%d",
+                    maintenance_function,
+                    state.consecutive_failures,
+                )
+                continue
+            try:
+                await asyncio.to_thread(fn)
+            except Exception as e:
+                await self._record_maintenance_failure(maintenance_function, e)
+                continue
+            await self._record_maintenance_success(maintenance_function)
 
     # -- DISCOVER helpers -----------------------------------------------------
 
@@ -474,9 +714,7 @@ class Deacon:
 
         ingested = 0
         try:
-            conn = sqlite3.connect(self.events_db_path, timeout=10)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA busy_timeout=8000")
+            conn = self._connect_events_db()
 
             for line in lines:
                 line = line.strip()
@@ -561,11 +799,11 @@ class Deacon:
 
     # -- Cost aggregation -----------------------------------------------------
 
-    def _aggregate_bead_cost(self, bead_id: str, log_path: str | None = None) -> float:
-        """Sum cost attributed to bead_id across all sessions. Cost apportioned equally."""
+    def _build_cost_map(self, log_path: str | None = None) -> dict[str, float]:
+        """Parse colony-sessions.log once, return {bead_id: total_cost} map."""
         if log_path is None:
             log_path = str(Path(__file__).parent / "colony-sessions.log")
-        total = 0.0
+        costs: dict[str, float] = {}
         try:
             with open(log_path) as f:
                 for line in f:
@@ -576,13 +814,15 @@ class Deacon:
                         data = json.loads(line)
                         bead_ids = data.get("bead_ids", [])
                         cost = data.get("total_cost_usd", 0.0)
-                        if bead_id in bead_ids and len(bead_ids) > 0:
-                            total += cost / len(bead_ids)
+                        if bead_ids and cost:
+                            share = cost / len(bead_ids)
+                            for bid in bead_ids:
+                                costs[bid] = costs.get(bid, 0.0) + share
                     except json.JSONDecodeError:
                         continue
         except FileNotFoundError:
             pass
-        return total
+        return costs
 
     # -- check_for_work ------------------------------------------------------
 
@@ -613,9 +853,10 @@ class Deacon:
                     "SELECT DISTINCT bead_id FROM tasks WHERE sdlc_loop_level IS NOT NULL "
                     "AND bead_id IS NOT NULL AND status = 'pending'"
                 ).fetchall()
+                cost_map = self._build_cost_map()
                 for br in bead_rows:
                     bid = br["bead_id"]
-                    if bid not in self._blacklisted_beads and self._aggregate_bead_cost(bid) >= BEAD_COST_CEILING_USD:
+                    if bid not in self._blacklisted_beads and cost_map.get(bid, 0.0) >= BEAD_COST_CEILING_USD:
                         self._blacklisted_beads.add(bid)
                         log.warning("bead_cost_ceiling bead_id=%s", bid)
 
@@ -689,10 +930,11 @@ class Deacon:
                     "SELECT DISTINCT bead_id FROM tasks "
                     "WHERE sdlc_loop_level IS NOT NULL AND bead_id IS NOT NULL AND status = 'pending'"
                 ).fetchall()
-                ceiling = float(os.environ.get("BEAD_COST_CEILING_USD", "50.0"))
+                ceiling = BEAD_COST_CEILING_USD
+                cost_map = self._build_cost_map()
                 for br in bead_rows:
                     bid = br["bead_id"]
-                    cost = self._aggregate_bead_cost(bid)
+                    cost = cost_map.get(bid, 0.0)
                     ratio = cost / ceiling if ceiling > 0 else 0
                     if ratio >= 1.0:
                         log.warning(
@@ -1042,11 +1284,7 @@ async def run_deacon(deacon: Deacon) -> None:
                                 and deacon._time_since_last_session(SessionType.DISCOVER) > 1800):
                             deacon._last_discover_time = time.monotonic()
                             deacon.spawn_conductor(SessionType.DISCOVER.value)
-                # SC-COL-31: Prune stale clones and rotate logs
-                await asyncio.to_thread(deacon._prune_stale_clones)
-                # Batch-ingest JSONL inboxes into events.db
-                await asyncio.to_thread(deacon._ingest_event_inbox)
-                await asyncio.to_thread(deacon._ingest_enrichment_inbox)
+                await deacon._run_maintenance_cycle()
 
             elif deacon.state == DeaconState.CONDUCTING:
                 proc = deacon.conductor_process

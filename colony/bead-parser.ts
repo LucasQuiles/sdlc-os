@@ -5,6 +5,8 @@
  * No LLM involved -- pure regex extraction with required/optional semantics.
  */
 
+import { escapeRegex } from './string-utils.js';
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -52,10 +54,6 @@ function extractField(content: string, fieldName: string): string | undefined {
   const match = content.match(regex);
   if (!match) return undefined;
   return match[1].trim();
-}
-
-function escapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**

@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
-input=$(cat)
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../lib/common.sh"
+
+input=$(read_hook_stdin) || exit 0
 file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty')
 
 [[ "$file_path" == */state.md ]] || exit 0

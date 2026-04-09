@@ -8,7 +8,7 @@
 **Security sensitive:** false
 **Complexity source:** essential
 **Profile:** BUILD
-**Decision trace:** /home/q/LAB/sdlc-os/docs/sdlc/active/colony-phase2-20260404/beads/P2-03-decision-trace.md
+**Decision trace:** docs/sdlc/active/colony-phase2-20260404/beads/P2-03-decision-trace.md
 **Deterministic checks:** npx vitest run colony/brick-hooks.test.ts
 **Turbulence:** {L0: 0, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
 

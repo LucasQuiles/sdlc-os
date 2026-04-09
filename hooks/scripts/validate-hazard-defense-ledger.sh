@@ -2,7 +2,10 @@
 # validate-hazard-defense-ledger.sh — PostToolUse hook: validates HDL on Write/Edit
 set -euo pipefail
 
-input=$(cat)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../lib/common.sh"
+
+input=$(read_hook_stdin) || exit 0
 file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty')
 
 # Only trigger on hazard-defense-ledger.yaml writes

@@ -10,7 +10,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 
-INPUT=$(cat)
+INPUT=$(read_hook_stdin) || exit 0
 FILE_PATH=$(read_hook_file_path "$INPUT")
 
 # Only check source files (not markdown, json, yaml, etc.)
