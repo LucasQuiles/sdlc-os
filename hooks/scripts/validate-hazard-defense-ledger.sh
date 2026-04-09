@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 
 input=$(read_hook_stdin) || exit 0
-file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty')
+file_path=$(read_hook_file_path "$input")
 
 # Only trigger on hazard-defense-ledger.yaml writes
 if [[ "$file_path" != *"hazard-defense-ledger.yaml" ]]; then
