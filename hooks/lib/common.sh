@@ -205,7 +205,7 @@ detect_convention() {
 read_hook_file_path() {
   local input="$1"
   local path
-  path=$(echo "$input" | jq -r '.tool_input.file_path // empty' 2>/dev/null) || {
+  path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // empty' 2>/dev/null) || {
     echo ""
     return
   }
@@ -233,7 +233,6 @@ read_tool_content() {
 # Prevents indefinite hangs when stdin is empty or not connected.
 # Usage: INPUT=$(read_hook_stdin) || exit 0
 # Returns stdin content (exit 0) or empty string with exit 1 on empty stdin.
-# The || exit 0 at the call site propagates the early exit from the subshell.
 read_hook_stdin() {
   local input
   input=$(timeout 2s cat || true)
