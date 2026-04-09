@@ -8,7 +8,7 @@
 **Security sensitive:** false
 **Complexity source:** accidental
 **Profile:** BUILD
-**Decision trace:** /home/q/LAB/sdlc-os/docs/sdlc/active/colony-phase3-20260404/beads/P3-06-decision-trace.md
+**Decision trace:** docs/sdlc/active/colony-phase3-20260404/beads/P3-06-decision-trace.md
 **Deterministic checks:** npx vitest run colony/; python -m pytest colony/deacon_test.py
 **Turbulence:** {L0: 0, L1: 0, L2: 0, L2.5: 0, L2.75: 0}
 
