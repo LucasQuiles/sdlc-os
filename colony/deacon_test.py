@@ -61,6 +61,7 @@ from deacon import (
     _rotate_log,
     bead_completion_rate,
     BEAD_COST_CEILING_USD,
+    MaintenanceTaskState,
 )
 
 
@@ -1041,8 +1042,11 @@ class TestEscalation:
     def test_sigusr1_clears_blacklist(self, tmp_db: str, tmp_path: Path) -> None:
         deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
         deacon._blacklisted_beads.add("bead-x")
+        deacon._maintenance_failures["prune_stale_clones"] = MaintenanceTaskState()
+        deacon._maintenance_failures["prune_stale_clones"].consecutive_failures = 5
         deacon._clear_blacklist()
         assert len(deacon._blacklisted_beads) == 0
+        assert len(deacon._maintenance_failures) == 0
 
     def test_dead_letter_on_alert_timeout(self, tmp_db: str, tmp_path: Path) -> None:
         deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
