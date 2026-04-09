@@ -37,12 +37,19 @@ export async function preprocessForEvaluation(
   cloneDir: string,
   beadId: string,
 ): Promise<BrickEvalResult> {
-  // 1. Read bead output
+  // 1. Verify bead output exists
   const outputPath = join(cloneDir, 'bead-output.md');
   if (!existsSync(outputPath)) {
     return { available: false, error: 'bead-output.md not found in clone' };
   }
 
+  // 2. Resolve API key before any file I/O
+  const apiKey = getBrickApiKey();
+  if (!apiKey) {
+    return { available: false, error: 'BRICK_API_KEY not configured' };
+  }
+
+  // 3. Read bead output
   let content: string;
   try {
     content = readFileSync(outputPath, 'utf8');
@@ -50,7 +57,7 @@ export async function preprocessForEvaluation(
     return { available: false, error: `Failed to read bead output: ${e}` };
   }
 
-  // 2. Try to read git diff
+  // 4. Try to read git diff
   let diffContent = '';
   try {
     diffContent = execSync('git diff HEAD~1', {
@@ -66,13 +73,7 @@ export async function preprocessForEvaluation(
     ? `## Bead Output\n${content}\n\n## Git Diff\n${diffContent}`
     : content;
 
-  // 3. Resolve API key
-  const apiKey = getBrickApiKey();
-  if (!apiKey) {
-    return { available: false, error: 'BRICK_API_KEY not configured' };
-  }
-
-  // 4. Call Brick preprocess endpoint
+  // 5. Call Brick preprocess endpoint
   const params = buildBrickEvalParams(fullContent);
   try {
     const response = await fetch(`${BRICK_BASE_URL}/enrich/v1/preprocess`, {
@@ -101,7 +102,7 @@ export async function preprocessForEvaluation(
 
     const data = await response.json();
 
-    // Extract fields from the tree manifest response
+    // Brick API v1 returns fields at top level; v2 nests them under tree_manifest
     return {
       available: true,
       summary: data.summary ?? data.tree_manifest?.summary ?? `Bead ${beadId} preprocessed`,
