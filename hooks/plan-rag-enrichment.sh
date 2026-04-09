@@ -26,12 +26,7 @@ source "$SCRIPT_DIR/lib/common.sh"
 
 INPUT=$(read_hook_stdin) || exit 0
 
-# Extract file_path from JSON
-FILE_PATH=$(echo "$INPUT" | python3 -c "
-import sys, json
-d = json.load(sys.stdin)
-print(d.get('tool_input', {}).get('file_path', ''))
-" 2>/dev/null || echo "")
+FILE_PATH=$(read_hook_file_path "$INPUT")
 
 if [ -z "$FILE_PATH" ]; then
     exit 0
