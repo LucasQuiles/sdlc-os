@@ -280,7 +280,7 @@ class Deacon:
         try:
             asyncio.get_running_loop().create_task(coro)
         except RuntimeError:
-            pass
+            coro.close()
 
     def _persist_event(
         self,
