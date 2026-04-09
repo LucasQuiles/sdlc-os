@@ -204,6 +204,7 @@ class Deacon:
     _blacklisted_beads: set[str] = field(default_factory=set)
     _last_discover_time: float = 0.0
     _maintenance_failures: dict[str, MaintenanceTaskState] = field(default_factory=dict)
+    _cost_map_cache: dict[str, float] | None = None
 
     @property
     def events_db_path(self) -> str | None:
@@ -377,10 +378,15 @@ class Deacon:
             self._write_deadletter(dl_path, record)
 
     def _clear_blacklist(self) -> None:
-        """SIGUSR1 handler target: clear blacklist and failure counts."""
+        """SIGUSR1 handler target: clear blacklist, failure counts, and degraded maintenance state.
+
+        Called from a sync signal handler — may interleave with async maintenance cycle.
+        Worst case: a maintenance task re-inserts its key on next cycle, which is harmless.
+        """
         self._blacklisted_beads.clear()
         self._bead_failure_counts.clear()
-        log.info("blacklist_cleared")
+        self._maintenance_failures.clear()
+        log.info("blacklist_cleared maintenance_reset=true")
 
     # -- Backpressure persistence ---------------------------------------------
 
@@ -800,7 +806,13 @@ class Deacon:
     # -- Cost aggregation -----------------------------------------------------
 
     def _build_cost_map(self, log_path: str | None = None) -> dict[str, float]:
-        """Parse colony-sessions.log once, return {bead_id: total_cost} map."""
+        """Parse colony-sessions.log once, return {bead_id: total_cost} map.
+
+        Uses a per-cycle cache to avoid re-reading the log file when called
+        multiple times in the same WATCHING iteration.
+        """
+        if log_path is None and self._cost_map_cache is not None:
+            return self._cost_map_cache
         if log_path is None:
             log_path = str(Path(__file__).parent / "colony-sessions.log")
         costs: dict[str, float] = {}
@@ -822,7 +834,13 @@ class Deacon:
                         continue
         except FileNotFoundError:
             pass
+        if log_path == str(Path(__file__).parent / "colony-sessions.log"):
+            self._cost_map_cache = costs
         return costs
+
+    def _invalidate_cost_map_cache(self) -> None:
+        """Clear per-cycle cost map cache. Call at the start of each WATCHING iteration."""
+        self._cost_map_cache = None
 
     # -- check_for_work ------------------------------------------------------
 
@@ -1272,6 +1290,7 @@ async def run_deacon(deacon: Deacon) -> None:
             _sd_notify("WATCHDOG=1")
 
             if deacon.state == DeaconState.WATCHING:
+                deacon._invalidate_cost_map_cache()
                 async with deacon._spawn_lock:
                     work = deacon.check_for_work()
                     if work and deacon.can_spawn_conductor():
