@@ -74,7 +74,9 @@ AST analysis complements grep (pattern matching) and LSP (symbol resolution) by 
 | MAINT-003: God class / file length | `bash "${CLAUDE_PLUGIN_ROOT}/scripts/ast-checks.sh" --check MAINT-003 {files}` | `status: CLEAN` (no file > 500 lines, no function > 100 lines) | maintainability |
 | PERF-001: Expensive loop operations | `bash "${CLAUDE_PLUGIN_ROOT}/scripts/ast-checks.sh" --check PERF-001 {files}` | `status: CLEAN` (no await-in-loop) | performance |
 
-**Availability:** Requires `npx` + `eslint`. If unavailable, the script exits with `status: UNAVAILABLE` and the check is skipped — enforcement falls back to LLM-based agents (simplicity-auditor, drift-detector). This graceful degradation is by design: AST checks are the preferred path but not a hard gate when tooling is absent.
+**Availability:** Requires a project-local `node_modules/.bin/eslint` (v8 or earlier) on the target file's ancestor path, or a globally-installed `eslint` in `PATH`. If unavailable, the script emits `{"status":"UNAVAILABLE","reason":"..."}` on **stdout** and exits 0 (fail-open — never blocks PostToolUse). Consumers must treat any non-{CLEAN,FINDINGS} status as "check could not run" and fall back to LLM-based agents (simplicity-auditor, drift-detector). This graceful degradation is by design: AST checks are the preferred path but not a hard gate when tooling is absent.
+
+**Known limitation:** The current invocation uses `--no-eslintrc` and `--parser` CLI flags, which were removed in ESLint 9's flat config. On projects using ESLint 9+, the script emits UNAVAILABLE with a clear diagnostic pointing to the version mismatch. A rewrite for ESLint 9 flat config is pending.
 
 **FFT-08 routing:** These checks are deterministic (binary pass/fail output). Per FFT-08, the Conductor routes them to the script before dispatching LLM-based sentinel checks. If the script returns FINDINGS, the L1 correction directive includes the AST-detected issues alongside any LLM findings.
 

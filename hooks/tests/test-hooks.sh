@@ -646,6 +646,34 @@ run_test "skip: non-state file" "$HOOKS_DIR/warn-phase-transition.sh" "$_pt_tmp/
 rm -rf "$_pt_tmp"
 
 echo ""
+echo "=== AST Checks Hook Suite ==="
+# Run the standalone ast-checks.sh test matrix as a sub-suite and roll its
+# PASS/FAIL counts into the main totals. The sub-suite uses its own scratch
+# env (temp ast-checks.sh copy, synthetic PATHs) so it is safe to invoke here.
+
+AST_SUITE="$SCRIPT_DIR/test-ast-checks.sh"
+if [[ ! -f "$AST_SUITE" ]]; then
+  echo "  FAIL: test-ast-checks.sh missing at $AST_SUITE"
+  FAIL=$((FAIL + 1))
+else
+  # Capture output, surface per-test lines, extract PASS/FAIL counts from summary.
+  AST_OUTPUT=$(bash "$AST_SUITE" 2>&1) || true
+  # Forward each PASS:/FAIL: line so granularity is visible in aggregated output
+  echo "$AST_OUTPUT" | grep -E '^\s*(PASS|FAIL):' || true
+
+  AST_PASS=$(echo "$AST_OUTPUT" | sed -n 's/.*PASS: \([0-9]*\).*FAIL:.*/\1/p' | tail -1)
+  AST_FAIL=$(echo "$AST_OUTPUT" | sed -n 's/.*PASS: [0-9]*  FAIL: \([0-9]*\).*/\1/p' | tail -1)
+
+  if [[ -z "$AST_PASS" || -z "$AST_FAIL" ]]; then
+    echo "  FAIL: could not parse test-ast-checks.sh summary"
+    FAIL=$((FAIL + 1))
+  else
+    PASS=$((PASS + AST_PASS))
+    FAIL=$((FAIL + AST_FAIL))
+  fi
+fi
+
+echo ""
 echo "=== Results ==="
 echo "PASS: $PASS  FAIL: $FAIL  TOTAL: $((PASS + FAIL))"
 
