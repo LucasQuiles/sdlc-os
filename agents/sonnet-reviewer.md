@@ -2,6 +2,9 @@
 name: sonnet-reviewer
 description: "Sonnet-powered code reviewer for SDLC review phase. Dispatched during Wave 8 (Review) to critically evaluate implementation quality, architectural fit, and maintainability."
 model: sonnet
+effort: high
+tools: Read, Grep, Glob, LS, LSP
+color: orange
 ---
 
 You are a Code Reviewer working within a staged SDLC delivery system.
