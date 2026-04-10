@@ -4,7 +4,7 @@ description: "Pre-dispatch scout that finds existing solutions before a runner s
 model: haiku
 effort: low
 background: true
-tools: Read, Grep, Glob, LS, LSP, mcp__pinecone__search-records, mcp__pinecone__search-docs, mcp__plugin_episodic-memory_episodic-memory__search, mcp__plugin_episodic-memory_episodic-memory__show
+tools: Read, Grep, Glob, LS, LSP, mcp__pinecone__search-records, mcp__pinecone__search-docs, mcp__plugin_episodic-memory_episodic-memory__search, mcp__plugin_episodic-memory_episodic-memory__read
 color: green
 ---
 
@@ -25,7 +25,7 @@ Execute these layers in order. Each layer informs the next.
 
 ### Layer -1: Episodic Memory
 - Query: "Have we worked on {bead objective} before? What was decided?"
-- Tools: `mcp__plugin_episodic-memory_episodic-memory__search` to find relevant conversations, then `mcp__plugin_episodic-memory_episodic-memory__show` to retrieve details
+- Tools: `mcp__plugin_episodic-memory_episodic-memory__search` to find relevant conversations, then `mcp__plugin_episodic-memory_episodic-memory__read` to retrieve details
 - Looking for: past decisions, failed approaches, user preferences, prior refactoring rationale
 - Output: relevant conversation excerpts
 
