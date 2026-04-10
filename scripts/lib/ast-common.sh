@@ -3,28 +3,73 @@
 # Source this file from scripts that perform eslint-based AST checks.
 #
 # Operationalizes AST tier from references/deterministic-checks.md
-# Requires: npx, eslint (invoked via npx)
+# Requires: eslint (resolved from target file's ancestor node_modules/.bin or PATH)
 
 # --- Preflight ---
 
-# check_eslint_available: Verify npx is present and eslint is reachable via npx.
-# Sets ESLINT_TS_PARSER_AVAILABLE=1 if @typescript-eslint/parser is loadable.
-# Returns 0 if ready, 1 if unavailable.
+# find_eslint_for_file: Locate an eslint binary to use for a given file.
+# Walks upward from the file's directory looking for node_modules/.bin/eslint.
+# Falls back to a globally-installed `eslint` if present in PATH.
+# Prints the absolute path to eslint on success, empty string on failure.
+# Never auto-installs (no network calls, no first-run surprises).
+find_eslint_for_file() {
+  local file="$1"
+  local dir
+  dir="$(cd "$(dirname "$file")" 2>/dev/null && pwd)" || return 0
+
+  # Walk upward looking for node_modules/.bin/eslint
+  while [[ "$dir" != "/" && -n "$dir" ]]; do
+    if [[ -x "$dir/node_modules/.bin/eslint" ]]; then
+      echo "$dir/node_modules/.bin/eslint"
+      return 0
+    fi
+    dir="$(dirname "$dir")"
+  done
+
+  # Fall back to PATH (global install)
+  if command -v eslint &>/dev/null; then
+    command -v eslint
+    return 0
+  fi
+
+  # Not found — caller must fail-open
+}
+
+# check_eslint_available: Quick check that at least one eslint is locatable for the
+# given file. Also detects eslint version — the current rule-injection invocation
+# path (--no-eslintrc + --parser + --rule) was deprecated in eslint 9+ flat config.
+# Returns 0 if ready (v8 or earlier with TS parser), 1 otherwise.
+# Sets ESLINT_BIN, ESLINT_MAJOR_VERSION, and ESLINT_TS_PARSER_AVAILABLE.
 check_eslint_available() {
-  if ! command -v npx &>/dev/null; then
-    echo '{"status": "UNAVAILABLE", "reason": "npx not found"}' >&2
-    return 1
-  fi
-
-  # Verify eslint is actually resolvable (fast probe via --version)
-  if ! npx --no eslint --version &>/dev/null 2>&1; then
-    echo '{"status": "UNAVAILABLE", "reason": "eslint not found via npx — install eslint"}' >&2
-    return 1
-  fi
-
-  # Probe for TypeScript parser availability (best-effort, no failure on absence)
+  local probe_file="${1:-}"
+  ESLINT_BIN=""
+  ESLINT_MAJOR_VERSION=""
   ESLINT_TS_PARSER_AVAILABLE=0
-  if npx --no eslint --no-eslintrc --parser @typescript-eslint/parser --rule '{}' /dev/null &>/dev/null 2>&1; then
+
+  if [[ -n "$probe_file" ]]; then
+    ESLINT_BIN="$(find_eslint_for_file "$probe_file")"
+  fi
+
+  if [[ -z "$ESLINT_BIN" ]]; then
+    echo '{"status": "UNAVAILABLE", "reason": "eslint not found in local node_modules or PATH"}' >&2
+    return 1
+  fi
+
+  # Detect eslint major version
+  local version_output
+  version_output=$("$ESLINT_BIN" --version 2>/dev/null | head -1 | tr -d 'v')
+  ESLINT_MAJOR_VERSION="${version_output%%.*}"
+
+  # eslint 9+ uses flat config (eslint.config.js) and removed --no-eslintrc / --parser
+  # flags. The current rule-injection code path is incompatible with v9+. Fail-open
+  # with a clear diagnostic so hook-latency reports surface this.
+  if [[ -n "$ESLINT_MAJOR_VERSION" ]] && (( ESLINT_MAJOR_VERSION >= 9 )); then
+    echo "{\"status\": \"UNAVAILABLE\", \"reason\": \"eslint ${version_output} uses flat config — --no-eslintrc/--parser CLI flags removed. AST hook needs rewrite for eslint 9+.\"}" >&2
+    return 1
+  fi
+
+  # Probe the TS parser — best-effort (v8 path only)
+  if "$ESLINT_BIN" --no-eslintrc --parser @typescript-eslint/parser --rule '{}' /dev/null &>/dev/null 2>&1; then
     ESLINT_TS_PARSER_AVAILABLE=1
   fi
 
@@ -76,12 +121,19 @@ run_eslint_check() {
     parser_args=(--parser @typescript-eslint/parser)
   fi
 
-  # Run eslint and capture output + exit code
+  # ESLINT_BIN is set by check_eslint_available; if unset or empty, fail-open.
+  if [[ -z "${ESLINT_BIN:-}" ]]; then
+    printf '{"status":"UNAVAILABLE","check":"%s","reason":"eslint binary not located"}\n' "$check_id"
+    return 0
+  fi
+
+  # Run eslint and capture output + exit code.
+  # parser_args expansion is guarded via ${arr[@]+"${arr[@]}"} for set -u safety on bash 3.2.
   local eslint_out
   local eslint_exit=0
-  eslint_out=$(npx --no eslint \
+  eslint_out=$("$ESLINT_BIN" \
     --no-eslintrc \
-    "${parser_args[@]}" \
+    ${parser_args[@]+"${parser_args[@]}"} \
     --rule "$rules_json" \
     --format json \
     "${files[@]}" 2>/dev/null) || eslint_exit=$?
