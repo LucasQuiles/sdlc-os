@@ -39,7 +39,7 @@ This defeats the planning fallacy: instead of "what should we harden?" (optimist
 ### Step 1: Pre-Clean (Sandwich Bottom)
 
 Dispatch in parallel:
-- `/finding-duplicate-functions` pipeline on bead files — extract, categorize, detect, consolidate
+- `/deduplicating-functions` pipeline on bead files — extract, categorize, detect, consolidate
 - `/simplify` review on bead files — reuse, quality, efficiency
 
 Consolidate duplicates BEFORE instrumenting. Simplify BEFORE hardening. Do not instrument code that is about to be deleted or restructured.
@@ -73,7 +73,7 @@ Dispatch `blue-reliability-engineering` with:
 
 ### Step 6: Post-Clean (Sandwich Top)
 
-Same as Step 1 — dispatch `/finding-duplicate-functions` and `/simplify` again. Target hardening-induced duplication: duplicate error handlers, duplicate logging patterns, duplicate retry wrappers.
+Same as Step 1 — dispatch `/deduplicating-functions` and `/simplify` again. Target hardening-induced duplication: duplicate error handlers, duplicate logging patterns, duplicate retry wrappers.
 
 If post-clean finds significant duplication, record as feedback: agents are over-instrumenting.
 

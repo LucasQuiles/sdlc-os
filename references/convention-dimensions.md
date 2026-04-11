@@ -49,7 +49,7 @@ sample-size: 5
 - Use LSP `documentSymbol` to extract all symbols from each open file.
 - Use LSP `workspaceSymbol` with an empty query to get a project-wide symbol index.
 - Classify each symbol by kind (function, variable, class, constant) and check casing.
-- If `superpowers-lab:finding-duplicate-functions` has produced a `catalog.json` for this project, consume it for naming data at scale rather than re-scanning — join on file path and symbol name.
+- If `sdlc-os:deduplicating-functions` has produced a `catalog.json` for this project, consume it for naming data at scale rather than re-scanning — join on file path and symbol name.
 
 **Enforcer severity:**
 - BLOCKING for exported symbols — public API naming is a contract.

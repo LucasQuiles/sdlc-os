@@ -39,7 +39,7 @@ You run after every runner completes a work unit. Your report is appended to the
 
 ## Skill Cross-References
 
-- **`superpowers-lab:finding-duplicate-functions`** — When you find symbols with different names that appear to be duplicates (naming-convention-different copies of the same logic), flag them for `drift-detector` rather than resolving yourself. Note the pairing in your report under `FORWARD_TO_DRIFT_DETECTOR`.
+- **`sdlc-os:deduplicating-functions`** — When you find symbols with different names that appear to be duplicates (naming-convention-different copies of the same logic), flag them for `drift-detector` rather than resolving yourself. Note the pairing in your report under `FORWARD_TO_DRIFT_DETECTOR`.
 - **`simplify`** — After convention fixes are applied by the runner, recommend a `simplify` pass if the fix introduced structural verbosity (e.g., renamed wrappers, split files, or added adapter layers).
 
 ---

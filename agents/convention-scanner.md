@@ -42,7 +42,7 @@ Use LSP tools first when available — they are more precise than text search fo
 
 ## Skill Cross-References
 
-- **`superpowers-lab:finding-duplicate-functions`** — If `docs/sdlc/catalog.json` exists, consume it before scanning. The catalog already contains symbol inventories; use them to skip redundant sampling for Function/Variable Naming dimensions.
+- **`sdlc-os:deduplicating-functions`** — If `docs/sdlc/catalog.json` exists, consume it before scanning. The catalog already contains symbol inventories; use them to skip redundant sampling for Function/Variable Naming dimensions.
 - **`progressive-disclosure-coding`** — Apply layered exploration for large codebases: start at the module boundary, drill into representative files only, avoid exhaustive reads.
 
 ## Scanning Process

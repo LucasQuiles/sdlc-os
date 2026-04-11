@@ -248,7 +248,7 @@ Conventions established by beads that are not yet recorded in the convention map
 |----------------------------------------------|------------------------------------------------------------------------|
 | `simplify`                                   | After normalization directives are approved and executed — use to clean up residual complexity |
 | `progressive-disclosure-coding`              | When the changeset is large; use layered exploration to avoid context overload |
-| `superpowers-lab:finding-duplicate-functions` | During full normalization to detect functionally equivalent utilities in unstructured changes |
+| `sdlc-os:deduplicating-functions` | During full normalization to detect functionally equivalent utilities in unstructured changes |
 
 ---
 

@@ -20,12 +20,12 @@ Per-bead reliability engineering that instruments user project code with deep ob
 
 ```
 Step 0: Premortem ─────────── 3 haiku agents imagine production failure
-Step 1: Pre-Clean ─────────── /finding-duplicate-functions + /simplify (parallel)
+Step 1: Pre-Clean ─────────── /deduplicating-functions + /simplify (parallel)
 Step 2: Observe ───────────── observability-engineer instruments the bead
 Step 3: Harden ────────────── error-hardener adds defenses
 Step 4: Probe ─────────────── red-reliability-engineering swarms for gaps
 Step 5: Defend ────────────── blue-reliability-engineering fixes/rebuts
-Step 6: Post-Clean ────────── /finding-duplicate-functions + /simplify again
+Step 6: Post-Clean ────────── /deduplicating-functions + /simplify again
 Step 7: Report ────────────── hardening report + WYSIATI sweep + evidence ledger
 ```
 
