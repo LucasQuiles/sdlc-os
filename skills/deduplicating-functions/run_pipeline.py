@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import fcntl
 import os
 import sys
 import json
@@ -14,6 +15,7 @@ PYTHON = sys.executable  # Use the same interpreter that launched this script
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 SCRIPTS = os.path.join(BASE, "scripts")
+DEFAULT_LOCK_PATH = os.path.expanduser("~/.cache/sdlc-os/run_pipeline.lock")
 
 
 def log(msg):
@@ -42,6 +44,28 @@ def _strict_gate(phase: str, message: str, strict: bool, log_file: str = "") -> 
         sys.exit(2)
 
 
+def acquire_pipeline_lock(lock_path: str, wait: bool) -> int:
+    """Acquire an exclusive flock on lock_path. Return the open file descriptor.
+
+    The caller is responsible for keeping the fd open for the lifetime of
+    the run; closing it (or process exit) releases the lock automatically.
+
+    Raises BlockingIOError if wait=False and the lock is already held.
+    """
+    os.makedirs(os.path.dirname(lock_path), exist_ok=True)
+    fd = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o644)
+    flags = fcntl.LOCK_EX if wait else (fcntl.LOCK_EX | fcntl.LOCK_NB)
+    try:
+        fcntl.flock(fd, flags)
+    except BlockingIOError:
+        os.close(fd)
+        raise
+    # Record our pid for diagnostics
+    os.ftruncate(fd, 0)
+    os.write(fd, f"{os.getpid()}\n".encode())
+    return fd
+
+
 def parse_args():
     p = argparse.ArgumentParser(description="Run the full duplicate detection pipeline")
     p.add_argument("source", nargs="?", default=None,
@@ -60,6 +84,11 @@ def parse_args():
                    help="Exit non-zero if any pipeline phase fails (extract, "
                         "detect, merge, report, or evaluate). Default: warn "
                         "and continue on failures.")
+    p.add_argument("--lock-file", default=DEFAULT_LOCK_PATH,
+                   help=f"Path to the cross-process lock file (default: {DEFAULT_LOCK_PATH}). "
+                        "Two run_pipeline.py invocations sharing this path are mutually exclusive.")
+    p.add_argument("--wait", action="store_true",
+                   help="Block waiting for the lock instead of failing fast on conflict.")
     return p.parse_args()
 
 
@@ -82,6 +111,21 @@ def main():
             sys.exit(1)
     elif src and not os.path.isdir(src):
         print(f"Error: source directory not found: {src}", file=sys.stderr)
+        sys.exit(1)
+
+    # ── Acquire pipeline lock ────────────────────────────────────────
+    try:
+        lock_fd = acquire_pipeline_lock(args.lock_file, wait=args.wait)
+    except BlockingIOError:
+        # Try to read the holding pid for a useful diagnostic
+        holder = ""
+        try:
+            with open(args.lock_file) as f:
+                holder = f" (held by pid {f.read().strip()})"
+        except OSError:
+            pass
+        log(f"ERROR: another run_pipeline.py is already running{holder}. "
+            f"Use --wait to block, or pick a different --lock-file.")
         sys.exit(1)
 
     # ── Setup ────────────────────────────────────────────────────────
