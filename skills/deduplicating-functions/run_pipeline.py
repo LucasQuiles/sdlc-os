@@ -51,18 +51,28 @@ def acquire_pipeline_lock(lock_path: str, wait: bool) -> int:
     the run; closing it (or process exit) releases the lock automatically.
 
     Raises BlockingIOError if wait=False and the lock is already held.
+    Any other exception (e.g. OSError on an unsupported filesystem) is
+    re-raised after closing the fd to avoid a descriptor leak.
     """
-    os.makedirs(os.path.dirname(lock_path), exist_ok=True)
+    # Handle bare filenames like "pipeline.lock" where dirname is empty
+    parent = os.path.dirname(lock_path) or "."
+    os.makedirs(parent, exist_ok=True)
     fd = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o644)
-    flags = fcntl.LOCK_EX if wait else (fcntl.LOCK_EX | fcntl.LOCK_NB)
     try:
+        flags = fcntl.LOCK_EX if wait else (fcntl.LOCK_EX | fcntl.LOCK_NB)
         fcntl.flock(fd, flags)
+        # Record our pid for diagnostics. Best-effort — if this fails
+        # we still hold the lock and should not leak it.
+        os.ftruncate(fd, 0)
+        os.write(fd, f"{os.getpid()}\n".encode())
     except BlockingIOError:
         os.close(fd)
         raise
-    # Record our pid for diagnostics
-    os.ftruncate(fd, 0)
-    os.write(fd, f"{os.getpid()}\n".encode())
+    except Exception:
+        # Any other failure: release the fd before propagating so we
+        # don't leak on unsupported filesystems or partial writes.
+        os.close(fd)
+        raise
     return fd
 
 
@@ -114,10 +124,15 @@ def main():
         sys.exit(1)
 
     # ── Acquire pipeline lock ────────────────────────────────────────
+    # NB: lock_fd must stay in scope for the rest of main(). Do NOT close
+    # it — process exit releases the flock automatically. A refactor that
+    # removes "unused" local variables will drop the lock.
     try:
         lock_fd = acquire_pipeline_lock(args.lock_file, wait=args.wait)
     except BlockingIOError:
-        # Try to read the holding pid for a useful diagnostic
+        # Best-effort holder-pid diagnostic. The read can race with the
+        # holder's own ftruncate+write, yielding an empty string; that is
+        # cosmetic — the lock-conflict error still fires below.
         holder = ""
         try:
             with open(args.lock_file) as f:
