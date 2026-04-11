@@ -151,7 +151,16 @@ def main():
     if not args.ignore_preflight:
         ok, reason = check_preflight()
         if ok:
-            log(f"  Preflight: {reason}")
+            # Distinguish a real healthy probe from a fail-open "skipped:"
+            # result. A skipped probe means the safeguard is absent — the
+            # pipeline still proceeds, but the log line must make that
+            # visible so it doesn't look like a normal healthy run.
+            if reason.startswith("skipped:"):
+                log(f"  WARNING Preflight SKIPPED: {reason}")
+                log("           Memory pressure probe did not run; "
+                    "safeguard is absent. Proceed with care.")
+            else:
+                log(f"  Preflight OK: {reason}")
         else:
             log(f"ERROR: preflight refused launch: {reason}")
             log(f"       Free memory before retrying, or pass --ignore-preflight "

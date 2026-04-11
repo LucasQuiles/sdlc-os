@@ -284,9 +284,11 @@ def test_default_run_with_all_safety_guards_engaged(clean_tmpdir, tmp_path):
         f"Default safety-on run failed: {result.stdout[-500:]}\n"
         f"stderr: {result.stderr[-500:]}"
     )
-    # Sanity: all three guards should have logged their status
+    # Sanity: all three guards should have logged their status.
+    # Preflight logs one of: "preflight ok:", "warning preflight skipped:",
+    # "preflight: bypassed", or an error — we accept ok or skipped here.
     out = result.stdout.lower()
-    assert "preflight:" in out, (
+    assert ("preflight ok:" in out) or ("preflight skipped:" in out), (
         f"Preflight log line missing from stdout. "
         f"Last 500 chars: {result.stdout[-500:]}"
     )
