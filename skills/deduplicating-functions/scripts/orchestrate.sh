@@ -29,7 +29,7 @@ NOTE:
     This wrapper is not the hardened path. It does not implement the
     cross-process lock, memory preflight, or detector jobs cap from
     run_pipeline.py. Prefer:
-      python3 run_pipeline.py <source-directory> -o <output-dir> --strict
+      python3 run_pipeline.py <source-directory> -o <output-dir>
 
 PHASES:
     Phase 0: Extract function catalog (regex + AST; optional manual LSP enrichment outside the runner)
@@ -465,7 +465,7 @@ main() {
     log "Legacy Duplicate Detection Wrapper"
     log "Source: $SRC_DIR"
     log "Output: $OUTPUT_DIR"
-    log "WARNING: prefer python3 run_pipeline.py --strict for lock/preflight/jobs-cap safety"
+    log "WARNING: prefer python3 run_pipeline.py for lock/preflight/jobs-cap safety (strict is default)"
     log ""
 
     phase_extract

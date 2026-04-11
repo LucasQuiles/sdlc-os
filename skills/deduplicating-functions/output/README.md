@@ -44,12 +44,12 @@ From the repo root:
 # Preserve README before wiping
 cp output/README.md /tmp/output-readme.md
 rm -rf output/
-python3 run_pipeline.py scripts/ -o output/ --strict
+python3 run_pipeline.py scripts/ -o output/
 rm output/pipeline.log  # machine-specific absolute paths
 cp /tmp/output-readme.md output/README.md
 ```
 
-The `--strict` flag causes the pipeline to exit non-zero if any
+Strict mode is the default — the pipeline exits non-zero if any
 pipeline phase fails to execute cleanly:
 
 - **Phase 0 (extract)**: extractor script missing, `node` missing
