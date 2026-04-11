@@ -189,3 +189,73 @@ def test_resolve_jobs_priority_order(monkeypatch):
     # Garbage env falls through to default
     monkeypatch.setenv("SDLC_OS_DETECTOR_JOBS", "garbage")
     assert run_pipeline._resolve_jobs(None) == default
+
+
+SHIM_SAFETY_PY = (
+    "import os\n"
+    "import fcntl\n"
+    "DEFAULT_LOCK_PATH = os.path.expanduser('~/.cache/sdlc-os/run_pipeline.lock')\n"
+    "DEFAULT_MIN_FREE_RAM_GB = 4.0\n"
+    "DEFAULT_MAX_SWAPFILES = 5\n"
+    "def check_preflight(*a, **kw):\n"
+    "    return False, 'synthetic test refusal'\n"
+    "def acquire_pipeline_lock(lock_path, wait):\n"
+    "    parent = os.path.dirname(lock_path) or '.'\n"
+    "    os.makedirs(parent, exist_ok=True)\n"
+    "    fd = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o644)\n"
+    "    flags = fcntl.LOCK_EX if wait else (fcntl.LOCK_EX | fcntl.LOCK_NB)\n"
+    "    try:\n"
+    "        fcntl.flock(fd, flags)\n"
+    "    except BlockingIOError:\n"
+    "        os.close(fd); raise\n"
+    "    return fd\n"
+)
+
+
+def _make_shim_runner(tmp_path):
+    """Copy run_pipeline.py into a temp dir and drop the shim safety.py beside it.
+
+    Because Python adds the script's own directory to sys.path[0], placing
+    the shim safety.py next to the runner ensures it shadows the real one.
+    """
+    import shutil as _shutil
+    runner_dir = tmp_path / "runner"
+    runner_dir.mkdir()
+    shim_runner = str(runner_dir / "run_pipeline.py")
+    _shutil.copy(RUNNER, shim_runner)
+    (runner_dir / "safety.py").write_text(SHIM_SAFETY_PY)
+    return shim_runner
+
+
+def test_preflight_refusal_blocks_pipeline_launch(clean_tmpdir, tmp_path):
+    """When preflight reports unsafe, the pipeline must exit 1 before launching detectors."""
+    shim_runner = _make_shim_runner(tmp_path)
+
+    result = subprocess.run(
+        [PYTHON, shim_runner, SCRIPTS_DIR, "-o", clean_tmpdir,
+         "--skip-ts", "--lock-file", str(tmp_path / "lock")],
+        capture_output=True, text=True, timeout=30,
+    )
+    assert result.returncode == 1, (
+        f"Expected exit 1 from preflight refusal, got {result.returncode}\n"
+        f"stdout: {result.stdout[-500:]}"
+    )
+    assert "preflight refused launch" in result.stdout.lower()
+    assert "synthetic test refusal" in result.stdout.lower()
+
+
+def test_ignore_preflight_bypasses_check(clean_tmpdir, tmp_path):
+    """--ignore-preflight should run the pipeline even when preflight would refuse."""
+    shim_runner = _make_shim_runner(tmp_path)
+
+    result = subprocess.run(
+        [PYTHON, shim_runner, SCRIPTS_DIR, "-o", clean_tmpdir,
+         "--skip-ts", "--ignore-preflight",
+         "--lock-file", str(tmp_path / "lock")],
+        capture_output=True, text=True, timeout=180,
+    )
+    assert result.returncode == 0, (
+        f"--ignore-preflight should bypass refusal, got {result.returncode}\n"
+        f"stdout: {result.stdout[-500:]}"
+    )
+    assert "bypassed via --ignore-preflight" in result.stdout.lower()
