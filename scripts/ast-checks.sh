@@ -12,7 +12,8 @@ set -euo pipefail
 #   --check PERF-001   loop analysis (async-in-loop proxy) only
 #   --check ALL        all checks (default)
 #
-# When no FILE args are given, reads hook JSON from stdin (timeout 2s) and
+# When no FILE args are given, reads hook JSON from stdin using
+# read_hook_stdin's 2s alarm guard and
 # extracts .tool_input.file_path. If stdin is empty or no file path, exits 0
 # with SKIP — safe for both hook and CLI invocation.
 #
@@ -74,7 +75,7 @@ esac
 # --- Hook Mode: if no FILE args, try reading file_path from stdin JSON ---
 #
 # Consumer contract: distinguish three cases when no FILE args are provided:
-#   (a) Hook-mode plumbing broken (missing common.sh, jq, or timeout) → UNAVAILABLE
+#   (a) Hook-mode plumbing broken (missing common.sh, jq, or perl) → UNAVAILABLE
 #   (b) Stdin has valid JSON with a file_path → use it (falls through to filter)
 #   (c) Stdin is empty or JSON has no file_path → SKIP (caller passed unrelated event)
 # Only (a) should be UNAVAILABLE — (b) and (c) continue to the filter, which may
@@ -91,8 +92,8 @@ if [[ ${#FILES[@]} -eq 0 ]]; then
     printf '{"status":"UNAVAILABLE","reason":"hook-mode plumbing missing: jq not in PATH"}\n'
     exit 0
   fi
-  if ! command -v timeout &>/dev/null; then
-    printf '{"status":"UNAVAILABLE","reason":"hook-mode plumbing missing: timeout(1) not in PATH — required by read_hook_stdin"}\n'
+  if ! command -v perl &>/dev/null; then
+    printf '{"status":"UNAVAILABLE","reason":"hook-mode plumbing missing: perl not in PATH — required by read_hook_stdin"}\n'
     exit 0
   fi
 
@@ -100,7 +101,8 @@ if [[ ${#FILES[@]} -eq 0 ]]; then
   source "$HOOK_LIB"
 
   # read_hook_stdin exits 1 on empty stdin — that is legitimately SKIP (case c),
-  # not UNAVAILABLE. The plumbing-missing checks above already ruled out case (a).
+  # not UNAVAILABLE. Exit 2 indicates the guard itself failed, which is
+  # plumbing-broken UNAVAILABLE (case a).
   if HOOK_INPUT=$(read_hook_stdin 2>/dev/null); then
     HOOK_FILE=$(read_hook_file_path "$HOOK_INPUT")
     if [[ -n "$HOOK_FILE" ]]; then
@@ -108,6 +110,12 @@ if [[ ${#FILES[@]} -eq 0 ]]; then
     fi
     # If HOOK_FILE was empty, FILES stays empty and we fall through to SKIP —
     # this is case (c): caller passed a hook event with no file_path (correct).
+  else
+    hook_rc=$?
+    if [[ "$hook_rc" -ge 2 ]]; then
+      printf '{"status":"UNAVAILABLE","reason":"hook-mode stdin read failed"}\n'
+      exit 0
+    fi
   fi
   # If read_hook_stdin returned non-zero (empty stdin), FILES stays empty and
   # we fall through to SKIP — also case (c), also correct.

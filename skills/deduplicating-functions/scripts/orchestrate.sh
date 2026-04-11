@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# ABOUTME: Master orchestration script — runs the full multi-signal duplicate detection pipeline
-# Coordinates extraction, detection, merging, and reporting phases with parallel execution.
+# ABOUTME: Legacy bash wrapper for the duplicate detection pipeline.
+# Keeps the original orchestration flow for ad-hoc/manual use, but lacks the
+# lock, memory preflight, and detector jobs cap in run_pipeline.py.
 
 set -euo pipefail
 
@@ -10,7 +11,7 @@ usage() {
     cat <<EOF
 Usage: $(basename "$0") [OPTIONS] <source-directory>
 
-Run the full multi-signal duplicate function detection pipeline.
+Run the legacy bash duplicate function detection wrapper.
 
 OPTIONS:
     -o, --output-dir DIR    Output directory for all artifacts (default: ./dupcheck)
@@ -21,10 +22,14 @@ OPTIONS:
     --skip-llm              Skip manual semantic follow-up reminder (classical pipeline only)
     --skip-ast              Skip AST extraction (use regex only)
     --threshold N           Merge-phase HIGH confidence cutoff (default: 0.80)
-    --parallel              Run independent phases in parallel (default)
-    --sequential            Run phases sequentially (for debugging)
     -v, --verbose           Verbose output
     -h, --help              Show this help
+
+NOTE:
+    This wrapper is not the hardened path. It does not implement the
+    cross-process lock, memory preflight, or detector jobs cap from
+    run_pipeline.py. Prefer:
+      python3 run_pipeline.py <source-directory> -o <output-dir> --strict
 
 PHASES:
     Phase 0: Extract function catalog (regex + AST; optional manual LSP enrichment outside the runner)
@@ -54,7 +59,6 @@ INCLUDE_TESTS=false
 SKIP_LLM=false
 SKIP_AST=false
 THRESHOLD=0.80
-PARALLEL=true
 VERBOSE=false
 
 # Parse args
@@ -68,8 +72,6 @@ while [[ $# -gt 0 ]]; do
         --skip-llm) SKIP_LLM=true; shift ;;
         --skip-ast) SKIP_AST=true; shift ;;
         --threshold) THRESHOLD="$2"; shift 2 ;;
-        --parallel) PARALLEL=true; shift ;;
-        --sequential) PARALLEL=false; shift ;;
         -v|--verbose) VERBOSE=true; shift ;;
         -h|--help) usage ;;
         -*) echo "Unknown option: $1" >&2; exit 1 ;;
@@ -460,9 +462,10 @@ phase_report() {
 # ═══════════════════════════════════════════════════════════════════
 
 main() {
-    log "Multi-Signal Duplicate Function Detection"
+    log "Legacy Duplicate Detection Wrapper"
     log "Source: $SRC_DIR"
     log "Output: $OUTPUT_DIR"
+    log "WARNING: prefer python3 run_pipeline.py --strict for lock/preflight/jobs-cap safety"
     log ""
 
     phase_extract

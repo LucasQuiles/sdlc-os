@@ -10,7 +10,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 
-INPUT=$(read_hook_stdin) || exit 0
+load_hook_input_or_exit INPUT || exit 0
 FILE_PATH=$(read_hook_file_path "$INPUT")
 
 # Only check source files (not markdown, json, yaml, etc.)
@@ -43,8 +43,9 @@ if echo "$CONTENT" | grep -qE 'catch\s*(\([^)]*\))?\s*\{\s*\}'; then
 fi
 
 # Check for catch blocks containing only a comment (// or /* comment */)
+# Use awk for the block-comment form because BSD grep on macOS lacks -P.
 if echo "$CONTENT" | grep -qE 'catch\s*(\([^)]*\))?\s*\{\s*//[^\n]*\s*\}' || \
-   echo "$CONTENT" | grep -qP 'catch\s*(\([^)]*\))?\s*\{\s*/\*.*?\*/\s*\}' 2>/dev/null; then
+   printf '%s\n' "$CONTENT" | awk '/catch[[:space:]]*(\([^)]*\))?[[:space:]]*\{[[:space:]]*\/\*.*\*\/[[:space:]]*\}/ { found=1; exit } END { exit(found ? 0 : 1) }'; then
   WARNINGS+=("SC-004: Catch block contains only a comment — this swallows the exception. Add logging or rethrowing.")
 fi
 

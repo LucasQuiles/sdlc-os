@@ -31,21 +31,21 @@ Python AST extraction requires Python 3.10+. TypeScript AST extraction requires 
 
 ## Quick Reference
 
-### Automated Pipeline (Recommended)
-
-```bash
-./scripts/orchestrate.sh src/ -o ./dupcheck
-```
-
-Run with `--skip-llm` to suppress the manual semantic follow-up reminder. Run with `--verbose` for detailed progress.
-
-### Python Pipeline Runner (Recommended for portability)
+### Python Pipeline Runner (Recommended)
 
 ```bash
 python3 run_pipeline.py src/ -o ./dupcheck --strict
 ```
 
-The Python runner does not require `jq` or `bash` for Phases 0-2. Use `--from-corpus` for evaluation against ground truth.
+The Python runner includes the cross-process lock, memory preflight, and detector concurrency cap. It does not require `jq` or `bash` for Phases 0-2. Use `--from-corpus` for evaluation against ground truth.
+
+### Legacy Bash Wrapper (Not for Production)
+
+```bash
+./scripts/orchestrate.sh src/ -o ./dupcheck
+```
+
+Use this only for ad-hoc/manual experiments. It does not implement the `run_pipeline.py` safety guardrails: no lock, no memory preflight, no detector jobs cap, and permissive phase handling. Run with `--skip-llm` to suppress the manual semantic follow-up reminder. Run with `--verbose` for detailed progress.
 
 ### Pipeline Phases
 

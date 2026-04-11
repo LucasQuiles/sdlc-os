@@ -7,6 +7,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOOKS_DIR="$(cd "$SCRIPT_DIR/../scripts" && pwd)"
+HOOK_LIB="$(cd "$SCRIPT_DIR/../lib" && pwd)/common.sh"
 FIXTURES_DIR="$SCRIPT_DIR/fixtures"
 PASS=0
 FAIL=0
@@ -63,6 +64,37 @@ run_test_advisory() {
     fi
   fi
 }
+
+run_hook_input_helper_regression_test() {
+  local tmpdir path_dir helper_script output exit_code=0
+  tmpdir=$(mktemp -d)
+  path_dir=$(mktemp -d)
+  helper_script="$tmpdir/probe-hook-stdin.sh"
+  trap "rm -rf '$tmpdir' '$path_dir'" RETURN
+
+  cat > "$helper_script" <<EOF
+#!/bin/bash
+set -euo pipefail
+source "$HOOK_LIB"
+load_hook_input_or_exit INPUT || exit 0
+printf '%s' "\$INPUT"
+EOF
+  chmod +x "$helper_script"
+  ln -s "$(command -v perl)" "$path_dir/perl"
+
+  output=$(printf '{"tool_name":"Write"}' | PATH="$path_dir" /bin/bash "$helper_script" 2>&1) || exit_code=$?
+  if [[ "$exit_code" -eq 0 ]] && [[ "$output" == '{"tool_name":"Write"}' ]]; then
+    echo "  PASS: helper reads stdin without timeout on PATH"
+    PASS=$((PASS + 1))
+  else
+    echo "  FAIL: helper reads stdin without timeout on PATH (exit $exit_code, output: $output)"
+    FAIL=$((FAIL + 1))
+  fi
+}
+
+echo "=== Hook Stdin Compatibility Tests ==="
+
+run_hook_input_helper_regression_test
 
 echo "=== Bead Status Guard Tests ==="
 
@@ -391,6 +423,32 @@ run_test_advisory "warning: runner output missing sections" \
 run_test_advisory "warning: runner output with convention signal" \
   "$HOOKS_DIR/validate-runner-output.sh" \
   "$FIXTURES_DIR/runner-output-convention-signal.json" "yes"
+
+echo ""
+echo "=== Safety Constraints Tests (advisory) ==="
+
+_sc_tmp=$(mktemp -d)
+cat > "$_sc_tmp/comment-only-catch.json" <<'JSON'
+{
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "/tmp/example.js",
+    "content": "try { work(); } catch (err) { /* intentional noop */ }"
+  }
+}
+JSON
+
+_sc_exit=0
+_sc_stderr=$(cat "$_sc_tmp/comment-only-catch.json" | bash "$HOOKS_DIR/validate-safety-constraints.sh" 2>&1 1>/dev/null) || _sc_exit=$?
+if [[ "$_sc_exit" -eq 0 ]] && echo "$_sc_stderr" | grep -q "SC-004"; then
+  echo "  PASS: warning: comment-only catch block (exit 0, advisory emitted)"
+  PASS=$((PASS + 1))
+else
+  echo "  FAIL: warning: comment-only catch block (exit $_sc_exit, stderr: $_sc_stderr)"
+  FAIL=$((FAIL + 1))
+fi
+
+rm -rf "$_sc_tmp"
 
 echo ""
 echo "=== eslint-disable Justification Tests ==="

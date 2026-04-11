@@ -231,13 +231,65 @@ read_tool_content() {
 
 # read_hook_stdin: Read hook input from stdin with a timeout guard.
 # Prevents indefinite hangs when stdin is empty or not connected.
-# Usage: INPUT=$(read_hook_stdin) || exit 0
-# Returns stdin content (exit 0) or empty string with exit 1 on empty stdin.
+# Usage: INPUT=$(read_hook_stdin)
+# Returns stdin content (exit 0), empty stdin (exit 1), or a read/timeout
+# failure (exit 2).
 read_hook_stdin() {
-  local input
-  input=$(timeout 2s cat || true)
-  if [ -z "$input" ]; then
-    return 1
+  local input status
+  if ! command -v perl &> /dev/null; then
+    return 2
   fi
-  echo "$input"
+  input=$(
+    perl -e '
+      use strict;
+      use warnings;
+      binmode STDIN;
+      binmode STDOUT;
+      my $timed_out = 0;
+      local $SIG{ALRM} = sub { $timed_out = 1; die "alarm\n" };
+      my $data;
+      my $ok = eval {
+        alarm 2;
+        local $/;
+        $data = <STDIN>;
+        alarm 0;
+        1;
+      };
+      if (!$ok) {
+        exit 2 if $timed_out;
+        exit 2;
+      }
+      exit 1 if !defined($data) || $data eq q{};
+      print $data;
+    ' 2>/dev/null
+  )
+  status=$?
+  if [[ "$status" -ne 0 ]]; then
+    return "$status"
+  fi
+  printf '%s' "$input"
+}
+
+# load_hook_input_or_exit: Populate the named variable from hook stdin.
+# Returns 0 on success, 1 on legitimately empty stdin (callers may skip), and
+# exits 2 on timeout/read failures so hooks fail loudly instead of silently
+# treating a broken stdin read as clean input.
+# Usage: load_hook_input_or_exit INPUT || exit 0
+load_hook_input_or_exit() {
+  local __var_name="$1"
+  local captured_input
+  if captured_input=$(read_hook_stdin); then
+    printf -v "$__var_name" '%s' "$captured_input"
+    return 0
+  fi
+
+  case "$?" in
+    1)
+      return 1
+      ;;
+    *)
+      echo "HOOK_ERROR: failed to read hook stdin (timeout or read error)" >&2
+      exit 2
+      ;;
+  esac
 }

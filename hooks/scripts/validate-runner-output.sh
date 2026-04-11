@@ -7,7 +7,7 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 
-INPUT=$(read_hook_stdin) || exit 0
+load_hook_input_or_exit INPUT || exit 0
 AGENT_NAME=$(echo "$INPUT" | jq -r '.agent_name // .subagent_name // empty' 2>/dev/null) || {
   emit_warning "validate-runner-output: failed to parse hook input — skipping"
   exit 0
