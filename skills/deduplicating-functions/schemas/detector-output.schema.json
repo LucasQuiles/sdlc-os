@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/LucasQuiles/finding-duplicate-functions/schemas/detector-output.schema.json",
+  "$id": "https://github.com/LucasQuiles/sdlc-os/skills/deduplicating-functions/schemas/detector-output.schema.json",
   "title": "Detector Output",
   "description": "Schema for individual detector output files (scripts/detect-*.py produces a JSON array of these).",
   "type": "array",
