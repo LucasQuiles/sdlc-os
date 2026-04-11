@@ -92,7 +92,11 @@ def test_wait_flag_blocks_until_first_run_completes(clean_tmpdir, tmp_path, isol
         t = threading.Thread(target=_runner, daemon=True)
         t.start()
 
-        # The waiter should be blocked while proc1 is alive
+        # Give the waiter thread a generous second to start, attempt lock
+        # acquisition, and block on flock. 1.0s is deliberately generous:
+        # a slow Python startup under CI load could delay the subprocess
+        # launch, and we want "alive after 1s" to genuinely mean "blocked
+        # on the lock" rather than "hasn't started yet".
         time.sleep(1.0)
         assert t.is_alive(), "--wait should block while first run holds the lock"
 
