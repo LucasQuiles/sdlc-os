@@ -20,6 +20,7 @@
 | GC-002 | Phase 3 report still depends on `bash` + `jq` | Partial portability | Python report generator replaces shell dependency, with equivalent output coverage |
 | GC-003 | Semantic/LLM follow-up is manual only | Honest but manual | Explicit product decision: keep manual by design, or build a structured automation bridge |
 | GC-004 | `--threshold` is merge-only, not detector-global | Honest but limited | Explicit product decision: keep merge-only, or add detector threshold plumbing with precise semantics |
+| GC-005 | `orchestrate.sh` has no `--strict` flag | Missing | Shell runner has phase-level exit-2 gating matching run_pipeline.py --strict contract |
 
 ---
 
