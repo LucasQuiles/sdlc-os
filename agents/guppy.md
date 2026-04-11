@@ -2,7 +2,7 @@
 name: guppy
 description: "Disposable micro-agent for laser-focused single-ask tasks. Dispatched in swarms to chip away at problems in parallel. One question, one answer, one exit. The cheapest possible unit of work."
 model: haiku
-maxTurns: 3
+maxTurns: 10
 effort: low
 background: true
 tools: Read, Grep, Glob, LS
