@@ -77,15 +77,22 @@ def acquire_pipeline_lock(lock_path: str, wait: bool) -> int:
     return fd
 
 
+# Maximum detector parallelism regardless of CPU count. Each detector can
+# use multi-GB RSS, so this intentionally flattens on large machines.
+# Adjust here (one place) if per-detector RSS drops in Phase 2/3 of the
+# OOM safety work.
+MAX_DETECTOR_JOBS = 4
+
+
 def _default_jobs() -> int:
-    """Conservative default: half the CPU count, capped at 4, floor of 1.
+    """Conservative default: half the CPU count, capped at MAX_DETECTOR_JOBS.
 
     Each detector can use multi-GB RSS, so the cap is intentionally
     conservative even on large machines. Override with --jobs N or
     SDLC_OS_DETECTOR_JOBS=N.
     """
     cpu = os.cpu_count() or 4
-    return max(1, min(4, cpu // 2))
+    return max(1, min(MAX_DETECTOR_JOBS, cpu // 2))
 
 
 def _resolve_jobs(cli_jobs: int | None) -> int:
@@ -331,6 +338,13 @@ def main():
 
     def _run_one_detector(script_path: str, out_file: str, label: str) -> tuple[str, str, int]:
         """Run a single detector subprocess and return (label, out_file, returncode)."""
+        # NB: pipeline.log is opened by every worker thread concurrently
+        # with max_jobs active workers. stderr from different detectors
+        # can interleave here when writes exceed PIPE_BUF. The byte
+        # determinism tests cover the structured log lines written by
+        # log() on the main thread, not this fd. If readable per-detector
+        # stderr matters, future work should write to temp files and
+        # concatenate in collect-order.
         with open(log_file, "a") as lf:
             cp = subprocess.run(
                 [PYTHON, script_path, catalog_unified, "-o", out_file],
@@ -352,6 +366,10 @@ def main():
                 log(f"  SKIP {label}: script not found")
                 continue
             log(f"  Submitting {label}...")
+            assert label not in futures_by_label, (
+                f"Duplicate detector label {label!r}: detectors list has a "
+                f"copy-paste collision. Fix the detectors table above."
+            )
             futures_by_label[label] = ex.submit(
                 _run_one_detector, script, out_file, label
             )
@@ -362,7 +380,15 @@ def main():
             fut = futures_by_label.get(label)
             if fut is None:
                 continue
-            label_out, out_file, rc = fut.result()
+            try:
+                label_out, out_file, rc = fut.result()
+            except Exception as exc:
+                # A worker raised something we did not anticipate — count it
+                # as a detector failure so the pipeline still emits
+                # "Detection complete" and the --strict gate still fires.
+                failures += 1
+                log(f"  ERROR: {label} raised {type(exc).__name__}: {exc}")
+                continue
             if rc != 0:
                 failures += 1
                 log(f"  WARNING: {label_out} failed (exit {rc})")
