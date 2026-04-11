@@ -48,6 +48,25 @@ All must pass. No exceptions.
 - /tmp/sdlc-colony/clone-events.log: JSON per clone operation (create, verify, prune)
 - Dashboard: bash colony/audit-metrics.sh
 
+## Agent Runtime Constraints
+
+7 agents have enriched frontmatter with runtime-enforced fields (Phase 1, 2026-04-10):
+
+| Agent | tools | isolation | memory | effort | background |
+|-------|-------|-----------|--------|--------|------------|
+| guppy | Read,Grep,Glob,LS | — | — | low | true |
+| reuse-scout | Read,Grep,Glob,LS,LSP,Pinecone,episodic-memory | — | — | low | true |
+| sonnet-reviewer | Read,Grep,Glob,LS,LSP | — | — | high | — |
+| sonnet-designer | Read,Grep,Glob,LS,LSP,Skill | — | — | high | — |
+| sonnet-investigator | Read,Grep,Glob,LS,LSP,Skill | — | — | high | true |
+| sonnet-implementer | Read,Write,Edit,Grep,Glob,LS,Bash,Skill | worktree | local | — | — |
+
+Key constraints:
+- tools: allowlists are enforced at session startup only (not after /reload-plugins)
+- Read-only agents cannot Bash, Write, or Edit
+- Write-capable agents get worktree isolation and local memory
+- Phase 2 (hooks, mcpServers, permissionMode) requires promotion to ~/.claude/agents/
+
 ## Development Conventions
 - TypeScript: strict mode, vitest, ES2022
 - Python: 3.12, type hints, pytest, asyncio
