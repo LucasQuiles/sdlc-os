@@ -242,6 +242,7 @@ def main():
     ]
 
     procs = []
+    skipped = 0
     for script_name, out_name, label in detectors:
         script = os.path.join(SCRIPTS, script_name)
         out_file = os.path.join(detect_dir, out_name)
@@ -254,6 +255,7 @@ def main():
                 )
             procs.append((p, label, out_file))
         else:
+            skipped += 1
             log(f"  SKIP {label}: script not found")
 
     failures = 0
@@ -272,10 +274,10 @@ def main():
                         log(f"  WARNING: {label} output parse error: {e}")
             log(f"  {label}: {n} candidate pairs")
 
-    log(f"  Detection complete ({failures} failures)")
+    log(f"  Detection complete ({failures} failures, {skipped} skipped)")
 
-    if args.strict and failures > 0:
-        log(f"ERROR: --strict mode: {failures} detector(s) failed. See {log_file}")
+    if args.strict and (failures > 0 or skipped > 0):
+        log(f"ERROR: --strict mode: {failures} detector(s) failed, {skipped} skipped. See {log_file}")
         sys.exit(2)
 
     # ── Phase 2: MERGE ───────────────────────────────────────────────
@@ -313,7 +315,8 @@ def main():
             _strict_gate("report phase", f"generate-report exited {report_result.returncode}", args.strict, log_file)
         elif not os.path.exists(report_out):
             _strict_gate("report phase", "generate-report produced no output", args.strict)
-        log(f"  Report: {report_out}")
+        else:
+            log(f"  Report: {report_out}")
     else:
         _strict_gate("report phase", f"report generator missing at {report_script}", args.strict)
 
@@ -344,7 +347,7 @@ def main():
                 r = overall.get("recall", 0)
                 f1 = overall.get("f1", 0)
                 log(f"  Precision: {p:.3f}  Recall: {r:.3f}  F1: {f1:.3f}")
-            elif args.strict:
+            else:
                 _strict_gate("evaluate phase", "evaluation produced no output", args.strict)
 
     log("=== COMPLETE ===")
