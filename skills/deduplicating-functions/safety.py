@@ -9,6 +9,7 @@ See the 2026-04-11 VM-compressor panic incident for context.
 """
 from __future__ import annotations
 
+import fcntl  # used only by acquire_pipeline_lock
 import os
 import platform
 import re
@@ -56,7 +57,7 @@ def darwin_pressure_status() -> dict:
             if m.group(2) == "G":
                 val *= 1024
             swap_used_mb = val
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError, PermissionError):
         pass
 
     swapfile_count = 0
@@ -67,7 +68,7 @@ def darwin_pressure_status() -> dict:
         swapfile_count = sum(
             1 for name in ls_out.splitlines() if name.startswith("swapfile")
         )
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError, PermissionError):
         pass
 
     return {
@@ -78,7 +79,14 @@ def darwin_pressure_status() -> dict:
 
 
 def linux_pressure_status() -> dict:
-    """Return memory status on Linux."""
+    """Return memory status on Linux via /proc/meminfo and /proc/swaps.
+
+    Prefers MemAvailable (kernel >= 3.14, 2014) as it accounts for
+    reclaimable cache. Falls back to MemFree on older kernels, which
+    under-reports usable memory and may cause preflight to refuse launch
+    on a system that actually has enough headroom — acceptable given
+    the age threshold.
+    """
     info: dict[str, int] = {}
     with open("/proc/meminfo") as f:
         for line in f:
@@ -128,9 +136,13 @@ def check_preflight(
     (True, "skipped: <platform>") so the runner does not block.
     On any probe error, returns (True, "skipped: <reason>") — fail-open.
     """
+    # NB: the reason strings below are part of an implicit contract with
+    # the test suite (test_safety.py asserts substrings like "insufficient
+    # free ram", "swapfiles", "bypassed via --ignore-preflight", and
+    # "<N.N>gb free"). If you change the format, update the tests.
     try:
         status = _collect_status()
-    except (subprocess.CalledProcessError, FileNotFoundError, OSError) as e:
+    except (subprocess.CalledProcessError, FileNotFoundError, OSError, ValueError) as e:
         return True, f"skipped: probe failed ({e})"
 
     if status is None:
@@ -155,8 +167,6 @@ def check_preflight(
 
 
 # ── Cross-process lock ──────────────────────────────────────────────
-
-import fcntl  # Isolated here because only acquire_pipeline_lock needs it
 
 
 def acquire_pipeline_lock(lock_path: str, wait: bool) -> int:

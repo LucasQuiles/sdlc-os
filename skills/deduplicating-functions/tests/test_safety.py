@@ -44,6 +44,10 @@ def test_check_preflight_refuses_when_swapfiles_exceed_threshold():
 
 
 def test_check_preflight_skips_unsupported_platform():
+    # _collect_status is mocked to None to simulate an unsupported platform;
+    # platform.system is mocked only so the "skipped: unsupported platform
+    # OpenBSD" reason string can be asserted below. The routing decision
+    # (fail-open on None) is what _collect_status=None exercises.
     with mock.patch("platform.system", return_value="OpenBSD"):
         with mock.patch.object(safety, "_collect_status", return_value=None):
             ok, reason = safety.check_preflight()

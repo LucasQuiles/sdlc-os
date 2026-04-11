@@ -218,6 +218,9 @@ def _make_shim_runner(tmp_path):
     Because Python adds the script's own directory to sys.path[0], placing
     the shim safety.py next to the runner ensures it shadows the real one.
     """
+    # TODO: if run_pipeline.py grows additional sibling imports beyond
+    # `safety`, copy those into the shim dir as well, or the shim test
+    # will silently fall back to the real sibling and mask failures.
     import shutil as _shutil
     runner_dir = tmp_path / "runner"
     runner_dir.mkdir()
