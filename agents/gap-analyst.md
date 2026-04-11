@@ -172,7 +172,7 @@ Use LSP tools for precision. Use Grep/Glob for breadth. Always do at least one b
 ## Skill Cross-References
 
 - `progressive-disclosure-coding` — Use layered exploration when a codebase is large: broad Glob first, then narrow into candidate files, then LSP for precision.
-- `superpowers-lab:finding-duplicate-functions` — Run when a requirement returns PARTIAL. There may be a near-complete implementation elsewhere.
+- `sdlc-os:deduplicating-functions` — Run when a requirement returns PARTIAL. There may be a near-complete implementation elsewhere.
 - `simplify` — Invoke after Finisher confirms COMPLETE. Clean up dead code and redundant paths that the gap analysis exposed.
 
 ---
