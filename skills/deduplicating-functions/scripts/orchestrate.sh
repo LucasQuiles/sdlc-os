@@ -20,7 +20,7 @@ OPTIONS:
     --include-tests         Include test files
     --skip-llm              Skip manual semantic follow-up reminder (classical pipeline only)
     --skip-ast              Skip AST extraction (use regex only)
-    --threshold N           Merge-phase HIGH confidence cutoff only (default: 0.35)
+    --threshold N           Merge-phase HIGH confidence cutoff (default: 0.80)
     --parallel              Run independent phases in parallel (default)
     --sequential            Run phases sequentially (for debugging)
     -v, --verbose           Verbose output
@@ -53,7 +53,7 @@ LANG="auto"
 INCLUDE_TESTS=false
 SKIP_LLM=false
 SKIP_AST=false
-THRESHOLD=0.35
+THRESHOLD=0.80
 PARALLEL=true
 VERBOSE=false
 

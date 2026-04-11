@@ -199,9 +199,13 @@ python3 ./scripts/merge-signals.py ./detect/ -o merged-results.json --include-su
 ```
 
 Multi-signal confidence rules:
-- **HIGH**: 3+ independent strategies agree, OR composite score >= 0.80
+- **HIGH**: 3+ independent strategies agree AND composite score >= 0.50, OR composite score >= 0.80
 - **MEDIUM**: 2+ strategies agree, OR composite score >= 0.55
 - **LOW**: 1 strategy with score >= 0.35
+
+The 3-strategy HIGH rule requires both agreement AND a minimum composite
+score of 0.50 to prevent weak-signal inflation (three strategies at 0.3
+each should not produce HIGH confidence).
 
 ### Phase 3: Generate Report
 
