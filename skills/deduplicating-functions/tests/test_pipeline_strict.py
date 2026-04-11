@@ -101,8 +101,9 @@ def isolated_repo(tmp_path):
     # Copy scripts/ (includes lib/, which the detectors import)
     shutil.copytree(SCRIPTS_DIR, str(repo_root / "scripts"))
 
-    # Copy run_pipeline.py
+    # Copy run_pipeline.py and its safety dependency
     shutil.copy(RUNNER, str(repo_root / "run_pipeline.py"))
+    shutil.copy(os.path.join(BASE, "safety.py"), str(repo_root / "safety.py"))
 
     # Copy test fixtures for --eval-corpus tests
     src_fixtures = os.path.join(BASE, "tests", "fixtures")

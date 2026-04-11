@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import fcntl
 import os
 import sys
 import json
@@ -12,11 +11,12 @@ import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor
 
+from safety import acquire_pipeline_lock, check_preflight, DEFAULT_LOCK_PATH
+
 PYTHON = sys.executable  # Use the same interpreter that launched this script
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 SCRIPTS = os.path.join(BASE, "scripts")
-DEFAULT_LOCK_PATH = os.path.expanduser("~/.cache/sdlc-os/run_pipeline.lock")
 
 
 def log(msg):
@@ -43,38 +43,6 @@ def _strict_gate(phase: str, message: str, strict: bool, log_file: str = "") -> 
         suffix = f" See {log_file}" if log_file else ""
         log(f"ERROR: --strict mode: {phase} failed.{suffix}")
         sys.exit(2)
-
-
-def acquire_pipeline_lock(lock_path: str, wait: bool) -> int:
-    """Acquire an exclusive flock on lock_path. Return the open file descriptor.
-
-    The caller is responsible for keeping the fd open for the lifetime of
-    the run; closing it (or process exit) releases the lock automatically.
-
-    Raises BlockingIOError if wait=False and the lock is already held.
-    Any other exception (e.g. OSError on an unsupported filesystem) is
-    re-raised after closing the fd to avoid a descriptor leak.
-    """
-    # Handle bare filenames like "pipeline.lock" where dirname is empty
-    parent = os.path.dirname(lock_path) or "."
-    os.makedirs(parent, exist_ok=True)
-    fd = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o644)
-    try:
-        flags = fcntl.LOCK_EX if wait else (fcntl.LOCK_EX | fcntl.LOCK_NB)
-        fcntl.flock(fd, flags)
-        # Record our pid for diagnostics. Best-effort — if this fails
-        # we still hold the lock and should not leak it.
-        os.ftruncate(fd, 0)
-        os.write(fd, f"{os.getpid()}\n".encode())
-    except BlockingIOError:
-        os.close(fd)
-        raise
-    except Exception:
-        # Any other failure: release the fd before propagating so we
-        # don't leak on unsupported filesystems or partial writes.
-        os.close(fd)
-        raise
-    return fd
 
 
 # Maximum detector parallelism regardless of CPU count. Each detector can
@@ -132,6 +100,9 @@ def parse_args():
                    help="Maximum concurrent detector processes. "
                         "Default: min(4, cpu_count//2). Override via "
                         "SDLC_OS_DETECTOR_JOBS env var.")
+    p.add_argument("--ignore-preflight", action="store_true",
+                   help="Bypass the memory pressure preflight check. "
+                        "Use only when you know the system has headroom.")
     return p.parse_args()
 
 
@@ -175,6 +146,19 @@ def main():
         log(f"ERROR: another run_pipeline.py is already running{holder}. "
             f"Use --wait to block, or pick a different --lock-file.")
         sys.exit(1)
+
+    # ── Memory preflight check ───────────────────────────────────────
+    if not args.ignore_preflight:
+        ok, reason = check_preflight()
+        if ok:
+            log(f"  Preflight: {reason}")
+        else:
+            log(f"ERROR: preflight refused launch: {reason}")
+            log(f"       Free memory before retrying, or pass --ignore-preflight "
+                f"to bypass (not recommended).")
+            sys.exit(1)
+    else:
+        log("  Preflight: bypassed via --ignore-preflight")
 
     # ── Setup ────────────────────────────────────────────────────────
     if os.path.exists(out):
