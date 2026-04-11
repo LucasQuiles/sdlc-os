@@ -10,6 +10,7 @@ import json
 import shutil
 import subprocess
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 PYTHON = sys.executable  # Use the same interpreter that launched this script
 
@@ -76,6 +77,27 @@ def acquire_pipeline_lock(lock_path: str, wait: bool) -> int:
     return fd
 
 
+def _default_jobs() -> int:
+    """Conservative default: half the CPU count, capped at 4, floor of 1.
+
+    Each detector can use multi-GB RSS, so the cap is intentionally
+    conservative even on large machines. Override with --jobs N or
+    SDLC_OS_DETECTOR_JOBS=N.
+    """
+    cpu = os.cpu_count() or 4
+    return max(1, min(4, cpu // 2))
+
+
+def _resolve_jobs(cli_jobs: int | None) -> int:
+    """Resolve the effective jobs cap. CLI > env > default."""
+    if cli_jobs and cli_jobs > 0:
+        return cli_jobs
+    env = os.environ.get("SDLC_OS_DETECTOR_JOBS", "").strip()
+    if env.isdigit() and int(env) > 0:
+        return int(env)
+    return _default_jobs()
+
+
 def parse_args():
     p = argparse.ArgumentParser(description="Run the full duplicate detection pipeline")
     p.add_argument("source", nargs="?", default=None,
@@ -99,6 +121,10 @@ def parse_args():
                         "Two run_pipeline.py invocations sharing this path are mutually exclusive.")
     p.add_argument("--wait", action="store_true",
                    help="Block waiting for the lock instead of failing fast on conflict.")
+    p.add_argument("--jobs", type=int, default=None,
+                   help="Maximum concurrent detector processes. "
+                        "Default: min(4, cpu_count//2). Override via "
+                        "SDLC_OS_DETECTOR_JOBS env var.")
     return p.parse_args()
 
 
@@ -300,38 +326,55 @@ def main():
         ("detect-code-embedding.py",    "code-embedding-results.json",   "code-embedding"),
     ]
 
-    procs = []
-    skipped = 0
-    for script_name, out_name, label in detectors:
-        script = os.path.join(SCRIPTS, script_name)
-        out_file = os.path.join(detect_dir, out_name)
-        if os.path.exists(script):
-            log(f"  Launching {label}...")
-            with open(log_file, "a") as lf:
-                p = subprocess.Popen(
-                    [PYTHON, script, catalog_unified, "-o", out_file],
-                    stderr=lf, stdout=subprocess.PIPE
-                )
-            procs.append((p, label, out_file))
-        else:
-            skipped += 1
-            log(f"  SKIP {label}: script not found")
+    max_jobs = _resolve_jobs(args.jobs)
+    log(f"  Detector concurrency cap: {max_jobs} parallel jobs")
 
-    failures = 0
-    for p, label, out_file in procs:
-        rc = p.wait()
-        if rc != 0:
-            failures += 1
-            log(f"  WARNING: {label} failed (exit {rc})")
-        else:
-            n = 0
-            if os.path.exists(out_file):
-                with open(out_file) as f:
-                    try:
-                        n = len(json.load(f))
-                    except json.JSONDecodeError as e:
-                        log(f"  WARNING: {label} output parse error: {e}")
-            log(f"  {label}: {n} candidate pairs")
+    def _run_one_detector(script_path: str, out_file: str, label: str) -> tuple[str, str, int]:
+        """Run a single detector subprocess and return (label, out_file, returncode)."""
+        with open(log_file, "a") as lf:
+            cp = subprocess.run(
+                [PYTHON, script_path, catalog_unified, "-o", out_file],
+                stderr=lf, stdout=subprocess.PIPE,
+            )
+        return label, out_file, cp.returncode
+
+    # Submit all runnable detectors to a bounded executor.
+    # We submit in detector-list order; results are collected in the
+    # same order so log output stays deterministic across runs.
+    skipped = 0
+    futures_by_label: dict[str, object] = {}
+    with ThreadPoolExecutor(max_workers=max_jobs) as ex:
+        for script_name, out_name, label in detectors:
+            script = os.path.join(SCRIPTS, script_name)
+            out_file = os.path.join(detect_dir, out_name)
+            if not os.path.exists(script):
+                skipped += 1
+                log(f"  SKIP {label}: script not found")
+                continue
+            log(f"  Submitting {label}...")
+            futures_by_label[label] = ex.submit(
+                _run_one_detector, script, out_file, label
+            )
+
+        # Collect in detector-list order to preserve deterministic log lines
+        failures = 0
+        for _, _, label in detectors:
+            fut = futures_by_label.get(label)
+            if fut is None:
+                continue
+            label_out, out_file, rc = fut.result()
+            if rc != 0:
+                failures += 1
+                log(f"  WARNING: {label_out} failed (exit {rc})")
+            else:
+                n = 0
+                if os.path.exists(out_file):
+                    with open(out_file) as f:
+                        try:
+                            n = len(json.load(f))
+                        except json.JSONDecodeError as e:
+                            log(f"  WARNING: {label_out} output parse error: {e}")
+                log(f"  {label_out}: {n} candidate pairs")
 
     log(f"  Detection complete ({failures} failures, {skipped} skipped)")
 
