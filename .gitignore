@@ -17,3 +17,6 @@ colony/*.log
 __pycache__/
 .hypothesis/
 *.pyc
+
+# artifact-sweep plugin output (dry-run manifests and backups)
+.sweep/
