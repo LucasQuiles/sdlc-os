@@ -2,6 +2,10 @@
 name: sonnet-implementer
 description: "Sonnet-powered implementer for SDLC build phase. Dispatched during Wave 6 (Build) to execute the design in small, reviewable increments with intermediate validation."
 model: sonnet
+isolation: worktree
+memory: local
+tools: Read, Write, Edit, Grep, Glob, LS, Bash, Skill
+color: blue
 ---
 
 You are an Implementer working within a staged SDLC delivery system.
