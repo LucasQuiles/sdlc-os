@@ -111,3 +111,77 @@ def test_wait_flag_blocks_until_first_run_completes(clean_tmpdir, tmp_path, isol
         if proc1.poll() is None:
             proc1.terminate()
             proc1.wait(timeout=10)
+
+
+import json
+
+
+def test_jobs_cap_limits_concurrent_detector_processes(clean_tmpdir, tmp_path):
+    """With --jobs=2, no more than 2 detector subprocesses should run at once.
+
+    We probe this by polling pgrep for detect-*.py processes during the run.
+    """
+    samples = []
+    stop = threading.Event()
+
+    def _sampler():
+        while not stop.is_set():
+            try:
+                out = subprocess.check_output(
+                    ["pgrep", "-fl", "detect-.*\\.py"], text=True,
+                    stderr=subprocess.DEVNULL,
+                )
+                count = sum(1 for line in out.splitlines() if "detect-" in line)
+                samples.append(count)
+            except subprocess.CalledProcessError:
+                samples.append(0)
+            time.sleep(0.05)
+
+    sampler = threading.Thread(target=_sampler, daemon=True)
+    sampler.start()
+    try:
+        result = subprocess.run(
+            [PYTHON, RUNNER, SCRIPTS_DIR, "-o", clean_tmpdir,
+             "--skip-ts", "--jobs", "2",
+             "--lock-file", str(tmp_path / "lock")],
+            capture_output=True, text=True, timeout=180,
+        )
+    finally:
+        stop.set()
+        sampler.join(timeout=2)
+
+    assert result.returncode == 0, f"Pipeline failed: {result.stdout[-500:]}"
+    # We may sample 0 between phases, but we must NEVER sample > 2
+    peak = max(samples) if samples else 0
+    assert peak <= 2, (
+        f"--jobs=2 should cap concurrent detectors at 2, observed peak={peak}\n"
+        f"sample distribution: {sorted(set(samples))}"
+    )
+    # Sanity: we should have observed at least one detector running at some point
+    assert peak >= 1, (
+        f"Sampler never saw a detector running (peak=0). "
+        f"This usually means the test environment is too slow to sample, "
+        f"or pgrep is unavailable. samples count={len(samples)}"
+    )
+
+
+def test_resolve_jobs_priority_order(monkeypatch):
+    """CLI > env var > default."""
+    # Import here so the test fails clearly if the helper is missing
+    sys.path.insert(0, BASE)
+    import run_pipeline  # noqa: E402
+    sys.path.pop(0)
+
+    monkeypatch.delenv("SDLC_OS_DETECTOR_JOBS", raising=False)
+    default = run_pipeline._resolve_jobs(None)
+    assert 1 <= default <= 4, f"Default {default} should be in [1, 4]"
+
+    monkeypatch.setenv("SDLC_OS_DETECTOR_JOBS", "7")
+    assert run_pipeline._resolve_jobs(None) == 7
+
+    # CLI overrides env
+    assert run_pipeline._resolve_jobs(2) == 2
+
+    # Garbage env falls through to default
+    monkeypatch.setenv("SDLC_OS_DETECTOR_JOBS", "garbage")
+    assert run_pipeline._resolve_jobs(None) == default
