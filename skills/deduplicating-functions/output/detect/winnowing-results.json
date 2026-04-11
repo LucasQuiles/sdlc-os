@@ -1,0 +1,9146 @@
+[
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "scores": {
+      "jaccard": 0.7143,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_parser",
+      "file": "detect-metric-similarity.py",
+      "line": 290
+    },
+    "func_b": {
+      "name": "build_parser",
+      "file": "extract-functions-ast-py.py",
+      "line": 505
+    },
+    "scores": {
+      "jaccard": 0.7857,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "jaccard": 0.4957,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "jaccard": 0.8667,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "scores": {
+      "jaccard": 0.9286,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "jaccard": 0.9286,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "jaccard": 0.8667,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_unparse_annotation",
+      "file": "extract-functions-ast-py.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "_unparse_default",
+      "file": "extract-functions-ast-py.py",
+      "line": 178
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "jaccard": 1.0,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type1_pair",
+      "file": "generate-corpus.py",
+      "line": 99
+    },
+    "func_b": {
+      "name": "generate_type2_pair",
+      "file": "generate-corpus.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.8864,
+      "overlap": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "scores": {
+      "jaccard": 0.8495,
+      "overlap": 0.9753
+    },
+    "final_score": 0.9753,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "jaccard": 0.8495,
+      "overlap": 0.9753
+    },
+    "final_score": 0.9753,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "jaccard": 0.7159,
+      "overlap": 0.9403
+    },
+    "final_score": 0.9403,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "func_b": {
+      "name": "embedding_cosine",
+      "file": "detect-code-embedding.py",
+      "line": 91
+    },
+    "scores": {
+      "jaccard": 0.8039,
+      "overlap": 0.9318
+    },
+    "final_score": 0.9318,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "jaccard": 0.8689,
+      "overlap": 0.9298
+    },
+    "final_score": 0.9298,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "func_b": {
+      "name": "visit_ClassDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 423
+    },
+    "scores": {
+      "jaccard": 0.7059,
+      "overlap": 0.9231
+    },
+    "final_score": 0.9231,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ngrams",
+      "file": "detect-ast-similarity.py",
+      "line": 63
+    },
+    "func_b": {
+      "name": "kgrams",
+      "file": "detect-winnowing.py",
+      "line": 48
+    },
+    "scores": {
+      "jaccard": 0.6667,
+      "overlap": 0.8889
+    },
+    "final_score": 0.8889,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "scores": {
+      "jaccard": 0.4737,
+      "overlap": 0.8889
+    },
+    "final_score": 0.8889,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "jaccard": 0.4737,
+      "overlap": 0.8889
+    },
+    "final_score": 0.8889,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "scores": {
+      "jaccard": 0.5195,
+      "overlap": 0.8791
+    },
+    "final_score": 0.8791,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type1_pair",
+      "file": "generate-corpus.py",
+      "line": 99
+    },
+    "func_b": {
+      "name": "generate_type4_pair",
+      "file": "generate-corpus.py",
+      "line": 177
+    },
+    "scores": {
+      "jaccard": 0.5312,
+      "overlap": 0.8718
+    },
+    "final_score": 0.8718,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "jaccard": 0.5897,
+      "overlap": 0.8679
+    },
+    "final_score": 0.8679,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type2_pair",
+      "file": "generate-corpus.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "generate_type4_pair",
+      "file": "generate-corpus.py",
+      "line": 177
+    },
+    "scores": {
+      "jaccard": 0.5846,
+      "overlap": 0.8636
+    },
+    "final_score": 0.8636,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "jaccard": 0.3311,
+      "overlap": 0.8621
+    },
+    "final_score": 0.8621,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_tokens",
+      "file": "detect-tfidf-index.py",
+      "line": 34
+    },
+    "func_b": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "scores": {
+      "jaccard": 0.6889,
+      "overlap": 0.8611
+    },
+    "final_score": 0.8611,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "getBodyLines",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 335
+    },
+    "func_b": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "scores": {
+      "jaccard": 0.6379,
+      "overlap": 0.8605
+    },
+    "final_score": 0.8605,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_parser",
+      "file": "detect-metric-similarity.py",
+      "line": 290
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "jaccard": 0.2727,
+      "overlap": 0.8571
+    },
+    "final_score": 0.8571,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "jaccard": 0.375,
+      "overlap": 0.8571
+    },
+    "final_score": 0.8571,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "type_pattern_score",
+      "file": "detect-signature-match.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "scores": {
+      "jaccard": 0.359,
+      "overlap": 0.8485
+    },
+    "final_score": 0.8485,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "scores": {
+      "jaccard": 0.3636,
+      "overlap": 0.8421
+    },
+    "final_score": 0.8421,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.4545,
+      "overlap": 0.8333
+    },
+    "final_score": 0.8333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "build_parser",
+      "file": "extract-functions-ast-py.py",
+      "line": 505
+    },
+    "scores": {
+      "jaccard": 0.2045,
+      "overlap": 0.8182
+    },
+    "final_score": 0.8182,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "compute_final_score",
+      "file": "detect-signature-match.py",
+      "line": 298
+    },
+    "scores": {
+      "jaccard": 0.3636,
+      "overlap": 0.8
+    },
+    "final_score": 0.8,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "tokenize_to_strings",
+      "file": "lib/common.py",
+      "line": 125
+    },
+    "scores": {
+      "jaccard": 0.4444,
+      "overlap": 0.8
+    },
+    "final_score": 0.8,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "scores": {
+      "jaccard": 0.4054,
+      "overlap": 0.7895
+    },
+    "final_score": 0.7895,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "scores": {
+      "jaccard": 0.381,
+      "overlap": 0.7805
+    },
+    "final_score": 0.7805,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.5069,
+      "overlap": 0.7766
+    },
+    "final_score": 0.7766,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "scores": {
+      "jaccard": 0.625,
+      "overlap": 0.7692
+    },
+    "final_score": 0.7692,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "scores": {
+      "jaccard": 0.5882,
+      "overlap": 0.7692
+    },
+    "final_score": 0.7692,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "jaccard": 0.5882,
+      "overlap": 0.7692
+    },
+    "final_score": 0.7692,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "jaccard": 0.625,
+      "overlap": 0.7692
+    },
+    "final_score": 0.7692,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "jaccard": 0.5556,
+      "overlap": 0.7692
+    },
+    "final_score": 0.7692,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "jaccard": 0.5882,
+      "overlap": 0.7692
+    },
+    "final_score": 0.7692,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "jaccard": 0.5882,
+      "overlap": 0.7692
+    },
+    "final_score": 0.7692,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.5487,
+      "overlap": 0.7654
+    },
+    "final_score": 0.7654,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.5487,
+      "overlap": 0.7654
+    },
+    "final_score": 0.7654,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.2586,
+      "overlap": 0.75
+    },
+    "final_score": 0.75,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "func_b": {
+      "name": "tokenize_to_strings",
+      "file": "lib/common.py",
+      "line": 125
+    },
+    "scores": {
+      "jaccard": 0.5,
+      "overlap": 0.75
+    },
+    "final_score": 0.75,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.5812,
+      "overlap": 0.7473
+    },
+    "final_score": 0.7473,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "jaccard": 0.3939,
+      "overlap": 0.7471
+    },
+    "final_score": 0.7471,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "jaccard": 0.4559,
+      "overlap": 0.7381
+    },
+    "final_score": 0.7381,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "jaccard": 0.4559,
+      "overlap": 0.7381
+    },
+    "final_score": 0.7381,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.3761,
+      "overlap": 0.7321
+    },
+    "final_score": 0.7321,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.4245,
+      "overlap": 0.7284
+    },
+    "final_score": 0.7284,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.4245,
+      "overlap": 0.7284
+    },
+    "final_score": 0.7284,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "func_b": {
+      "name": "param_name_similarity_score",
+      "file": "detect-signature-match.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.375,
+      "overlap": 0.7273
+    },
+    "final_score": 0.7273,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "scores": {
+      "jaccard": 0.3973,
+      "overlap": 0.716
+    },
+    "final_score": 0.716,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "jaccard": 0.3973,
+      "overlap": 0.716
+    },
+    "final_score": 0.716,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "jaccard": 0.4348,
+      "overlap": 0.7143
+    },
+    "final_score": 0.7143,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "jaccard": 0.4348,
+      "overlap": 0.7143
+    },
+    "final_score": 0.7143,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "jaccard": 0.4348,
+      "overlap": 0.7143
+    },
+    "final_score": 0.7143,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "jaccard": 0.4348,
+      "overlap": 0.7143
+    },
+    "final_score": 0.7143,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "jaccard": 0.4348,
+      "overlap": 0.7143
+    },
+    "final_score": 0.7143,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "jaccard": 0.4348,
+      "overlap": 0.7143
+    },
+    "final_score": 0.7143,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "jaccard": 0.4348,
+      "overlap": 0.7143
+    },
+    "final_score": 0.7143,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "jaccard": 0.5263,
+      "overlap": 0.7143
+    },
+    "final_score": 0.7143,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "jaccard": 0.5263,
+      "overlap": 0.7143
+    },
+    "final_score": 0.7143,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "scores": {
+      "jaccard": 0.3512,
+      "overlap": 0.7024
+    },
+    "final_score": 0.7024,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "jaccard": 0.4545,
+      "overlap": 0.7018
+    },
+    "final_score": 0.7018,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "jaccard": 0.4545,
+      "overlap": 0.7018
+    },
+    "final_score": 0.7018,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.4607,
+      "overlap": 0.7009
+    },
+    "final_score": 0.7009,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.3182,
+      "overlap": 0.7
+    },
+    "final_score": 0.7,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "jaccard": 0.4375,
+      "overlap": 0.7
+    },
+    "final_score": 0.7,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "jaccard": 0.3333,
+      "overlap": 0.697
+    },
+    "final_score": 0.697,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "jaccard": 0.3611,
+      "overlap": 0.6964
+    },
+    "final_score": 0.6964,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "type_pattern_score",
+      "file": "detect-signature-match.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "param_name_similarity_score",
+      "file": "detect-signature-match.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.4222,
+      "overlap": 0.6909
+    },
+    "final_score": 0.6909,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "jaccard": 0.4535,
+      "overlap": 0.6842
+    },
+    "final_score": 0.6842,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "jaccard": 0.4535,
+      "overlap": 0.6842
+    },
+    "final_score": 0.6842,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "jaccard": 0.4535,
+      "overlap": 0.6842
+    },
+    "final_score": 0.6842,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "jaccard": 0.4535,
+      "overlap": 0.6842
+    },
+    "final_score": 0.6842,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "jaccard": 0.4535,
+      "overlap": 0.6842
+    },
+    "final_score": 0.6842,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "jaccard": 0.4535,
+      "overlap": 0.6842
+    },
+    "final_score": 0.6842,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "jaccard": 0.4535,
+      "overlap": 0.6842
+    },
+    "final_score": 0.6842,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "jaccard": 0.4535,
+      "overlap": 0.6842
+    },
+    "final_score": 0.6842,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "jaccard": 0.4535,
+      "overlap": 0.6842
+    },
+    "final_score": 0.6842,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "scores": {
+      "jaccard": 0.3958,
+      "overlap": 0.6786
+    },
+    "final_score": 0.6786,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "jaccard": 0.4958,
+      "overlap": 0.6782
+    },
+    "final_score": 0.6782,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "scores": {
+      "jaccard": 0.3136,
+      "overlap": 0.6709
+    },
+    "final_score": 0.6709,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "scores": {
+      "jaccard": 0.3987,
+      "overlap": 0.6703
+    },
+    "final_score": 0.6703,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "scores": {
+      "jaccard": 0.4483,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "jaccard": 0.4222,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "jaccard": 0.4737,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "jaccard": 0.4222,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "jaccard": 0.4222,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "jaccard": 0.4222,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "jaccard": 0.4737,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "jaccard": 0.4222,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "jaccard": 0.4222,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "jaccard": 0.4222,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "jaccard": 0.2353,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type3_pair",
+      "file": "generate-corpus.py",
+      "line": 140
+    },
+    "func_b": {
+      "name": "generate_type4_pair",
+      "file": "generate-corpus.py",
+      "line": 177
+    },
+    "scores": {
+      "jaccard": 0.4062,
+      "overlap": 0.661
+    },
+    "final_score": 0.661,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "jaccard": 0.37,
+      "overlap": 0.6607
+    },
+    "final_score": 0.6607,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "jaccard": 0.37,
+      "overlap": 0.6607
+    },
+    "final_score": 0.6607,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "jaccard": 0.3762,
+      "overlap": 0.6552
+    },
+    "final_score": 0.6552,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "jaccard": 0.3423,
+      "overlap": 0.6552
+    },
+    "final_score": 0.6552,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "jaccard": 0.3762,
+      "overlap": 0.6552
+    },
+    "final_score": 0.6552,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "jaccard": 0.3838,
+      "overlap": 0.6552
+    },
+    "final_score": 0.6552,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.1585,
+      "overlap": 0.65
+    },
+    "final_score": 0.65,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.197,
+      "overlap": 0.65
+    },
+    "final_score": 0.65,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.396,
+      "overlap": 0.6484
+    },
+    "final_score": 0.6484,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "scores": {
+      "jaccard": 0.2809,
+      "overlap": 0.641
+    },
+    "final_score": 0.641,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.4267,
+      "overlap": 0.64
+    },
+    "final_score": 0.64,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.4267,
+      "overlap": 0.64
+    },
+    "final_score": 0.64,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.3217,
+      "overlap": 0.6379
+    },
+    "final_score": 0.6379,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.2209,
+      "overlap": 0.6316
+    },
+    "final_score": 0.6316,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "scores": {
+      "jaccard": 0.2308,
+      "overlap": 0.6316
+    },
+    "final_score": 0.6316,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "scores": {
+      "jaccard": 0.2553,
+      "overlap": 0.6316
+    },
+    "final_score": 0.6316,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "scores": {
+      "jaccard": 0.2553,
+      "overlap": 0.6316
+    },
+    "final_score": 0.6316,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.2209,
+      "overlap": 0.6316
+    },
+    "final_score": 0.6316,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "jaccard": 0.375,
+      "overlap": 0.6269
+    },
+    "final_score": 0.6269,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "jaccard": 0.3333,
+      "overlap": 0.625
+    },
+    "final_score": 0.625,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "jaccard": 0.4091,
+      "overlap": 0.6207
+    },
+    "final_score": 0.6207,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "jaccard": 0.3396,
+      "overlap": 0.6207
+    },
+    "final_score": 0.6207,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.4079,
+      "overlap": 0.62
+    },
+    "final_score": 0.62,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.4079,
+      "overlap": 0.62
+    },
+    "final_score": 0.62,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.4079,
+      "overlap": 0.62
+    },
+    "final_score": 0.62,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.4079,
+      "overlap": 0.62
+    },
+    "final_score": 0.62,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.4079,
+      "overlap": 0.62
+    },
+    "final_score": 0.62,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.4079,
+      "overlap": 0.62
+    },
+    "final_score": 0.62,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.4079,
+      "overlap": 0.62
+    },
+    "final_score": 0.62,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.3563,
+      "overlap": 0.62
+    },
+    "final_score": 0.62,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "jaccard": 0.437,
+      "overlap": 0.619
+    },
+    "final_score": 0.619,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.2857,
+      "overlap": 0.619
+    },
+    "final_score": 0.619,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "scores": {
+      "jaccard": 0.4348,
+      "overlap": 0.6173
+    },
+    "final_score": 0.6173,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "jaccard": 0.4348,
+      "overlap": 0.6173
+    },
+    "final_score": 0.6173,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "jaccard",
+      "file": "lib/common.py",
+      "line": 194
+    },
+    "scores": {
+      "jaccard": 0.3056,
+      "overlap": 0.6111
+    },
+    "final_score": 0.6111,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "getDecorators",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 176
+    },
+    "func_b": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "scores": {
+      "jaccard": 0.3263,
+      "overlap": 0.6078
+    },
+    "final_score": 0.6078,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.3243,
+      "overlap": 0.6076
+    },
+    "final_score": 0.6076,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.3701,
+      "overlap": 0.6064
+    },
+    "final_score": 0.6064,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "jaccard": 0.2397,
+      "overlap": 0.6034
+    },
+    "final_score": 0.6034,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "jaccard": 0.3182,
+      "overlap": 0.6034
+    },
+    "final_score": 0.6034,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ngrams",
+      "file": "detect-ast-similarity.py",
+      "line": 63
+    },
+    "func_b": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "scores": {
+      "jaccard": 0.1034,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "scores": {
+      "jaccard": 0.15,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.2308,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "scores": {
+      "jaccard": 0.1622,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.1622,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "jaccard": 0.24,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "scores": {
+      "jaccard": 0.2903,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.2927,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "scores": {
+      "jaccard": 0.1,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "_extract_token_sequence",
+      "file": "extract-functions-ast-py.py",
+      "line": 109
+    },
+    "scores": {
+      "jaccard": 0.1071,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "_decorator_names",
+      "file": "extract-functions-ast-py.py",
+      "line": 278
+    },
+    "scores": {
+      "jaccard": 0.2143,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "_param_names_from_template",
+      "file": "generate-corpus.py",
+      "line": 93
+    },
+    "scores": {
+      "jaccard": 0.1111,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "scores": {
+      "jaccard": 0.25,
+      "overlap": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.2061,
+      "overlap": 0.5965
+    },
+    "final_score": 0.5965,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.2061,
+      "overlap": 0.5965
+    },
+    "final_score": 0.5965,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.2061,
+      "overlap": 0.5965
+    },
+    "final_score": 0.5965,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.2061,
+      "overlap": 0.5965
+    },
+    "final_score": 0.5965,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.2061,
+      "overlap": 0.5965
+    },
+    "final_score": 0.5965,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.2061,
+      "overlap": 0.5965
+    },
+    "final_score": 0.5965,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.2061,
+      "overlap": 0.5965
+    },
+    "final_score": 0.5965,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.3311,
+      "overlap": 0.5952
+    },
+    "final_score": 0.5952,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "jaccard": 0.2941,
+      "overlap": 0.5952
+    },
+    "final_score": 0.5952,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.1729,
+      "overlap": 0.5897
+    },
+    "final_score": 0.5897,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "jaccard": 0.3,
+      "overlap": 0.5893
+    },
+    "final_score": 0.5893,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_build_signature",
+      "file": "extract-functions-ast-py.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "_decorator_names",
+      "file": "extract-functions-ast-py.py",
+      "line": 278
+    },
+    "scores": {
+      "jaccard": 0.1148,
+      "overlap": 0.5833
+    },
+    "final_score": 0.5833,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "jaccard": 0.3578,
+      "overlap": 0.5821
+    },
+    "final_score": 0.5821,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "jaccard": 0.3578,
+      "overlap": 0.5821
+    },
+    "final_score": 0.5821,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "normalize_simple_tokens",
+      "file": "detect-token-clones.py",
+      "line": 78
+    },
+    "scores": {
+      "jaccard": 0.3103,
+      "overlap": 0.5806
+    },
+    "final_score": 0.5806,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "normalize_simple_tokens",
+      "file": "detect-token-clones.py",
+      "line": 78
+    },
+    "func_b": {
+      "name": "_build_signature",
+      "file": "extract-functions-ast-py.py",
+      "line": 246
+    },
+    "scores": {
+      "jaccard": 0.2609,
+      "overlap": 0.5806
+    },
+    "final_score": 0.5806,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "scores": {
+      "jaccard": 0.2683,
+      "overlap": 0.5789
+    },
+    "final_score": 0.5789,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "get_tokens",
+      "file": "detect-tfidf-index.py",
+      "line": 34
+    },
+    "scores": {
+      "jaccard": 0.25,
+      "overlap": 0.5789
+    },
+    "final_score": 0.5789,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "scores": {
+      "jaccard": 0.2468,
+      "overlap": 0.5758
+    },
+    "final_score": 0.5758,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "scores": {
+      "jaccard": 0.2135,
+      "overlap": 0.5758
+    },
+    "final_score": 0.5758,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "scores": {
+      "jaccard": 0.1905,
+      "overlap": 0.5714
+    },
+    "final_score": 0.5714,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "scores": {
+      "jaccard": 0.378,
+      "overlap": 0.5714
+    },
+    "final_score": 0.5714,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "_param_names_from_template",
+      "file": "generate-corpus.py",
+      "line": 93
+    },
+    "scores": {
+      "jaccard": 0.1429,
+      "overlap": 0.5714
+    },
+    "final_score": 0.5714,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "tokenize_to_strings",
+      "file": "lib/common.py",
+      "line": 125
+    },
+    "scores": {
+      "jaccard": 0.3636,
+      "overlap": 0.5714
+    },
+    "final_score": 0.5714,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "scores": {
+      "jaccard": 0.2807,
+      "overlap": 0.5714
+    },
+    "final_score": 0.5714,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "jaccard": 0.2697,
+      "overlap": 0.5714
+    },
+    "final_score": 0.5714,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "jaccard": 0.3167,
+      "overlap": 0.5672
+    },
+    "final_score": 0.5672,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "jaccard": 0.25,
+      "overlap": 0.5672
+    },
+    "final_score": 0.5672,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.3161,
+      "overlap": 0.5632
+    },
+    "final_score": 0.5632,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.32,
+      "overlap": 0.5614
+    },
+    "final_score": 0.5614,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.32,
+      "overlap": 0.5614
+    },
+    "final_score": 0.5614,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.32,
+      "overlap": 0.5614
+    },
+    "final_score": 0.5614,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.32,
+      "overlap": 0.5614
+    },
+    "final_score": 0.5614,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.32,
+      "overlap": 0.5614
+    },
+    "final_score": 0.5614,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.32,
+      "overlap": 0.5614
+    },
+    "final_score": 0.5614,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.32,
+      "overlap": 0.5614
+    },
+    "final_score": 0.5614,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.32,
+      "overlap": 0.5614
+    },
+    "final_score": 0.5614,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.32,
+      "overlap": 0.5614
+    },
+    "final_score": 0.5614,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.2209,
+      "overlap": 0.5588
+    },
+    "final_score": 0.5588,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "scores": {
+      "jaccard": 0.2785,
+      "overlap": 0.557
+    },
+    "final_score": 0.557,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "get_tokens",
+      "file": "detect-tfidf-index.py",
+      "line": 34
+    },
+    "scores": {
+      "jaccard": 0.3279,
+      "overlap": 0.5556
+    },
+    "final_score": 0.5556,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_inverted_index",
+      "file": "detect-tfidf-index.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "compute_idf",
+      "file": "detect-tfidf-index.py",
+      "line": 62
+    },
+    "scores": {
+      "jaccard": 0.3774,
+      "overlap": 0.5556
+    },
+    "final_score": 0.5556,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.2517,
+      "overlap": 0.5522
+    },
+    "final_score": 0.5522,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "jaccard",
+      "file": "lib/common.py",
+      "line": 194
+    },
+    "scores": {
+      "jaccard": 0.2424,
+      "overlap": 0.5517
+    },
+    "final_score": 0.5517,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.3609,
+      "overlap": 0.5517
+    },
+    "final_score": 0.5517,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "jaccard": 0.2366,
+      "overlap": 0.55
+    },
+    "final_score": 0.55,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.2895,
+      "overlap": 0.55
+    },
+    "final_score": 0.55,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.3333,
+      "overlap": 0.5476
+    },
+    "final_score": 0.5476,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "scores": {
+      "jaccard": 0.3214,
+      "overlap": 0.5455
+    },
+    "final_score": 0.5455,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "jaccard": 0.3038,
+      "overlap": 0.5455
+    },
+    "final_score": 0.5455,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generic_visit",
+      "file": "extract-functions-ast-py.py",
+      "line": 114
+    },
+    "func_b": {
+      "name": "visit_ClassDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 423
+    },
+    "scores": {
+      "jaccard": 0.2857,
+      "overlap": 0.5455
+    },
+    "final_score": 0.5455,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "jaccard": 0.2883,
+      "overlap": 0.5402
+    },
+    "final_score": 0.5402,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.2755,
+      "overlap": 0.54
+    },
+    "final_score": 0.54,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "jaccard": 0.28,
+      "overlap": 0.5385
+    },
+    "final_score": 0.5385,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-signature-match.py",
+      "line": 298
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "jaccard": 0.1944,
+      "overlap": 0.5385
+    },
+    "final_score": 0.5385,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.288,
+      "overlap": 0.5373
+    },
+    "final_score": 0.5373,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "scores": {
+      "jaccard": 0.2778,
+      "overlap": 0.5357
+    },
+    "final_score": 0.5357,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "scores": {
+      "jaccard": 0.283,
+      "overlap": 0.5357
+    },
+    "final_score": 0.5357,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.1463,
+      "overlap": 0.5333
+    },
+    "final_score": 0.5333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "scores": {
+      "jaccard": 0.1684,
+      "overlap": 0.5333
+    },
+    "final_score": 0.5333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "scores": {
+      "jaccard": 0.1524,
+      "overlap": 0.5333
+    },
+    "final_score": 0.5333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "jaccard": 0.1684,
+      "overlap": 0.5333
+    },
+    "final_score": 0.5333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.1481,
+      "overlap": 0.5333
+    },
+    "final_score": 0.5333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.226,
+      "overlap": 0.5333
+    },
+    "final_score": 0.5333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.28,
+      "overlap": 0.5283
+    },
+    "final_score": 0.5283,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_inverted_index",
+      "file": "detect-tfidf-index.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "validate_corpus",
+      "file": "generate-corpus.py",
+      "line": 316
+    },
+    "scores": {
+      "jaccard": 0.25,
+      "overlap": 0.5278
+    },
+    "final_score": 0.5278,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "scores": {
+      "jaccard": 0.2083,
+      "overlap": 0.5263
+    },
+    "final_score": 0.5263,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "compute_final_score",
+      "file": "detect-signature-match.py",
+      "line": 298
+    },
+    "scores": {
+      "jaccard": 0.2564,
+      "overlap": 0.5263
+    },
+    "final_score": 0.5263,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "jaccard": 0.2561,
+      "overlap": 0.525
+    },
+    "final_score": 0.525,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "scores": {
+      "jaccard": 0.3281,
+      "overlap": 0.525
+    },
+    "final_score": 0.525,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "scores": {
+      "jaccard": 0.3445,
+      "overlap": 0.519
+    },
+    "final_score": 0.519,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "scores": {
+      "jaccard": 0.3445,
+      "overlap": 0.519
+    },
+    "final_score": 0.519,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.3106,
+      "overlap": 0.519
+    },
+    "final_score": 0.519,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "jaccard": 0.3085,
+      "overlap": 0.5179
+    },
+    "final_score": 0.5179,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "jaccard": 0.1685,
+      "overlap": 0.5172
+    },
+    "final_score": 0.5172,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_pair_result",
+      "file": "detect-token-clones.py",
+      "line": 98
+    },
+    "func_b": {
+      "name": "_compute_metrics",
+      "file": "evaluate.py",
+      "line": 109
+    },
+    "scores": {
+      "jaccard": 0.3333,
+      "overlap": 0.5172
+    },
+    "final_score": 0.5172,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "jaccard": 0.2778,
+      "overlap": 0.5172
+    },
+    "final_score": 0.5172,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.3241,
+      "overlap": 0.5147
+    },
+    "final_score": 0.5147,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.253,
+      "overlap": 0.5122
+    },
+    "final_score": 0.5122,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.3185,
+      "overlap": 0.5119
+    },
+    "final_score": 0.5119,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.1607,
+      "overlap": 0.5094
+    },
+    "final_score": 0.5094,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "scores": {
+      "jaccard": 0.3077,
+      "overlap": 0.5063
+    },
+    "final_score": 0.5063,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ngrams",
+      "file": "detect-ast-similarity.py",
+      "line": 63
+    },
+    "func_b": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "scores": {
+      "jaccard": 0.1562,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.1961,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.2326,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "jaccard": 0.1587,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "abbreviation_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 238
+    },
+    "func_b": {
+      "name": "evaluate",
+      "file": "evaluate.py",
+      "line": 124
+    },
+    "scores": {
+      "jaccard": 0.1304,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.25,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "jaccard": 0.3077,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "generate_summary",
+      "file": "merge-signals.py",
+      "line": 291
+    },
+    "scores": {
+      "jaccard": 0.1636,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "scores": {
+      "jaccard": 0.1667,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "arity_match_score",
+      "file": "detect-signature-match.py",
+      "line": 158
+    },
+    "func_b": {
+      "name": "should_compare",
+      "file": "lib/common.py",
+      "line": 230
+    },
+    "scores": {
+      "jaccard": 0.25,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_inverted_index",
+      "file": "detect-tfidf-index.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "scores": {
+      "jaccard": 0.1856,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "func_b": {
+      "name": "_extract_token_sequence",
+      "file": "extract-functions-ast-py.py",
+      "line": 109
+    },
+    "scores": {
+      "jaccard": 0.3171,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.1515,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_pair_result",
+      "file": "detect-token-clones.py",
+      "line": 98
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "jaccard": 0.1212,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_pair_result",
+      "file": "detect-token-clones.py",
+      "line": 98
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.1471,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.1471,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "jaccard",
+      "file": "lib/common.py",
+      "line": 194
+    },
+    "scores": {
+      "jaccard": 0.2564,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "jaccard": 0.3333,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "load_ground_truth",
+      "file": "evaluate.py",
+      "line": 36
+    },
+    "func_b": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "scores": {
+      "jaccard": 0.122,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "load_ground_truth",
+      "file": "evaluate.py",
+      "line": 36
+    },
+    "func_b": {
+      "name": "tokenize_to_strings",
+      "file": "lib/common.py",
+      "line": 125
+    },
+    "scores": {
+      "jaccard": 0.1,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "func_b": {
+      "name": "_decorator_name",
+      "file": "extract-functions-ast-py.py",
+      "line": 270
+    },
+    "scores": {
+      "jaccard": 0.1429,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_extract_token_sequence",
+      "file": "extract-functions-ast-py.py",
+      "line": 109
+    },
+    "func_b": {
+      "name": "_decorator_name",
+      "file": "extract-functions-ast-py.py",
+      "line": 270
+    },
+    "scores": {
+      "jaccard": 0.1034,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_unparse_annotation",
+      "file": "extract-functions-ast-py.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "_decorator_name",
+      "file": "extract-functions-ast-py.py",
+      "line": 270
+    },
+    "scores": {
+      "jaccard": 0.1875,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_unparse_default",
+      "file": "extract-functions-ast-py.py",
+      "line": 178
+    },
+    "func_b": {
+      "name": "_decorator_name",
+      "file": "extract-functions-ast-py.py",
+      "line": 270
+    },
+    "scores": {
+      "jaccard": 0.1875,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "jaccard": 0.25,
+      "overlap": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.3187,
+      "overlap": 0.4957
+    },
+    "final_score": 0.4957,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "scores": {
+      "jaccard": 0.2897,
+      "overlap": 0.4921
+    },
+    "final_score": 0.4921,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "jaccard": 0.3093,
+      "overlap": 0.4918
+    },
+    "final_score": 0.4918,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "jaccard": 0.3095,
+      "overlap": 0.4906
+    },
+    "final_score": 0.4906,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "jaccard": 0.3095,
+      "overlap": 0.4906
+    },
+    "final_score": 0.4906,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "scores": {
+      "jaccard": 0.2558,
+      "overlap": 0.4889
+    },
+    "final_score": 0.4889,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.1571,
+      "overlap": 0.4889
+    },
+    "final_score": 0.4889,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "scores": {
+      "jaccard": 0.303,
+      "overlap": 0.4878
+    },
+    "final_score": 0.4878,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.2289,
+      "overlap": 0.4872
+    },
+    "final_score": 0.4872,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "kgrams",
+      "file": "detect-winnowing.py",
+      "line": 48
+    },
+    "scores": {
+      "jaccard": 0.2,
+      "overlap": 0.4848
+    },
+    "final_score": 0.4848,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "scores": {
+      "jaccard": 0.1739,
+      "overlap": 0.4848
+    },
+    "final_score": 0.4848,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "kgrams",
+      "file": "detect-winnowing.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "scores": {
+      "jaccard": 0.2051,
+      "overlap": 0.4848
+    },
+    "final_score": 0.4848,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "jaccard": 0.2583,
+      "overlap": 0.4844
+    },
+    "final_score": 0.4844,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "jaccard": 0.2333,
+      "overlap": 0.4828
+    },
+    "final_score": 0.4828,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_tokens",
+      "file": "detect-tfidf-index.py",
+      "line": 34
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "jaccard": 0.2745,
+      "overlap": 0.4828
+    },
+    "final_score": 0.4828,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "jaccard": 0.1972,
+      "overlap": 0.4828
+    },
+    "final_score": 0.4828,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "embedding_cosine",
+      "file": "detect-code-embedding.py",
+      "line": 91
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "jaccard": 0.2738,
+      "overlap": 0.4792
+    },
+    "final_score": 0.4792,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.1899,
+      "overlap": 0.4789
+    },
+    "final_score": 0.4789,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "jaccard": 0.2159,
+      "overlap": 0.475
+    },
+    "final_score": 0.475,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "type_pattern_score",
+      "file": "detect-signature-match.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "jaccard": 0.2692,
+      "overlap": 0.4746
+    },
+    "final_score": 0.4746,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_param_count",
+      "file": "detect-signature-match.py",
+      "line": 132
+    },
+    "func_b": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "scores": {
+      "jaccard": 0.1875,
+      "overlap": 0.4737
+    },
+    "final_score": 0.4737,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "classify_clone_type",
+      "file": "merge-signals.py",
+      "line": 226
+    },
+    "scores": {
+      "jaccard": 0.2093,
+      "overlap": 0.4737
+    },
+    "final_score": 0.4737,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_inverted_index",
+      "file": "detect-tfidf-index.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.2656,
+      "overlap": 0.4722
+    },
+    "final_score": 0.4722,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "computeTokenSequence",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 160
+    },
+    "func_b": {
+      "name": "getDecorators",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 176
+    },
+    "scores": {
+      "jaccard": 0.2319,
+      "overlap": 0.4706
+    },
+    "final_score": 0.4706,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "scores": {
+      "jaccard": 0.2868,
+      "overlap": 0.4684
+    },
+    "final_score": 0.4684,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "scores": {
+      "jaccard": 0.1772,
+      "overlap": 0.4667
+    },
+    "final_score": 0.4667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.2295,
+      "overlap": 0.4667
+    },
+    "final_score": 0.4667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "validate_corpus",
+      "file": "generate-corpus.py",
+      "line": 316
+    },
+    "scores": {
+      "jaccard": 0.253,
+      "overlap": 0.4667
+    },
+    "final_score": 0.4667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "func_b": {
+      "name": "normalize_simple_tokens",
+      "file": "detect-token-clones.py",
+      "line": 78
+    },
+    "scores": {
+      "jaccard": 0.2826,
+      "overlap": 0.4643
+    },
+    "final_score": 0.4643,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "func_b": {
+      "name": "_build_signature",
+      "file": "extract-functions-ast-py.py",
+      "line": 246
+    },
+    "scores": {
+      "jaccard": 0.1831,
+      "overlap": 0.4643
+    },
+    "final_score": 0.4643,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "jaccard": 0.2951,
+      "overlap": 0.4615
+    },
+    "final_score": 0.4615,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "jaccard": 0.15,
+      "overlap": 0.4615
+    },
+    "final_score": 0.4615,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_pair_result",
+      "file": "detect-token-clones.py",
+      "line": 98
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "jaccard": 0.1667,
+      "overlap": 0.4615
+    },
+    "final_score": 0.4615,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "_extract_token_sequence",
+      "file": "extract-functions-ast-py.py",
+      "line": 109
+    },
+    "scores": {
+      "jaccard": 0.1818,
+      "overlap": 0.4615
+    },
+    "final_score": 0.4615,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "_extract_token_sequence",
+      "file": "extract-functions-ast-py.py",
+      "line": 109
+    },
+    "scores": {
+      "jaccard": 0.1818,
+      "overlap": 0.4615
+    },
+    "final_score": 0.4615,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "scores": {
+      "jaccard": 0.24,
+      "overlap": 0.4615
+    },
+    "final_score": 0.4615,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "jaccard": 0.24,
+      "overlap": 0.4615
+    },
+    "final_score": 0.4615,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_extract_token_sequence",
+      "file": "extract-functions-ast-py.py",
+      "line": 109
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "scores": {
+      "jaccard": 0.1818,
+      "overlap": 0.4615
+    },
+    "final_score": 0.4615,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_extract_token_sequence",
+      "file": "extract-functions-ast-py.py",
+      "line": 109
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "jaccard": 0.1818,
+      "overlap": 0.4615
+    },
+    "final_score": 0.4615,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.1638,
+      "overlap": 0.4603
+    },
+    "final_score": 0.4603,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "convert_llm_results",
+      "file": "merge-signals.py",
+      "line": 429
+    },
+    "scores": {
+      "jaccard": 0.2072,
+      "overlap": 0.46
+    },
+    "final_score": 0.46,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.2347,
+      "overlap": 0.46
+    },
+    "final_score": 0.46,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "func_b": {
+      "name": "convert_llm_results",
+      "file": "merge-signals.py",
+      "line": 429
+    },
+    "scores": {
+      "jaccard": 0.1901,
+      "overlap": 0.46
+    },
+    "final_score": 0.46,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "scores": {
+      "jaccard": 0.1722,
+      "overlap": 0.4559
+    },
+    "final_score": 0.4559,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "func_b": {
+      "name": "generic_visit",
+      "file": "extract-functions-ast-py.py",
+      "line": 114
+    },
+    "scores": {
+      "jaccard": 0.1471,
+      "overlap": 0.4545
+    },
+    "final_score": 0.4545,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "scores": {
+      "jaccard": 0.1395,
+      "overlap": 0.4528
+    },
+    "final_score": 0.4528,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "jaccard": 0.2791,
+      "overlap": 0.4528
+    },
+    "final_score": 0.4528,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "jaccard": 0.2791,
+      "overlap": 0.4528
+    },
+    "final_score": 0.4528,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "jaccard": 0.2791,
+      "overlap": 0.4528
+    },
+    "final_score": 0.4528,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "type_pattern_score",
+      "file": "detect-signature-match.py",
+      "line": 185
+    },
+    "scores": {
+      "jaccard": 0.2353,
+      "overlap": 0.4528
+    },
+    "final_score": 0.4528,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "jaccard": 0.2727,
+      "overlap": 0.4528
+    },
+    "final_score": 0.4528,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "jaccard": 0.2791,
+      "overlap": 0.4528
+    },
+    "final_score": 0.4528,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "jaccard": 0.2791,
+      "overlap": 0.4528
+    },
+    "final_score": 0.4528,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "jaccard": 0.2791,
+      "overlap": 0.4528
+    },
+    "final_score": 0.4528,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "jaccard": 0.2791,
+      "overlap": 0.4528
+    },
+    "final_score": 0.4528,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "func_b": {
+      "name": "normalize_simple_tokens",
+      "file": "detect-token-clones.py",
+      "line": 78
+    },
+    "scores": {
+      "jaccard": 0.1918,
+      "overlap": 0.4516
+    },
+    "final_score": 0.4516,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "jaccard": 0.2857,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "jaccard": 0.1636,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "jaccard": 0.1748,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.1216,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "embedding_cosine",
+      "file": "detect-code-embedding.py",
+      "line": 91
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.1525,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "jaccard": 0.1593,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "jaccard": 0.1651,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "jaccard": 0.1748,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "scores": {
+      "jaccard": 0.1295,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "generate_type1_pair",
+      "file": "generate-corpus.py",
+      "line": 99
+    },
+    "scores": {
+      "jaccard": 0.18,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "generate_type2_pair",
+      "file": "generate-corpus.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.1636,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "generate_type4_pair",
+      "file": "generate-corpus.py",
+      "line": 177
+    },
+    "scores": {
+      "jaccard": 0.1286,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "jaccard",
+      "file": "lib/common.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "jaccard": 0.225,
+      "overlap": 0.45
+    },
+    "final_score": 0.45,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "jaccard": 0.2626,
+      "overlap": 0.4483
+    },
+    "final_score": 0.4483,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "jaccard": 0.1733,
+      "overlap": 0.4483
+    },
+    "final_score": 0.4483,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "scan_source_tree",
+      "file": "extract-functions-regex.py",
+      "line": 153
+    },
+    "scores": {
+      "jaccard": 0.1955,
+      "overlap": 0.4483
+    },
+    "final_score": 0.4483,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "lcs_length",
+      "file": "detect-ast-similarity.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "scores": {
+      "jaccard": 0.127,
+      "overlap": 0.4444
+    },
+    "final_score": 0.4444,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "jaccard": 0.1159,
+      "overlap": 0.4444
+    },
+    "final_score": 0.4444,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.1835,
+      "overlap": 0.4444
+    },
+    "final_score": 0.4444,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "load_detected_pairs",
+      "file": "evaluate.py",
+      "line": 61
+    },
+    "scores": {
+      "jaccard": 0.2469,
+      "overlap": 0.4444
+    },
+    "final_score": 0.4444,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "scores": {
+      "jaccard": 0.2105,
+      "overlap": 0.4444
+    },
+    "final_score": 0.4444,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "generate_type3_pair",
+      "file": "generate-corpus.py",
+      "line": 140
+    },
+    "scores": {
+      "jaccard": 0.093,
+      "overlap": 0.4444
+    },
+    "final_score": 0.4444,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "func_b": {
+      "name": "build_inverted_index",
+      "file": "detect-tfidf-index.py",
+      "line": 48
+    },
+    "scores": {
+      "jaccard": 0.1905,
+      "overlap": 0.4444
+    },
+    "final_score": 0.4444,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.2,
+      "overlap": 0.4444
+    },
+    "final_score": 0.4444,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "jaccard": 0.2752,
+      "overlap": 0.4412
+    },
+    "final_score": 0.4412,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_for_language",
+      "file": "extract-functions-regex.py",
+      "line": 260
+    },
+    "func_b": {
+      "name": "validate_corpus",
+      "file": "generate-corpus.py",
+      "line": 316
+    },
+    "scores": {
+      "jaccard": 0.2047,
+      "overlap": 0.4407
+    },
+    "final_score": 0.4407,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "jaccard": 0.2589,
+      "overlap": 0.4394
+    },
+    "final_score": 0.4394,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type1_pair",
+      "file": "generate-corpus.py",
+      "line": 99
+    },
+    "func_b": {
+      "name": "tokenize",
+      "file": "lib/common.py",
+      "line": 84
+    },
+    "scores": {
+      "jaccard": 0.1458,
+      "overlap": 0.4375
+    },
+    "final_score": 0.4375,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type2_pair",
+      "file": "generate-corpus.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "tokenize",
+      "file": "lib/common.py",
+      "line": 84
+    },
+    "scores": {
+      "jaccard": 0.1321,
+      "overlap": 0.4375
+    },
+    "final_score": 0.4375,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type3_pair",
+      "file": "generate-corpus.py",
+      "line": 140
+    },
+    "func_b": {
+      "name": "tokenize",
+      "file": "lib/common.py",
+      "line": 84
+    },
+    "scores": {
+      "jaccard": 0.0824,
+      "overlap": 0.4375
+    },
+    "final_score": 0.4375,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type4_pair",
+      "file": "generate-corpus.py",
+      "line": 177
+    },
+    "func_b": {
+      "name": "tokenize",
+      "file": "lib/common.py",
+      "line": 84
+    },
+    "scores": {
+      "jaccard": 0.1029,
+      "overlap": 0.4375
+    },
+    "final_score": 0.4375,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "jaccard": 0.2696,
+      "overlap": 0.4366
+    },
+    "final_score": 0.4366,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "func_b": {
+      "name": "merge_pair_signals",
+      "file": "merge-signals.py",
+      "line": 78
+    },
+    "scores": {
+      "jaccard": 0.1723,
+      "overlap": 0.4362
+    },
+    "final_score": 0.4362,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "scores": {
+      "jaccard": 0.103,
+      "overlap": 0.4359
+    },
+    "final_score": 0.4359,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "scores": {
+      "jaccard": 0.1604,
+      "overlap": 0.4359
+    },
+    "final_score": 0.4359,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "jaccard": 0.2125,
+      "overlap": 0.4359
+    },
+    "final_score": 0.4359,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "scores": {
+      "jaccard": 0.2742,
+      "overlap": 0.4359
+    },
+    "final_score": 0.4359,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "scores": {
+      "jaccard": 0.1354,
+      "overlap": 0.4333
+    },
+    "final_score": 0.4333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "jaccard": 0.1781,
+      "overlap": 0.4333
+    },
+    "final_score": 0.4333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.097,
+      "overlap": 0.4333
+    },
+    "final_score": 0.4333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "generate_corpus",
+      "file": "generate-corpus.py",
+      "line": 237
+    },
+    "scores": {
+      "jaccard": 0.1262,
+      "overlap": 0.4333
+    },
+    "final_score": 0.4333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "validate_corpus",
+      "file": "generate-corpus.py",
+      "line": 316
+    },
+    "scores": {
+      "jaccard": 0.1711,
+      "overlap": 0.4333
+    },
+    "final_score": 0.4333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "_tokenize_core",
+      "file": "lib/common.py",
+      "line": 134
+    },
+    "scores": {
+      "jaccard": 0.1083,
+      "overlap": 0.4333
+    },
+    "final_score": 0.4333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "compute_final_score",
+      "file": "detect-signature-match.py",
+      "line": 298
+    },
+    "scores": {
+      "jaccard": 0.1413,
+      "overlap": 0.4333
+    },
+    "final_score": 0.4333,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_idf",
+      "file": "detect-tfidf-index.py",
+      "line": 62
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.1159,
+      "overlap": 0.4324
+    },
+    "final_score": 0.4324,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ngrams",
+      "file": "detect-ast-similarity.py",
+      "line": 63
+    },
+    "func_b": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "scores": {
+      "jaccard": 0.0968,
+      "overlap": 0.4286
+    },
+    "final_score": 0.4286,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "scores": {
+      "jaccard": 0.2308,
+      "overlap": 0.4286
+    },
+    "final_score": 0.4286,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "jaccard": 0.1579,
+      "overlap": 0.4286
+    },
+    "final_score": 0.4286,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "scores": {
+      "jaccard": 0.0938,
+      "overlap": 0.4286
+    },
+    "final_score": 0.4286,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "_compute_metrics",
+      "file": "evaluate.py",
+      "line": 109
+    },
+    "scores": {
+      "jaccard": 0.0857,
+      "overlap": 0.4286
+    },
+    "final_score": 0.4286,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "_extract_token_sequence",
+      "file": "extract-functions-ast-py.py",
+      "line": 109
+    },
+    "scores": {
+      "jaccard": 0.1,
+      "overlap": 0.4286
+    },
+    "final_score": 0.4286,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "_decorator_names",
+      "file": "extract-functions-ast-py.py",
+      "line": 278
+    },
+    "scores": {
+      "jaccard": 0.1875,
+      "overlap": 0.4286
+    },
+    "final_score": 0.4286,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "scores": {
+      "jaccard": 0.2143,
+      "overlap": 0.4286
+    },
+    "final_score": 0.4286,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "jaccard": 0.2162,
+      "overlap": 0.4286
+    },
+    "final_score": 0.4286,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "_compute_metrics",
+      "file": "evaluate.py",
+      "line": 109
+    },
+    "scores": {
+      "jaccard": 0.0857,
+      "overlap": 0.4286
+    },
+    "final_score": 0.4286,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "func_b": {
+      "name": "extract_for_language",
+      "file": "extract-functions-regex.py",
+      "line": 260
+    },
+    "scores": {
+      "jaccard": 0.218,
+      "overlap": 0.4265
+    },
+    "final_score": 0.4265,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "jaccard": 0.1602,
+      "overlap": 0.4265
+    },
+    "final_score": 0.4265,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "scores": {
+      "jaccard": 0.1667,
+      "overlap": 0.425
+    },
+    "final_score": 0.425,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.25,
+      "overlap": 0.425
+    },
+    "final_score": 0.425,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "scores": {
+      "jaccard": 0.0864,
+      "overlap": 0.4242
+    },
+    "final_score": 0.4242,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "jaccard": 0.1628,
+      "overlap": 0.4242
+    },
+    "final_score": 0.4242,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "jaccard": 0.1867,
+      "overlap": 0.4242
+    },
+    "final_score": 0.4242,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "scores": {
+      "jaccard": 0.2373,
+      "overlap": 0.4242
+    },
+    "final_score": 0.4242,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "scores": {
+      "jaccard": 0.1944,
+      "overlap": 0.4242
+    },
+    "final_score": 0.4242,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.1776,
+      "overlap": 0.4222
+    },
+    "final_score": 0.4222,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.1624,
+      "overlap": 0.4222
+    },
+    "final_score": 0.4222,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.1776,
+      "overlap": 0.4222
+    },
+    "final_score": 0.4222,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "arity_match_score",
+      "file": "detect-signature-match.py",
+      "line": 158
+    },
+    "scores": {
+      "jaccard": 0.1951,
+      "overlap": 0.4211
+    },
+    "final_score": 0.4211,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "jaccard": 0.2,
+      "overlap": 0.4211
+    },
+    "final_score": 0.4211,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "convert_llm_results",
+      "file": "merge-signals.py",
+      "line": 429
+    },
+    "scores": {
+      "jaccard": 0.181,
+      "overlap": 0.42
+    },
+    "final_score": 0.42,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "jaccard": 0.2561,
+      "overlap": 0.42
+    },
+    "final_score": 0.42,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_for_language",
+      "file": "extract-functions-regex.py",
+      "line": 260
+    },
+    "func_b": {
+      "name": "convert_llm_results",
+      "file": "merge-signals.py",
+      "line": 429
+    },
+    "scores": {
+      "jaccard": 0.1707,
+      "overlap": 0.42
+    },
+    "final_score": 0.42,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "func_b": {
+      "name": "normalize_simple_tokens",
+      "file": "detect-token-clones.py",
+      "line": 78
+    },
+    "scores": {
+      "jaccard": 0.1585,
+      "overlap": 0.4194
+    },
+    "final_score": 0.4194,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "func_b": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "scores": {
+      "jaccard": 0.2373,
+      "overlap": 0.4179
+    },
+    "final_score": 0.4179,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "get_tokens",
+      "file": "detect-tfidf-index.py",
+      "line": 34
+    },
+    "scores": {
+      "jaccard": 0.25,
+      "overlap": 0.4167
+    },
+    "final_score": 0.4167,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "get_tokens",
+      "file": "detect-tfidf-index.py",
+      "line": 34
+    },
+    "scores": {
+      "jaccard": 0.2419,
+      "overlap": 0.4167
+    },
+    "final_score": 0.4167,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "build_inverted_index",
+      "file": "detect-tfidf-index.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "jaccard": 0.1948,
+      "overlap": 0.4167
+    },
+    "final_score": 0.4167,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.176,
+      "overlap": 0.4151
+    },
+    "final_score": 0.4151,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "jaccard": 0.2048,
+      "overlap": 0.4146
+    },
+    "final_score": 0.4146,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "func_b": {
+      "name": "jaccard",
+      "file": "lib/common.py",
+      "line": 194
+    },
+    "scores": {
+      "jaccard": 0.1967,
+      "overlap": 0.4138
+    },
+    "final_score": 0.4138,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "jaccard": 0.24,
+      "overlap": 0.4138
+    },
+    "final_score": 0.4138,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "param_name_similarity_score",
+      "file": "detect-signature-match.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "jaccard",
+      "file": "lib/common.py",
+      "line": 194
+    },
+    "scores": {
+      "jaccard": 0.1667,
+      "overlap": 0.4138
+    },
+    "final_score": 0.4138,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "func_b": {
+      "name": "jaccard",
+      "file": "lib/common.py",
+      "line": 194
+    },
+    "scores": {
+      "jaccard": 0.1579,
+      "overlap": 0.4138
+    },
+    "final_score": 0.4138,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "jaccard": 0.16,
+      "overlap": 0.4138
+    },
+    "final_score": 0.4138,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "generate_type4_pair",
+      "file": "generate-corpus.py",
+      "line": 177
+    },
+    "scores": {
+      "jaccard": 0.1579,
+      "overlap": 0.4138
+    },
+    "final_score": 0.4138,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "scores": {
+      "jaccard": 0.2031,
+      "overlap": 0.4127
+    },
+    "final_score": 0.4127,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "jaccard": 0.1985,
+      "overlap": 0.4127
+    },
+    "final_score": 0.4127,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_compute_metrics",
+      "file": "evaluate.py",
+      "line": 109
+    },
+    "func_b": {
+      "name": "_make_func",
+      "file": "generate-corpus.py",
+      "line": 75
+    },
+    "scores": {
+      "jaccard": 0.1707,
+      "overlap": 0.4118
+    },
+    "final_score": 0.4118,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "load_detected_pairs",
+      "file": "evaluate.py",
+      "line": 61
+    },
+    "scores": {
+      "jaccard": 0.213,
+      "overlap": 0.4107
+    },
+    "final_score": 0.4107,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "scores": {
+      "jaccard": 0.25,
+      "overlap": 0.4103
+    },
+    "final_score": 0.4103,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "jaccard": 0.1951,
+      "overlap": 0.4103
+    },
+    "final_score": 0.4103,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.2353,
+      "overlap": 0.4103
+    },
+    "final_score": 0.4103,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "generate_corpus",
+      "file": "generate-corpus.py",
+      "line": 237
+    },
+    "scores": {
+      "jaccard": 0.1468,
+      "overlap": 0.4103
+    },
+    "final_score": 0.4103,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "func_b": {
+      "name": "evaluate",
+      "file": "evaluate.py",
+      "line": 124
+    },
+    "scores": {
+      "jaccard": 0.2203,
+      "overlap": 0.4062
+    },
+    "final_score": 0.4062,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "func_b": {
+      "name": "compute_idf",
+      "file": "detect-tfidf-index.py",
+      "line": 62
+    },
+    "scores": {
+      "jaccard": 0.1744,
+      "overlap": 0.4054
+    },
+    "final_score": 0.4054,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_idf",
+      "file": "detect-tfidf-index.py",
+      "line": 62
+    },
+    "func_b": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "scores": {
+      "jaccard": 0.1485,
+      "overlap": 0.4054
+    },
+    "final_score": 0.4054,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "scores": {
+      "jaccard": 0.2443,
+      "overlap": 0.4051
+    },
+    "final_score": 0.4051,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "_extract_metrics",
+      "file": "detect-metric-similarity.py",
+      "line": 110
+    },
+    "scores": {
+      "jaccard": 0.1207,
+      "overlap": 0.4038
+    },
+    "final_score": 0.4038,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_extract_metrics",
+      "file": "detect-metric-similarity.py",
+      "line": 110
+    },
+    "func_b": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "scores": {
+      "jaccard": 0.2211,
+      "overlap": 0.4038
+    },
+    "final_score": 0.4038,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "lcs_length",
+      "file": "detect-ast-similarity.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.1231,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "scores": {
+      "jaccard": 0.2462,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.2,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "scores": {
+      "jaccard": 0.1538,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "scores": {
+      "jaccard": 0.1176,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "jaccard": 0.1143,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "_extract_token_sequence",
+      "file": "extract-functions-ast-py.py",
+      "line": 109
+    },
+    "scores": {
+      "jaccard": 0.125,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "_build_signature",
+      "file": "extract-functions-ast-py.py",
+      "line": 246
+    },
+    "scores": {
+      "jaccard": 0.0645,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "_param_names_from_template",
+      "file": "generate-corpus.py",
+      "line": 93
+    },
+    "scores": {
+      "jaccard": 0.129,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "generate_type1_pair",
+      "file": "generate-corpus.py",
+      "line": 99
+    },
+    "scores": {
+      "jaccard": 0.0889,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "generate_type2_pair",
+      "file": "generate-corpus.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.08,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "load_strategy_results",
+      "file": "merge-signals.py",
+      "line": 64
+    },
+    "scores": {
+      "jaccard": 0.1111,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "generate_summary",
+      "file": "merge-signals.py",
+      "line": 291
+    },
+    "scores": {
+      "jaccard": 0.0769,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "scores": {
+      "jaccard": 0.2143,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "scores": {
+      "jaccard": 0.1176,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "scores": {
+      "jaccard": 0.1905,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "jaccard": 0.25,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.1404,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "scan_source_tree",
+      "file": "extract-functions-regex.py",
+      "line": 153
+    },
+    "scores": {
+      "jaccard": 0.1406,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "func_b": {
+      "name": "arity_match_score",
+      "file": "detect-signature-match.py",
+      "line": 158
+    },
+    "scores": {
+      "jaccard": 0.1463,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.1053,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "arity_match_score",
+      "file": "detect-signature-match.py",
+      "line": 158
+    },
+    "scores": {
+      "jaccard": 0.1143,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "scores": {
+      "jaccard": 0.1519,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "extract_for_language",
+      "file": "extract-functions-regex.py",
+      "line": 260
+    },
+    "scores": {
+      "jaccard": 0.1071,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "param_name_similarity_score",
+      "file": "detect-signature-match.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.2037,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "jaccard": 0.2,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "scores": {
+      "jaccard": 0.0909,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "arity_match_score",
+      "file": "detect-signature-match.py",
+      "line": 158
+    },
+    "func_b": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "scores": {
+      "jaccard": 0.2353,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "arity_match_score",
+      "file": "detect-signature-match.py",
+      "line": 158
+    },
+    "func_b": {
+      "name": "evaluate",
+      "file": "evaluate.py",
+      "line": 124
+    },
+    "scores": {
+      "jaccard": 0.1224,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "type_pattern_score",
+      "file": "detect-signature-match.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "scores": {
+      "jaccard": 0.1649,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "jaccard": 0.1778,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "param_name_similarity_score",
+      "file": "detect-signature-match.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "jaccard": 0.2391,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "jaccard": 0.1127,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "scores": {
+      "jaccard": 0.2,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "_compute_metrics",
+      "file": "evaluate.py",
+      "line": 109
+    },
+    "scores": {
+      "jaccard": 0.0588,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "jaccard": 0.125,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "_build_signature",
+      "file": "extract-functions-ast-py.py",
+      "line": 246
+    },
+    "scores": {
+      "jaccard": 0.2169,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "scan_source_tree",
+      "file": "extract-functions-regex.py",
+      "line": 153
+    },
+    "scores": {
+      "jaccard": 0.1406,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "extract_for_language",
+      "file": "extract-functions-regex.py",
+      "line": 260
+    },
+    "scores": {
+      "jaccard": 0.1488,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "jaccard": 0.1096,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "load_detected_pairs",
+      "file": "evaluate.py",
+      "line": 61
+    },
+    "scores": {
+      "jaccard": 0.1176,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "evaluate",
+      "file": "evaluate.py",
+      "line": 124
+    },
+    "scores": {
+      "jaccard": 0.087,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "generate_type3_pair",
+      "file": "generate-corpus.py",
+      "line": 140
+    },
+    "scores": {
+      "jaccard": 0.0909,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "generate_summary",
+      "file": "merge-signals.py",
+      "line": 291
+    },
+    "scores": {
+      "jaccard": 0.1379,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "load_ground_truth",
+      "file": "evaluate.py",
+      "line": 36
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.0952,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "func_b": {
+      "name": "_extract_token_sequence",
+      "file": "extract-functions-ast-py.py",
+      "line": 109
+    },
+    "scores": {
+      "jaccard": 0.1714,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 354
+    },
+    "func_b": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "scores": {
+      "jaccard": 0.129,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "load_strategy_results",
+      "file": "merge-signals.py",
+      "line": 64
+    },
+    "scores": {
+      "jaccard": 0.169,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type1_pair",
+      "file": "generate-corpus.py",
+      "line": 99
+    },
+    "func_b": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "scores": {
+      "jaccard": 0.0889,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type1_pair",
+      "file": "generate-corpus.py",
+      "line": 99
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.0889,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type2_pair",
+      "file": "generate-corpus.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "scores": {
+      "jaccard": 0.08,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type2_pair",
+      "file": "generate-corpus.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "jaccard": 0.08,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "generate_type4_pair",
+      "file": "generate-corpus.py",
+      "line": 177
+    },
+    "func_b": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "scores": {
+      "jaccard": 0.0615,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "validate_corpus",
+      "file": "generate-corpus.py",
+      "line": 316
+    },
+    "func_b": {
+      "name": "convert_llm_results",
+      "file": "merge-signals.py",
+      "line": 429
+    },
+    "scores": {
+      "jaccard": 0.2247,
+      "overlap": 0.4
+    },
+    "final_score": 0.4,
+    "strategy": "winnowing"
+  }
+]

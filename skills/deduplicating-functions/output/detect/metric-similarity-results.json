@@ -1,0 +1,6975 @@
+[
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "_decorator_names",
+      "file": "extract-functions-ast-py.py",
+      "line": 278
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "abbreviation_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 238
+    },
+    "func_b": {
+      "name": "printUsage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 51
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "abbreviation_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 238
+    },
+    "func_b": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "printUsage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 51
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "kgrams",
+      "file": "detect-winnowing.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_unparse_annotation",
+      "file": "extract-functions-ast-py.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "_unparse_default",
+      "file": "extract-functions-ast-py.py",
+      "line": 178
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "printUsage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 51
+    },
+    "func_b": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "computeTokenSequence",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 160
+    },
+    "func_b": {
+      "name": "getDecorators",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 176
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "computeTokenSequence",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 160
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getDecorators",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 176
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "func_b": {
+      "name": "generate_summary",
+      "file": "merge-signals.py",
+      "line": 291
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "scores": {
+      "body_lines_sim": 0.9865,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9977,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "body_lines_sim": 0.9865,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9977,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "body_lines_sim": 0.9811,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9969,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "body_lines_sim": 0.9538,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9923,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "body_lines_sim": 0.9464,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9911,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "body_lines_sim": 0.9464,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9911,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "evaluate",
+      "file": "evaluate.py",
+      "line": 124
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "body_lines_sim": 0.9672,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9891,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "abbreviation_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 238
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "body_lines_sim": 0.9583,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9861,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "body_lines_sim": 0.9583,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9861,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9167
+    },
+    "final_score": 0.9861,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9167
+    },
+    "final_score": 0.9861,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "printUsage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 51
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "body_lines_sim": 0.9583,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9861,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "printUsage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 51
+    },
+    "func_b": {
+      "name": "generate_summary",
+      "file": "merge-signals.py",
+      "line": 291
+    },
+    "scores": {
+      "body_lines_sim": 0.9583,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9861,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "body_lines_sim": 0.9583,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9861,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "func_b": {
+      "name": "generate_summary",
+      "file": "merge-signals.py",
+      "line": 291
+    },
+    "scores": {
+      "body_lines_sim": 0.9583,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9861,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "body_lines_sim": 0.942,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9434,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9809,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "_safe_divide",
+      "file": "evaluate.py",
+      "line": 104
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9615,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9231
+    },
+    "final_score": 0.9808,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "normalize_type",
+      "file": "detect-signature-match.py",
+      "line": 71
+    },
+    "func_b": {
+      "name": "computeAstFingerprint",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 128
+    },
+    "scores": {
+      "body_lines_sim": 0.9412,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9804,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "kgrams",
+      "file": "detect-winnowing.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "computeTokenSequence",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 160
+    },
+    "scores": {
+      "body_lines_sim": 0.9412,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9804,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "kgrams",
+      "file": "detect-winnowing.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "getDecorators",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 176
+    },
+    "scores": {
+      "body_lines_sim": 0.9412,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9804,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "computeTokenSequence",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 160
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 0.9412,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9804,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getDecorators",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 176
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 0.9412,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9804,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "body_lines_sim": 0.9412,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9804,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9615,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9167
+    },
+    "final_score": 0.9797,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "body_lines_sim": 0.9492,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9266,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9793,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "body_lines_sim": 0.9492,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9266,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9793,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "get_param_count",
+      "file": "detect-signature-match.py",
+      "line": 132
+    },
+    "func_b": {
+      "name": "computeTokenSequence",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 160
+    },
+    "scores": {
+      "body_lines_sim": 0.9375,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9792,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "get_param_count",
+      "file": "detect-signature-match.py",
+      "line": 132
+    },
+    "func_b": {
+      "name": "getDecorators",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 176
+    },
+    "scores": {
+      "body_lines_sim": 0.9375,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9792,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "body_lines_sim": 0.875,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9792,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8649,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9775,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "body_lines_sim": 0.8571,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9762,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "generate_type1_pair",
+      "file": "generate-corpus.py",
+      "line": 99
+    },
+    "func_b": {
+      "name": "generate_type2_pair",
+      "file": "generate-corpus.py",
+      "line": 119
+    },
+    "scores": {
+      "body_lines_sim": 0.9524,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9511,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.95
+    },
+    "final_score": 0.9756,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "_safe_divide",
+      "file": "evaluate.py",
+      "line": 104
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8462
+    },
+    "final_score": 0.9744,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "scores": {
+      "body_lines_sim": 0.8986,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9434,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9737,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.925,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.973,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getBodyLines",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 335
+    },
+    "func_b": {
+      "name": "_should_skip_test_file",
+      "file": "extract-functions-regex.py",
+      "line": 142
+    },
+    "scores": {
+      "body_lines_sim": 0.9167,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9722,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9189,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9713,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9189,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9713,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "printUsage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 51
+    },
+    "scores": {
+      "body_lines_sim": 0.913,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.971,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "scores": {
+      "body_lines_sim": 0.913,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.971,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_first_line_docstring",
+      "file": "extract-functions-ast-py.py",
+      "line": 333
+    },
+    "func_b": {
+      "name": "printUsage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 51
+    },
+    "scores": {
+      "body_lines_sim": 0.913,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.971,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_first_line_docstring",
+      "file": "extract-functions-ast-py.py",
+      "line": 333
+    },
+    "func_b": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "scores": {
+      "body_lines_sim": 0.913,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.971,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "body_lines_sim": 0.8983,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9266,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9708,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-signature-match.py",
+      "line": 298
+    },
+    "func_b": {
+      "name": "getSignature",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 256
+    },
+    "scores": {
+      "body_lines_sim": 0.9118,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9706,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "body_lines_sim": 0.9811,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.925,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9699,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "body_lines_sim": 0.9091,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9697,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "body_lines_sim": 0.9091,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9697,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9459,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8571
+    },
+    "final_score": 0.9672,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 354
+    },
+    "func_b": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "scores": {
+      "body_lines_sim": 0.9,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9667,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "func_b": {
+      "name": "tokenize_to_strings",
+      "file": "lib/common.py",
+      "line": 125
+    },
+    "scores": {
+      "body_lines_sim": 0.9,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9667,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "body_lines_sim": 0.9,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9667,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 0.8947,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9649,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "parseArgs",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 13
+    },
+    "func_b": {
+      "name": "getSignature",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 256
+    },
+    "scores": {
+      "body_lines_sim": 0.8947,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9649,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9556,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8333
+    },
+    "final_score": 0.9648,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "body_lines_sim": 0.9464,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.925,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9641,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "body_lines_sim": 0.9464,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.925,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9641,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.86,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9231
+    },
+    "final_score": 0.9638,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8649,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9167
+    },
+    "final_score": 0.9636,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8649,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9167
+    },
+    "final_score": 0.9636,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7812,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9635,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "func_b": {
+      "name": "isTestFile",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 74
+    },
+    "scores": {
+      "body_lines_sim": 0.8889,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.963,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_decorator_name",
+      "file": "extract-functions-ast-py.py",
+      "line": 270
+    },
+    "func_b": {
+      "name": "isTestFile",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 74
+    },
+    "scores": {
+      "body_lines_sim": 0.8889,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.963,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "func_b": {
+      "name": "embedding_cosine",
+      "file": "detect-code-embedding.py",
+      "line": 91
+    },
+    "scores": {
+      "body_lines_sim": 0.8571,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9176,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9625,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9412,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8333
+    },
+    "final_score": 0.9624,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9143,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8571
+    },
+    "final_score": 0.9619,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "body_lines_sim": 0.9286,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.925,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9611,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "body_lines_sim": 0.9286,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.925,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9611,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "get_param_count",
+      "file": "detect-signature-match.py",
+      "line": 132
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 0.8824,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9608,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "body_lines_sim": 0.9167,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8431,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.96,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "body_lines_sim": 0.8462,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9107,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9595,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8462,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9592,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9189,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8333
+    },
+    "final_score": 0.9587,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "body_lines_sim": 0.875,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9583,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_first_line_docstring",
+      "file": "extract-functions-ast-py.py",
+      "line": 333
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "body_lines_sim": 0.875,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9583,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "body_lines_sim": 0.8082,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9317,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9566,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "printUsage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 51
+    },
+    "scores": {
+      "body_lines_sim": 0.8696,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9565,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "scores": {
+      "body_lines_sim": 0.8696,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9565,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "_safe_divide",
+      "file": "evaluate.py",
+      "line": 104
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8125,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9231
+    },
+    "final_score": 0.9559,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "func_b": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9459,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7857
+    },
+    "final_score": 0.9553,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9459,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7857
+    },
+    "final_score": 0.9553,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8125,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9167
+    },
+    "final_score": 0.9549,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "body_lines_sim": 0.7973,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9317,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9548,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "body_lines_sim": 0.7973,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9317,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9548,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "body_lines_sim": 0.9048,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9176,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9
+    },
+    "final_score": 0.9537,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "get_tokens",
+      "file": "detect-tfidf-index.py",
+      "line": 34
+    },
+    "func_b": {
+      "name": "getBodyLines",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 335
+    },
+    "scores": {
+      "body_lines_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9524,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_inverted_index",
+      "file": "detect-tfidf-index.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "getBodyLines",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 335
+    },
+    "scores": {
+      "body_lines_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9524,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getBodyLines",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 335
+    },
+    "func_b": {
+      "name": "load_strategy_results",
+      "file": "merge-signals.py",
+      "line": 64
+    },
+    "scores": {
+      "body_lines_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9524,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.88,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8333
+    },
+    "final_score": 0.9522,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "body_lines_sim": 0.7273,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9804,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9513,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "body_lines_sim": 0.8525,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9508,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7027,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9505,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7027,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9505,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 0.85,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.95,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "body_lines_sim": 0.8,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9508,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9444
+    },
+    "final_score": 0.9492,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "scores": {
+      "body_lines_sim": 0.9756,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9059,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8125
+    },
+    "final_score": 0.949,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "body_lines_sim": 0.9231,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7679,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9485,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 354
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "body_lines_sim": 0.8182,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9884,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8824
+    },
+    "final_score": 0.9482,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "parseArgs",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 13
+    },
+    "func_b": {
+      "name": "getExportType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 290
+    },
+    "scores": {
+      "body_lines_sim": 0.8444,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9481,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "body_lines_sim": 0.9524,
+      "complexity_sim": 0.8889,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9619,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8846
+    },
+    "final_score": 0.948,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "computeAstFingerprint",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 128
+    },
+    "scores": {
+      "body_lines_sim": 0.8438,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9479,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9714,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7143
+    },
+    "final_score": 0.9476,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "computeTokenSequence",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 160
+    },
+    "scores": {
+      "body_lines_sim": 0.8421,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9474,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "getDecorators",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 176
+    },
+    "scores": {
+      "body_lines_sim": 0.8421,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9474,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "scores": {
+      "body_lines_sim": 0.9815,
+      "complexity_sim": 0.875,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9309,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8966
+    },
+    "final_score": 0.9473,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "body_lines_sim": 0.95,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7821,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9444
+    },
+    "final_score": 0.9461,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.6757,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9459,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7647,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9456,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_safe_divide",
+      "file": "evaluate.py",
+      "line": 104
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7429,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9286
+    },
+    "final_score": 0.9452,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7692
+    },
+    "final_score": 0.9449,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "body_lines_sim": 0.8983,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8571,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9447,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "extract_for_language",
+      "file": "extract-functions-regex.py",
+      "line": 260
+    },
+    "scores": {
+      "body_lines_sim": 0.9701,
+      "complexity_sim": 0.9,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9859,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8108
+    },
+    "final_score": 0.9445,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "body_lines_sim": 0.8333,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9444,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getBodyLines",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 335
+    },
+    "func_b": {
+      "name": "extract_function_name",
+      "file": "extract-functions-regex.py",
+      "line": 212
+    },
+    "scores": {
+      "body_lines_sim": 0.8333,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9444,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "body_lines_sim": 0.8333,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9444,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "func_b": {
+      "name": "_build_signature",
+      "file": "extract-functions-ast-py.py",
+      "line": 246
+    },
+    "scores": {
+      "body_lines_sim": 0.8276,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8743,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9615
+    },
+    "final_score": 0.9439,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "scores": {
+      "body_lines_sim": 0.875,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.86,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9231
+    },
+    "final_score": 0.943,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "printUsage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 51
+    },
+    "scores": {
+      "body_lines_sim": 0.8261,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.942,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "scores": {
+      "body_lines_sim": 0.8261,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.942,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "body_lines_sim": 0.8814,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8571,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9419,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "body_lines_sim": 0.9459,
+      "complexity_sim": 0.8333,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9064,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9655
+    },
+    "final_score": 0.9419,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.6471,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9412,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "body_lines_sim": 0.8571,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9556,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8333
+    },
+    "final_score": 0.941,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "scores": {
+      "body_lines_sim": 0.8667,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7778,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9407,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "scores": {
+      "body_lines_sim": 0.9831,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8382,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8214
+    },
+    "final_score": 0.9404,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "func_b": {
+      "name": "convert_llm_results",
+      "file": "merge-signals.py",
+      "line": 429
+    },
+    "scores": {
+      "body_lines_sim": 0.8197,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9399,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "extract_for_language",
+      "file": "extract-functions-regex.py",
+      "line": 260
+    },
+    "scores": {
+      "body_lines_sim": 0.971,
+      "complexity_sim": 0.9,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9569,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8108
+    },
+    "final_score": 0.9398,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "isTestFile",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 74
+    },
+    "scores": {
+      "body_lines_sim": 0.8182,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9394,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "body_lines_sim": 0.881,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8381,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9387,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-signature-match.py",
+      "line": 298
+    },
+    "func_b": {
+      "name": "parseArgs",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 13
+    },
+    "scores": {
+      "body_lines_sim": 0.8158,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9386,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "body_lines_sim": 0.7671,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8633,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9384,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "body_lines_sim": 0.7671,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8633,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9384,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "_safe_divide",
+      "file": "evaluate.py",
+      "line": 104
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7027,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9231
+    },
+    "final_score": 0.9376,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.963,
+      "nesting_depth_sim": 0.8,
+      "halstead_vocab_sim": 0.8621
+    },
+    "final_score": 0.9375,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "extract_for_language",
+      "file": "extract-functions-regex.py",
+      "line": 260
+    },
+    "scores": {
+      "body_lines_sim": 0.9254,
+      "complexity_sim": 0.9,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9859,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8108
+    },
+    "final_score": 0.937,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "body_lines_sim": 0.7568,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8633,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9367,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "body_lines_sim": 0.7568,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8633,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9367,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "body_lines_sim": 0.7568,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8633,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9367,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "body_lines_sim": 0.7568,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8633,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9367,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7027,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9167
+    },
+    "final_score": 0.9366,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 0.8095,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9365,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_first_line_docstring",
+      "file": "extract-functions-ast-py.py",
+      "line": 333
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 0.8095,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9365,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "body_lines_sim": 0.6364,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9804,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9361,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "_safe_divide",
+      "file": "evaluate.py",
+      "line": 104
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8462,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7692
+    },
+    "final_score": 0.9359,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "get_tokens",
+      "file": "detect-tfidf-index.py",
+      "line": 34
+    },
+    "func_b": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "scores": {
+      "body_lines_sim": 0.7368,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9655,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9352,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "body_lines_sim": 0.8026,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9342,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "scores": {
+      "body_lines_sim": 0.8,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9333,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "computeTokenSequence",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 160
+    },
+    "scores": {
+      "body_lines_sim": 0.8,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9333,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "getDecorators",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 176
+    },
+    "scores": {
+      "body_lines_sim": 0.8,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9333,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "scores": {
+      "body_lines_sim": 0.8,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9333,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_decorator_names",
+      "file": "extract-functions-ast-py.py",
+      "line": 278
+    },
+    "func_b": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "scores": {
+      "body_lines_sim": 0.8,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9333,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_is_test_file",
+      "file": "extract-functions-ast-py.py",
+      "line": 444
+    },
+    "func_b": {
+      "name": "getBodyLines",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 335
+    },
+    "scores": {
+      "body_lines_sim": 0.8,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9333,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "scores": {
+      "body_lines_sim": 0.8913,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7689,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9375
+    },
+    "final_score": 0.933,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_unparse_annotation",
+      "file": "extract-functions-ast-py.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "_class_name",
+      "file": "extract-functions-ast-py.py",
+      "line": 363
+    },
+    "scores": {
+      "body_lines_sim": 0.7,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8974,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9329,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_unparse_default",
+      "file": "extract-functions-ast-py.py",
+      "line": 178
+    },
+    "func_b": {
+      "name": "_class_name",
+      "file": "extract-functions-ast-py.py",
+      "line": 363
+    },
+    "scores": {
+      "body_lines_sim": 0.7,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8974,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9329,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "scores": {
+      "body_lines_sim": 0.9062,
+      "complexity_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8329,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9327,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.6757,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9167
+    },
+    "final_score": 0.9321,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.6757,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9167
+    },
+    "final_score": 0.9321,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "scores": {
+      "body_lines_sim": 0.726,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8633,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9316,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "body_lines_sim": 0.8333,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7556,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9315,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "body_lines_sim": 0.8421,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7436,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9309,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "scores": {
+      "body_lines_sim": 0.8696,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8487,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8667
+    },
+    "final_score": 0.9308,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "extract_for_language",
+      "file": "extract-functions-regex.py",
+      "line": 260
+    },
+    "scores": {
+      "body_lines_sim": 0.971,
+      "complexity_sim": 0.9091,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9239,
+      "nesting_depth_sim": 0.8889,
+      "halstead_vocab_sim": 0.8919
+    },
+    "final_score": 0.9308,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "body_lines_sim": 0.7917,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9306,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "scores": {
+      "body_lines_sim": 0.7162,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8633,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9299,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "body_lines_sim": 0.7162,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8633,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9299,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "scores": {
+      "body_lines_sim": 0.7143,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8605,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9291,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "func_b": {
+      "name": "convert_llm_results",
+      "file": "merge-signals.py",
+      "line": 429
+    },
+    "scores": {
+      "body_lines_sim": 0.9615,
+      "complexity_sim": 0.8,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9545,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8571
+    },
+    "final_score": 0.9289,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7143,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8571
+    },
+    "final_score": 0.9286,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7353,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8333
+    },
+    "final_score": 0.9281,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "body_lines_sim": 0.7931,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8059,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9697
+    },
+    "final_score": 0.9281,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "body_lines_sim": 0.9487,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9726,
+      "nesting_depth_sim": 0.75,
+      "halstead_vocab_sim": 0.8929
+    },
+    "final_score": 0.9274,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "body_lines_sim": 0.8333,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8222,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9274,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "body_lines_sim": 0.8333,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8222,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9274,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "scores": {
+      "body_lines_sim": 0.9655,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7767,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8214
+    },
+    "final_score": 0.9273,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "scores": {
+      "body_lines_sim": 0.9655,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7767,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8214
+    },
+    "final_score": 0.9273,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "load_ground_truth",
+      "file": "evaluate.py",
+      "line": 36
+    },
+    "func_b": {
+      "name": "computeAstFingerprint",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 128
+    },
+    "scores": {
+      "body_lines_sim": 0.7812,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9271,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "param_name_similarity_score",
+      "file": "detect-signature-match.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "load_detected_pairs",
+      "file": "evaluate.py",
+      "line": 61
+    },
+    "scores": {
+      "body_lines_sim": 0.8605,
+      "complexity_sim": 0.9,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9437,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8571
+    },
+    "final_score": 0.9269,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "body_lines_sim": 0.9184,
+      "complexity_sim": 0.8333,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.809,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9268,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "func_b": {
+      "name": "generate_type3_pair",
+      "file": "generate-corpus.py",
+      "line": 140
+    },
+    "scores": {
+      "body_lines_sim": 0.9459,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.6753,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9355
+    },
+    "final_score": 0.9261,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "ngrams",
+      "file": "detect-ast-similarity.py",
+      "line": 63
+    },
+    "func_b": {
+      "name": "isTestFile",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 74
+    },
+    "scores": {
+      "body_lines_sim": 0.7778,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9259,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "arity_match_score",
+      "file": "detect-signature-match.py",
+      "line": 158
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8014,
+      "nesting_depth_sim": 0.75,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9252,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_safe_divide",
+      "file": "evaluate.py",
+      "line": 104
+    },
+    "func_b": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7027,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8462
+    },
+    "final_score": 0.9248,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_safe_divide",
+      "file": "evaluate.py",
+      "line": 104
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7027,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8462
+    },
+    "final_score": 0.9248,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-signature-match.py",
+      "line": 298
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "body_lines_sim": 0.7742,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9247,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "scores": {
+      "body_lines_sim": 0.7692,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9231,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "body_lines_sim": 0.8889,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.72,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9286
+    },
+    "final_score": 0.9229,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "_safe_divide",
+      "file": "evaluate.py",
+      "line": 104
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7647,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7692
+    },
+    "final_score": 0.9223,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_parser",
+      "file": "detect-metric-similarity.py",
+      "line": 290
+    },
+    "func_b": {
+      "name": "build_parser",
+      "file": "extract-functions-ast-py.py",
+      "line": 505
+    },
+    "scores": {
+      "body_lines_sim": 0.7619,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7667,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9214,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_inverted_index",
+      "file": "detect-tfidf-index.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "load_strategy_results",
+      "file": "merge-signals.py",
+      "line": 64
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8083,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.72
+    },
+    "final_score": 0.9214,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7429,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7857
+    },
+    "final_score": 0.9214,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "body_lines_sim": 0.5556,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9722,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9213,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "body_lines_sim": 0.6667,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.86,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9211,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "computeTokenSequence",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 160
+    },
+    "scores": {
+      "body_lines_sim": 0.7619,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9206,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "getDecorators",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 176
+    },
+    "scores": {
+      "body_lines_sim": 0.7619,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9206,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_first_line_docstring",
+      "file": "extract-functions-ast-py.py",
+      "line": 333
+    },
+    "func_b": {
+      "name": "computeTokenSequence",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 160
+    },
+    "scores": {
+      "body_lines_sim": 0.7619,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9206,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_first_line_docstring",
+      "file": "extract-functions-ast-py.py",
+      "line": 333
+    },
+    "func_b": {
+      "name": "getDecorators",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 176
+    },
+    "scores": {
+      "body_lines_sim": 0.7619,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9206,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "func_b": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "scores": {
+      "body_lines_sim": 0.8448,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.877,
+      "nesting_depth_sim": 0.8,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9203,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.6875,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8333
+    },
+    "final_score": 0.9201,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "body_lines_sim": 0.9524,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7176,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.85
+    },
+    "final_score": 0.92,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "scores": {
+      "body_lines_sim": 0.9423,
+      "complexity_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9955,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7241
+    },
+    "final_score": 0.9199,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "scores": {
+      "body_lines_sim": 0.7945,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8997,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8214
+    },
+    "final_score": 0.9193,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "body_lines_sim": 0.75,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8372,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9286
+    },
+    "final_score": 0.9193,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "scores": {
+      "body_lines_sim": 0.875,
+      "complexity_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8699,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9192,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "body_lines_sim": 0.6875,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8793,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9474
+    },
+    "final_score": 0.919,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "scores": {
+      "body_lines_sim": 0.9138,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7767,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8214
+    },
+    "final_score": 0.9187,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "normalize_type",
+      "file": "detect-signature-match.py",
+      "line": 71
+    },
+    "func_b": {
+      "name": "computeCyclomaticComplexity",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 83
+    },
+    "scores": {
+      "body_lines_sim": 0.7556,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9185,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getSignature",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 256
+    },
+    "func_b": {
+      "name": "getExportType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 290
+    },
+    "scores": {
+      "body_lines_sim": 0.7556,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9185,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "classify_clone_type",
+      "file": "merge-signals.py",
+      "line": 226
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 0.75,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9727,
+      "nesting_depth_sim": 0.8333,
+      "halstead_vocab_sim": 0.9545
+    },
+    "final_score": 0.9184,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "body_lines_sim": 0.9912,
+      "complexity_sim": 0.9375,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7359,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8438
+    },
+    "final_score": 0.9181,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "scores": {
+      "body_lines_sim": 0.6154,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8929,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.918,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "generate_non_clone_pair",
+      "file": "generate-corpus.py",
+      "line": 207
+    },
+    "scores": {
+      "body_lines_sim": 0.7692,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8767,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8621
+    },
+    "final_score": 0.918,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "body_lines_sim": 0.5833,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 1.0,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9231
+    },
+    "final_score": 0.9177,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "scores": {
+      "body_lines_sim": 0.7838,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8997,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8214
+    },
+    "final_score": 0.9175,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "scores": {
+      "body_lines_sim": 0.7838,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8997,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8214
+    },
+    "final_score": 0.9175,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_is_test_file",
+      "file": "extract-functions-ast-py.py",
+      "line": 444
+    },
+    "func_b": {
+      "name": "_should_skip_test_file",
+      "file": "extract-functions-regex.py",
+      "line": 142
+    },
+    "scores": {
+      "body_lines_sim": 0.7333,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8824,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8889
+    },
+    "final_score": 0.9174,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "scores": {
+      "body_lines_sim": 0.9245,
+      "complexity_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9292,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7931
+    },
+    "final_score": 0.9173,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.5946,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9173,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.5946,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9173,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_pair_result",
+      "file": "detect-token-clones.py",
+      "line": 98
+    },
+    "func_b": {
+      "name": "_compute_metrics",
+      "file": "evaluate.py",
+      "line": 109
+    },
+    "scores": {
+      "body_lines_sim": 0.7143,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7885,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9171,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "scores": {
+      "body_lines_sim": 0.9245,
+      "complexity_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9955,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7241
+    },
+    "final_score": 0.9169,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "isTestFile",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 74
+    },
+    "scores": {
+      "body_lines_sim": 0.75,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9167,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "computeTokenSequence",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 160
+    },
+    "scores": {
+      "body_lines_sim": 0.75,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9167,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "getDecorators",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 176
+    },
+    "scores": {
+      "body_lines_sim": 0.75,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9167,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 0.8182,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8841,
+      "nesting_depth_sim": 0.8889,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9167,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_make_func",
+      "file": "generate-corpus.py",
+      "line": 75
+    },
+    "func_b": {
+      "name": "tokenize",
+      "file": "lib/common.py",
+      "line": 84
+    },
+    "scores": {
+      "body_lines_sim": 0.6923,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9394,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8667
+    },
+    "final_score": 0.9164,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "body_lines_sim": 0.942,
+      "complexity_sim": 0.8182,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9371,
+      "nesting_depth_sim": 0.8889,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9159,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "scores": {
+      "body_lines_sim": 0.8519,
+      "complexity_sim": 0.8889,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9297,
+      "nesting_depth_sim": 0.8571,
+      "halstead_vocab_sim": 0.9667
+    },
+    "final_score": 0.9157,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "body_lines_sim": 0.925,
+      "complexity_sim": 0.8889,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8713,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8077
+    },
+    "final_score": 0.9155,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "_extract_metrics",
+      "file": "detect-metric-similarity.py",
+      "line": 110
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7493,
+      "nesting_depth_sim": 0.875,
+      "halstead_vocab_sim": 0.8667
+    },
+    "final_score": 0.9152,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "scores": {
+      "body_lines_sim": 0.7143,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8605,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9167
+    },
+    "final_score": 0.9152,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "body_lines_sim": 0.7143,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8605,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9167
+    },
+    "final_score": 0.9152,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "body_lines_sim": 0.8333,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8222,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8333
+    },
+    "final_score": 0.9148,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "scores": {
+      "body_lines_sim": 0.9074,
+      "complexity_sim": 0.875,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8711,
+      "nesting_depth_sim": 0.8333,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9145,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-signature-match.py",
+      "line": 298
+    },
+    "func_b": {
+      "name": "printUsage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 51
+    },
+    "scores": {
+      "body_lines_sim": 0.7419,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.914,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-signature-match.py",
+      "line": 298
+    },
+    "func_b": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "scores": {
+      "body_lines_sim": 0.7419,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.914,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "abbreviation_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 238
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 0.7391,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.913,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 0.7391,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.913,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_extract_metrics",
+      "file": "detect-metric-similarity.py",
+      "line": 110
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "body_lines_sim": 0.942,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7943,
+      "nesting_depth_sim": 0.875,
+      "halstead_vocab_sim": 0.8667
+    },
+    "final_score": 0.913,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "kgrams",
+      "file": "detect-winnowing.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "printUsage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 51
+    },
+    "scores": {
+      "body_lines_sim": 0.7391,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.913,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "kgrams",
+      "file": "detect-winnowing.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "scores": {
+      "body_lines_sim": 0.7391,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.913,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "printUsage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 51
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 0.7391,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.913,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getDocstring",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 192
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 0.7391,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.913,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "func_b": {
+      "name": "convert_llm_results",
+      "file": "merge-signals.py",
+      "line": 429
+    },
+    "scores": {
+      "body_lines_sim": 0.74,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9859,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.75
+    },
+    "final_score": 0.9127,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "embedding_cosine",
+      "file": "detect-code-embedding.py",
+      "line": 91
+    },
+    "scores": {
+      "body_lines_sim": 0.8571,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9529,
+      "nesting_depth_sim": 0.8,
+      "halstead_vocab_sim": 0.8621
+    },
+    "final_score": 0.912,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "body_lines_sim": 0.7778,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8372,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8571
+    },
+    "final_score": 0.912,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "scores": {
+      "body_lines_sim": 0.7143,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7556,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9116,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "_is_nested",
+      "file": "extract-functions-ast-py.py",
+      "line": 370
+    },
+    "scores": {
+      "body_lines_sim": 0.75,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8919,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8235
+    },
+    "final_score": 0.9109,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "scores": {
+      "body_lines_sim": 0.9245,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8109,
+      "nesting_depth_sim": 0.8333,
+      "halstead_vocab_sim": 0.8966
+    },
+    "final_score": 0.9109,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_decorator_names",
+      "file": "extract-functions-ast-py.py",
+      "line": 278
+    },
+    "func_b": {
+      "name": "_is_nested",
+      "file": "extract-functions-ast-py.py",
+      "line": 370
+    },
+    "scores": {
+      "body_lines_sim": 0.75,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8919,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8235
+    },
+    "final_score": 0.9109,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "scores": {
+      "body_lines_sim": 0.9167,
+      "complexity_sim": 0.6667,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8793,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9104,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "lcs_length",
+      "file": "detect-ast-similarity.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "scores": {
+      "body_lines_sim": 0.566,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9375,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9583
+    },
+    "final_score": 0.9103,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.593,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8667
+    },
+    "final_score": 0.9099,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "scores": {
+      "body_lines_sim": 0.7143,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7442,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9097,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_compute_metrics",
+      "file": "evaluate.py",
+      "line": 109
+    },
+    "func_b": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.6923,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7647
+    },
+    "final_score": 0.9095,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "body_lines_sim": 0.9762,
+      "complexity_sim": 0.8889,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8714,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7188
+    },
+    "final_score": 0.9092,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "scores": {
+      "body_lines_sim": 0.875,
+      "complexity_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9292,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7931
+    },
+    "final_score": 0.9091,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "scores": {
+      "body_lines_sim": 0.875,
+      "complexity_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9292,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7931
+    },
+    "final_score": 0.9091,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "body_lines_sim": 0.8182,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7059,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9286
+    },
+    "final_score": 0.9088,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "body_lines_sim": 0.8986,
+      "complexity_sim": 0.8182,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9371,
+      "nesting_depth_sim": 0.8889,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9086,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "scores": {
+      "body_lines_sim": 0.913,
+      "complexity_sim": 0.8889,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8824,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7667
+    },
+    "final_score": 0.9085,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_estimate_nesting_depth",
+      "file": "detect-metric-similarity.py",
+      "line": 55
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "body_lines_sim": 0.7636,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.6857,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9082,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8727,
+      "nesting_depth_sim": 0.8333,
+      "halstead_vocab_sim": 0.8846
+    },
+    "final_score": 0.908,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "func_b": {
+      "name": "load_detected_pairs",
+      "file": "evaluate.py",
+      "line": 61
+    },
+    "scores": {
+      "body_lines_sim": 0.8776,
+      "complexity_sim": 0.7778,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9654,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8276
+    },
+    "final_score": 0.908,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "load_detected_pairs",
+      "file": "evaluate.py",
+      "line": 61
+    },
+    "scores": {
+      "body_lines_sim": 0.9767,
+      "complexity_sim": 0.8889,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9091,
+      "nesting_depth_sim": 0.7143,
+      "halstead_vocab_sim": 0.9583
+    },
+    "final_score": 0.9079,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "func_b": {
+      "name": "_decorator_name",
+      "file": "extract-functions-ast-py.py",
+      "line": 270
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.4464,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9077,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "func_b": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8229,
+      "nesting_depth_sim": 0.8,
+      "halstead_vocab_sim": 0.9655
+    },
+    "final_score": 0.9076,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "scores": {
+      "body_lines_sim": 0.7143,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8222,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9076,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "scores": {
+      "body_lines_sim": 0.7143,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8222,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9076,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "body_lines_sim": 0.5833,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.86,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9072,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_compute_metrics",
+      "file": "evaluate.py",
+      "line": 109
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "body_lines_sim": 0.7333,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8269,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8824
+    },
+    "final_score": 0.9071,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "load_detected_pairs",
+      "file": "evaluate.py",
+      "line": 61
+    },
+    "scores": {
+      "body_lines_sim": 0.9302,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8745,
+      "nesting_depth_sim": 0.7143,
+      "halstead_vocab_sim": 0.9231
+    },
+    "final_score": 0.907,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "body_lines_sim": 0.7333,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7083,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9069,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "lcs_length",
+      "file": "detect-ast-similarity.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "body_lines_sim": 0.5769,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9867,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.875
+    },
+    "final_score": 0.9064,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "body_lines_sim": 0.726,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7986,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9063,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "body_lines_sim": 0.7333,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8372,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8667
+    },
+    "final_score": 0.9062,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "_extract_metrics",
+      "file": "detect-metric-similarity.py",
+      "line": 110
+    },
+    "scores": {
+      "body_lines_sim": 0.8986,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7943,
+      "nesting_depth_sim": 0.875,
+      "halstead_vocab_sim": 0.8667
+    },
+    "final_score": 0.9058,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "classify_clone_type",
+      "file": "merge-signals.py",
+      "line": 226
+    },
+    "scores": {
+      "body_lines_sim": 0.875,
+      "complexity_sim": 0.875,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8943,
+      "nesting_depth_sim": 0.8333,
+      "halstead_vocab_sim": 0.9565
+    },
+    "final_score": 0.9057,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "lcs_length",
+      "file": "detect-ast-similarity.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "body_lines_sim": 0.5357,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9375,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9583
+    },
+    "final_score": 0.9053,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "lcs_length",
+      "file": "detect-ast-similarity.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "body_lines_sim": 0.5357,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9375,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9583
+    },
+    "final_score": 0.9053,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "body_lines_sim": 0.9245,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8856,
+      "nesting_depth_sim": 0.8,
+      "halstead_vocab_sim": 0.8214
+    },
+    "final_score": 0.9053,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "body_lines_sim": 0.5385,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8929,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9052,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.5946,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8333
+    },
+    "final_score": 0.9047,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "lcs_length",
+      "file": "detect-ast-similarity.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "body_lines_sim": 0.566,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9867,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.875
+    },
+    "final_score": 0.9046,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "body_lines_sim": 0.7162,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7986,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9046,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "body_lines_sim": 0.7162,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7986,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9046,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "func_b": {
+      "name": "generate_non_clone_pair",
+      "file": "generate-corpus.py",
+      "line": 207
+    },
+    "scores": {
+      "body_lines_sim": 0.8108,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9014,
+      "nesting_depth_sim": 0.75,
+      "halstead_vocab_sim": 0.9655
+    },
+    "final_score": 0.9046,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "body_lines_sim": 0.7778,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.72,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9286
+    },
+    "final_score": 0.9044,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "body_lines_sim": 0.7123,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7986,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.904,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "scores": {
+      "body_lines_sim": 0.9138,
+      "complexity_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.89,
+      "nesting_depth_sim": 0.8333,
+      "halstead_vocab_sim": 0.9286
+    },
+    "final_score": 0.9038,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "computeCyclomaticComplexity",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 83
+    },
+    "func_b": {
+      "name": "computeAstFingerprint",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 128
+    },
+    "scores": {
+      "body_lines_sim": 0.7111,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9037,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "type_pattern_score",
+      "file": "detect-signature-match.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "should_prefilter_pair",
+      "file": "lib/prefilter.py",
+      "line": 15
+    },
+    "scores": {
+      "body_lines_sim": 0.9375,
+      "complexity_sim": 0.9,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8822,
+      "nesting_depth_sim": 0.8889,
+      "halstead_vocab_sim": 0.8125
+    },
+    "final_score": 0.9035,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "load_detected_pairs",
+      "file": "evaluate.py",
+      "line": 61
+    },
+    "func_b": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "scores": {
+      "body_lines_sim": 0.9348,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9706,
+      "nesting_depth_sim": 0.7143,
+      "halstead_vocab_sim": 0.8
+    },
+    "final_score": 0.9033,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "tokenize_to_strings",
+      "file": "lib/common.py",
+      "line": 125
+    },
+    "scores": {
+      "body_lines_sim": 0.5556,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9545,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9091
+    },
+    "final_score": 0.9032,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "body_lines_sim": 0.75,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.7692
+    },
+    "final_score": 0.9032,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_compute_metrics",
+      "file": "evaluate.py",
+      "line": 109
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 354
+    },
+    "scores": {
+      "body_lines_sim": 0.6,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8173,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 1.0
+    },
+    "final_score": 0.9029,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "normalize_simple_tokens",
+      "file": "detect-token-clones.py",
+      "line": 78
+    },
+    "scores": {
+      "body_lines_sim": 0.7407,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7234,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9524
+    },
+    "final_score": 0.9028,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "kgrams",
+      "file": "detect-winnowing.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "body_lines_sim": 0.7083,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9028,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "body_lines_sim": 0.7083,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9028,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "func_b": {
+      "name": "generate_summary",
+      "file": "merge-signals.py",
+      "line": 291
+    },
+    "scores": {
+      "body_lines_sim": 0.7083,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9028,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "abbreviation_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 238
+    },
+    "scores": {
+      "body_lines_sim": 0.913,
+      "complexity_sim": 0.6667,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8854,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.95
+    },
+    "final_score": 0.9025,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "body_lines_sim": 0.8983,
+      "complexity_sim": 0.8571,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9418,
+      "nesting_depth_sim": 0.8333,
+      "halstead_vocab_sim": 0.8846
+    },
+    "final_score": 0.9025,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "body_lines_sim": 0.7027,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7986,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9024,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "body_lines_sim": 0.7027,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.7986,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9024,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "body_lines_sim": 0.8667,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.6537,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8929
+    },
+    "final_score": 0.9022,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "body_lines_sim": 0.7059,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.902,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "func_b": {
+      "name": "getSignature",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 256
+    },
+    "scores": {
+      "body_lines_sim": 0.7059,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.902,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getSignature",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 256
+    },
+    "func_b": {
+      "name": "generate_summary",
+      "file": "merge-signals.py",
+      "line": 291
+    },
+    "scores": {
+      "body_lines_sim": 0.7059,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.902,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "body_lines_sim": 0.9024,
+      "complexity_sim": 0.8889,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9617,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.6562
+    },
+    "final_score": 0.9016,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "body_lines_sim": 0.8305,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.9557,
+      "nesting_depth_sim": 0.8,
+      "halstead_vocab_sim": 0.8214
+    },
+    "final_score": 0.9013,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "func_b": {
+      "name": "_extract_token_sequence",
+      "file": "extract-functions-ast-py.py",
+      "line": 109
+    },
+    "scores": {
+      "body_lines_sim": 1.0,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.473,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9333
+    },
+    "final_score": 0.9011,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "compute_final_score",
+      "file": "detect-signature-match.py",
+      "line": 298
+    },
+    "scores": {
+      "body_lines_sim": 0.6774,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8586,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.8696
+    },
+    "final_score": 0.9009,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_estimate_nesting_depth",
+      "file": "detect-metric-similarity.py",
+      "line": 55
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "body_lines_sim": 0.6727,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8182,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.913
+    },
+    "final_score": 0.9007,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "body_lines_sim": 0.6364,
+      "complexity_sim": 1.0,
+      "param_count_sim": 1.0,
+      "token_count_sim": 0.8431,
+      "nesting_depth_sim": 1.0,
+      "halstead_vocab_sim": 0.9231
+    },
+    "final_score": 0.9004,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "scores": {
+      "body_lines_sim": 0.7,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "scores": {
+      "body_lines_sim": 0.7,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9,
+    "strategy": "metric_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "func_b": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "scores": {
+      "body_lines_sim": 0.7,
+      "param_count_sim": 1.0,
+      "nesting_depth_sim": 1.0
+    },
+    "final_score": 0.9,
+    "strategy": "metric_similarity"
+  }
+]

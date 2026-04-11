@@ -1,0 +1,31 @@
+{
+  "functions": [
+    {"name": "calc_sum_v1", "file": "a.py", "line": 1, "token_sequence": ["FunctionDef", "arguments", "arg", "For", "AugAssign", "Return"], "body_lines": 5, "params": [{"name": "items"}]},
+    {"name": "calc_sum_v2", "file": "b.py", "line": 1, "token_sequence": ["FunctionDef", "arguments", "arg", "For", "AugAssign", "Return"], "body_lines": 5, "params": [{"name": "items"}]},
+    {"name": "compute_total", "file": "c.py", "line": 1, "token_sequence": ["FunctionDef", "arguments", "arg", "Return", "Call", "Name"], "body_lines": 3, "params": [{"name": "data"}]},
+    {"name": "format_date", "file": "d.py", "line": 1, "token_sequence": ["FunctionDef", "arguments", "arg", "Return", "Call", "Attribute"], "body_lines": 4, "params": [{"name": "d"}]},
+    {"name": "date_to_str", "file": "e.py", "line": 1, "token_sequence": ["FunctionDef", "arguments", "arg", "Return", "Call", "Attribute"], "body_lines": 4, "params": [{"name": "date"}]},
+    {"name": "validate_email", "file": "f.py", "line": 1, "token_sequence": ["FunctionDef", "arguments", "arg", "If", "Call", "Return", "Return"], "body_lines": 6, "params": [{"name": "email"}]},
+    {"name": "check_email", "file": "g.py", "line": 1, "token_sequence": ["FunctionDef", "arguments", "arg", "If", "Call", "Return", "Return"], "body_lines": 6, "params": [{"name": "addr"}]},
+    {"name": "connect_db", "file": "h.py", "line": 1, "token_sequence": ["FunctionDef", "arguments", "arg", "arg", "Assign", "Call", "Return"], "body_lines": 8, "params": [{"name": "host"}, {"name": "port"}]},
+    {"name": "send_email", "file": "i.py", "line": 1, "token_sequence": ["FunctionDef", "arguments", "arg", "arg", "arg", "Assign", "Call", "Call"], "body_lines": 10, "params": [{"name": "to"}, {"name": "subject"}, {"name": "body"}]},
+    {"name": "log_metric", "file": "j.py", "line": 1, "token_sequence": ["FunctionDef", "arguments", "arg", "arg", "Call", "Attribute"], "body_lines": 3, "params": [{"name": "name"}, {"name": "value"}]}
+  ],
+  "ground_truth": [
+    {"func_a": "a.py:calc_sum_v1:1", "func_b": "b.py:calc_sum_v2:1", "clone_type": 1, "is_clone": true},
+    {"func_a": "d.py:format_date:1", "func_b": "e.py:date_to_str:1", "clone_type": 2, "is_clone": true},
+    {"func_a": "f.py:validate_email:1", "func_b": "g.py:check_email:1", "clone_type": 2, "is_clone": true},
+    {"func_a": "a.py:calc_sum_v1:1", "func_b": "c.py:compute_total:1", "clone_type": 4, "is_clone": true},
+    {"func_a": "a.py:calc_sum_v1:1", "func_b": "h.py:connect_db:1", "clone_type": null, "is_clone": false},
+    {"func_a": "a.py:calc_sum_v1:1", "func_b": "i.py:send_email:1", "clone_type": null, "is_clone": false},
+    {"func_a": "d.py:format_date:1", "func_b": "h.py:connect_db:1", "clone_type": null, "is_clone": false},
+    {"func_a": "d.py:format_date:1", "func_b": "i.py:send_email:1", "clone_type": null, "is_clone": false},
+    {"func_a": "f.py:validate_email:1", "func_b": "h.py:connect_db:1", "clone_type": null, "is_clone": false},
+    {"func_a": "f.py:validate_email:1", "func_b": "i.py:send_email:1", "clone_type": null, "is_clone": false},
+    {"func_a": "h.py:connect_db:1", "func_b": "i.py:send_email:1", "clone_type": null, "is_clone": false},
+    {"func_a": "h.py:connect_db:1", "func_b": "j.py:log_metric:1", "clone_type": null, "is_clone": false},
+    {"func_a": "b.py:calc_sum_v2:1", "func_b": "c.py:compute_total:1", "clone_type": 4, "is_clone": true},
+    {"func_a": "i.py:send_email:1", "func_b": "j.py:log_metric:1", "clone_type": null, "is_clone": false},
+    {"func_a": "a.py:calc_sum_v1:1", "func_b": "j.py:log_metric:1", "clone_type": null, "is_clone": false}
+  ]
+}

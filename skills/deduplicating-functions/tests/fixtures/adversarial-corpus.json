@@ -1,0 +1,74 @@
+{
+  "functions": [
+    {"name": "calculate_total", "file": "math_a.py", "line": 1, "qualified_name": "calculate_total",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "Assign", "Constant", "For", "Name", "AugAssign", "Attribute", "Mult", "Attribute", "Return", "Name"],
+     "body_lines": 5, "params": [{"name": "items", "type": "list"}], "return_type": "float", "cyclomatic_complexity": 2},
+
+    {"name": "compute_sum", "file": "math_b.py", "line": 1, "qualified_name": "compute_sum",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "Return", "Call", "Name", "GeneratorExp", "Attribute", "Mult", "Attribute"],
+     "body_lines": 2, "params": [{"name": "products", "type": "list"}], "return_type": "float", "cyclomatic_complexity": 1},
+
+    {"name": "validate_email", "file": "val_a.py", "line": 1, "qualified_name": "validate_email",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "If", "Not", "Call", "Name", "Attribute", "Name", "Return", "Constant", "Return", "Constant"],
+     "body_lines": 6, "params": [{"name": "email", "type": "str"}], "return_type": "bool", "cyclomatic_complexity": 2},
+
+    {"name": "check_email_format", "file": "val_b.py", "line": 1, "qualified_name": "check_email_format",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "If", "Not", "Call", "Name", "Attribute", "Name", "Return", "Constant", "Return", "Constant"],
+     "body_lines": 6, "params": [{"name": "addr", "type": "str"}], "return_type": "bool", "cyclomatic_complexity": 2},
+
+    {"name": "validate_phone", "file": "val_c.py", "line": 1, "qualified_name": "validate_phone",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "If", "Not", "Call", "Name", "Attribute", "Name", "Return", "Constant", "Return", "Constant"],
+     "body_lines": 6, "params": [{"name": "phone", "type": "str"}], "return_type": "bool", "cyclomatic_complexity": 2},
+
+    {"name": "format_date", "file": "fmt_a.py", "line": 1, "qualified_name": "format_date",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "arg", "Return", "Call", "Attribute", "Name", "Name"],
+     "body_lines": 3, "params": [{"name": "dt", "type": "datetime"}, {"name": "fmt", "type": "str"}], "return_type": "str", "cyclomatic_complexity": 1},
+
+    {"name": "date_to_string", "file": "fmt_b.py", "line": 1, "qualified_name": "date_to_string",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "arg", "Return", "Call", "Attribute", "Name", "Name"],
+     "body_lines": 3, "params": [{"name": "date_obj", "type": "datetime"}, {"name": "pattern", "type": "str"}], "return_type": "str", "cyclomatic_complexity": 1},
+
+    {"name": "connect_database", "file": "db.py", "line": 1, "qualified_name": "connect_database",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "arg", "arg", "Assign", "Call", "Name", "Try", "Call", "Attribute", "Except", "Call", "Name", "Raise", "Return", "Name"],
+     "body_lines": 12, "params": [{"name": "host"}, {"name": "port"}, {"name": "db_name"}], "return_type": "Connection", "cyclomatic_complexity": 3},
+
+    {"name": "send_http_request", "file": "http.py", "line": 1, "qualified_name": "send_http_request",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "arg", "arg", "Assign", "Dict", "Assign", "Call", "Name", "Try", "Call", "Attribute", "Return", "Call", "Attribute", "Except", "Call", "Name", "Raise"],
+     "body_lines": 15, "params": [{"name": "url"}, {"name": "method"}, {"name": "payload"}], "return_type": "dict", "cyclomatic_complexity": 4},
+
+    {"name": "sort_by_key", "file": "sort.py", "line": 1, "qualified_name": "sort_by_key",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "arg", "Return", "Call", "Name", "Name", "Lambda", "Subscript"],
+     "body_lines": 2, "params": [{"name": "items", "type": "list"}, {"name": "key", "type": "str"}], "return_type": "list", "cyclomatic_complexity": 1},
+
+    {"name": "read_json_file", "file": "io_a.py", "line": 1, "qualified_name": "read_json_file",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "With", "Call", "Name", "Name", "Assign", "Call", "Attribute", "Name", "Return", "Name"],
+     "body_lines": 4, "params": [{"name": "path", "type": "str"}], "return_type": "dict", "cyclomatic_complexity": 1},
+
+    {"name": "load_json", "file": "io_b.py", "line": 1, "qualified_name": "load_json",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "With", "Call", "Name", "Name", "Assign", "Call", "Attribute", "Name", "Return", "Name"],
+     "body_lines": 4, "params": [{"name": "filepath", "type": "str"}], "return_type": "dict", "cyclomatic_complexity": 1},
+
+    {"name": "encrypt_data", "file": "crypto.py", "line": 1, "qualified_name": "encrypt_data",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "arg", "Assign", "Call", "Attribute", "Name", "Assign", "Call", "Attribute", "Name", "Return", "Call", "Attribute", "Name"],
+     "body_lines": 8, "params": [{"name": "plaintext"}, {"name": "key"}], "return_type": "bytes", "cyclomatic_complexity": 1},
+
+    {"name": "hash_password", "file": "auth.py", "line": 1, "qualified_name": "hash_password",
+     "token_sequence": ["FunctionDef", "arguments", "arg", "Assign", "Call", "Attribute", "Name", "Assign", "Call", "Attribute", "Name", "Return", "Call", "Attribute", "Name"],
+     "body_lines": 6, "params": [{"name": "password"}], "return_type": "str", "cyclomatic_complexity": 1}
+  ],
+  "ground_truth": [
+    {"func_a": "math_a.py:calculate_total:1", "func_b": "math_b.py:compute_sum:1", "clone_type": 4, "is_clone": true},
+    {"func_a": "val_a.py:validate_email:1", "func_b": "val_b.py:check_email_format:1", "clone_type": 2, "is_clone": true},
+    {"func_a": "fmt_a.py:format_date:1", "func_b": "fmt_b.py:date_to_string:1", "clone_type": 2, "is_clone": true},
+    {"func_a": "io_a.py:read_json_file:1", "func_b": "io_b.py:load_json:1", "clone_type": 1, "is_clone": true},
+
+    {"func_a": "val_a.py:validate_email:1", "func_b": "val_c.py:validate_phone:1", "clone_type": null, "is_clone": false},
+    {"func_a": "db.py:connect_database:1", "func_b": "http.py:send_http_request:1", "clone_type": null, "is_clone": false},
+    {"func_a": "crypto.py:encrypt_data:1", "func_b": "auth.py:hash_password:1", "clone_type": null, "is_clone": false},
+    {"func_a": "math_a.py:calculate_total:1", "func_b": "sort.py:sort_by_key:1", "clone_type": null, "is_clone": false},
+    {"func_a": "fmt_a.py:format_date:1", "func_b": "db.py:connect_database:1", "clone_type": null, "is_clone": false},
+    {"func_a": "io_a.py:read_json_file:1", "func_b": "crypto.py:encrypt_data:1", "clone_type": null, "is_clone": false},
+    {"func_a": "val_a.py:validate_email:1", "func_b": "sort.py:sort_by_key:1", "clone_type": null, "is_clone": false},
+    {"func_a": "math_b.py:compute_sum:1", "func_b": "auth.py:hash_password:1", "clone_type": null, "is_clone": false}
+  ]
+}

@@ -1,0 +1,781 @@
+[
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 1,
+      "sequence_length": 278
+    },
+    "final_score": 1.0,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 1,
+      "sequence_length": 278
+    },
+    "final_score": 1.0,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 1,
+      "sequence_length": 350
+    },
+    "final_score": 1.0,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 1,
+      "sequence_length": 240
+    },
+    "final_score": 1.0,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 1,
+      "sequence_length": 240
+    },
+    "final_score": 1.0,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 1,
+      "sequence_length": 278
+    },
+    "final_score": 1.0,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 1,
+      "sequence_length": 222
+    },
+    "final_score": 1.0,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 1,
+      "sequence_length": 240
+    },
+    "final_score": 1.0,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 1,
+      "sequence_length": 37
+    },
+    "final_score": 1.0,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 1,
+      "sequence_length": 50
+    },
+    "final_score": 1.0,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_unparse_annotation",
+      "file": "extract-functions-ast-py.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "_unparse_default",
+      "file": "extract-functions-ast-py.py",
+      "line": 178
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 1,
+      "sequence_length": 39
+    },
+    "final_score": 1.0,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 1,
+      "sequence_length": 45
+    },
+    "final_score": 1.0,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 58
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "_extract_metrics",
+      "file": "detect-metric-similarity.py",
+      "line": 110
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 278
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "normalize_type",
+      "file": "detect-signature-match.py",
+      "line": 71
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 123
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 354
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 85
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "_is_test_file",
+      "file": "extract-functions-ast-py.py",
+      "line": 444
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 85
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 371
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "_extract_metrics",
+      "file": "detect-metric-similarity.py",
+      "line": 110
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 278
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "_decorator_names",
+      "file": "extract-functions-ast-py.py",
+      "line": 278
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 33
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "_decorator_name",
+      "file": "extract-functions-ast-py.py",
+      "line": 270
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 25
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 183
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 56
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_estimate_nesting_depth",
+      "file": "detect-metric-similarity.py",
+      "line": 55
+    },
+    "func_b": {
+      "name": "_classify_export_type",
+      "file": "extract-functions-ast-py.py",
+      "line": 286
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 144
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_extract_metrics",
+      "file": "detect-metric-similarity.py",
+      "line": 110
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 278
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "evaluate",
+      "file": "evaluate.py",
+      "line": 124
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 328
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 51
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "arity_match_score",
+      "file": "detect-signature-match.py",
+      "line": 158
+    },
+    "func_b": {
+      "name": "load_ground_truth",
+      "file": "evaluate.py",
+      "line": 36
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 113
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 335
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "_build_signature",
+      "file": "extract-functions-ast-py.py",
+      "line": 246
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 160
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "convert_llm_results",
+      "file": "merge-signals.py",
+      "line": 429
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 210
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "func_b": {
+      "name": "_first_line_docstring",
+      "file": "extract-functions-ast-py.py",
+      "line": 333
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 116
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "_safe_divide",
+      "file": "evaluate.py",
+      "line": 104
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 26
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 37
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 37
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "_is_nested",
+      "file": "extract-functions-ast-py.py",
+      "line": 370
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 37
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "func_b": {
+      "name": "_class_name",
+      "file": "extract-functions-ast-py.py",
+      "line": 363
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 35
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "_is_nested",
+      "file": "extract-functions-ast-py.py",
+      "line": 370
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 37
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 43
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "_is_nested",
+      "file": "extract-functions-ast-py.py",
+      "line": 370
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 37
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "func_b": {
+      "name": "generate_type4_pair",
+      "file": "generate-corpus.py",
+      "line": 177
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 309
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  }
+]

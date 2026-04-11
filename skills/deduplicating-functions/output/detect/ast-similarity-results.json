@@ -1,0 +1,2033 @@
+[
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "fingerprint_match": true
+    },
+    "final_score": 1.0,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "fingerprint_match": true
+    },
+    "final_score": 1.0,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_unparse_annotation",
+      "file": "extract-functions-ast-py.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "_unparse_default",
+      "file": "extract-functions-ast-py.py",
+      "line": 178
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "fingerprint_match": true
+    },
+    "final_score": 1.0,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9646
+    },
+    "final_score": 0.9858,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9646
+    },
+    "final_score": 0.9858,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9646
+    },
+    "final_score": 0.9858,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9619
+    },
+    "final_score": 0.9848,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9619
+    },
+    "final_score": 0.9848,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9619
+    },
+    "final_score": 0.9848,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9266
+    },
+    "final_score": 0.9707,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9266
+    },
+    "final_score": 0.9707,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9266
+    },
+    "final_score": 0.9707,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9266
+    },
+    "final_score": 0.9707,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9266
+    },
+    "final_score": 0.9707,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9266
+    },
+    "final_score": 0.9707,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9266
+    },
+    "final_score": 0.9707,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9266
+    },
+    "final_score": 0.9707,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 1.0,
+      "ngram_5_jaccard": 1.0,
+      "lcs_similarity": 0.9266
+    },
+    "final_score": 0.9707,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.9615,
+      "ngram_5_jaccard": 0.8889,
+      "lcs_similarity": 0.9709
+    },
+    "final_score": 0.9435,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.9615,
+      "ngram_5_jaccard": 0.8889,
+      "lcs_similarity": 0.9709
+    },
+    "final_score": 0.9435,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "generate_type1_pair",
+      "file": "generate-corpus.py",
+      "line": 99
+    },
+    "func_b": {
+      "name": "generate_type2_pair",
+      "file": "generate-corpus.py",
+      "line": 119
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.9041,
+      "ngram_5_jaccard": 0.8707,
+      "lcs_similarity": 0.9658
+    },
+    "final_score": 0.9188,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "func_b": {
+      "name": "embedding_cosine",
+      "file": "detect-code-embedding.py",
+      "line": 91
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.9101,
+      "ngram_5_jaccard": 0.8235,
+      "lcs_similarity": 0.9571
+    },
+    "final_score": 0.9029,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.9351
+    },
+    "final_score": 0.8998,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.9351
+    },
+    "final_score": 0.8998,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.9351
+    },
+    "final_score": 0.8998,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.9351
+    },
+    "final_score": 0.8998,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.9351
+    },
+    "final_score": 0.8998,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.9351
+    },
+    "final_score": 0.8998,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8929,
+      "ngram_5_jaccard": 0.8649,
+      "lcs_similarity": 0.9247
+    },
+    "final_score": 0.8972,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8929,
+      "ngram_5_jaccard": 0.8649,
+      "lcs_similarity": 0.9247
+    },
+    "final_score": 0.8972,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.8981
+    },
+    "final_score": 0.885,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.8981
+    },
+    "final_score": 0.885,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.864
+    },
+    "final_score": 0.8713,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.864
+    },
+    "final_score": 0.8713,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.864
+    },
+    "final_score": 0.8713,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.864
+    },
+    "final_score": 0.8713,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.864
+    },
+    "final_score": 0.8713,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8953,
+      "ngram_5_jaccard": 0.8571,
+      "lcs_similarity": 0.864
+    },
+    "final_score": 0.8713,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_parser",
+      "file": "detect-metric-similarity.py",
+      "line": 290
+    },
+    "func_b": {
+      "name": "build_parser",
+      "file": "extract-functions-ast-py.py",
+      "line": 505
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8889,
+      "ngram_5_jaccard": 0.8205,
+      "lcs_similarity": 0.8679
+    },
+    "final_score": 0.86,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8889,
+      "ngram_5_jaccard": 0.8611,
+      "lcs_similarity": 0.7957
+    },
+    "final_score": 0.8433,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8889,
+      "ngram_5_jaccard": 0.8611,
+      "lcs_similarity": 0.7957
+    },
+    "final_score": 0.8433,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "get_tokens",
+      "file": "detect-tfidf-index.py",
+      "line": 34
+    },
+    "func_b": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8116,
+      "ngram_5_jaccard": 0.7255,
+      "lcs_similarity": 0.9474
+    },
+    "final_score": 0.8401,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8148,
+      "ngram_5_jaccard": 0.75,
+      "lcs_similarity": 0.925
+    },
+    "final_score": 0.8394,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8148,
+      "ngram_5_jaccard": 0.75,
+      "lcs_similarity": 0.925
+    },
+    "final_score": 0.8394,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8824,
+      "ngram_5_jaccard": 0.75,
+      "lcs_similarity": 0.7857
+    },
+    "final_score": 0.804,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.8607,
+      "ngram_5_jaccard": 0.7465,
+      "lcs_similarity": 0.7882
+    },
+    "final_score": 0.7974,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "func_b": {
+      "name": "visit_ClassDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 423
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.76,
+      "ngram_5_jaccard": 0.6389,
+      "lcs_similarity": 0.8941
+    },
+    "final_score": 0.7773,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "ngrams",
+      "file": "detect-ast-similarity.py",
+      "line": 63
+    },
+    "func_b": {
+      "name": "kgrams",
+      "file": "detect-winnowing.py",
+      "line": 48
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.7083,
+      "ngram_5_jaccard": 0.6444,
+      "lcs_similarity": 0.925
+    },
+    "final_score": 0.7758,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.7333,
+      "ngram_5_jaccard": 0.6585,
+      "lcs_similarity": 0.8506
+    },
+    "final_score": 0.7578,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.7333,
+      "ngram_5_jaccard": 0.6585,
+      "lcs_similarity": 0.8506
+    },
+    "final_score": 0.7578,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.7333,
+      "ngram_5_jaccard": 0.6585,
+      "lcs_similarity": 0.8506
+    },
+    "final_score": 0.7578,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.7333,
+      "ngram_5_jaccard": 0.6585,
+      "lcs_similarity": 0.8506
+    },
+    "final_score": 0.7578,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.7333,
+      "ngram_5_jaccard": 0.6585,
+      "lcs_similarity": 0.8485
+    },
+    "final_score": 0.757,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.7959,
+      "ngram_5_jaccard": 0.6141,
+      "lcs_similarity": 0.7976
+    },
+    "final_score": 0.742,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "func_b": {
+      "name": "tokenize_to_strings",
+      "file": "lib/common.py",
+      "line": 125
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.7391,
+      "ngram_5_jaccard": 0.5556,
+      "lcs_similarity": 0.84
+    },
+    "final_score": 0.7244,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6667,
+      "ngram_5_jaccard": 0.587,
+      "lcs_similarity": 0.8679
+    },
+    "final_score": 0.7233,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6667,
+      "ngram_5_jaccard": 0.587,
+      "lcs_similarity": 0.8679
+    },
+    "final_score": 0.7233,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.7152,
+      "ngram_5_jaccard": 0.5842,
+      "lcs_similarity": 0.8072
+    },
+    "final_score": 0.7127,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "getBodyLines",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 335
+    },
+    "func_b": {
+      "name": "detectLanguage",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 347
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6716,
+      "ngram_5_jaccard": 0.6463,
+      "lcs_similarity": 0.792
+    },
+    "final_score": 0.7122,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6842,
+      "ngram_5_jaccard": 0.5527,
+      "lcs_similarity": 0.8032
+    },
+    "final_score": 0.6923,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6842,
+      "ngram_5_jaccard": 0.5527,
+      "lcs_similarity": 0.8032
+    },
+    "final_score": 0.6923,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "generate_type2_pair",
+      "file": "generate-corpus.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "generate_type4_pair",
+      "file": "generate-corpus.py",
+      "line": 177
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6542,
+      "ngram_5_jaccard": 0.5789,
+      "lcs_similarity": 0.7903
+    },
+    "final_score": 0.6861,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.7052,
+      "ngram_5_jaccard": 0.5476,
+      "lcs_similarity": 0.7546
+    },
+    "final_score": 0.6777,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6129,
+      "ngram_5_jaccard": 0.4929,
+      "lcs_similarity": 0.8011
+    },
+    "final_score": 0.6522,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6585,
+      "ngram_5_jaccard": 0.5032,
+      "lcs_similarity": 0.7539
+    },
+    "final_score": 0.6501,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6585,
+      "ngram_5_jaccard": 0.5032,
+      "lcs_similarity": 0.7539
+    },
+    "final_score": 0.6501,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "generate_type1_pair",
+      "file": "generate-corpus.py",
+      "line": 99
+    },
+    "func_b": {
+      "name": "generate_type4_pair",
+      "file": "generate-corpus.py",
+      "line": 177
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.5888,
+      "ngram_5_jaccard": 0.5235,
+      "lcs_similarity": 0.7763
+    },
+    "final_score": 0.6442,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.625,
+      "ngram_5_jaccard": 0.4708,
+      "lcs_similarity": 0.7876
+    },
+    "final_score": 0.6438,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.625,
+      "ngram_5_jaccard": 0.4708,
+      "lcs_similarity": 0.7876
+    },
+    "final_score": 0.6438,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.5682,
+      "ngram_5_jaccard": 0.442,
+      "lcs_similarity": 0.8106
+    },
+    "final_score": 0.6273,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.5667,
+      "ngram_5_jaccard": 0.5,
+      "lcs_similarity": 0.7671
+    },
+    "final_score": 0.6268,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "func_b": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.4894,
+      "ngram_5_jaccard": 0.4219,
+      "lcs_similarity": 0.8739
+    },
+    "final_score": 0.623,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6147,
+      "ngram_5_jaccard": 0.4545,
+      "lcs_similarity": 0.7456
+    },
+    "final_score": 0.619,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6147,
+      "ngram_5_jaccard": 0.4545,
+      "lcs_similarity": 0.7456
+    },
+    "final_score": 0.619,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6147,
+      "ngram_5_jaccard": 0.4545,
+      "lcs_similarity": 0.7456
+    },
+    "final_score": 0.619,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6442,
+      "ngram_5_jaccard": 0.4706,
+      "lcs_similarity": 0.7082
+    },
+    "final_score": 0.6177,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6442,
+      "ngram_5_jaccard": 0.4706,
+      "lcs_similarity": 0.7082
+    },
+    "final_score": 0.6177,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6023,
+      "ngram_5_jaccard": 0.4634,
+      "lcs_similarity": 0.7446
+    },
+    "final_score": 0.6176,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6147,
+      "ngram_5_jaccard": 0.4545,
+      "lcs_similarity": 0.7378
+    },
+    "final_score": 0.6159,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6066,
+      "ngram_5_jaccard": 0.4551,
+      "lcs_similarity": 0.7423
+    },
+    "final_score": 0.6154,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6023,
+      "ngram_5_jaccard": 0.4634,
+      "lcs_similarity": 0.735
+    },
+    "final_score": 0.6137,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6023,
+      "ngram_5_jaccard": 0.4634,
+      "lcs_similarity": 0.735
+    },
+    "final_score": 0.6137,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6023,
+      "ngram_5_jaccard": 0.4634,
+      "lcs_similarity": 0.735
+    },
+    "final_score": 0.6137,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.63,
+      "ngram_5_jaccard": 0.4803,
+      "lcs_similarity": 0.7002
+    },
+    "final_score": 0.6132,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6147,
+      "ngram_5_jaccard": 0.4545,
+      "lcs_similarity": 0.7306
+    },
+    "final_score": 0.613,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6147,
+      "ngram_5_jaccard": 0.4545,
+      "lcs_similarity": 0.7306
+    },
+    "final_score": 0.613,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6147,
+      "ngram_5_jaccard": 0.4545,
+      "lcs_similarity": 0.7306
+    },
+    "final_score": 0.613,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.5397,
+      "ngram_5_jaccard": 0.4062,
+      "lcs_similarity": 0.8221
+    },
+    "final_score": 0.6126,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "generate_type3_pair",
+      "file": "generate-corpus.py",
+      "line": 140
+    },
+    "func_b": {
+      "name": "generate_type4_pair",
+      "file": "generate-corpus.py",
+      "line": 177
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.5333,
+      "ngram_5_jaccard": 0.415,
+      "lcs_similarity": 0.8158
+    },
+    "final_score": 0.6108,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6796,
+      "ngram_5_jaccard": 0.5565,
+      "lcs_similarity": 0.5904
+    },
+    "final_score": 0.607,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6023,
+      "ngram_5_jaccard": 0.4634,
+      "lcs_similarity": 0.7123
+    },
+    "final_score": 0.6046,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6023,
+      "ngram_5_jaccard": 0.4634,
+      "lcs_similarity": 0.7123
+    },
+    "final_score": 0.6046,
+    "strategy": "ast_similarity"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "fingerprint_match": false,
+      "ngram_3_jaccard": 0.6023,
+      "ngram_5_jaccard": 0.4634,
+      "lcs_similarity": 0.7123
+    },
+    "final_score": 0.6046,
+    "strategy": "ast_similarity"
+  }
+]
