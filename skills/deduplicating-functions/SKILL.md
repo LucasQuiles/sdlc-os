@@ -7,7 +7,7 @@ description: "This skill should be used when auditing a codebase for duplicate f
 
 ## Overview
 
-LLM-generated codebases accumulate semantic duplicates: functions that serve the same purpose but were implemented independently. This skill uses defense-in-depth multi-signal detection across all four standard clone types, combining classical analysis (AST, tokens, metrics, signatures, fuzzy matching) with LLM-powered semantic clustering.
+LLM-generated codebases accumulate semantic duplicates: functions that serve the same purpose but were implemented independently. This skill uses defense-in-depth multi-signal detection across all four standard clone types, combining classical analysis (AST, tokens, metrics, signatures, fuzzy matching) with optional manual LLM semantic follow-up.
 
 A pair flagged by 3+ independent strategies gets HIGH confidence automatically — the agreement IS the evidence.
 
@@ -37,7 +37,7 @@ Python AST extraction requires Python 3.10+. TypeScript AST extraction requires 
 ./scripts/orchestrate.sh src/ -o ./dupcheck
 ```
 
-Run with `--skip-llm` for fast classical-only analysis. Run with `--verbose` for detailed progress.
+Run with `--skip-llm` to suppress the manual semantic follow-up reminder. Run with `--verbose` for detailed progress.
 
 ### Python Pipeline Runner (Recommended for portability)
 
@@ -52,7 +52,7 @@ The Python runner does not require `jq` or `bash` for Phases 0-2. Use `--from-co
 | Phase | Scripts | What It Does |
 |-------|---------|-------------|
 | 0. Extract | `extract-functions-regex.py`, `extract-functions-ast-py.py`, `extract-functions-ast-ts.mjs` | Multi-strategy catalog extraction |
-| 1. Detect | 11 parallel detectors + optional LLM | Fuzzy names, signatures, tokens, AST similarity, metrics, TF-IDF, winnowing, LSH-AST, bag-of-AST, PDG semantic, code embeddings |
+| 1. Detect | 11 parallel detectors + optional manual LLM follow-up | Fuzzy names, signatures, tokens, AST similarity, metrics, TF-IDF, winnowing, LSH-AST, bag-of-AST, PDG semantic, code embeddings |
 | 2. Merge | `merge-signals.py` | Weighted multi-signal scoring |
 | 3. Report | `generate-report-enhanced.sh` | Markdown report with evidence |
 
@@ -60,8 +60,8 @@ The Python runner does not require `jq` or `bash` for Phases 0-2. Use `--from-co
 
 | Language | Regex | AST | LSP |
 |----------|-------|-----|-----|
-| TypeScript/JavaScript | Full (portable) | Full (ts-morph) | Via Claude Code LSP tool |
-| Python | Full (portable) | Full (ast module) | Via Claude Code LSP tool |
+| TypeScript/JavaScript | Full (portable) | Full (ts-morph) | Manual Claude Code LSP enrichment |
+| Python | Full (portable) | Full (ast module) | Manual Claude Code LSP enrichment |
 | Go | Full (portable) | — | — |
 | Rust | Full (portable) | — | — |
 | Java/Kotlin | Full (portable) | — | — |
@@ -81,7 +81,7 @@ digraph pipeline {
     regex [label="Regex extraction\n(multi-language)"];
     ast_py [label="Python AST\n(ast module)"];
     ast_ts [label="TS/JS AST\n(ts-morph)"];
-    lsp [label="LSP enrichment\n(optional subagent)"];
+    lsp [label="LSP enrichment\n(optional, manual)"];
   }
   
   merge_cat [label="Merge catalogs\n→ catalog-unified.json"];
@@ -99,7 +99,7 @@ digraph pipeline {
     bag [label="Bag-of-AST cosine"];
     pdg [label="PDG semantic"];
     embed [label="Code embeddings"];
-    llm [label="LLM semantic\n(optional)"];
+    llm [label="LLM semantic\n(optional, manual)"];
   }
   
   merge_sig [label="Phase 2: MERGE\nWeighted multi-signal scoring"];
@@ -159,8 +159,8 @@ python3 ./scripts/extract-functions-ast-py.py src/ -o catalog-ast-py.json
 node ./scripts/extract-functions-ast-ts.mjs src/ --output catalog-ast-ts.json
 ```
 
-**LSP enrichment** (optional, requires subagent):
-Dispatch a haiku subagent to use Claude Code's LSP tool for resolved types and reference counts. See `references/lsp-extraction-guide.md`.
+**LSP enrichment** (optional, manual, requires subagent):
+Dispatch a haiku subagent to use Claude Code's LSP tool for resolved types and reference counts. This is a manual enrichment step, not a built-in phase in `orchestrate.sh` or `run_pipeline.py`. See `references/lsp-extraction-guide.md`.
 
 ### Phase 1: Run Detection Strategies
 
@@ -180,7 +180,17 @@ Eleven classical detectors run in parallel:
 | PDG semantic | `detect-pdg-semantic.py` | Program Dependency Graph subgraph matching |
 | Code embeddings | `detect-code-embedding.py` | Code2Vec-lite AST path embeddings |
 
-Optional LLM phase (opus subagent) catches Type 4 semantic clones. Use `scripts/categorize-prompt.md` then `scripts/find-duplicates-prompt.md`.
+Optional semantic follow-up is manual. The shell runner only reminds you about it; it does not dispatch an LLM itself.
+
+### Manual Semantic Follow-Up
+
+Use this after the classical detectors and merge have already narrowed the search space:
+
+1. Categorize the unified catalog with `scripts/categorize-prompt.md`.
+2. Split large categories with `./scripts/prepare-category-analysis.sh categorized.json ./categories`.
+3. Run the per-category semantic review using `scripts/find-duplicates-prompt.md`.
+
+This keeps the automated pipeline deterministic while still supporting deeper semantic review when you need it.
 
 ### Phase 2: Merge and Score
 
@@ -206,11 +216,15 @@ Report shows per-pair: clone type, triggering strategies with scores, composite 
 Run against a ground truth corpus to measure precision/recall:
 
 ```bash
+python3 ./scripts/generate-corpus.py -o /tmp/eval-corpus.json --num-per-type 10 --seed 42
+
 python3 run_pipeline.py \
-    --from-corpus tests/fixtures/adversarial-corpus.json \
-    --eval-corpus tests/fixtures/adversarial-corpus.json \
+    --from-corpus /tmp/eval-corpus.json \
+    --eval-corpus /tmp/eval-corpus.json \
     -o /tmp/eval --strict
 ```
+
+Use `tests/fixtures/adversarial-corpus.json` for a small checked-in fixture, or `generate-corpus.py` when you want a larger seeded corpus for repeatable evaluation runs.
 
 ## Output Schemas
 

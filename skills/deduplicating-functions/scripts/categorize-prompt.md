@@ -53,7 +53,9 @@ Do NOT truncate or summarize - write ALL entries.
 
 ## Usage
 
-1. Run extraction: `./extract-functions.sh src/ -o catalog.json`
+1. Generate or locate a function catalog:
+   - Standalone extraction: `python3 ./scripts/extract-functions-regex.py src/ -o catalog.json`
+   - Full pipeline output: reuse `output/extract/catalog-unified.json`
 2. Dispatch haiku subagent with the prompt above, replacing:
    - `<CATALOG_PATH>` with path to catalog.json
    - `<OUTPUT_PATH>` with desired output path (e.g., `categorized.json`)

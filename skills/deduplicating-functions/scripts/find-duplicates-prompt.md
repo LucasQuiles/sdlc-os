@@ -81,12 +81,13 @@ Return a JSON array of duplicate groups:
 ## Usage
 
 1. First run categorization (see categorize-prompt.md)
-2. Filter categorized.json to get functions for one category:
+2. Split the categorized output into per-category files:
    ```bash
-   jq '[.[] | select(.category == "validation")]' categorized.json > validation-functions.json
+   ./scripts/prepare-category-analysis.sh categorized.json ./categories
    ```
-3. Replace `{CATEGORY}` with the category name
-4. Replace `<INSERT_CATEGORY_FUNCTIONS_HERE>` with the filtered JSON
-5. Dispatch opus subagent with the prompt
-6. Repeat for each category with 3+ functions
-7. Combine outputs into final report
+3. Pick one generated file with 3+ functions, for example `./categories/validation.json`
+4. Replace `{CATEGORY}` with the category name
+5. Replace `<INSERT_CATEGORY_FUNCTIONS_HERE>` with the selected category JSON
+6. Dispatch opus subagent with the prompt
+7. Repeat for each generated category file
+8. Combine outputs into final report
