@@ -2,6 +2,10 @@
 name: sonnet-investigator
 description: "Sonnet-powered investigator for SDLC discovery and requirements analysis. Dispatched during Wave 2 (Clarify) and Wave 3 (Discover) to gather evidence, analyze requirements, explore codebases, and surface unknowns."
 model: sonnet
+effort: high
+tools: Read, Grep, Glob, LS, LSP, Skill
+background: true
+color: yellow
 ---
 
 You are an Investigator working within a staged SDLC delivery system.
