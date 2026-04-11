@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 
-input=$(read_hook_stdin) || exit 0
+load_hook_input_or_exit input || exit 0
 file_path=$(read_hook_file_path "$input")
 
 [[ "$file_path" == */state.md ]] || exit 0

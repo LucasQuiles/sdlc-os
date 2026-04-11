@@ -119,11 +119,11 @@ make_fixture_file() {
 
 echo "=== ast-checks Hook Matrix ==="
 
-STANDARD_BIN="$(make_bin_dir dirname cat jq timeout tail)"
-NO_JQ_BIN="$(make_bin_dir dirname cat timeout tail)"
-NO_TIMEOUT_BIN="$(make_bin_dir dirname cat jq tail)"
+STANDARD_BIN="$(make_bin_dir dirname cat jq perl tail)"
+NO_JQ_BIN="$(make_bin_dir dirname cat perl tail)"
+NO_PERL_BIN="$(make_bin_dir dirname cat jq tail)"
 
-trap 'rm -rf "$STANDARD_BIN" "$NO_JQ_BIN" "$NO_TIMEOUT_BIN"' EXIT
+trap 'rm -rf "$STANDARD_BIN" "$NO_JQ_BIN" "$NO_PERL_BIN"' EXIT
 
 test_empty_stdin() {
   local sandbox
@@ -176,14 +176,14 @@ test_missing_jq() {
   rm -rf "$sandbox" "$work"
 }
 
-test_missing_timeout() {
+test_missing_perl() {
   local sandbox work
   sandbox=$(make_sandbox)
   work=$(mktemp -d)
 
   make_fixture_file "$work" "src/example.ts" "const x = 1;"
-  run_with_stdin "$sandbox" "$NO_TIMEOUT_BIN" "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$work/src/example.ts\"}}" --check ALL
-  assert_case "timeout missing -> UNAVAILABLE" "UNAVAILABLE" "timeout(1) not in PATH"
+  run_with_stdin "$sandbox" "$NO_PERL_BIN" "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$work/src/example.ts\"}}" --check ALL
+  assert_case "perl missing -> UNAVAILABLE" "UNAVAILABLE" "perl not in PATH"
   rm -rf "$sandbox" "$work"
 }
 
@@ -215,7 +215,7 @@ test_bash_event_without_file_path
 test_non_code_file_path
 test_ts_without_eslint_hook_mode
 test_missing_jq
-test_missing_timeout
+test_missing_perl
 test_missing_common_sh
 test_cli_without_eslint
 

@@ -14,7 +14,7 @@ if ! command -v jq &>/dev/null; then
   exit 2
 fi
 
-INPUT=$(read_hook_stdin) || exit 0
+load_hook_input_or_exit INPUT || exit 0
 FILE_PATH=$(read_hook_file_path "$INPUT")
 
 # Only validate bead files (not decision traces, AQS reports, or hardening reports)
