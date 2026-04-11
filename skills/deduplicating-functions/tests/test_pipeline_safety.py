@@ -262,3 +262,39 @@ def test_ignore_preflight_bypasses_check(clean_tmpdir, tmp_path):
         f"stdout: {result.stdout[-500:]}"
     )
     assert "bypassed via --ignore-preflight" in result.stdout.lower()
+
+
+def test_default_run_with_all_safety_guards_engaged(clean_tmpdir, tmp_path):
+    """Default invocation must succeed with lock + jobs cap + preflight all on.
+
+    No --jobs override, no --ignore-preflight, no override of the real
+    safety module. This is what a normal user invocation looks like,
+    and it must work end-to-end.
+
+    --skip-ts avoids the TypeScript extractor so the test doesn't need
+    node_modules. --lock-file is overridden so the test doesn't touch
+    the user's real ~/.cache/sdlc-os/run_pipeline.lock.
+    """
+    result = subprocess.run(
+        [PYTHON, RUNNER, SCRIPTS_DIR, "-o", clean_tmpdir,
+         "--skip-ts", "--lock-file", str(tmp_path / "lock")],
+        capture_output=True, text=True, timeout=180,
+    )
+    assert result.returncode == 0, (
+        f"Default safety-on run failed: {result.stdout[-500:]}\n"
+        f"stderr: {result.stderr[-500:]}"
+    )
+    # Sanity: all three guards should have logged their status
+    out = result.stdout.lower()
+    assert "preflight:" in out, (
+        f"Preflight log line missing from stdout. "
+        f"Last 500 chars: {result.stdout[-500:]}"
+    )
+    assert "detector concurrency cap:" in out, (
+        f"Concurrency cap log line missing from stdout. "
+        f"Last 500 chars: {result.stdout[-500:]}"
+    )
+    # Output exists
+    assert os.path.exists(os.path.join(clean_tmpdir, "merge", "merged-results.json")), (
+        "Merge output file missing after successful run"
+    )
