@@ -37,6 +37,22 @@ RUNNER = os.path.join(BASE, "run_pipeline.py")
 SCRIPTS_DIR = os.path.join(BASE, "scripts")
 
 
+def _inject_isolated_lock(out_dir: str, extra_args: tuple) -> tuple:
+    """Return extra_args with a per-test --lock-file injected if not already set.
+
+    Without this injection, every test subprocess competes for the shared
+    default lock at ~/.cache/sdlc-os/run_pipeline.lock. An unrelated
+    run_pipeline.py running on the same machine — including an ambient
+    dedup scan — will make all tests in this module false-fail with
+    "another run_pipeline.py is already running". The lock file lives
+    under out_dir (a per-test tempdir), which is fresh on every call.
+    """
+    if any(arg == "--lock-file" for arg in extra_args):
+        return extra_args
+    lock_path = os.path.join(out_dir, ".run_pipeline.lock")
+    return ("--lock-file", lock_path) + tuple(extra_args)
+
+
 def _run_pipeline(
     out_dir: str,
     *extra_args: str,
@@ -48,13 +64,18 @@ def _run_pipeline(
 
     `runner` and `source` default to the live repo paths. Pass explicit
     paths (e.g. from the isolated_repo fixture) to run against a snapshot.
+
+    Auto-injects a per-test --lock-file under out_dir so ambient
+    run_pipeline.py invocations elsewhere on the system cannot poison
+    the test run.
     """
+    args = _inject_isolated_lock(out_dir, extra_args)
     cmd = [
         PYTHON,
         runner or RUNNER,
         source or SCRIPTS_DIR,
         "-o", out_dir,
-        *extra_args,
+        *args,
     ]
     return subprocess.run(
         cmd, capture_output=True, text=True, timeout=180, env=env
@@ -500,12 +521,19 @@ def test_permissive_mode_tolerates_eval_failure(clean_tmpdir, tmp_path):
 # ─── --from-corpus regression tests ────────────────────────────────
 
 def _run_from_corpus(out_dir: str, corpus: str, *extra_args: str):
-    """Invoke run_pipeline.py in corpus mode (no source positional arg)."""
+    """Invoke run_pipeline.py in corpus mode (no source positional arg).
+
+    Auto-injects a per-test --lock-file under out_dir via
+    _inject_isolated_lock, matching _run_pipeline. This prevents an
+    ambient run_pipeline.py on the same machine from poisoning the
+    corpus-mode tests via shared lock contention.
+    """
+    args = _inject_isolated_lock(out_dir, extra_args)
     cmd = [
         PYTHON, RUNNER,
         "--from-corpus", corpus,
         "-o", out_dir,
-        *extra_args,
+        *args,
     ]
     return subprocess.run(cmd, capture_output=True, text=True, timeout=180)
 
