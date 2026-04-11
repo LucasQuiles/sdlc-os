@@ -498,6 +498,60 @@ git commit -m "fix: remove dead generate-report.sh fallback in orchestrate.sh (r
 
 ---
 
+## Task 6: Add `--strict` to orchestrate.sh (GC-005)
+
+**Files:**
+- Modify: `scripts/orchestrate.sh` (arg parsing + phase-level exit-2 gating)
+
+Gap finisher identified this as a MEDIUM inferred gap: the shell runner is labeled
+"Recommended" in SKILL.md but has no phase-level gating. Users who reach
+`orchestrate.sh` first get no strict guarantees. Should be sequenced after
+Task 1 (GC-001) since both modify `orchestrate.sh`.
+
+- [ ] **Step 1: Add --strict flag parsing**
+
+Add to defaults: `STRICT=false`
+Add to case: `--strict) STRICT=true; shift ;;`
+Add to help: `--strict  Exit non-zero if any pipeline phase fails`
+
+- [ ] **Step 2: Add strict gating to each phase function**
+
+After each phase function's critical operations, check `$STRICT` and
+exit 2 on failure. Model the gate pattern on `run_pipeline.py`'s
+`_strict_gate()` — log the phase name + error, then `exit 2`.
+
+Key gate points:
+- phase_extract: no catalog produced after all extractors run
+- phase_detect: any detector exits non-zero
+- phase_merge: merge-signals.py exits non-zero or produces no output
+- phase_report: report generator exits non-zero or produces no output
+- phase_evaluate: evaluate.py exits non-zero or produces no output
+
+- [ ] **Step 3: Test manually**
+
+```bash
+# Should pass
+bash scripts/orchestrate.sh scripts/ -o /tmp/strict-ok --strict --skip-llm 2>&1 | tail -5
+echo "exit=$?"
+
+# Should fail (missing report generator)
+mv scripts/generate-report-enhanced.sh scripts/generate-report-enhanced.sh.bak
+bash scripts/orchestrate.sh scripts/ -o /tmp/strict-fail --strict --skip-llm 2>&1 | tail -5
+echo "exit=$?"
+mv scripts/generate-report-enhanced.sh.bak scripts/generate-report-enhanced.sh
+
+rm -rf /tmp/strict-ok /tmp/strict-fail
+```
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add scripts/orchestrate.sh
+git commit -m "feat: add --strict to orchestrate.sh with phase-level gating (GC-005)"
+```
+
+---
+
 ## Verification
 
 After all tasks:
