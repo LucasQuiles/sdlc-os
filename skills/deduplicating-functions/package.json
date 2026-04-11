@@ -1,5 +1,5 @@
 {
-  "name": "finding-duplicate-functions",
+  "name": "deduplicating-functions",
   "version": "1.0.0",
   "description": "Multi-signal duplicate function detection scripts",
   "type": "module",

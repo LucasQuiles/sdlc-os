@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/LucasQuiles/finding-duplicate-functions/schemas/merge-output.schema.json",
+  "$id": "https://github.com/LucasQuiles/sdlc-os/skills/deduplicating-functions/schemas/merge-output.schema.json",
   "title": "Merge Output",
   "description": "Schema for merge-signals.py output with --include-summary flag.",
   "type": "object",

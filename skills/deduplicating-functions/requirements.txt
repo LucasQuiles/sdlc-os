@@ -1,4 +1,4 @@
-# Python dependencies for finding-duplicate-functions detection scripts
+# Python dependencies for deduplicating-functions detection scripts
 rapidfuzz>=3.0
 datasketch>=1.6
 # Test dependencies (schema validation)
