@@ -18,17 +18,17 @@ OPTIONS:
     -c, --context N         Lines of context for regex extraction (default: 15)
     --lang LANG             Language hint: ts, py, go, rs, java, auto (default: auto)
     --include-tests         Include test files
-    --skip-llm              Skip LLM-based phases (faster, classical only)
+    --skip-llm              Skip manual semantic follow-up reminder (classical pipeline only)
     --skip-ast              Skip AST extraction (use regex only)
-    --threshold N           HIGH confidence score threshold 0-1 (default: 0.35)
+    --threshold N           Merge-phase HIGH confidence cutoff only (default: 0.35)
     --parallel              Run independent phases in parallel (default)
     --sequential            Run phases sequentially (for debugging)
     -v, --verbose           Verbose output
     -h, --help              Show this help
 
 PHASES:
-    Phase 0: Extract function catalog (regex + AST + LSP)
-    Phase 1: Run all detection strategies in parallel
+    Phase 0: Extract function catalog (regex + AST; optional manual LSP enrichment outside the runner)
+    Phase 1: Run all classical detection strategies in parallel
     Phase 2: Merge signals and score
     Phase 3: Generate report
 
@@ -175,10 +175,8 @@ phase_extract() {
     if [[ -x "$SCRIPT_DIR/extract-functions-regex.sh" ]]; then
         "$SCRIPT_DIR/extract-functions-regex.sh" "${regex_args[@]}" "$SRC_DIR" 2>>"$OUTPUT_DIR/pipeline.log" &
         pids+=($!)
-    elif [[ -x "$SCRIPT_DIR/extract-functions.sh" ]]; then
-        # Fallback to original extractor
-        "$SCRIPT_DIR/extract-functions.sh" "${regex_args[@]}" "$SRC_DIR" 2>>"$OUTPUT_DIR/pipeline.log" &
-        pids+=($!)
+    else
+        vlog "  Warning: extract-functions-regex.sh not found"
     fi
 
     # 0b. AST extraction (if not skipped)
@@ -399,10 +397,12 @@ phase_detect() {
 
     log "  Classical detection complete ($failures failures)"
 
-    # 1l. LLM semantic analysis (optional, expensive)
+    # 1l. Manual semantic follow-up (optional, expensive)
     if [[ "$SKIP_LLM" != "true" ]]; then
-        log "  [1l] LLM semantic analysis requires subagent dispatch"
-        log "       Use scripts/categorize-prompt.md + scripts/find-duplicates-prompt.md"
+        log "  [1l] Manual semantic follow-up is outside orchestrate.sh"
+        log "       1. Categorize with scripts/categorize-prompt.md"
+        log "       2. Split categories with scripts/prepare-category-analysis.sh"
+        log "       3. Review each category with scripts/find-duplicates-prompt.md"
         log "       Save results to $OUTPUT_DIR/detect/duplicates/*.json"
     fi
 }
