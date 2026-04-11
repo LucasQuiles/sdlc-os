@@ -34,10 +34,10 @@ Python AST extraction requires Python 3.10+. TypeScript AST extraction requires 
 ### Python Pipeline Runner (Recommended)
 
 ```bash
-python3 run_pipeline.py src/ -o ./dupcheck --strict
+python3 run_pipeline.py src/ -o ./dupcheck
 ```
 
-The Python runner includes the cross-process lock, memory preflight, and detector concurrency cap. It does not require `jq` or `bash` for Phases 0-2. Use `--from-corpus` for evaluation against ground truth.
+The Python runner includes the cross-process lock, memory preflight, and detector concurrency cap. Strict mode (exit non-zero on any phase failure) is the **default** — use `--permissive` only when you explicitly want old tolerant behavior (e.g. scripted sweeps over many trees where one broken tree should not halt the batch). `--strict` is still accepted as a no-op for backward compatibility. Does not require `jq` or `bash` for Phases 0-2. Use `--from-corpus` for evaluation against ground truth.
 
 ### Legacy Bash Wrapper (Not for Production)
 
@@ -225,7 +225,7 @@ python3 ./scripts/generate-corpus.py -o /tmp/eval-corpus.json --num-per-type 10 
 python3 run_pipeline.py \
     --from-corpus /tmp/eval-corpus.json \
     --eval-corpus /tmp/eval-corpus.json \
-    -o /tmp/eval --strict
+    -o /tmp/eval
 ```
 
 Use `tests/fixtures/adversarial-corpus.json` for a small checked-in fixture, or `generate-corpus.py` when you want a larger seeded corpus for repeatable evaluation runs.

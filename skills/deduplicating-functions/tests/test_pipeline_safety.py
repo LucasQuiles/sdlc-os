@@ -248,12 +248,19 @@ def test_preflight_refusal_blocks_pipeline_launch(clean_tmpdir, tmp_path):
 
 
 def test_ignore_preflight_bypasses_check(clean_tmpdir, tmp_path):
-    """--ignore-preflight should run the pipeline even when preflight would refuse."""
+    """--ignore-preflight should run the pipeline even when preflight would refuse.
+
+    Passes --permissive because the shim runner dir does not contain the
+    extraction scripts (it only copies run_pipeline.py), so the phase-0
+    extractors would fail under strict-by-default. This test cares only
+    that the preflight bypass log line is emitted — not that the full
+    pipeline completes successfully.
+    """
     shim_runner = _make_shim_runner(tmp_path)
 
     result = subprocess.run(
         [PYTHON, shim_runner, SCRIPTS_DIR, "-o", clean_tmpdir,
-         "--skip-ts", "--ignore-preflight",
+         "--skip-ts", "--ignore-preflight", "--permissive",
          "--lock-file", str(tmp_path / "lock")],
         capture_output=True, text=True, timeout=180,
     )
@@ -262,6 +269,8 @@ def test_ignore_preflight_bypasses_check(clean_tmpdir, tmp_path):
         f"stdout: {result.stdout[-500:]}"
     )
     assert "bypassed via --ignore-preflight" in result.stdout.lower()
+    # Confirm preflight refusal did NOT fire (that would have exited 1)
+    assert "preflight refused launch" not in result.stdout.lower()
 
 
 def test_default_run_with_all_safety_guards_engaged(clean_tmpdir, tmp_path):

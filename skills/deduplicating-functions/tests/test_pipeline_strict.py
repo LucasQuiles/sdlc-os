@@ -260,8 +260,8 @@ def test_skip_ts_allows_strict_without_node(clean_tmpdir, tmp_path):
     )
 
 
-def test_default_mode_tolerates_failures(clean_tmpdir, isolated_repo):
-    """Without --strict, missing merge script should still exit 0 (permissive).
+def test_default_mode_fails_on_missing_merge_script(clean_tmpdir, isolated_repo):
+    """Strict-by-default: missing merge script must exit 2 with no flags.
 
     Uses --skip-ts to avoid a TS-extraction failure dominating the signal
     (the snapshot does not include node_modules/).
@@ -271,9 +271,28 @@ def test_default_mode_tolerates_failures(clean_tmpdir, isolated_repo):
         clean_tmpdir, "--skip-ts",
         runner=isolated_repo.runner, source=isolated_repo.source,
     )
-    # Permissive default: exit 0 even though merge failed
+    # Strict-by-default: exit 2 because merge phase failed
+    assert result.returncode == 2, (
+        f"Default mode should fail strict when merge script is missing, "
+        f"got exit {result.returncode}\nstdout: {result.stdout[-500:]}"
+    )
+    assert "phase 2: merge" in result.stdout.lower()
+
+
+def test_permissive_mode_tolerates_failures(clean_tmpdir, isolated_repo):
+    """With --permissive, missing merge script should still exit 0.
+
+    This is the explicit opt-in to the old silent-success behavior for
+    callers that genuinely want it (e.g. scripted sweeps over many
+    repos where one broken tree shouldn't halt the batch).
+    """
+    os.unlink(os.path.join(isolated_repo.scripts, "merge-signals.py"))
+    result = _run_pipeline(
+        clean_tmpdir, "--permissive", "--skip-ts",
+        runner=isolated_repo.runner, source=isolated_repo.source,
+    )
     assert result.returncode == 0, (
-        f"Default mode should tolerate failures, got exit {result.returncode}"
+        f"--permissive should tolerate failures, got exit {result.returncode}"
     )
 
 
@@ -431,13 +450,24 @@ def test_strict_eval_fails_when_evaluate_script_missing(clean_tmpdir, isolated_r
     assert "phase 4: evaluate" in result.stdout.lower()
 
 
-def test_default_mode_tolerates_eval_failure(clean_tmpdir, tmp_path):
-    """Without --strict, missing eval corpus should not fail the pipeline."""
+def test_default_mode_fails_on_missing_eval_corpus(clean_tmpdir, tmp_path):
+    """Strict-by-default: a missing eval corpus must fail the pipeline."""
     missing_corpus = str(tmp_path / "does-not-exist.json")
     result = _run_pipeline(clean_tmpdir, "--eval-corpus", missing_corpus)
-    # Permissive default: exit 0 even with evaluation failures
+    assert result.returncode == 2, (
+        f"Default mode should fail strict on missing eval corpus, "
+        f"got exit {result.returncode}\nstdout: {result.stdout[-500:]}"
+    )
+
+
+def test_permissive_mode_tolerates_eval_failure(clean_tmpdir, tmp_path):
+    """With --permissive, missing eval corpus should not fail the pipeline."""
+    missing_corpus = str(tmp_path / "does-not-exist.json")
+    result = _run_pipeline(
+        clean_tmpdir, "--permissive", "--eval-corpus", missing_corpus
+    )
     assert result.returncode == 0, (
-        f"Default mode should tolerate eval failures, got exit {result.returncode}"
+        f"--permissive should tolerate eval failures, got exit {result.returncode}"
     )
 
 

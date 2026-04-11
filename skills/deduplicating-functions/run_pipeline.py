@@ -37,11 +37,15 @@ def run(cmd, label="", check=True, log_file=None):
 
 
 def _strict_gate(phase: str, message: str, strict: bool, log_file: str = "") -> None:
-    """Log an error and exit 2 if --strict is active."""
+    """Log an error and exit 2 if strict mode is active.
+
+    Strict mode is the default; callers pass ``strict=False`` to opt into
+    permissive behavior via the --permissive flag.
+    """
     log(f"  ERROR: {message}")
     if strict:
         suffix = f" See {log_file}" if log_file else ""
-        log(f"ERROR: --strict mode: {phase} failed.{suffix}")
+        log(f"ERROR: strict mode: {phase} failed.{suffix}")
         sys.exit(2)
 
 
@@ -88,9 +92,14 @@ def parse_args():
                         "--eval-corpus pointing at the same file for end-to-end P/R/F1.")
     p.add_argument("-c", "--context", type=int, default=15, help="Lines of context for regex")
     p.add_argument("--strict", action="store_true",
-                   help="Exit non-zero if any pipeline phase fails (extract, "
-                        "detect, merge, report, or evaluate). Default: warn "
-                        "and continue on failures.")
+                   help="Kept for backward compatibility. As of the strict-by-default "
+                        "change, strict mode is the default — this flag is a no-op but "
+                        "is still accepted so existing callers do not break.")
+    p.add_argument("--permissive", action="store_true",
+                   help="Opt in to the old tolerant behavior: log warnings on phase "
+                        "failures (extract, detect, merge, report, evaluate) and exit 0 "
+                        "anyway. Use only for scripted sweeps over many trees where "
+                        "one broken tree should not halt the batch.")
     p.add_argument("--lock-file", default=DEFAULT_LOCK_PATH,
                    help=f"Path to the cross-process lock file (default: {DEFAULT_LOCK_PATH}). "
                         "Two run_pipeline.py invocations sharing this path are mutually exclusive.")
@@ -112,6 +121,11 @@ def main():
         print("Error: either positional source directory or --from-corpus is required",
               file=sys.stderr)
         sys.exit(2)
+    # Strict-by-default: any phase failure exits non-zero unless the
+    # caller explicitly opts into permissive mode. --strict is still
+    # accepted (no-op) for backward compat. If both are passed,
+    # --permissive wins because it is the explicit opt-in.
+    strict_mode = not args.permissive
     src = os.path.abspath(args.source) if args.source else None
     out = os.path.abspath(args.output_dir)
     extract_dir = os.path.join(out, "extract")
@@ -304,8 +318,8 @@ def main():
         log(f"  Extraction issues ({len(extract_failures)}):")
         for msg in extract_failures:
             log(f"    - {msg}")
-        if args.strict:
-            log(f"ERROR: --strict mode: {len(extract_failures)} extraction step(s) failed or skipped.")
+        if strict_mode:
+            log(f"ERROR: strict mode: {len(extract_failures)} extraction step(s) failed or skipped.")
             log(f"       Use --skip-ast or --skip-ts to intentionally omit extractors.")
             sys.exit(2)
 
@@ -397,8 +411,8 @@ def main():
 
     log(f"  Detection complete ({failures} failures, {skipped} skipped)")
 
-    if args.strict and (failures > 0 or skipped > 0):
-        log(f"ERROR: --strict mode: {failures} detector(s) failed, {skipped} skipped. See {log_file}")
+    if strict_mode and (failures > 0 or skipped > 0):
+        log(f"ERROR: strict mode: {failures} detector(s) failed, {skipped} skipped. See {log_file}")
         sys.exit(2)
 
     # ── Phase 2: MERGE ───────────────────────────────────────────────
@@ -411,9 +425,9 @@ def main():
         label="merge-signals", check=False, log_file=log_file
     )
     if merge_result.returncode != 0:
-        _strict_gate("merge phase", f"merge-signals exited {merge_result.returncode}", args.strict, log_file)
+        _strict_gate("merge phase", f"merge-signals exited {merge_result.returncode}", strict_mode, log_file)
     elif not os.path.exists(merged_out):
-        _strict_gate("merge phase", "merge-signals produced no output", args.strict)
+        _strict_gate("merge phase", "merge-signals produced no output", strict_mode)
 
     if os.path.exists(merged_out):
         with open(merged_out) as f:
@@ -433,13 +447,13 @@ def main():
         report_result = run(["bash", report_script, merged_out, report_out],
                             label="generate-report", check=False, log_file=log_file)
         if report_result.returncode != 0:
-            _strict_gate("report phase", f"generate-report exited {report_result.returncode}", args.strict, log_file)
+            _strict_gate("report phase", f"generate-report exited {report_result.returncode}", strict_mode, log_file)
         elif not os.path.exists(report_out):
-            _strict_gate("report phase", "generate-report produced no output", args.strict)
+            _strict_gate("report phase", "generate-report produced no output", strict_mode)
         else:
             log(f"  Report: {report_out}")
     else:
-        _strict_gate("report phase", f"report generator missing at {report_script}", args.strict)
+        _strict_gate("report phase", f"report generator missing at {report_script}", strict_mode)
 
     # ── Phase 4: EVALUATE (optional) ─────────────────────────────────
     if args.eval_corpus:
@@ -447,9 +461,9 @@ def main():
         eval_script = os.path.join(SCRIPTS, "evaluate.py")
         eval_out = os.path.join(out, "evaluation.json")
         if not os.path.exists(eval_script):
-            _strict_gate("evaluate phase", f"evaluate.py not found at {eval_script}", args.strict)
+            _strict_gate("evaluate phase", f"evaluate.py not found at {eval_script}", strict_mode)
         elif not os.path.exists(merged_out):
-            _strict_gate("evaluate phase", f"merged results not found at {merged_out}", args.strict)
+            _strict_gate("evaluate phase", f"merged results not found at {merged_out}", strict_mode)
         else:
             eval_result = run(
                 [PYTHON, eval_script,
@@ -459,7 +473,7 @@ def main():
                 label="evaluate", check=False, log_file=log_file
             )
             if eval_result.returncode != 0:
-                _strict_gate("evaluate phase", f"evaluate exited {eval_result.returncode}", args.strict)
+                _strict_gate("evaluate phase", f"evaluate exited {eval_result.returncode}", strict_mode)
             if os.path.exists(eval_out):
                 with open(eval_out) as f:
                     ev = json.load(f)
@@ -469,7 +483,7 @@ def main():
                 f1 = overall.get("f1", 0)
                 log(f"  Precision: {p:.3f}  Recall: {r:.3f}  F1: {f1:.3f}")
             else:
-                _strict_gate("evaluate phase", "evaluation produced no output", args.strict)
+                _strict_gate("evaluate phase", "evaluation produced no output", strict_mode)
 
     log("=== COMPLETE ===")
     log(f"Results: {merged_out}")
