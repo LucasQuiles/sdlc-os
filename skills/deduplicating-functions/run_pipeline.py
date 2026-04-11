@@ -124,7 +124,11 @@ def main():
     # Strict-by-default: any phase failure exits non-zero unless the
     # caller explicitly opts into permissive mode. --strict is still
     # accepted (no-op) for backward compat. If both are passed,
-    # --permissive wins because it is the explicit opt-in.
+    # --permissive wins because it is the explicit opt-in — but we
+    # log a warning so the surprising combination is visible.
+    if args.strict and args.permissive:
+        log("  WARNING: --strict is a no-op (strict is the default); "
+            "--permissive takes effect. Drop --strict to silence this.")
     strict_mode = not args.permissive
     src = os.path.abspath(args.source) if args.source else None
     out = os.path.abspath(args.output_dir)
@@ -242,8 +246,8 @@ def main():
 
     # 0c: TypeScript AST extraction (skipped in corpus mode)
     # Only attempt when the source tree actually contains TS/JS files.
-    # This prevents --strict from failing on pure Python repos that
-    # don't have node installed.
+    # This prevents strict mode (the default) from failing on pure Python
+    # repos that don't have node installed.
     has_ts_files = False
     if not args.from_corpus and not args.skip_ast and not args.skip_ts and src:
         for root, _, files in os.walk(src):
@@ -392,7 +396,7 @@ def main():
             except Exception as exc:
                 # A worker raised something we did not anticipate — count it
                 # as a detector failure so the pipeline still emits
-                # "Detection complete" and the --strict gate still fires.
+                # "Detection complete" and the strict-mode gate still fires.
                 failures += 1
                 log(f"  ERROR: {label} raised {type(exc).__name__}: {exc}")
                 continue

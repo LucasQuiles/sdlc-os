@@ -1,4 +1,13 @@
-"""Regression tests for run_pipeline.py --strict gating and determinism.
+"""Regression tests for run_pipeline.py strict-mode gating and determinism.
+
+Strict mode is the default as of the strict-by-default change. The
+existing ``test_strict_*`` functions pass ``--strict`` to run_pipeline.py
+explicitly, which is now a backward-compat no-op — the flag is still
+accepted but has no effect because strict is already the default. These
+tests therefore assert the default behavior while keeping the older
+flag-based invocation for compatibility. New tests that specifically
+exercise the default-vs-permissive distinction are named
+``test_default_mode_*`` and ``test_permissive_mode_*``.
 
 These tests invoke run_pipeline.py as a subprocess against a small,
 repo-local corpus, so they are slow relative to the unit tests but
@@ -277,6 +286,23 @@ def test_default_mode_fails_on_missing_merge_script(clean_tmpdir, isolated_repo)
         f"got exit {result.returncode}\nstdout: {result.stdout[-500:]}"
     )
     assert "phase 2: merge" in result.stdout.lower()
+
+
+def test_strict_and_permissive_together_warns(clean_tmpdir):
+    """Passing --strict and --permissive together should run (permissive
+    wins) but emit a warning so the surprising combination is visible."""
+    result = _run_pipeline(
+        clean_tmpdir, "--strict", "--permissive", "--skip-ts",
+    )
+    assert result.returncode == 0, (
+        f"--strict --permissive should run cleanly, got exit "
+        f"{result.returncode}\n{result.stdout[-500:]}"
+    )
+    out = result.stdout.lower()
+    assert "--strict is a no-op" in out, (
+        f"Warning about --strict+--permissive combination missing.\n"
+        f"stdout tail: {result.stdout[-500:]}"
+    )
 
 
 def test_permissive_mode_tolerates_failures(clean_tmpdir, isolated_repo):
