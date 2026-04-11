@@ -1,1 +1,16 @@
-/Users/q/LAB/skills/finding-duplicate-functions/package.json
+{
+  "name": "finding-duplicate-functions",
+  "version": "1.0.0",
+  "description": "Multi-signal duplicate function detection scripts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ts-morph": "^27.0.2",
+    "typescript": "^6.0.2"
+  }
+}

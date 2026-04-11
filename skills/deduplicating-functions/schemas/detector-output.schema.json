@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/LucasQuiles/finding-duplicate-functions/schemas/detector-output.schema.json",
+  "title": "Detector Output",
+  "description": "Schema for individual detector output files (scripts/detect-*.py produces a JSON array of these).",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["func_a", "func_b", "final_score", "strategy"],
+    "additionalProperties": true,
+    "properties": {
+      "func_a": {
+        "$ref": "#/$defs/FunctionRef"
+      },
+      "func_b": {
+        "$ref": "#/$defs/FunctionRef"
+      },
+      "final_score": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "description": "Detector's confidence in this pair being a duplicate (0-1)."
+      },
+      "strategy": {
+        "type": "string",
+        "enum": [
+          "fuzzy_name",
+          "signature_match",
+          "token_clone",
+          "ast_similarity",
+          "metric_similarity",
+          "tfidf_index",
+          "winnowing",
+          "lsh_ast",
+          "bag_of_ast",
+          "pdg_semantic",
+          "code_embedding",
+          "llm_semantic"
+        ]
+      },
+      "scores": {
+        "type": "object",
+        "description": "Detector-specific sub-scores / debug info.",
+        "additionalProperties": true
+      }
+    }
+  },
+  "$defs": {
+    "FunctionRef": {
+      "type": "object",
+      "required": ["name", "file", "line"],
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "qualified_name": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

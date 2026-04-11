@@ -1,0 +1,3623 @@
+[
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "func_b": {
+      "name": "embedding_cosine",
+      "file": "detect-code-embedding.py",
+      "line": 91
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_parser",
+      "file": "detect-metric-similarity.py",
+      "line": 290
+    },
+    "func_b": {
+      "name": "build_parser",
+      "file": "extract-functions-ast-py.py",
+      "line": 505
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "_unparse_annotation",
+      "file": "extract-functions-ast-py.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "_unparse_default",
+      "file": "extract-functions-ast-py.py",
+      "line": 178
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "func_b": {
+      "name": "visit_ClassDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 423
+    },
+    "scores": {
+      "estimated_jaccard": 1.0
+    },
+    "final_score": 1.0,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "estimated_jaccard": 0.9844
+    },
+    "final_score": 0.9844,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "scores": {
+      "estimated_jaccard": 0.9609
+    },
+    "final_score": 0.9609,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "scores": {
+      "estimated_jaccard": 0.9609
+    },
+    "final_score": 0.9609,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "scores": {
+      "estimated_jaccard": 0.9531
+    },
+    "final_score": 0.9531,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "estimated_jaccard": 0.9531
+    },
+    "final_score": 0.9531,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "tokenize_to_strings",
+      "file": "lib/common.py",
+      "line": 125
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_parser",
+      "file": "detect-metric-similarity.py",
+      "line": 290
+    },
+    "func_b": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "tokenize_to_strings",
+      "file": "lib/common.py",
+      "line": 125
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "generic_visit",
+      "file": "extract-functions-ast-py.py",
+      "line": 114
+    },
+    "func_b": {
+      "name": "visit_ClassDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 423
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_parser",
+      "file": "extract-functions-ast-py.py",
+      "line": 505
+    },
+    "func_b": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "generate_type2_pair",
+      "file": "generate-corpus.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "generate_type1_pair",
+      "file": "generate-corpus.py",
+      "line": 99
+    },
+    "scores": {
+      "estimated_jaccard": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "estimated_jaccard": 0.9375
+    },
+    "final_score": 0.9375,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "scores": {
+      "estimated_jaccard": 0.9375
+    },
+    "final_score": 0.9375,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "estimated_jaccard": 0.9375
+    },
+    "final_score": 0.9375,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "estimated_jaccard": 0.9375
+    },
+    "final_score": 0.9375,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "func_b": {
+      "name": "tokenize_to_strings",
+      "file": "lib/common.py",
+      "line": 125
+    },
+    "scores": {
+      "estimated_jaccard": 0.9375
+    },
+    "final_score": 0.9375,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "load_strategy_results",
+      "file": "merge-signals.py",
+      "line": 64
+    },
+    "scores": {
+      "estimated_jaccard": 0.9297
+    },
+    "final_score": 0.9297,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "scores": {
+      "estimated_jaccard": 0.9219
+    },
+    "final_score": 0.9219,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "scores": {
+      "estimated_jaccard": 0.9219
+    },
+    "final_score": 0.9219,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "estimated_jaccard": 0.9062
+    },
+    "final_score": 0.9062,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "normalize_simple_tokens",
+      "file": "detect-token-clones.py",
+      "line": 78
+    },
+    "scores": {
+      "estimated_jaccard": 0.9062
+    },
+    "final_score": 0.9062,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "estimated_jaccard": 0.9062
+    },
+    "final_score": 0.9062,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "scores": {
+      "estimated_jaccard": 0.9062
+    },
+    "final_score": 0.9062,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "scores": {
+      "estimated_jaccard": 0.9062
+    },
+    "final_score": 0.9062,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "estimated_jaccard": 0.8984
+    },
+    "final_score": 0.8984,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "estimated_jaccard": 0.8906
+    },
+    "final_score": 0.8906,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "scores": {
+      "estimated_jaccard": 0.8906
+    },
+    "final_score": 0.8906,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "estimated_jaccard": 0.8906
+    },
+    "final_score": 0.8906,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "estimated_jaccard": 0.8906
+    },
+    "final_score": 0.8906,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "scores": {
+      "estimated_jaccard": 0.8906
+    },
+    "final_score": 0.8906,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "token_jaccard_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 192
+    },
+    "func_b": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "scores": {
+      "estimated_jaccard": 0.8828
+    },
+    "final_score": 0.8828,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "scores": {
+      "estimated_jaccard": 0.8828
+    },
+    "final_score": 0.8828,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "estimated_jaccard": 0.8828
+    },
+    "final_score": 0.8828,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "abbreviation_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 238
+    },
+    "scores": {
+      "estimated_jaccard": 0.875
+    },
+    "final_score": 0.875,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "estimated_jaccard": 0.875
+    },
+    "final_score": 0.875,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "estimated_jaccard": 0.875
+    },
+    "final_score": 0.875,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "estimated_jaccard": 0.875
+    },
+    "final_score": 0.875,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "estimated_jaccard": 0.875
+    },
+    "final_score": 0.875,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "get_tokens",
+      "file": "detect-tfidf-index.py",
+      "line": 34
+    },
+    "func_b": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "scores": {
+      "estimated_jaccard": 0.875
+    },
+    "final_score": 0.875,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "estimated_jaccard": 0.875
+    },
+    "final_score": 0.875,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "estimated_jaccard": 0.875
+    },
+    "final_score": 0.875,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "scores": {
+      "estimated_jaccard": 0.8672
+    },
+    "final_score": 0.8672,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "estimated_jaccard": 0.8672
+    },
+    "final_score": 0.8672,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "estimated_jaccard": 0.8672
+    },
+    "final_score": 0.8672,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "estimated_jaccard": 0.8672
+    },
+    "final_score": 0.8672,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "func_b": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "scores": {
+      "estimated_jaccard": 0.8672
+    },
+    "final_score": 0.8672,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "estimated_jaccard": 0.8594
+    },
+    "final_score": 0.8594,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "estimated_jaccard": 0.8594
+    },
+    "final_score": 0.8594,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "estimated_jaccard": 0.8594
+    },
+    "final_score": 0.8594,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "estimated_jaccard": 0.8594
+    },
+    "final_score": 0.8594,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "scores": {
+      "estimated_jaccard": 0.8594
+    },
+    "final_score": 0.8594,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "estimated_jaccard": 0.8516
+    },
+    "final_score": 0.8516,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "estimated_jaccard": 0.8438
+    },
+    "final_score": 0.8438,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "estimated_jaccard": 0.8438
+    },
+    "final_score": 0.8438,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "embedding_cosine",
+      "file": "detect-code-embedding.py",
+      "line": 91
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "estimated_jaccard": 0.8438
+    },
+    "final_score": 0.8438,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "expand_abbreviations",
+      "file": "detect-fuzzy-names.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "_decorator_names",
+      "file": "extract-functions-ast-py.py",
+      "line": 278
+    },
+    "scores": {
+      "estimated_jaccard": 0.8438
+    },
+    "final_score": 0.8438,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "estimated_jaccard": 0.8438
+    },
+    "final_score": 0.8438,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "_extract_metrics",
+      "file": "detect-metric-similarity.py",
+      "line": 110
+    },
+    "func_b": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "scores": {
+      "estimated_jaccard": 0.8438
+    },
+    "final_score": 0.8438,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "normalize_simple_tokens",
+      "file": "detect-token-clones.py",
+      "line": 78
+    },
+    "scores": {
+      "estimated_jaccard": 0.8438
+    },
+    "final_score": 0.8438,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "estimated_jaccard": 0.8438
+    },
+    "final_score": 0.8438,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "scores": {
+      "estimated_jaccard": 0.8359
+    },
+    "final_score": 0.8359,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "estimated_jaccard": 0.8359
+    },
+    "final_score": 0.8359,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_arg",
+      "file": "extract-functions-ast-py.py",
+      "line": 59
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "estimated_jaccard": 0.8359
+    },
+    "final_score": 0.8359,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "func_b": {
+      "name": "type_pattern_score",
+      "file": "detect-signature-match.py",
+      "line": 185
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "embedding_cosine",
+      "file": "detect-code-embedding.py",
+      "line": 91
+    },
+    "func_b": {
+      "name": "type_pattern_score",
+      "file": "detect-signature-match.py",
+      "line": 185
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "normalize_simple_tokens",
+      "file": "detect-token-clones.py",
+      "line": 78
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "build_parser",
+      "file": "detect-metric-similarity.py",
+      "line": 290
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "build_parser",
+      "file": "extract-functions-ast-py.py",
+      "line": 505
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_parser",
+      "file": "extract-functions-ast-py.py",
+      "line": 505
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "estimated_jaccard": 0.8281
+    },
+    "final_score": 0.8281,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "_first_line_docstring",
+      "file": "extract-functions-ast-py.py",
+      "line": 333
+    },
+    "scores": {
+      "estimated_jaccard": 0.8203
+    },
+    "final_score": 0.8203,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "get_tokens",
+      "file": "detect-tfidf-index.py",
+      "line": 34
+    },
+    "scores": {
+      "estimated_jaccard": 0.8203
+    },
+    "final_score": 0.8203,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "scores": {
+      "estimated_jaccard": 0.8203
+    },
+    "final_score": 0.8203,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "validate_corpus",
+      "file": "generate-corpus.py",
+      "line": 316
+    },
+    "scores": {
+      "estimated_jaccard": 0.8203
+    },
+    "final_score": 0.8203,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "estimated_jaccard": 0.8203
+    },
+    "final_score": 0.8203,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "scores": {
+      "estimated_jaccard": 0.8125
+    },
+    "final_score": 0.8125,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "estimated_jaccard": 0.8125
+    },
+    "final_score": 0.8125,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "estimated_jaccard": 0.8125
+    },
+    "final_score": 0.8125,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "scores": {
+      "estimated_jaccard": 0.8047
+    },
+    "final_score": 0.8047,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "type_pattern_score",
+      "file": "detect-signature-match.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "param_name_similarity_score",
+      "file": "detect-signature-match.py",
+      "line": 261
+    },
+    "scores": {
+      "estimated_jaccard": 0.8047
+    },
+    "final_score": 0.8047,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "load_ground_truth",
+      "file": "evaluate.py",
+      "line": 36
+    },
+    "func_b": {
+      "name": "load_detected_pairs",
+      "file": "evaluate.py",
+      "line": 61
+    },
+    "scores": {
+      "estimated_jaccard": 0.8047
+    },
+    "final_score": 0.8047,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "extract_for_language",
+      "file": "extract-functions-regex.py",
+      "line": 260
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "estimated_jaccard": 0.8047
+    },
+    "final_score": 0.8047,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "scores": {
+      "estimated_jaccard": 0.7969
+    },
+    "final_score": 0.7969,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "scores": {
+      "estimated_jaccard": 0.7969
+    },
+    "final_score": 0.7969,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "scores": {
+      "estimated_jaccard": 0.7969
+    },
+    "final_score": 0.7969,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "scores": {
+      "estimated_jaccard": 0.7969
+    },
+    "final_score": 0.7969,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "func_b": {
+      "name": "_build_signature",
+      "file": "extract-functions-ast-py.py",
+      "line": 246
+    },
+    "scores": {
+      "estimated_jaccard": 0.7969
+    },
+    "final_score": 0.7969,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "ngrams",
+      "file": "detect-ast-similarity.py",
+      "line": 63
+    },
+    "func_b": {
+      "name": "kgrams",
+      "file": "detect-winnowing.py",
+      "line": 48
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "func_b": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "embedding_cosine",
+      "file": "detect-code-embedding.py",
+      "line": 91
+    },
+    "func_b": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "estimated_jaccard": 0.7891
+    },
+    "final_score": 0.7891,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "scores": {
+      "estimated_jaccard": 0.7812
+    },
+    "final_score": 0.7812,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "build_embedding",
+      "file": "detect-code-embedding.py",
+      "line": 70
+    },
+    "scores": {
+      "estimated_jaccard": 0.7812
+    },
+    "final_score": 0.7812,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "tokenize",
+      "file": "lib/common.py",
+      "line": 84
+    },
+    "scores": {
+      "estimated_jaccard": 0.7812
+    },
+    "final_score": 0.7812,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "scores": {
+      "estimated_jaccard": 0.7812
+    },
+    "final_score": 0.7812,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "func_b": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "scores": {
+      "estimated_jaccard": 0.7812
+    },
+    "final_score": 0.7812,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "func_b": {
+      "name": "normalize_simple_tokens",
+      "file": "detect-token-clones.py",
+      "line": 78
+    },
+    "scores": {
+      "estimated_jaccard": 0.7812
+    },
+    "final_score": 0.7812,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "raw_token_values",
+      "file": "detect-token-clones.py",
+      "line": 67
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 354
+    },
+    "scores": {
+      "estimated_jaccard": 0.7812
+    },
+    "final_score": 0.7812,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "_decorator_name",
+      "file": "extract-functions-ast-py.py",
+      "line": 270
+    },
+    "scores": {
+      "estimated_jaccard": 0.7812
+    },
+    "final_score": 0.7812,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "estimated_jaccard": 0.7812
+    },
+    "final_score": 0.7812,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "estimated_jaccard": 0.7734
+    },
+    "final_score": 0.7734,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "estimated_jaccard": 0.7734
+    },
+    "final_score": 0.7734,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "scores": {
+      "estimated_jaccard": 0.7734
+    },
+    "final_score": 0.7734,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "estimated_jaccard": 0.7734
+    },
+    "final_score": 0.7734,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "classify_export_type",
+      "file": "extract-functions-regex.py",
+      "line": 222
+    },
+    "func_b": {
+      "name": "classify_clone_type",
+      "file": "merge-signals.py",
+      "line": 226
+    },
+    "scores": {
+      "estimated_jaccard": 0.7734
+    },
+    "final_score": 0.7734,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "arity_match_score",
+      "file": "detect-signature-match.py",
+      "line": 158
+    },
+    "scores": {
+      "estimated_jaccard": 0.7656
+    },
+    "final_score": 0.7656,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "estimated_jaccard": 0.7656
+    },
+    "final_score": 0.7656,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "estimated_jaccard": 0.7656
+    },
+    "final_score": 0.7656,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "estimated_jaccard": 0.7656
+    },
+    "final_score": 0.7656,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "scores": {
+      "estimated_jaccard": 0.7656
+    },
+    "final_score": 0.7656,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "estimated_jaccard": 0.7656
+    },
+    "final_score": 0.7656,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "validate_corpus",
+      "file": "generate-corpus.py",
+      "line": 316
+    },
+    "scores": {
+      "estimated_jaccard": 0.7656
+    },
+    "final_score": 0.7656,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "fingerprint_similarity",
+      "file": "detect-winnowing.py",
+      "line": 152
+    },
+    "scores": {
+      "estimated_jaccard": 0.7656
+    },
+    "final_score": 0.7656,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "func_b": {
+      "name": "_tokenize_core",
+      "file": "lib/common.py",
+      "line": 134
+    },
+    "scores": {
+      "estimated_jaccard": 0.7656
+    },
+    "final_score": 0.7656,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "_is_test_file",
+      "file": "extract-functions-ast-py.py",
+      "line": 444
+    },
+    "func_b": {
+      "name": "classify_clone_type",
+      "file": "merge-signals.py",
+      "line": 226
+    },
+    "scores": {
+      "estimated_jaccard": 0.7656
+    },
+    "final_score": 0.7656,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_parser",
+      "file": "extract-functions-ast-py.py",
+      "line": 505
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "estimated_jaccard": 0.7656
+    },
+    "final_score": 0.7656,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "estimated_jaccard": 0.7656
+    },
+    "final_score": 0.7656,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "scores": {
+      "estimated_jaccard": 0.7578
+    },
+    "final_score": 0.7578,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "scores": {
+      "estimated_jaccard": 0.7578
+    },
+    "final_score": 0.7578,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "generate_corpus",
+      "file": "generate-corpus.py",
+      "line": 237
+    },
+    "scores": {
+      "estimated_jaccard": 0.7578
+    },
+    "final_score": 0.7578,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "normalize_simple_tokens",
+      "file": "detect-token-clones.py",
+      "line": 78
+    },
+    "func_b": {
+      "name": "validate_corpus",
+      "file": "generate-corpus.py",
+      "line": 316
+    },
+    "scores": {
+      "estimated_jaccard": 0.7578
+    },
+    "final_score": 0.7578,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "scores": {
+      "estimated_jaccard": 0.7578
+    },
+    "final_score": 0.7578,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "estimated_jaccard": 0.7578
+    },
+    "final_score": 0.7578,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "estimated_jaccard": 0.7578
+    },
+    "final_score": 0.7578,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "generate_type1_pair",
+      "file": "generate-corpus.py",
+      "line": 99
+    },
+    "func_b": {
+      "name": "func_key",
+      "file": "lib/common.py",
+      "line": 261
+    },
+    "scores": {
+      "estimated_jaccard": 0.7578
+    },
+    "final_score": 0.7578,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "tokenize_to_typed",
+      "file": "lib/common.py",
+      "line": 110
+    },
+    "func_b": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "scores": {
+      "estimated_jaccard": 0.7578
+    },
+    "final_score": 0.7578,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "scores": {
+      "estimated_jaccard": 0.75
+    },
+    "final_score": 0.75,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "scores": {
+      "estimated_jaccard": 0.75
+    },
+    "final_score": 0.75,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "scores": {
+      "estimated_jaccard": 0.75
+    },
+    "final_score": 0.75,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "build_minhash",
+      "file": "detect-lsh-ast.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "_resolve_language",
+      "file": "extract-functions-regex.py",
+      "line": 130
+    },
+    "scores": {
+      "estimated_jaccard": 0.75
+    },
+    "final_score": 0.75,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "func_b": {
+      "name": "jaccard",
+      "file": "lib/common.py",
+      "line": 194
+    },
+    "scores": {
+      "estimated_jaccard": 0.75
+    },
+    "final_score": 0.75,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
+      "name": "generate_summary",
+      "file": "merge-signals.py",
+      "line": 291
+    },
+    "func_b": {
+      "name": "convert_llm_results",
+      "file": "merge-signals.py",
+      "line": 429
+    },
+    "scores": {
+      "estimated_jaccard": 0.75
+    },
+    "final_score": 0.75,
+    "strategy": "lsh_ast"
+  }
+]

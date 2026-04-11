@@ -1,0 +1,3002 @@
+[
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "compute_final_score",
+      "file": "detect-signature-match.py",
+      "line": 298
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "build_parser",
+      "file": "detect-metric-similarity.py",
+      "line": 290
+    },
+    "func_b": {
+      "name": "build_parser",
+      "file": "extract-functions-ast-py.py",
+      "line": 505
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "make_pair_key",
+      "file": "merge-signals.py",
+      "line": 53
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 315
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "_classify_export_type",
+      "file": "extract-functions-ast-py.py",
+      "line": 286
+    },
+    "func_b": {
+      "name": "classify_export_type",
+      "file": "extract-functions-regex.py",
+      "line": 222
+    },
+    "scores": {
+      "levenshtein": 0.9756,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.6927,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "extractParams",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 215
+    },
+    "scores": {
+      "levenshtein": 0.8889,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.6667,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "func_b": {
+      "name": "computeAstFingerprint",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 128
+    },
+    "scores": {
+      "levenshtein": 0.8444,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.6533,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "getReturnType",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 232
+    },
+    "scores": {
+      "levenshtein": 0.7857,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.6357,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "_is_test_file",
+      "file": "extract-functions-ast-py.py",
+      "line": 444
+    },
+    "func_b": {
+      "name": "isTestFile",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 74
+    },
+    "scores": {
+      "levenshtein": 0.6957,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.6087,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "scores": {
+      "levenshtein": 0.8718,
+      "token_jaccard": 0.75,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.5615,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 66
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "levenshtein": 0.8718,
+      "token_jaccard": 0.75,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.5615,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 74
+    },
+    "func_b": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "scores": {
+      "levenshtein": 0.8718,
+      "token_jaccard": 0.75,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.5615,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "func_b": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "scores": {
+      "levenshtein": 0.8718,
+      "token_jaccard": 0.75,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.5615,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "scores": {
+      "levenshtein": 0.9048,
+      "token_jaccard": 0.6667,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.5381,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "scores": {
+      "levenshtein": 0.8837,
+      "token_jaccard": 0.6667,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.5318,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "compute_fingerprint",
+      "file": "detect-winnowing.py",
+      "line": 133
+    },
+    "func_b": {
+      "name": "computeAstFingerprint",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 128
+    },
+    "scores": {
+      "levenshtein": 0.85,
+      "token_jaccard": 0.6667,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.5217,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "scores": {
+      "levenshtein": 0.7879,
+      "token_jaccard": 0.6667,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.503,
+    "strategy": "fuzzy_name"
+  }
+]

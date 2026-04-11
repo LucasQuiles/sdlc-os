@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/LucasQuiles/finding-duplicate-functions/schemas/merge-output.schema.json",
+  "title": "Merge Output",
+  "description": "Schema for merge-signals.py output with --include-summary flag.",
+  "type": "object",
+  "required": ["pairs", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "pairs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MergedPair"
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_pairs", "by_confidence"],
+      "additionalProperties": true,
+      "properties": {
+        "total_pairs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "by_confidence": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "by_clone_type": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "by_action": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "strategies_used": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "multi_signal_pairs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "defense_depth_pairs": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "$defs": {
+    "MergedPair": {
+      "type": "object",
+      "required": [
+        "func_a",
+        "func_b",
+        "composite_score",
+        "confidence",
+        "num_strategies",
+        "strategies",
+        "clone_type",
+        "recommendation"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "func_a": {
+          "$ref": "#/$defs/FunctionRef"
+        },
+        "func_b": {
+          "$ref": "#/$defs/FunctionRef"
+        },
+        "composite_score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["HIGH", "MEDIUM", "LOW"]
+        },
+        "num_strategies": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "strategies": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "clone_type": {
+          "type": "string"
+        },
+        "recommendation": {
+          "type": "object",
+          "required": ["action", "urgency", "reason"],
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": ["CONSOLIDATE", "INVESTIGATE", "REVIEW"]
+            },
+            "urgency": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "FunctionRef": {
+      "type": "object",
+      "required": ["name", "file", "line"],
+      "additionalProperties": true,
+      "properties": {
+        "name": {"type": "string"},
+        "file": {"type": "string"},
+        "line": {"type": "integer", "minimum": 0},
+        "qualified_name": {"type": "string"}
+      }
+    }
+  }
+}
