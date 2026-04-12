@@ -90,7 +90,7 @@ run_blocking() {
     echo "HOOK_WARNING: missing validator file: $validator_file" >&2
     return 1
   fi
-  source "$validator_file"
+  source "$validator_file" || { echo "HOOK_WARNING: failed to source $validator_file" >&2; return 1; }
   local rc=0
   "$@" || rc=$?
   if [[ "$rc" -eq 2 ]]; then
@@ -105,7 +105,7 @@ run_advisory() {
     echo "HOOK_WARNING: missing validator file: $validator_file" >&2
     return 1
   fi
-  source "$validator_file"
+  source "$validator_file" || { echo "HOOK_WARNING: failed to source $validator_file" >&2; return 1; }
   "$@" || true
 }
 
