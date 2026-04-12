@@ -112,6 +112,11 @@ def parse_args():
     p.add_argument("--ignore-preflight", action="store_true",
                    help="Bypass the memory pressure preflight check. "
                         "Use only when you know the system has headroom.")
+    p.add_argument("--suppress", nargs="*",
+                   default=["selfcontained_wrappers", "storage_error_factories"],
+                   help="Noise suppression rules (default: selfcontained_wrappers storage_error_factories)")
+    p.add_argument("--actionable-only", action="store_true",
+                   help="Emit only Type 1/2 HIGH confidence pairs after suppression")
     return p.parse_args()
 
 
@@ -424,8 +429,13 @@ def main():
 
     merge_script = os.path.join(SCRIPTS, "merge-signals.py")
     merged_out = os.path.join(merge_dir, "merged-results.json")
+    merge_cmd = [PYTHON, merge_script, detect_dir, "-o", merged_out, "--include-summary"]
+    if args.suppress:
+        merge_cmd += ["--suppress"] + args.suppress
+    if args.actionable_only:
+        merge_cmd += ["--actionable-only"]
     merge_result = run(
-        [PYTHON, merge_script, detect_dir, "-o", merged_out, "--include-summary"],
+        merge_cmd,
         label="merge-signals", check=False, log_file=log_file
     )
     if merge_result.returncode != 0:
