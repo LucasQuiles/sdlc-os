@@ -98,3 +98,44 @@ class TestSuppressNoisePatterns:
         assert len(result) == 1
         assert meta["suppressed_count"] == 1
         assert meta["rules_applied"] == ["selfcontained_wrappers"]
+
+
+class TestSuppressionNegativeControls:
+    def test_one_sided_selfcontained_not_suppressed(self):
+        """Only one function ends in SelfContained — should NOT be suppressed."""
+        pairs = [_pair("getAllTablesSelfContained", "deleteClient")]
+        result = suppress_noise_patterns(pairs, rules=["selfcontained_wrappers"])
+        assert len(result) == 1  # pair survives
+
+    def test_factory_names_outside_storage_error_not_suppressed(self):
+        """notFound in a different file should NOT be suppressed."""
+        pairs = [_pair("notFound", "badRequest", "other-file.ts", "other-file.ts")]
+        result = suppress_noise_patterns(pairs, rules=["storage_error_factories"])
+        assert len(result) == 1
+
+    def test_same_name_crud_not_suppressed(self):
+        """Two functions with the same name should NOT be suppressed by crud_boilerplate."""
+        pairs = [_pair("deleteClient", "deleteClient", "file1.ts", "file2.ts", score=0.8)]
+        result = suppress_noise_patterns(pairs, rules=["crud_boilerplate"])
+        assert len(result) == 1  # same name = not cross-entity, survives
+
+    def test_high_score_crud_survives(self):
+        """Score >= 0.95 survives crud_boilerplate rule."""
+        pairs = [_pair("deleteClient", "deleteTemplate", score=0.95)]
+        result = suppress_noise_patterns(pairs, rules=["crud_boilerplate"])
+        assert len(result) == 1  # score at threshold, survives
+
+    def test_combined_suppression_preserves_real_finding(self):
+        """The deleteClient/deleteTemplate exact clone must survive all rules."""
+        real_finding = _pair("deleteClient", "deleteTemplate",
+            "client-storage-manager.ts", "client-storage-manager.ts",
+            score=1.0, clone_type="Type 1 (exact clone)", confidence="HIGH")
+        noise = _pair("getAllTablesSelfContained", "getEquipmentSelfContained")
+        pairs = [noise, real_finding]
+        result = suppress_noise_patterns(
+            pairs,
+            rules=["selfcontained_wrappers", "storage_error_factories", "crud_boilerplate"],
+            actionable_only=True,
+        )
+        assert len(result) == 1
+        assert result[0]["func_a"]["name"] == "deleteClient"
