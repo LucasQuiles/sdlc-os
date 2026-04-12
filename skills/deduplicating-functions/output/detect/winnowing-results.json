@@ -1178,7 +1178,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "jaccard": 0.375,
@@ -2378,6 +2378,24 @@
   {
     "func_a": {
       "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "jaccard": 0.2222,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
       "file": "detect-lsh-ast.py",
       "line": 194
     },
@@ -2467,6 +2485,24 @@
   },
   {
     "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "jaccard": 0.2222,
+      "overlap": 0.6667
+    },
+    "final_score": 0.6667,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
       "name": "_func_to_spec",
       "file": "evaluate.py",
       "line": 31
@@ -2474,7 +2510,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "jaccard": 0.2353,
@@ -2738,16 +2774,52 @@
   {
     "func_a": {
       "name": "main",
-      "file": "detect-fuzzy-names.py",
-      "line": 338
+      "file": "detect-ast-similarity.py",
+      "line": 246
     },
     "func_b": {
       "name": "main",
       "file": "merge-signals.py",
-      "line": 315
+      "line": 382
     },
     "scores": {
-      "jaccard": 0.2209,
+      "jaccard": 0.2081,
+      "overlap": 0.6316
+    },
+    "final_score": 0.6316,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "jaccard": 0.2081,
+      "overlap": 0.6316
+    },
+    "final_score": 0.6316,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "jaccard": 0.2081,
       "overlap": 0.6316
     },
     "final_score": 0.6316,
@@ -2766,6 +2838,42 @@
     },
     "scores": {
       "jaccard": 0.2308,
+      "overlap": 0.6316
+    },
+    "final_score": 0.6316,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "jaccard": 0.2081,
+      "overlap": 0.6316
+    },
+    "final_score": 0.6316,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "jaccard": 0.2081,
       "overlap": 0.6316
     },
     "final_score": 0.6316,
@@ -2810,16 +2918,34 @@
   {
     "func_a": {
       "name": "main",
-      "file": "detect-signature-match.py",
-      "line": 378
+      "file": "detect-token-clones.py",
+      "line": 210
     },
     "func_b": {
       "name": "main",
       "file": "merge-signals.py",
-      "line": 315
+      "line": 382
     },
     "scores": {
-      "jaccard": 0.2209,
+      "jaccard": 0.2081,
+      "overlap": 0.6316
+    },
+    "final_score": 0.6316,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "jaccard": 0.2081,
       "overlap": 0.6316
     },
     "final_score": 0.6316,
@@ -3457,132 +3583,6 @@
   },
   {
     "func_a": {
-      "name": "main",
-      "file": "detect-ast-similarity.py",
-      "line": 246
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "jaccard": 0.2061,
-      "overlap": 0.5965
-    },
-    "final_score": 0.5965,
-    "strategy": "winnowing"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "detect-bag-of-ast.py",
-      "line": 149
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "jaccard": 0.2061,
-      "overlap": 0.5965
-    },
-    "final_score": 0.5965,
-    "strategy": "winnowing"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "detect-code-embedding.py",
-      "line": 195
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "jaccard": 0.2061,
-      "overlap": 0.5965
-    },
-    "final_score": 0.5965,
-    "strategy": "winnowing"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "detect-lsh-ast.py",
-      "line": 194
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "jaccard": 0.2061,
-      "overlap": 0.5965
-    },
-    "final_score": 0.5965,
-    "strategy": "winnowing"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "detect-pdg-semantic.py",
-      "line": 203
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "jaccard": 0.2061,
-      "overlap": 0.5965
-    },
-    "final_score": 0.5965,
-    "strategy": "winnowing"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "detect-token-clones.py",
-      "line": 210
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "jaccard": 0.2061,
-      "overlap": 0.5965
-    },
-    "final_score": 0.5965,
-    "strategy": "winnowing"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "detect-winnowing.py",
-      "line": 259
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "jaccard": 0.2061,
-      "overlap": 0.5965
-    },
-    "final_score": 0.5965,
-    "strategy": "winnowing"
-  },
-  {
-    "func_a": {
       "name": "detect_fuzzy_duplicates",
       "file": "detect-fuzzy-names.py",
       "line": 274
@@ -4141,24 +4141,6 @@
   },
   {
     "func_a": {
-      "name": "main",
-      "file": "evaluate.py",
-      "line": 183
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "jaccard": 0.2209,
-      "overlap": 0.5588
-    },
-    "final_score": 0.5588,
-    "strategy": "winnowing"
-  },
-  {
-    "func_a": {
       "name": "detect_lsh_duplicates",
       "file": "detect-lsh-ast.py",
       "line": 81
@@ -4592,24 +4574,6 @@
   {
     "func_a": {
       "name": "main",
-      "file": "extract-functions-regex.py",
-      "line": 327
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "jaccard": 0.226,
-      "overlap": 0.5333
-    },
-    "final_score": 0.5333,
-    "strategy": "winnowing"
-  },
-  {
-    "func_a": {
-      "name": "main",
       "file": "extract-functions-ast-py.py",
       "line": 537
     },
@@ -4898,19 +4862,19 @@
   {
     "func_a": {
       "name": "main",
-      "file": "extract-functions-ast-py.py",
-      "line": 537
+      "file": "detect-metric-similarity.py",
+      "line": 332
     },
     "func_b": {
       "name": "main",
       "file": "merge-signals.py",
-      "line": 315
+      "line": 382
     },
     "scores": {
-      "jaccard": 0.1607,
-      "overlap": 0.5094
+      "jaccard": 0.1925,
+      "overlap": 0.507
     },
-    "final_score": 0.5094,
+    "final_score": 0.507,
     "strategy": "winnowing"
   },
   {
@@ -5066,7 +5030,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "jaccard": 0.1636,
@@ -5372,7 +5336,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "jaccard": 0.25,
@@ -5689,24 +5653,6 @@
   },
   {
     "func_a": {
-      "name": "main",
-      "file": "detect-metric-similarity.py",
-      "line": 332
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "jaccard": 0.1899,
-      "overlap": 0.4789
-    },
-    "final_score": 0.4789,
-    "strategy": "winnowing"
-  },
-  {
-    "func_a": {
       "name": "extract_params",
       "file": "detect-signature-match.py",
       "line": 105
@@ -5768,7 +5714,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "jaccard": 0.2093,
@@ -6110,7 +6056,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "jaccard": 0.2072,
@@ -6146,7 +6092,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "jaccard": 0.1901,
@@ -6841,6 +6787,24 @@
   },
   {
     "func_a": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "jaccard": 0.1579,
+      "overlap": 0.4412
+    },
+    "final_score": 0.4412,
+    "strategy": "winnowing"
+  },
+  {
+    "func_a": {
       "name": "extract_for_language",
       "file": "extract-functions-regex.py",
       "line": 260
@@ -6974,7 +6938,7 @@
     "func_b": {
       "name": "merge_pair_signals",
       "file": "merge-signals.py",
-      "line": 78
+      "line": 145
     },
     "scores": {
       "jaccard": 0.1723,
@@ -7244,7 +7208,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "jaccard": 0.1579,
@@ -7392,24 +7356,6 @@
     },
     "scores": {
       "jaccard": 0.218,
-      "overlap": 0.4265
-    },
-    "final_score": 0.4265,
-    "strategy": "winnowing"
-  },
-  {
-    "func_a": {
-      "name": "walk_and_extract",
-      "file": "extract-functions-ast-py.py",
-      "line": 459
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "jaccard": 0.1602,
       "overlap": 0.4265
     },
     "final_score": 0.4265,
@@ -7640,7 +7586,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "jaccard": 0.181,
@@ -7676,7 +7622,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "jaccard": 0.1707,
@@ -8378,7 +8324,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "jaccard": 0.1111,
@@ -8396,7 +8342,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "jaccard": 0.0769,
@@ -8954,7 +8900,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "jaccard": 0.1379,
@@ -9026,7 +8972,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "jaccard": 0.169,
@@ -9134,7 +9080,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "jaccard": 0.2247,

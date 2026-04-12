@@ -1378,6 +1378,57 @@
   },
   {
     "func_a": {
+      "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.996
+    },
+    "final_score": 0.996,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.996
+    },
+    "final_score": 0.996,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.996
+    },
+    "final_score": 0.996,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "detect_bag_of_ast_duplicates",
       "file": "detect-bag-of-ast.py",
       "line": 87
@@ -1820,23 +1871,6 @@
   },
   {
     "func_a": {
-      "name": "main",
-      "file": "detect-bag-of-ast.py",
-      "line": 149
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.995
-    },
-    "final_score": 0.995,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "token_jaccard_score",
       "file": "detect-fuzzy-names.py",
       "line": 192
@@ -1872,13 +1906,13 @@
   {
     "func_a": {
       "name": "main",
-      "file": "detect-pdg-semantic.py",
-      "line": 203
+      "file": "detect-fuzzy-names.py",
+      "line": 338
     },
     "func_b": {
       "name": "main",
       "file": "merge-signals.py",
-      "line": 315
+      "line": 382
     },
     "scores": {
       "cosine": 0.995
@@ -1906,13 +1940,13 @@
   {
     "func_a": {
       "name": "main",
-      "file": "detect-token-clones.py",
-      "line": 210
+      "file": "detect-signature-match.py",
+      "line": 378
     },
     "func_b": {
       "name": "main",
       "file": "merge-signals.py",
-      "line": 315
+      "line": 382
     },
     "scores": {
       "cosine": 0.995
@@ -2092,40 +2126,6 @@
   },
   {
     "func_a": {
-      "name": "main",
-      "file": "detect-fuzzy-names.py",
-      "line": 338
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9945
-    },
-    "final_score": 0.9945,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "detect-signature-match.py",
-      "line": 378
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9945
-    },
-    "final_score": 0.9945,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "detect_lsh_duplicates",
       "file": "detect-lsh-ast.py",
       "line": 81
@@ -2202,6 +2202,23 @@
       "name": "main",
       "file": "detect-tfidf-index.py",
       "line": 185
+    },
+    "scores": {
+      "cosine": 0.9943
+    },
+    "final_score": 0.9943,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
     },
     "scores": {
       "cosine": 0.9943
@@ -2585,6 +2602,23 @@
   },
   {
     "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9934
+    },
+    "final_score": 0.9934,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "extract_ast_paths",
       "file": "detect-code-embedding.py",
       "line": 30
@@ -2644,23 +2678,6 @@
       "name": "compute_pdg_fingerprint",
       "file": "detect-pdg-semantic.py",
       "line": 84
-    },
-    "scores": {
-      "cosine": 0.9932
-    },
-    "final_score": 0.9932,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "detect-metric-similarity.py",
-      "line": 332
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9932
@@ -2823,19 +2840,19 @@
   },
   {
     "func_a": {
-      "name": "main",
-      "file": "detect-lsh-ast.py",
-      "line": 194
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
     },
     "func_b": {
-      "name": "main",
+      "name": "suppress_noise_patterns",
       "file": "merge-signals.py",
-      "line": 315
+      "line": 55
     },
     "scores": {
-      "cosine": 0.9927
+      "cosine": 0.9926
     },
-    "final_score": 0.9927,
+    "final_score": 0.9926,
     "strategy": "bag_of_ast"
   },
   {
@@ -2865,23 +2882,6 @@
       "name": "scan_source_tree",
       "file": "extract-functions-regex.py",
       "line": 153
-    },
-    "scores": {
-      "cosine": 0.9925
-    },
-    "final_score": 0.9925,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "extract-functions-regex.py",
-      "line": 327
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9925
@@ -3146,6 +3146,23 @@
   },
   {
     "func_a": {
+      "name": "detect_ast_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.992
+    },
+    "final_score": 0.992,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "ast_node_vector",
       "file": "detect-bag-of-ast.py",
       "line": 29
@@ -3159,6 +3176,74 @@
       "cosine": 0.992
     },
     "final_score": 0.992,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.992
+    },
+    "final_score": 0.992,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_tfidf_duplicates",
+      "file": "detect-tfidf-index.py",
+      "line": 156
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.992
+    },
+    "final_score": 0.992,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9919
+    },
+    "final_score": 0.9919,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9919
+    },
+    "final_score": 0.9919,
     "strategy": "bag_of_ast"
   },
   {
@@ -3181,13 +3266,13 @@
   {
     "func_a": {
       "name": "main",
-      "file": "evaluate.py",
-      "line": 183
+      "file": "detect-winnowing.py",
+      "line": 259
     },
     "func_b": {
       "name": "main",
       "file": "merge-signals.py",
-      "line": 315
+      "line": 382
     },
     "scores": {
       "cosine": 0.9919
@@ -3197,19 +3282,19 @@
   },
   {
     "func_a": {
-      "name": "main",
-      "file": "extract-functions-ast-py.py",
-      "line": 537
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
     },
     "func_b": {
-      "name": "main",
+      "name": "suppress_noise_patterns",
       "file": "merge-signals.py",
-      "line": 315
+      "line": 55
     },
     "scores": {
-      "cosine": 0.9919
+      "cosine": 0.9918
     },
-    "final_score": 0.9919,
+    "final_score": 0.9918,
     "strategy": "bag_of_ast"
   },
   {
@@ -4013,6 +4098,23 @@
   },
   {
     "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9901
+    },
+    "final_score": 0.9901,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "detect_fuzzy_duplicates",
       "file": "detect-fuzzy-names.py",
       "line": 274
@@ -4088,29 +4190,12 @@
     "func_b": {
       "name": "merge_pair_signals",
       "file": "merge-signals.py",
-      "line": 78
+      "line": 145
     },
     "scores": {
       "cosine": 0.9899
     },
     "final_score": 0.9899,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "detect-ast-similarity.py",
-      "line": 246
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9898
-    },
-    "final_score": 0.9898,
     "strategy": "bag_of_ast"
   },
   {
@@ -4123,23 +4208,6 @@
       "name": "get_tokens",
       "file": "detect-tfidf-index.py",
       "line": 34
-    },
-    "scores": {
-      "cosine": 0.9898
-    },
-    "final_score": 0.9898,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "detect-code-embedding.py",
-      "line": 195
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9898
@@ -4191,23 +4259,6 @@
       "name": "detect_winnowing_duplicates",
       "file": "detect-winnowing.py",
       "line": 172
-    },
-    "scores": {
-      "cosine": 0.9898
-    },
-    "final_score": 0.9898,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "detect-winnowing.py",
-      "line": 259
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9898
@@ -4428,7 +4479,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9895
@@ -4531,6 +4582,23 @@
       "name": "evaluate",
       "file": "evaluate.py",
       "line": 124
+    },
+    "scores": {
+      "cosine": 0.9893
+    },
+    "final_score": 0.9893,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9893
@@ -4880,6 +4948,23 @@
   },
   {
     "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9887
+    },
+    "final_score": 0.9887,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "synonym_boost",
       "file": "detect-fuzzy-names.py",
       "line": 197
@@ -4939,6 +5024,23 @@
       "name": "add_pairs",
       "file": "detect-token-clones.py",
       "line": 168
+    },
+    "scores": {
+      "cosine": 0.9887
+    },
+    "final_score": 0.9887,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9887
@@ -5288,6 +5390,23 @@
   },
   {
     "func_a": {
+      "name": "_tokenize_core",
+      "file": "lib/common.py",
+      "line": 134
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9881
+    },
+    "final_score": 0.9881,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "get_tokens",
       "file": "detect-tfidf-index.py",
       "line": 34
@@ -5346,7 +5465,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9879
@@ -5577,6 +5696,23 @@
   },
   {
     "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9877
+    },
+    "final_score": 0.9877,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "normalize_type",
       "file": "detect-signature-match.py",
       "line": 71
@@ -5771,7 +5907,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9874
@@ -6597,6 +6733,23 @@
   },
   {
     "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9859
+    },
+    "final_score": 0.9859,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "extract_params",
       "file": "detect-signature-match.py",
       "line": 105
@@ -6961,7 +7114,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9855
@@ -7566,6 +7719,40 @@
   },
   {
     "func_a": {
+      "name": "ast_node_vector",
+      "file": "detect-bag-of-ast.py",
+      "line": 29
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9848
+    },
+    "final_score": 0.9848,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "extract_ast_paths",
+      "file": "detect-code-embedding.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9848
+    },
+    "final_score": 0.9848,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "synonym_boost",
       "file": "detect-fuzzy-names.py",
       "line": 197
@@ -7760,7 +7947,7 @@
     "func_b": {
       "name": "merge_pair_signals",
       "file": "merge-signals.py",
-      "line": 78
+      "line": 145
     },
     "scores": {
       "cosine": 0.9846
@@ -7896,7 +8083,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9844
@@ -7964,7 +8151,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.9843
@@ -8355,7 +8542,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9839
@@ -8475,6 +8662,23 @@
       "name": "raw_token_values",
       "file": "detect-token-clones.py",
       "line": 67
+    },
+    "scores": {
+      "cosine": 0.9838
+    },
+    "final_score": 0.9838,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "evaluate",
+      "file": "evaluate.py",
+      "line": 124
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9838
@@ -8678,7 +8882,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9835
@@ -8950,7 +9154,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9832
@@ -9079,6 +9283,23 @@
   },
   {
     "func_a": {
+      "name": "extract_for_language",
+      "file": "extract-functions-regex.py",
+      "line": 260
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9831
+    },
+    "final_score": 0.9831,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "generate_corpus",
       "file": "generate-corpus.py",
       "line": 237
@@ -9138,6 +9359,23 @@
       "name": "winnow",
       "file": "detect-winnowing.py",
       "line": 65
+    },
+    "scores": {
+      "cosine": 0.983
+    },
+    "final_score": 0.983,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "embedding_cosine",
+      "file": "detect-code-embedding.py",
+      "line": 91
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.983
@@ -9443,7 +9681,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9828
@@ -9495,6 +9733,23 @@
       "name": "add_pairs",
       "file": "detect-token-clones.py",
       "line": 168
+    },
+    "scores": {
+      "cosine": 0.9828
+    },
+    "final_score": 0.9828,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9828
@@ -9912,6 +10167,23 @@
   },
   {
     "func_a": {
+      "name": "generate_corpus",
+      "file": "generate-corpus.py",
+      "line": 237
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9823
+    },
+    "final_score": 0.9823,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "get_token_values",
       "file": "detect-ast-similarity.py",
       "line": 33
@@ -9980,23 +10252,6 @@
   },
   {
     "func_a": {
-      "name": "_build_params",
-      "file": "extract-functions-ast-py.py",
-      "line": 188
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9822
-    },
-    "final_score": 0.9822,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "lcs_similarity",
       "file": "detect-ast-similarity.py",
       "line": 100
@@ -10055,7 +10310,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9821
@@ -10106,12 +10361,29 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9821
     },
     "final_score": 0.9821,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "lcs_length",
+      "file": "detect-ast-similarity.py",
+      "line": 70
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.982
+    },
+    "final_score": 0.982,
     "strategy": "bag_of_ast"
   },
   {
@@ -10157,7 +10429,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.982
@@ -10412,7 +10684,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9818
@@ -10769,7 +11041,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9814
@@ -11364,7 +11636,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9808
@@ -11772,7 +12044,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9802
@@ -11790,6 +12062,23 @@
       "name": "scan_source_tree",
       "file": "extract-functions-regex.py",
       "line": 153
+    },
+    "scores": {
+      "cosine": 0.9802
+    },
+    "final_score": 0.9802,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "score_pair_tfidf",
+      "file": "detect-tfidf-index.py",
+      "line": 121
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9802
@@ -11858,6 +12147,23 @@
       "name": "walk_and_extract",
       "file": "extract-functions-ast-py.py",
       "line": 459
+    },
+    "scores": {
+      "cosine": 0.9801
+    },
+    "final_score": 0.9801,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
     },
     "scores": {
       "cosine": 0.9801
@@ -12163,7 +12469,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9799
@@ -12180,7 +12486,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9799
@@ -12249,6 +12555,23 @@
       "name": "_process_function",
       "file": "extract-functions-ast-py.py",
       "line": 376
+    },
+    "scores": {
+      "cosine": 0.9798
+    },
+    "final_score": 0.9798,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "retrieve_candidates",
+      "file": "detect-tfidf-index.py",
+      "line": 79
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9798
@@ -12666,6 +12989,23 @@
   },
   {
     "func_a": {
+      "name": "_build_signature",
+      "file": "extract-functions-ast-py.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9794
+    },
+    "final_score": 0.9794,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "get_token_values",
       "file": "detect-ast-similarity.py",
       "line": 33
@@ -13023,23 +13363,6 @@
   },
   {
     "func_a": {
-      "name": "generate_corpus",
-      "file": "generate-corpus.py",
-      "line": 237
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9791
-    },
-    "final_score": 0.9791,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "_tokenize_core",
       "file": "lib/common.py",
       "line": 134
@@ -13167,6 +13490,23 @@
       "name": "tokenize",
       "file": "lib/common.py",
       "line": 84
+    },
+    "scores": {
+      "cosine": 0.979
+    },
+    "final_score": 0.979,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "func_b": {
+      "name": "generate_summary",
+      "file": "merge-signals.py",
+      "line": 358
     },
     "scores": {
       "cosine": 0.979
@@ -13805,23 +14145,6 @@
   },
   {
     "func_a": {
-      "name": "detect_signature_duplicates",
-      "file": "detect-signature-match.py",
-      "line": 329
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9784
-    },
-    "final_score": 0.9784,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "detect_tfidf_duplicates",
       "file": "detect-tfidf-index.py",
       "line": 156
@@ -14356,7 +14679,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9779
@@ -14485,6 +14808,23 @@
   },
   {
     "func_a": {
+      "name": "scan_source_tree",
+      "file": "extract-functions-regex.py",
+      "line": 153
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9778
+    },
+    "final_score": 0.9778,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "ast_node_vector",
       "file": "detect-bag-of-ast.py",
       "line": 29
@@ -14595,6 +14935,23 @@
       "name": "_should_skip_test_file",
       "file": "extract-functions-regex.py",
       "line": 142
+    },
+    "scores": {
+      "cosine": 0.9776
+    },
+    "final_score": 0.9776,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9776
@@ -14917,7 +15274,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9771
@@ -14986,6 +15343,23 @@
       "name": "stable_hash",
       "file": "lib/common.py",
       "line": 15
+    },
+    "scores": {
+      "cosine": 0.9771
+    },
+    "final_score": 0.9771,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9771
@@ -15233,6 +15607,23 @@
   },
   {
     "func_a": {
+      "name": "generate_corpus",
+      "file": "generate-corpus.py",
+      "line": 237
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.977
+    },
+    "final_score": 0.977,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "extract_ast_paths",
       "file": "detect-code-embedding.py",
       "line": 30
@@ -15291,7 +15682,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9769
@@ -15444,7 +15835,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9767
@@ -15709,6 +16100,23 @@
   },
   {
     "func_a": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9766
+    },
+    "final_score": 0.9766,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "_param_names_from_template",
       "file": "generate-corpus.py",
       "line": 93
@@ -15845,6 +16253,23 @@
   },
   {
     "func_a": {
+      "name": "detect_signature_duplicates",
+      "file": "detect-signature-match.py",
+      "line": 329
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9764
+    },
+    "final_score": 0.9764,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "get_tokens",
       "file": "detect-tfidf-index.py",
       "line": 34
@@ -15903,12 +16328,29 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9764
     },
     "final_score": 0.9764,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "get_token_values",
+      "file": "detect-ast-similarity.py",
+      "line": 33
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9763
+    },
+    "final_score": 0.9763,
     "strategy": "bag_of_ast"
   },
   {
@@ -16039,7 +16481,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9763
@@ -16141,7 +16583,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9763
@@ -16464,7 +16906,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9759
@@ -16515,7 +16957,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9758
@@ -16532,7 +16974,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9758
@@ -17807,7 +18249,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9747
@@ -18062,7 +18504,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9745
@@ -18130,7 +18572,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9745
@@ -18181,7 +18623,24 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
+    },
+    "scores": {
+      "cosine": 0.9745
+    },
+    "final_score": 0.9745,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "generate_type3_pair",
+      "file": "generate-corpus.py",
+      "line": 140
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9745
@@ -18480,6 +18939,23 @@
   },
   {
     "func_a": {
+      "name": "arity_match_score",
+      "file": "detect-signature-match.py",
+      "line": 158
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9743
+    },
+    "final_score": 0.9743,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "detect_signature_duplicates",
       "file": "detect-signature-match.py",
       "line": 329
@@ -18691,7 +19167,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9741
@@ -18895,7 +19371,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9739
@@ -18998,6 +19474,23 @@
       "name": "extract_for_language",
       "file": "extract-functions-regex.py",
       "line": 260
+    },
+    "scores": {
+      "cosine": 0.9738
+    },
+    "final_score": 0.9738,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "func_b": {
+      "name": "merge_pair_signals",
+      "file": "merge-signals.py",
+      "line": 145
     },
     "scores": {
       "cosine": 0.9738
@@ -19337,7 +19830,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9735
@@ -19551,6 +20044,23 @@
   },
   {
     "func_a": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9734
+    },
+    "final_score": 0.9734,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "ngrams",
       "file": "detect-ast-similarity.py",
       "line": 63
@@ -19593,6 +20103,23 @@
       "name": "_process_function",
       "file": "extract-functions-ast-py.py",
       "line": 376
+    },
+    "scores": {
+      "cosine": 0.9733
+    },
+    "final_score": 0.9733,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9733
@@ -19762,7 +20289,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.973
@@ -19865,23 +20392,6 @@
       "name": "type_pattern_score",
       "file": "detect-signature-match.py",
       "line": 185
-    },
-    "scores": {
-      "cosine": 0.973
-    },
-    "final_score": 0.973,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "detect_fuzzy_duplicates",
-      "file": "detect-fuzzy-names.py",
-      "line": 274
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.973
@@ -20170,7 +20680,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9728
@@ -20188,6 +20698,23 @@
       "name": "generate_type3_pair",
       "file": "generate-corpus.py",
       "line": 140
+    },
+    "scores": {
+      "cosine": 0.9727
+    },
+    "final_score": 0.9727,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "synonym_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 197
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9727
@@ -20459,7 +20986,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9725
@@ -20622,14 +21149,31 @@
   },
   {
     "func_a": {
+      "name": "should_prefilter_pair",
+      "file": "lib/prefilter.py",
+      "line": 15
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9724
+    },
+    "final_score": 0.9724,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9724
@@ -20867,7 +21411,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9722
@@ -20962,6 +21506,23 @@
   },
   {
     "func_a": {
+      "name": "load_detected_pairs",
+      "file": "evaluate.py",
+      "line": 61
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.972
+    },
+    "final_score": 0.972,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "__init__",
       "file": "extract-functions-ast-py.py",
       "line": 43
@@ -20992,6 +21553,23 @@
       "cosine": 0.972
     },
     "final_score": 0.972,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "cosine_similarity",
+      "file": "detect-bag-of-ast.py",
+      "line": 57
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9719
+    },
+    "final_score": 0.9719,
     "strategy": "bag_of_ast"
   },
   {
@@ -21258,7 +21836,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9716
@@ -21276,23 +21854,6 @@
       "name": "detect_signature_duplicates",
       "file": "detect-signature-match.py",
       "line": 329
-    },
-    "scores": {
-      "cosine": 0.9716
-    },
-    "final_score": 0.9716,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "walk_and_extract",
-      "file": "extract-functions-ast-py.py",
-      "line": 459
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9716
@@ -21438,6 +21999,23 @@
   },
   {
     "func_a": {
+      "name": "param_name_similarity_score",
+      "file": "detect-signature-match.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9715
+    },
+    "final_score": 0.9715,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "get_tokens",
       "file": "detect-tfidf-index.py",
       "line": 34
@@ -21513,7 +22091,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9714
@@ -21530,7 +22108,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9714
@@ -21649,7 +22227,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9714
@@ -21717,7 +22295,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9713
@@ -21938,7 +22516,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9711
@@ -22024,6 +22602,23 @@
       "name": "_get_token_strings",
       "file": "detect-winnowing.py",
       "line": 114
+    },
+    "scores": {
+      "cosine": 0.971
+    },
+    "final_score": 0.971,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "type_pattern_score",
+      "file": "detect-signature-match.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.971
@@ -22339,6 +22934,23 @@
   },
   {
     "func_a": {
+      "name": "detect_fuzzy_duplicates",
+      "file": "detect-fuzzy-names.py",
+      "line": 274
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9707
+    },
+    "final_score": 0.9707,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "build_minhash",
       "file": "detect-lsh-ast.py",
       "line": 58
@@ -22414,7 +23026,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9707
@@ -22448,7 +23060,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9707
@@ -22567,7 +23179,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9706
@@ -22635,7 +23247,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9705
@@ -22704,6 +23316,23 @@
       "name": "_build_params",
       "file": "extract-functions-ast-py.py",
       "line": 188
+    },
+    "scores": {
+      "cosine": 0.9705
+    },
+    "final_score": 0.9705,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "_build_params",
+      "file": "extract-functions-ast-py.py",
+      "line": 188
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9705
@@ -22873,7 +23502,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9704
@@ -22924,7 +23553,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9703
@@ -23077,7 +23706,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9701
@@ -23129,23 +23758,6 @@
       "name": "fingerprint_similarity",
       "file": "detect-winnowing.py",
       "line": 152
-    },
-    "scores": {
-      "cosine": 0.9701
-    },
-    "final_score": 0.9701,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "extract_for_language",
-      "file": "extract-functions-regex.py",
-      "line": 260
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9701
@@ -23230,7 +23842,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.97
@@ -23298,7 +23910,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.97
@@ -23570,12 +24182,46 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9698
     },
     "final_score": 0.9698,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9698
+    },
+    "final_score": 0.9698,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9697
+    },
+    "final_score": 0.9697,
     "strategy": "bag_of_ast"
   },
   {
@@ -23740,7 +24386,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9696
@@ -25083,7 +25729,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9682
@@ -25202,7 +25848,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9681
@@ -25559,7 +26205,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9677
@@ -25593,7 +26239,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9676
@@ -25610,7 +26256,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9676
@@ -25661,7 +26307,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9676
@@ -25729,7 +26375,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9676
@@ -25781,6 +26427,23 @@
       "name": "validate_corpus",
       "file": "generate-corpus.py",
       "line": 316
+    },
+    "scores": {
+      "cosine": 0.9676
+    },
+    "final_score": 0.9676,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "extract_for_language",
+      "file": "extract-functions-regex.py",
+      "line": 260
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
     },
     "scores": {
       "cosine": 0.9676
@@ -26001,7 +26664,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9673
@@ -26018,7 +26681,24 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
+    },
+    "scores": {
+      "cosine": 0.9673
+    },
+    "final_score": 0.9673,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "validate_corpus",
+      "file": "generate-corpus.py",
+      "line": 316
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9673
@@ -26137,24 +26817,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
-    },
-    "scores": {
-      "cosine": 0.9672
-    },
-    "final_score": 0.9672,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "func_b": {
-      "name": "convert_llm_results",
-      "file": "merge-signals.py",
-      "line": 429
+      "line": 358
     },
     "scores": {
       "cosine": 0.9672
@@ -26222,7 +26885,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9671
@@ -26256,7 +26919,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.967
@@ -26511,7 +27174,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9668
@@ -26562,7 +27225,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9668
@@ -26596,7 +27259,7 @@
     "func_b": {
       "name": "merge_pair_signals",
       "file": "merge-signals.py",
-      "line": 78
+      "line": 145
     },
     "scores": {
       "cosine": 0.9667
@@ -26631,23 +27294,6 @@
       "name": "generate_type4_pair",
       "file": "generate-corpus.py",
       "line": 177
-    },
-    "scores": {
-      "cosine": 0.9667
-    },
-    "final_score": 0.9667,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "merge_pair_signals",
-      "file": "merge-signals.py",
-      "line": 78
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9667
@@ -27055,7 +27701,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9664
@@ -27191,7 +27837,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9662
@@ -27208,7 +27854,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.9662
@@ -27378,7 +28024,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.966
@@ -27497,7 +28143,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9659
@@ -27582,7 +28228,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9658
@@ -27667,7 +28313,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9657
@@ -27854,7 +28500,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9654
@@ -27939,7 +28585,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9654
@@ -28092,7 +28738,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9651
@@ -28127,6 +28773,23 @@
       "name": "_get_token_strings",
       "file": "detect-winnowing.py",
       "line": 114
+    },
+    "scores": {
+      "cosine": 0.9651
+    },
+    "final_score": 0.9651,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "_cyclomatic_complexity",
+      "file": "extract-functions-ast-py.py",
+      "line": 143
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9651
@@ -28279,7 +28942,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9649
@@ -28415,7 +29078,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9647
@@ -28551,7 +29214,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9647
@@ -28755,7 +29418,7 @@
     "func_b": {
       "name": "merge_pair_signals",
       "file": "merge-signals.py",
-      "line": 78
+      "line": 145
     },
     "scores": {
       "cosine": 0.9644
@@ -28874,7 +29537,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9643
@@ -28935,6 +29598,23 @@
   },
   {
     "func_a": {
+      "name": "merge_pair_signals",
+      "file": "merge-signals.py",
+      "line": 145
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9643
+    },
+    "final_score": 0.9643,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "lcs_similarity",
       "file": "detect-ast-similarity.py",
       "line": 100
@@ -28942,7 +29622,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9642
@@ -30183,7 +30863,7 @@
     "func_b": {
       "name": "merge_pair_signals",
       "file": "merge-signals.py",
-      "line": 78
+      "line": 145
     },
     "scores": {
       "cosine": 0.963
@@ -30234,7 +30914,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9629
@@ -30421,7 +31101,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9627
@@ -30846,7 +31526,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9622
@@ -31033,7 +31713,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.962
@@ -31152,7 +31832,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9619
@@ -31271,7 +31951,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9618
@@ -31560,7 +32240,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9615
@@ -31832,7 +32512,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9612
@@ -32002,7 +32682,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9611
@@ -32070,7 +32750,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9611
@@ -32223,7 +32903,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9609
@@ -32410,7 +33090,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9607
@@ -32529,7 +33209,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9606
@@ -32546,7 +33226,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9606
@@ -32563,7 +33243,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9606
@@ -32998,6 +33678,23 @@
   },
   {
     "func_a": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9602
+    },
+    "final_score": 0.9602,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "build_pair_result",
       "file": "detect-token-clones.py",
       "line": 98
@@ -33022,7 +33719,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9602
@@ -33210,23 +33907,6 @@
       "name": "extract_function_name",
       "file": "extract-functions-regex.py",
       "line": 212
-    },
-    "scores": {
-      "cosine": 0.9599
-    },
-    "final_score": 0.9599,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "compute_pdg_fingerprint",
-      "file": "detect-pdg-semantic.py",
-      "line": 84
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9599
@@ -33651,7 +34331,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9597
@@ -33855,7 +34535,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9594
@@ -33889,7 +34569,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9594
@@ -33906,7 +34586,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9593
@@ -33924,23 +34604,6 @@
       "name": "_extract_token_sequence",
       "file": "extract-functions-ast-py.py",
       "line": 109
-    },
-    "scores": {
-      "cosine": 0.9593
-    },
-    "final_score": 0.9593,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "load_detected_pairs",
-      "file": "evaluate.py",
-      "line": 61
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9593
@@ -34110,7 +34773,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9591
@@ -34324,6 +34987,23 @@
   },
   {
     "func_a": {
+      "name": "return_type_match_score",
+      "file": "detect-signature-match.py",
+      "line": 233
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9589
+    },
+    "final_score": 0.9589,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "score_pair_tfidf",
       "file": "detect-tfidf-index.py",
       "line": 121
@@ -34484,7 +35164,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9587
@@ -34518,7 +35198,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9587
@@ -34722,7 +35402,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9584
@@ -34868,6 +35548,23 @@
   },
   {
     "func_a": {
+      "name": "normalize_type",
+      "file": "detect-signature-match.py",
+      "line": 71
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9582
+    },
+    "final_score": 0.9582,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "get_token_values",
       "file": "detect-ast-similarity.py",
       "line": 33
@@ -34960,7 +35657,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9581
@@ -34977,7 +35674,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9581
@@ -35079,7 +35776,7 @@
     "func_b": {
       "name": "merge_pair_signals",
       "file": "merge-signals.py",
-      "line": 78
+      "line": 145
     },
     "scores": {
       "cosine": 0.9579
@@ -35198,7 +35895,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9577
@@ -35267,6 +35964,23 @@
       "name": "main",
       "file": "extract-functions-ast-py.py",
       "line": 537
+    },
+    "scores": {
+      "cosine": 0.9575
+    },
+    "final_score": 0.9575,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "_extract_metrics",
+      "file": "detect-metric-similarity.py",
+      "line": 110
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9575
@@ -35514,23 +36228,6 @@
   },
   {
     "func_a": {
-      "name": "extract_ast_paths",
-      "file": "detect-code-embedding.py",
-      "line": 30
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9572
-    },
-    "final_score": 0.9572,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "detect_embedding_duplicates",
       "file": "detect-code-embedding.py",
       "line": 126
@@ -35684,6 +36381,23 @@
   },
   {
     "func_a": {
+      "name": "compute_pdg_fingerprint",
+      "file": "detect-pdg-semantic.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9569
+    },
+    "final_score": 0.9569,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "extract_params",
       "file": "detect-signature-match.py",
       "line": 105
@@ -35793,7 +36507,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9569
@@ -35912,7 +36626,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9568
@@ -36116,7 +36830,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9566
@@ -36218,7 +36932,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9565
@@ -36321,6 +37035,23 @@
       "name": "generate_type3_pair",
       "file": "generate-corpus.py",
       "line": 140
+    },
+    "scores": {
+      "cosine": 0.9564
+    },
+    "final_score": 0.9564,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "load_detected_pairs",
+      "file": "evaluate.py",
+      "line": 61
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
     },
     "scores": {
       "cosine": 0.9564
@@ -36864,7 +37595,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9556
@@ -37000,7 +37731,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9554
@@ -37204,7 +37935,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9551
@@ -37352,12 +38083,12 @@
     "func_a": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.955
@@ -37476,7 +38207,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9549
@@ -37714,7 +38445,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9546
@@ -38276,23 +39007,6 @@
       "name": "normalize_type",
       "file": "detect-signature-match.py",
       "line": 71
-    },
-    "scores": {
-      "cosine": 0.9538
-    },
-    "final_score": 0.9538,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "detect_lsh_duplicates",
-      "file": "detect-lsh-ast.py",
-      "line": 81
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9538
@@ -38870,7 +39584,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9534
@@ -38956,23 +39670,6 @@
       "name": "main",
       "file": "extract-functions-ast-py.py",
       "line": 537
-    },
-    "scores": {
-      "cosine": 0.9532
-    },
-    "final_score": 0.9532,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "detect_embedding_duplicates",
-      "file": "detect-code-embedding.py",
-      "line": 126
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9532
@@ -39101,6 +39798,23 @@
   },
   {
     "func_a": {
+      "name": "stable_hash",
+      "file": "lib/common.py",
+      "line": 15
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9531
+    },
+    "final_score": 0.9531,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "cosine_similarity",
       "file": "detect-bag-of-ast.py",
       "line": 57
@@ -39159,7 +39873,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.953
@@ -39635,7 +40349,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9525
@@ -39720,7 +40434,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9524
@@ -40043,7 +40757,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9521
@@ -40060,7 +40774,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9521
@@ -40366,7 +41080,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9518
@@ -40469,6 +41183,23 @@
       "name": "extract_function_name",
       "file": "extract-functions-regex.py",
       "line": 212
+    },
+    "scores": {
+      "cosine": 0.9517
+    },
+    "final_score": 0.9517,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "should_compare",
+      "file": "lib/common.py",
+      "line": 230
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9517
@@ -40682,23 +41413,6 @@
   },
   {
     "func_a": {
-      "name": "detect_winnowing_duplicates",
-      "file": "detect-winnowing.py",
-      "line": 172
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9515
-    },
-    "final_score": 0.9515,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "main",
       "file": "detect-fuzzy-names.py",
       "line": 338
@@ -40707,6 +41421,23 @@
       "name": "_get_token_strings",
       "file": "detect-winnowing.py",
       "line": 114
+    },
+    "scores": {
+      "cosine": 0.9514
+    },
+    "final_score": 0.9514,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_lsh_duplicates",
+      "file": "detect-lsh-ast.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
     },
     "scores": {
       "cosine": 0.9514
@@ -40774,7 +41505,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9514
@@ -40801,23 +41532,6 @@
   },
   {
     "func_a": {
-      "name": "detect_bag_of_ast_duplicates",
-      "file": "detect-bag-of-ast.py",
-      "line": 87
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9513
-    },
-    "final_score": 0.9513,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "main",
       "file": "detect-bag-of-ast.py",
       "line": 149
@@ -40826,23 +41540,6 @@
       "name": "generate_type3_pair",
       "file": "generate-corpus.py",
       "line": 140
-    },
-    "scores": {
-      "cosine": 0.9513
-    },
-    "final_score": 0.9513,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "detect_pdg_duplicates",
-      "file": "detect-pdg-semantic.py",
-      "line": 138
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9513
@@ -40944,7 +41641,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9512
@@ -41131,7 +41828,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.951
@@ -41301,7 +41998,24 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
+    },
+    "scores": {
+      "cosine": 0.9507
+    },
+    "final_score": 0.9507,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_embedding_duplicates",
+      "file": "detect-code-embedding.py",
+      "line": 126
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
     },
     "scores": {
       "cosine": 0.9507
@@ -41352,7 +42066,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9507
@@ -41369,7 +42083,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9507
@@ -41471,7 +42185,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.9506
@@ -41545,23 +42259,6 @@
       "cosine": 0.9505
     },
     "final_score": 0.9505,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "_extract_metrics",
-      "file": "detect-metric-similarity.py",
-      "line": 110
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9504
-    },
-    "final_score": 0.9504,
     "strategy": "bag_of_ast"
   },
   {
@@ -42100,7 +42797,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9497
@@ -42450,23 +43147,6 @@
   },
   {
     "func_a": {
-      "name": "_tokenize_core",
-      "file": "lib/common.py",
-      "line": 134
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9493
-    },
-    "final_score": 0.9493,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "cosine_similarity",
       "file": "detect-bag-of-ast.py",
       "line": 57
@@ -42559,7 +43239,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9491
@@ -42661,7 +43341,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.949
@@ -42892,6 +43572,23 @@
   },
   {
     "func_a": {
+      "name": "detect_winnowing_duplicates",
+      "file": "detect-winnowing.py",
+      "line": 172
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9487
+    },
+    "final_score": 0.9487,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "lcs_length",
       "file": "detect-ast-similarity.py",
       "line": 70
@@ -42960,6 +43657,23 @@
   },
   {
     "func_a": {
+      "name": "detect_bag_of_ast_duplicates",
+      "file": "detect-bag-of-ast.py",
+      "line": 87
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9485
+    },
+    "final_score": 0.9485,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "main",
       "file": "detect-code-embedding.py",
       "line": 195
@@ -42968,6 +43682,23 @@
       "name": "walk_and_extract",
       "file": "extract-functions-ast-py.py",
       "line": 459
+    },
+    "scores": {
+      "cosine": 0.9485
+    },
+    "final_score": 0.9485,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "detect_pdg_duplicates",
+      "file": "detect-pdg-semantic.py",
+      "line": 138
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
     },
     "scores": {
       "cosine": 0.9485
@@ -43052,7 +43783,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9483
@@ -43273,7 +44004,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9481
@@ -43300,23 +44031,6 @@
   },
   {
     "func_a": {
-      "name": "scan_source_tree",
-      "file": "extract-functions-regex.py",
-      "line": 153
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.948
-    },
-    "final_score": 0.948,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "build_minhash",
       "file": "detect-lsh-ast.py",
       "line": 58
@@ -43325,6 +44039,23 @@
       "name": "_decorator_name",
       "file": "extract-functions-ast-py.py",
       "line": 270
+    },
+    "scores": {
+      "cosine": 0.9479
+    },
+    "final_score": 0.9479,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "_extract_metrics",
+      "file": "detect-metric-similarity.py",
+      "line": 110
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
     },
     "scores": {
       "cosine": 0.9479
@@ -43579,7 +44310,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9475
@@ -43784,6 +44515,23 @@
       "name": "_process_function",
       "file": "extract-functions-ast-py.py",
       "line": 376
+    },
+    "scores": {
+      "cosine": 0.9474
+    },
+    "final_score": 0.9474,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
     },
     "scores": {
       "cosine": 0.9474
@@ -44089,7 +44837,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.947
@@ -44140,7 +44888,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.947
@@ -44259,7 +45007,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.9469
@@ -44294,6 +45042,23 @@
       "name": "_classify_export_type",
       "file": "extract-functions-ast-py.py",
       "line": 286
+    },
+    "scores": {
+      "cosine": 0.9468
+    },
+    "final_score": 0.9468,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "_tokenize_core",
+      "file": "lib/common.py",
+      "line": 134
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
     },
     "scores": {
       "cosine": 0.9468
@@ -44344,7 +45109,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9467
@@ -44514,7 +45279,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9464
@@ -44548,7 +45313,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9463
@@ -44854,7 +45619,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9457
@@ -44990,7 +45755,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9455
@@ -45034,23 +45799,6 @@
   },
   {
     "func_a": {
-      "name": "detect_metric_clones",
-      "file": "detect-metric-similarity.py",
-      "line": 221
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9453
-    },
-    "final_score": 0.9453,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "segment_into_blocks",
       "file": "detect-pdg-semantic.py",
       "line": 52
@@ -45085,6 +45833,23 @@
   },
   {
     "func_a": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "func_b": {
+      "name": "convert_llm_results",
+      "file": "merge-signals.py",
+      "line": 511
+    },
+    "scores": {
+      "cosine": 0.9453
+    },
+    "final_score": 0.9453,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "detect_metric_clones",
       "file": "detect-metric-similarity.py",
       "line": 221
@@ -45109,7 +45874,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9452
@@ -45127,6 +45892,23 @@
       "name": "overlap_coefficient",
       "file": "lib/common.py",
       "line": 214
+    },
+    "scores": {
+      "cosine": 0.9452
+    },
+    "final_score": 0.9452,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "scan_source_tree",
+      "file": "extract-functions-regex.py",
+      "line": 153
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
     },
     "scores": {
       "cosine": 0.9452
@@ -45296,7 +46078,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.945
@@ -45578,23 +46360,6 @@
   },
   {
     "func_a": {
-      "name": "detect_clones",
-      "file": "detect-token-clones.py",
-      "line": 119
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9447
-    },
-    "final_score": 0.9447,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "main",
       "file": "detect-metric-similarity.py",
       "line": 332
@@ -45602,7 +46367,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9446
@@ -45850,6 +46615,23 @@
   },
   {
     "func_a": {
+      "name": "main",
+      "file": "detect-metric-similarity.py",
+      "line": 332
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9441
+    },
+    "final_score": 0.9441,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "kgrams",
       "file": "detect-winnowing.py",
       "line": 48
@@ -46027,7 +46809,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9438
@@ -46486,7 +47268,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9431
@@ -46751,6 +47533,23 @@
   },
   {
     "func_a": {
+      "name": "detect_metric_clones",
+      "file": "detect-metric-similarity.py",
+      "line": 221
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9427
+    },
+    "final_score": 0.9427,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "build_inverted_index",
       "file": "detect-tfidf-index.py",
       "line": 48
@@ -46792,7 +47591,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9426
@@ -46888,13 +47687,30 @@
   {
     "func_a": {
       "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9425
+    },
+    "final_score": 0.9425,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
       "file": "detect-ast-similarity.py",
       "line": 246
     },
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9424
@@ -46928,7 +47744,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9424
@@ -46945,7 +47761,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9424
@@ -47353,7 +48169,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9419
@@ -47397,6 +48213,23 @@
   },
   {
     "func_a": {
+      "name": "detect_clones",
+      "file": "detect-token-clones.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9419
+    },
+    "final_score": 0.9419,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "_classify_export_type",
       "file": "extract-functions-ast-py.py",
       "line": 286
@@ -47404,7 +48237,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.9419
@@ -47421,7 +48254,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9419
@@ -47455,7 +48288,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9418
@@ -47489,7 +48322,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9418
@@ -47523,7 +48356,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9418
@@ -47693,7 +48526,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.9417
@@ -47931,24 +48764,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
-    },
-    "scores": {
-      "cosine": 0.9412
-    },
-    "final_score": 0.9412,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "should_prefilter_pair",
-      "file": "lib/prefilter.py",
-      "line": 15
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
+      "line": 511
     },
     "scores": {
       "cosine": 0.9412
@@ -48033,7 +48849,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.941
@@ -48220,7 +49036,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9407
@@ -48424,7 +49240,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9404
@@ -48458,7 +49274,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9404
@@ -48543,7 +49359,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9401
@@ -48849,7 +49665,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9395
@@ -49087,7 +49903,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.939
@@ -49138,7 +49954,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9389
@@ -49189,7 +50005,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9389
@@ -49206,7 +50022,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9389
@@ -49223,7 +50039,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9389
@@ -49318,6 +50134,23 @@
   },
   {
     "func_a": {
+      "name": "should_prefilter_pair",
+      "file": "lib/prefilter.py",
+      "line": 15
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9387
+    },
+    "final_score": 0.9387,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "cosine_similarity",
       "file": "detect-bag-of-ast.py",
       "line": 57
@@ -49325,7 +50158,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9386
@@ -49580,7 +50413,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9382
@@ -49614,7 +50447,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9382
@@ -49682,7 +50515,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.938
@@ -49733,7 +50566,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.938
@@ -49981,14 +50814,14 @@
   },
   {
     "func_a": {
-      "name": "winnow",
-      "file": "detect-winnowing.py",
-      "line": 65
+      "name": "_estimate_nesting_depth",
+      "file": "detect-metric-similarity.py",
+      "line": 55
     },
     "func_b": {
-      "name": "main",
+      "name": "suppress_noise_patterns",
       "file": "merge-signals.py",
-      "line": 315
+      "line": 55
     },
     "scores": {
       "cosine": 0.9373
@@ -50702,7 +51535,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9365
@@ -50804,7 +51637,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9363
@@ -51392,23 +52225,6 @@
   },
   {
     "func_a": {
-      "name": "type_pattern_score",
-      "file": "detect-signature-match.py",
-      "line": 185
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9351
-    },
-    "final_score": 0.9351,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "return_type_match_score",
       "file": "detect-signature-match.py",
       "line": 233
@@ -51501,7 +52317,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.935
@@ -51885,6 +52701,23 @@
   },
   {
     "func_a": {
+      "name": "winnow",
+      "file": "detect-winnowing.py",
+      "line": 65
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9342
+    },
+    "final_score": 0.9342,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "_placeholder",
       "file": "extract-functions-ast-py.py",
       "line": 48
@@ -52012,6 +52845,23 @@
       "name": "detect_clones",
       "file": "detect-token-clones.py",
       "line": 119
+    },
+    "scores": {
+      "cosine": 0.9339
+    },
+    "final_score": 0.9339,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "generate_non_clone_pair",
+      "file": "generate-corpus.py",
+      "line": 207
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9339
@@ -52181,29 +53031,12 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9337
     },
     "final_score": 0.9337,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "synonym_boost",
-      "file": "detect-fuzzy-names.py",
-      "line": 197
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9336
-    },
-    "final_score": 0.9336,
     "strategy": "bag_of_ast"
   },
   {
@@ -52504,7 +53337,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.933
@@ -52742,7 +53575,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9327
@@ -52759,7 +53592,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9327
@@ -52867,6 +53700,23 @@
       "cosine": 0.9325
     },
     "final_score": 0.9325,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "type_pattern_score",
+      "file": "detect-signature-match.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9324
+    },
+    "final_score": 0.9324,
     "strategy": "bag_of_ast"
   },
   {
@@ -53014,7 +53864,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9322
@@ -53313,23 +54163,6 @@
   },
   {
     "func_a": {
-      "name": "add_pairs",
-      "file": "detect-token-clones.py",
-      "line": 168
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9317
-    },
-    "final_score": 0.9317,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "extract_ast_paths",
       "file": "detect-code-embedding.py",
       "line": 30
@@ -53524,7 +54357,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9314
@@ -53626,7 +54459,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9312
@@ -53678,6 +54511,40 @@
       "name": "_extract_token_sequence",
       "file": "extract-functions-ast-py.py",
       "line": 109
+    },
+    "scores": {
+      "cosine": 0.9311
+    },
+    "final_score": 0.9311,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-fuzzy-names.py",
+      "line": 338
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9311
+    },
+    "final_score": 0.9311,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-signature-match.py",
+      "line": 378
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9311
@@ -53796,7 +54663,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9309
@@ -53830,7 +54697,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9309
@@ -54102,7 +54969,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9303
@@ -54442,7 +55309,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9295
@@ -54459,7 +55326,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9294
@@ -54567,6 +55434,23 @@
       "cosine": 0.9292
     },
     "final_score": 0.9292,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 327
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9291
+    },
+    "final_score": 0.9291,
     "strategy": "bag_of_ast"
   },
   {
@@ -54708,6 +55592,57 @@
   {
     "func_a": {
       "name": "main",
+      "file": "detect-bag-of-ast.py",
+      "line": 149
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9287
+    },
+    "final_score": 0.9287,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-pdg-semantic.py",
+      "line": 203
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9287
+    },
+    "final_score": 0.9287,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-token-clones.py",
+      "line": 210
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9287
+    },
+    "final_score": 0.9287,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
       "file": "detect-lsh-ast.py",
       "line": 194
     },
@@ -54748,7 +55683,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9285
@@ -54935,7 +55870,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9282
@@ -55088,7 +56023,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.928
@@ -55173,7 +56108,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9279
@@ -55530,7 +56465,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9273
@@ -55751,7 +56686,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9268
@@ -55785,7 +56720,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9268
@@ -55802,7 +56737,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.9268
@@ -56307,12 +57242,12 @@
     "func_a": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "func_b": {
       "name": "generate_recommendation",
       "file": "merge-signals.py",
-      "line": 258
+      "line": 325
     },
     "scores": {
       "cosine": 0.926
@@ -56924,7 +57859,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9248
@@ -57146,23 +58081,6 @@
       "name": "visit_arg",
       "file": "extract-functions-ast-py.py",
       "line": 59
-    },
-    "scores": {
-      "cosine": 0.9241
-    },
-    "final_score": 0.9241,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "_classify_export_type",
-      "file": "extract-functions-ast-py.py",
-      "line": 286
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9241
@@ -57495,6 +58413,23 @@
   },
   {
     "func_a": {
+      "name": "_classify_export_type",
+      "file": "extract-functions-ast-py.py",
+      "line": 286
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9231
+    },
+    "final_score": 0.9231,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "synonym_boost",
       "file": "detect-fuzzy-names.py",
       "line": 197
@@ -57502,7 +58437,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.923
@@ -57808,7 +58743,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9225
@@ -57933,6 +58868,23 @@
       "cosine": 0.9223
     },
     "final_score": 0.9223,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-lsh-ast.py",
+      "line": 194
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9222
+    },
+    "final_score": 0.9222,
     "strategy": "bag_of_ast"
   },
   {
@@ -58600,23 +59552,6 @@
   },
   {
     "func_a": {
-      "name": "retrieve_candidates",
-      "file": "detect-tfidf-index.py",
-      "line": 79
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9212
-    },
-    "final_score": 0.9212,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "normalize_ast_tokens",
       "file": "detect-token-clones.py",
       "line": 30
@@ -58889,6 +59824,23 @@
   },
   {
     "func_a": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 183
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9207
+    },
+    "final_score": 0.9207,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "visit_alias",
       "file": "extract-functions-ast-py.py",
       "line": 86
@@ -58947,7 +59899,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.9206
@@ -59219,7 +60171,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.9199
@@ -59576,7 +60528,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9191
@@ -59627,7 +60579,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9188
@@ -60494,7 +61446,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9169
@@ -60862,6 +61814,40 @@
   {
     "func_a": {
       "name": "main",
+      "file": "detect-ast-similarity.py",
+      "line": 246
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9158
+    },
+    "final_score": 0.9158,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-code-embedding.py",
+      "line": 195
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.9158
+    },
+    "final_score": 0.9158,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
       "file": "detect-tfidf-index.py",
       "line": 185
     },
@@ -60886,6 +61872,23 @@
       "name": "_safe_divide",
       "file": "evaluate.py",
       "line": 104
+    },
+    "scores": {
+      "cosine": 0.9158
+    },
+    "final_score": 0.9158,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-winnowing.py",
+      "line": 259
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.9158
@@ -61089,7 +62092,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9153
@@ -61378,7 +62381,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9146
@@ -61650,7 +62653,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.9139
@@ -61883,12 +62886,12 @@
     "func_a": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9134
@@ -62364,7 +63367,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9116
@@ -62415,7 +63418,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9115
@@ -62901,23 +63904,6 @@
   },
   {
     "func_a": {
-      "name": "_estimate_nesting_depth",
-      "file": "detect-metric-similarity.py",
-      "line": 55
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "cosine": 0.9103
-    },
-    "final_score": 0.9103,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
       "name": "compute_final_score",
       "file": "detect-signature-match.py",
       "line": 298
@@ -62925,7 +63911,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.9103
@@ -63010,7 +63996,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.91
@@ -63045,23 +64031,6 @@
       "name": "_class_name",
       "file": "extract-functions-ast-py.py",
       "line": 363
-    },
-    "scores": {
-      "cosine": 0.9099
-    },
-    "final_score": 0.9099,
-    "strategy": "bag_of_ast"
-  },
-  {
-    "func_a": {
-      "name": "classify_export_type",
-      "file": "extract-functions-regex.py",
-      "line": 222
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "cosine": 0.9099
@@ -63129,7 +64098,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9098
@@ -63299,7 +64268,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9095
@@ -63673,7 +64642,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.908
@@ -64023,6 +64992,23 @@
   },
   {
     "func_a": {
+      "name": "_estimate_nesting_depth",
+      "file": "detect-metric-similarity.py",
+      "line": 55
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "cosine": 0.9072
+    },
+    "final_score": 0.9072,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "main",
       "file": "detect-signature-match.py",
       "line": 378
@@ -64200,7 +65186,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.9069
@@ -64659,7 +65645,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.9061
@@ -64744,7 +65730,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.906
@@ -65594,7 +66580,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.9036
@@ -65968,7 +66954,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.902
@@ -66172,7 +67158,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9015
@@ -66240,7 +67226,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.9013
@@ -66597,7 +67583,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.9
@@ -66665,7 +67651,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.8997
@@ -67498,7 +68484,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.8973
@@ -67685,7 +68671,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8962
@@ -67957,7 +68943,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8953
@@ -67974,7 +68960,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8953
@@ -68365,7 +69351,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.8936
@@ -68773,7 +69759,7 @@
     "func_b": {
       "name": "generate_recommendation",
       "file": "merge-signals.py",
-      "line": 258
+      "line": 325
     },
     "scores": {
       "cosine": 0.8925
@@ -68977,7 +69963,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8915
@@ -69113,7 +70099,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.891
@@ -69674,7 +70660,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8883
@@ -69760,6 +70746,23 @@
       "name": "generate_non_clone_pair",
       "file": "generate-corpus.py",
       "line": 207
+    },
+    "scores": {
+      "cosine": 0.888
+    },
+    "final_score": 0.888,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "_classify_export_type",
+      "file": "extract-functions-ast-py.py",
+      "line": 286
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.888
@@ -70014,7 +71017,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.887
@@ -70354,7 +71357,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8856
@@ -71299,6 +72302,23 @@
   },
   {
     "func_a": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
+    },
+    "scores": {
+      "cosine": 0.8817
+    },
+    "final_score": 0.8817,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
       "name": "ast_node_vector",
       "file": "detect-bag-of-ast.py",
       "line": 29
@@ -71374,7 +72394,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8814
@@ -71680,7 +72700,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "cosine": 0.8802
@@ -71833,7 +72853,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8797
@@ -71918,7 +72938,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8794
@@ -72088,7 +73108,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8788
@@ -72768,7 +73788,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8764
@@ -73261,7 +74281,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8743
@@ -73698,12 +74718,12 @@
     "func_a": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.8724
@@ -73737,7 +74757,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.8723
@@ -73771,7 +74791,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.8723
@@ -73788,7 +74808,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8721
@@ -74043,7 +75063,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8704
@@ -74077,7 +75097,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.87
@@ -74094,7 +75114,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.87
@@ -74111,7 +75131,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "cosine": 0.8698
@@ -74485,7 +75505,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8673
@@ -74825,7 +75845,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.866
@@ -75148,7 +76168,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.8646
@@ -75165,7 +76185,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.8646
@@ -75335,7 +76355,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8637
@@ -75352,7 +76372,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8637
@@ -75403,7 +76423,24 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
+    },
+    "scores": {
+      "cosine": 0.8631
+    },
+    "final_score": 0.8631,
+    "strategy": "bag_of_ast"
+  },
+  {
+    "func_a": {
+      "name": "classify_export_type",
+      "file": "extract-functions-regex.py",
+      "line": 222
+    },
+    "func_b": {
+      "name": "suppress_noise_patterns",
+      "file": "merge-signals.py",
+      "line": 55
     },
     "scores": {
       "cosine": 0.8631
@@ -75437,7 +76474,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8626
@@ -75607,7 +76644,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8619
@@ -75692,7 +76729,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8619
@@ -75845,7 +76882,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8613
@@ -75947,7 +76984,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8611
@@ -76236,7 +77273,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8594
@@ -76474,7 +77511,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8581
@@ -76661,7 +77698,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8558
@@ -76746,7 +77783,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8555
@@ -76984,7 +78021,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.855
@@ -77052,7 +78089,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "cosine": 0.8542
@@ -77069,7 +78106,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8539
@@ -77086,7 +78123,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8539
@@ -77120,7 +78157,7 @@
     "func_b": {
       "name": "generate_recommendation",
       "file": "merge-signals.py",
-      "line": 258
+      "line": 325
     },
     "scores": {
       "cosine": 0.8537
@@ -77188,7 +78225,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8529
@@ -77239,7 +78276,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "cosine": 0.8525
@@ -77579,7 +78616,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "cosine": 0.8508

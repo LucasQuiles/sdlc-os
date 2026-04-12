@@ -289,7 +289,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "body_lines_sim": 1.0,
@@ -560,7 +560,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "body_lines_sim": 0.9583,
@@ -598,7 +598,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "body_lines_sim": 0.9583,
@@ -1254,7 +1254,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "body_lines_sim": 0.9091,
@@ -2089,7 +2089,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "body_lines_sim": 0.8571,
@@ -2300,7 +2300,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "body_lines_sim": 0.8182,
@@ -2889,7 +2889,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "body_lines_sim": 0.8197,
@@ -3774,7 +3774,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "body_lines_sim": 0.9615,
@@ -4246,7 +4246,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "body_lines_sim": 1.0,
@@ -4646,7 +4646,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "body_lines_sim": 1.0,
@@ -4657,28 +4657,6 @@
       "halstead_vocab_sim": 0.9545
     },
     "final_score": 0.9184,
-    "strategy": "metric_similarity"
-  },
-  {
-    "func_a": {
-      "name": "detect_lsh_duplicates",
-      "file": "detect-lsh-ast.py",
-      "line": 81
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "body_lines_sim": 0.9912,
-      "complexity_sim": 0.9375,
-      "param_count_sim": 1.0,
-      "token_count_sim": 0.7359,
-      "nesting_depth_sim": 1.0,
-      "halstead_vocab_sim": 0.8438
-    },
-    "final_score": 0.9181,
     "strategy": "metric_similarity"
   },
   {
@@ -5383,7 +5361,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "body_lines_sim": 0.74,
@@ -5581,7 +5559,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "body_lines_sim": 1.0,
@@ -5977,7 +5955,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "body_lines_sim": 0.7333,
@@ -6087,7 +6065,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "body_lines_sim": 0.7333,
@@ -6131,7 +6109,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "body_lines_sim": 0.875,
@@ -6606,7 +6584,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "body_lines_sim": 0.7083,
@@ -6773,7 +6751,7 @@
     "func_b": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "scores": {
       "body_lines_sim": 0.7059,
