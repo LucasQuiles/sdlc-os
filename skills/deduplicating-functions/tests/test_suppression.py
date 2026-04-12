@@ -139,3 +139,49 @@ class TestSuppressionNegativeControls:
         )
         assert len(result) == 1
         assert result[0]["func_a"]["name"] == "deleteClient"
+
+
+class TestSizeAwareSuppression:
+    def _sized_pair(self, name_a, name_b, end_line_a=None, end_line_b=None, **kwargs):
+        p = _pair(name_a, name_b, **kwargs)
+        if end_line_a is not None:
+            p["func_a"]["end_line"] = end_line_a
+        if end_line_b is not None:
+            p["func_b"]["end_line"] = end_line_b
+        return p
+
+    def test_tiny_crud_pair_suppressed(self):
+        """Two 5-line CRUD functions with different names and low score: suppressed."""
+        pairs = [self._sized_pair("deleteClient", "deleteTemplate",
+            end_line_a=5, end_line_b=5, score=0.8)]
+        # Both start at line 1, end at line 5 = 5 body lines <= 10 threshold
+        result = suppress_noise_patterns(pairs, rules=["crud_boilerplate"])
+        assert len(result) == 0
+
+    def test_large_exact_clone_survives(self):
+        """A 50-line clone pair must survive even with crud_boilerplate rule."""
+        pairs = [self._sized_pair("deleteClient", "deleteTemplate",
+            end_line_a=50, end_line_b=50, score=0.8)]
+        result = suppress_noise_patterns(pairs, rules=["crud_boilerplate"])
+        assert len(result) == 1  # too large to suppress
+
+    def test_missing_size_fails_open(self):
+        """When end_line is missing, pair should NOT be suppressed (fail open)."""
+        pairs = [_pair("deleteClient", "deleteTemplate", score=0.8)]
+        # No end_line set — _both_small returns False — pair survives
+        result = suppress_noise_patterns(pairs, rules=["crud_boilerplate"])
+        assert len(result) == 1
+
+    def test_one_small_one_large_survives(self):
+        """Mixed sizes: one 5-line, one 50-line. Should NOT suppress."""
+        pairs = [self._sized_pair("deleteClient", "deleteTemplate",
+            end_line_a=5, end_line_b=50, score=0.8)]
+        result = suppress_noise_patterns(pairs, rules=["crud_boilerplate"])
+        assert len(result) == 1
+
+    def test_at_threshold_not_suppressed(self):
+        """Exactly at the boundary (11 lines when threshold is 10): survives."""
+        pairs = [self._sized_pair("deleteClient", "deleteTemplate",
+            end_line_a=11, end_line_b=11, score=0.8)]
+        result = suppress_noise_patterns(pairs, rules=["crud_boilerplate"])
+        assert len(result) == 1  # 11 body lines > 10 threshold
