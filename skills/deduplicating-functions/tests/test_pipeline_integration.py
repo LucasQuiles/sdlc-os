@@ -1,6 +1,7 @@
 """Integration tests: run all detectors against adversarial corpus, verify merge pipeline."""
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import shutil
@@ -12,6 +13,26 @@ import pytest
 
 PYTHON = sys.executable  # Use the same interpreter running the tests
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# ---------------------------------------------------------------------------
+# Helper: import parse_args from run_pipeline.py without executing main()
+# ---------------------------------------------------------------------------
+_rp_spec = importlib.util.spec_from_file_location(
+    "run_pipeline", os.path.join(BASE, "run_pipeline.py")
+)
+_rp_mod = importlib.util.module_from_spec(_rp_spec)  # type: ignore[arg-type]
+_rp_spec.loader.exec_module(_rp_mod)  # type: ignore[union-attr]
+_real_parse_args = _rp_mod.parse_args
+
+
+def parse_args_for_test(argv: list[str]):
+    """Call run_pipeline.parse_args() with a controlled sys.argv."""
+    old = sys.argv[:]
+    try:
+        sys.argv = ["run_pipeline.py"] + argv
+        return _real_parse_args()
+    finally:
+        sys.argv = old
 SCRIPTS = os.path.join(BASE, "scripts")
 FIXTURES = os.path.join(BASE, "tests", "fixtures")
 CORPUS = os.path.join(FIXTURES, "adversarial-corpus.json")
@@ -240,3 +261,28 @@ def test_all_strategies_contribute(all_detector_results):
 
     assert non_empty >= 8, \
         f"Only {non_empty} detectors produced results (expected >= 8)"
+
+
+# ---------------------------------------------------------------------------
+# Default suppression semantics
+# ---------------------------------------------------------------------------
+
+class TestDefaultSuppressionSemantics:
+    def test_default_includes_crud_boilerplate(self):
+        """Default suppression set includes all three rules."""
+        # Parse args with no --suppress flag
+        args = parse_args_for_test(["/tmp/input", "-o", "/tmp/out"])
+        assert "crud_boilerplate" in args.suppress
+        assert "selfcontained_wrappers" in args.suppress
+        assert "storage_error_factories" in args.suppress
+
+    def test_explicit_empty_suppress_disables_all(self):
+        """--suppress with no values = empty list = no suppression."""
+        args = parse_args_for_test(["/tmp/input", "-o", "/tmp/out", "--suppress"])
+        assert args.suppress == []
+
+    def test_explicit_single_rule_does_not_append_defaults(self):
+        """--suppress selfcontained_wrappers should not silently add crud_boilerplate."""
+        args = parse_args_for_test(["/tmp/input", "-o", "/tmp/out", "--suppress", "selfcontained_wrappers"])
+        assert args.suppress == ["selfcontained_wrappers"]
+        assert "crud_boilerplate" not in args.suppress
