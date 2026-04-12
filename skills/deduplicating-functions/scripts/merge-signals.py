@@ -32,6 +32,29 @@ STORAGE_ERROR_FACTORY_NAMES = frozenset({
     "concurrentModification", "insufficientStock",
 })
 
+def _is_crud_name(func: dict) -> bool:
+    name = func.get("name", "")
+    return any(name.startswith(p) for p in ("create", "get", "update", "delete"))
+
+
+def _body_lines(func: dict) -> int | None:
+    line = func.get("line")
+    end_line = func.get("end_line")
+    if line is not None and end_line is not None:
+        return end_line - line + 1
+    return None
+
+
+def _both_small(pair: dict, max_body_lines: int = 10) -> bool:
+    """Returns True only if both functions have known size <= threshold.
+    Fails open (returns False = don't suppress) when size is unknown."""
+    a_lines = _body_lines(pair.get("func_a", {}))
+    b_lines = _body_lines(pair.get("func_b", {}))
+    if a_lines is None or b_lines is None:
+        return False  # fail open: missing size = don't suppress
+    return a_lines <= max_body_lines and b_lines <= max_body_lines
+
+
 SUPPRESSION_RULES: dict[str, Any] = {
     "selfcontained_wrappers": lambda pair: (
         pair.get("func_a", {}).get("name", "").endswith("SelfContained")
@@ -44,10 +67,11 @@ SUPPRESSION_RULES: dict[str, Any] = {
         and pair.get("func_b", {}).get("name", "") in STORAGE_ERROR_FACTORY_NAMES
     ),
     "crud_boilerplate": lambda pair: (
-        any(pair.get("func_a", {}).get("name", "").startswith(p) for p in ("create", "get", "update", "delete"))
-        and any(pair.get("func_b", {}).get("name", "").startswith(p) for p in ("create", "get", "update", "delete"))
+        _is_crud_name(pair.get("func_a", {}))
+        and _is_crud_name(pair.get("func_b", {}))
         and pair.get("func_a", {}).get("name", "") != pair.get("func_b", {}).get("name", "")
         and pair.get("composite_score", 1.0) < 0.95
+        and _both_small(pair, max_body_lines=10)
     ),
 }
 
@@ -270,12 +294,14 @@ def merge_pair_signals(
                 "file": func_a.get("file", "unknown"),
                 "line": func_a.get("line", 0),
                 "qualified_name": func_a.get("qualified_name", func_a.get("name", "unknown")),
+                "end_line": func_a.get("end_line"),  # None if upstream didn't provide
             },
             "func_b": {
                 "name": func_b.get("name", "unknown"),
                 "file": func_b.get("file", "unknown"),
                 "line": func_b.get("line", 0),
                 "qualified_name": func_b.get("qualified_name", func_b.get("name", "unknown")),
+                "end_line": func_b.get("end_line"),  # None if upstream didn't provide
             },
             "composite_score": round(composite_score, 3),
             "confidence": confidence,
