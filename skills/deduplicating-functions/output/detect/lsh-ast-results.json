@@ -1147,7 +1147,7 @@
     "func_b": {
       "name": "load_strategy_results",
       "file": "merge-signals.py",
-      "line": 64
+      "line": 131
     },
     "scores": {
       "estimated_jaccard": 0.9297
@@ -1538,7 +1538,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "estimated_jaccard": 0.875
@@ -1555,7 +1555,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "estimated_jaccard": 0.875
@@ -1973,23 +1973,6 @@
   },
   {
     "func_a": {
-      "name": "walk_and_extract",
-      "file": "extract-functions-ast-py.py",
-      "line": 459
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "estimated_jaccard": 0.8516
-    },
-    "final_score": 0.8516,
-    "strategy": "lsh_ast"
-  },
-  {
-    "func_a": {
       "name": "cosine_similarity",
       "file": "detect-bag-of-ast.py",
       "line": 57
@@ -2116,7 +2099,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "estimated_jaccard": 0.8438
@@ -2143,23 +2126,6 @@
   },
   {
     "func_a": {
-      "name": "main",
-      "file": "detect-metric-similarity.py",
-      "line": 332
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "estimated_jaccard": 0.8359
-    },
-    "final_score": 0.8359,
-    "strategy": "lsh_ast"
-  },
-  {
-    "func_a": {
       "name": "visit_arg",
       "file": "extract-functions-ast-py.py",
       "line": 59
@@ -2167,7 +2133,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "estimated_jaccard": 0.8359
@@ -2381,23 +2347,6 @@
   },
   {
     "func_a": {
-      "name": "main",
-      "file": "extract-functions-ast-py.py",
-      "line": 537
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "estimated_jaccard": 0.8281
-    },
-    "final_score": 0.8281,
-    "strategy": "lsh_ast"
-  },
-  {
-    "func_a": {
       "name": "get_token_values",
       "file": "detect-ast-similarity.py",
       "line": 33
@@ -2473,7 +2422,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "estimated_jaccard": 0.8203
@@ -2534,6 +2483,23 @@
   },
   {
     "func_a": {
+      "name": "walk_and_extract",
+      "file": "extract-functions-ast-py.py",
+      "line": 459
+    },
+    "func_b": {
+      "name": "main",
+      "file": "merge-signals.py",
+      "line": 382
+    },
+    "scores": {
+      "estimated_jaccard": 0.8125
+    },
+    "final_score": 0.8125,
+    "strategy": "lsh_ast"
+  },
+  {
+    "func_a": {
       "name": "levenshtein_score",
       "file": "detect-fuzzy-names.py",
       "line": 187
@@ -2576,23 +2542,6 @@
       "name": "load_detected_pairs",
       "file": "evaluate.py",
       "line": 61
-    },
-    "scores": {
-      "estimated_jaccard": 0.8047
-    },
-    "final_score": 0.8047,
-    "strategy": "lsh_ast"
-  },
-  {
-    "func_a": {
-      "name": "extract_for_language",
-      "file": "extract-functions-regex.py",
-      "line": 260
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "estimated_jaccard": 0.8047
@@ -2898,7 +2847,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "estimated_jaccard": 0.7891
@@ -2915,7 +2864,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "estimated_jaccard": 0.7891
@@ -3068,7 +3017,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "estimated_jaccard": 0.7812
@@ -3153,7 +3102,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "estimated_jaccard": 0.7734
@@ -3214,23 +3163,6 @@
   },
   {
     "func_a": {
-      "name": "main",
-      "file": "detect-fuzzy-names.py",
-      "line": 338
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
-    },
-    "scores": {
-      "estimated_jaccard": 0.7656
-    },
-    "final_score": 0.7656,
-    "strategy": "lsh_ast"
-  },
-  {
-    "func_a": {
       "name": "extract_params",
       "file": "detect-signature-match.py",
       "line": 105
@@ -3239,23 +3171,6 @@
       "name": "detect_signature_duplicates",
       "file": "detect-signature-match.py",
       "line": 329
-    },
-    "scores": {
-      "estimated_jaccard": 0.7656
-    },
-    "final_score": 0.7656,
-    "strategy": "lsh_ast"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "detect-signature-match.py",
-      "line": 378
-    },
-    "func_b": {
-      "name": "main",
-      "file": "merge-signals.py",
-      "line": 315
     },
     "scores": {
       "estimated_jaccard": 0.7656
@@ -3323,7 +3238,7 @@
     "func_b": {
       "name": "classify_clone_type",
       "file": "merge-signals.py",
-      "line": 226
+      "line": 293
     },
     "scores": {
       "estimated_jaccard": 0.7656
@@ -3340,7 +3255,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "estimated_jaccard": 0.7656
@@ -3357,7 +3272,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "estimated_jaccard": 0.7656
@@ -3476,7 +3391,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 53
+      "line": 120
     },
     "scores": {
       "estimated_jaccard": 0.7578
@@ -3607,12 +3522,12 @@
     "func_a": {
       "name": "generate_summary",
       "file": "merge-signals.py",
-      "line": 291
+      "line": 358
     },
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 429
+      "line": 511
     },
     "scores": {
       "estimated_jaccard": 0.75

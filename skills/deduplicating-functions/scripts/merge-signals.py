@@ -22,6 +22,73 @@ from pathlib import Path
 from typing import Any
 
 
+# ============================================================================
+# Noise Suppression
+# ============================================================================
+
+STORAGE_ERROR_FACTORY_NAMES = frozenset({
+    "notFound", "badRequest", "validationFailed", "noFieldsProvided",
+    "conflict", "forbidden", "gone", "internal", "duplicate",
+    "concurrentModification", "insufficientStock",
+})
+
+SUPPRESSION_RULES: dict[str, Any] = {
+    "selfcontained_wrappers": lambda pair: (
+        pair.get("func_a", {}).get("name", "").endswith("SelfContained")
+        and pair.get("func_b", {}).get("name", "").endswith("SelfContained")
+    ),
+    "storage_error_factories": lambda pair: (
+        "storage-error" in pair.get("func_a", {}).get("file", "")
+        and "storage-error" in pair.get("func_b", {}).get("file", "")
+        and pair.get("func_a", {}).get("name", "") in STORAGE_ERROR_FACTORY_NAMES
+        and pair.get("func_b", {}).get("name", "") in STORAGE_ERROR_FACTORY_NAMES
+    ),
+    "crud_boilerplate": lambda pair: (
+        any(pair.get("func_a", {}).get("name", "").startswith(p) for p in ("create", "get", "update", "delete"))
+        and any(pair.get("func_b", {}).get("name", "").startswith(p) for p in ("create", "get", "update", "delete"))
+        and pair.get("func_a", {}).get("name", "") != pair.get("func_b", {}).get("name", "")
+        and pair.get("composite_score", 1.0) < 0.95
+    ),
+}
+
+
+def suppress_noise_patterns(
+    pairs: list[dict[str, Any]],
+    rules: list[str] | None = None,
+    actionable_only: bool = False,
+    return_meta: bool = False,
+) -> list[dict[str, Any]] | tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Remove pairs matching known noise patterns. Returns filtered list.
+
+    When return_meta=True, returns (filtered_pairs, metadata_dict).
+    """
+    active_rules = [SUPPRESSION_RULES[r] for r in (rules or []) if r in SUPPRESSION_RULES]
+    suppressed = 0
+
+    result = []
+    for pair in pairs:
+        if any(rule(pair) for rule in active_rules):
+            suppressed += 1
+            continue
+        if actionable_only:
+            ct = pair.get("clone_type", "")
+            conf = pair.get("confidence", "")
+            if conf != "HIGH" or ct not in ("Type 1 (exact clone)", "Type 2 (renamed clone)"):
+                suppressed += 1
+                continue
+        result.append(pair)
+
+    if return_meta:
+        meta = {
+            "suppressed_count": suppressed,
+            "remaining_count": len(result),
+            "rules_applied": [r for r in (rules or []) if r in SUPPRESSION_RULES],
+            "actionable_only": actionable_only,
+        }
+        return result, meta
+    return result
+
+
 # Strategy weights — tuned for defense in depth
 # Higher weight = more trust in that signal
 STRATEGY_WEIGHTS: dict[str, float] = {
@@ -347,6 +414,11 @@ def main() -> None:
         action="store_true",
         help="Include summary statistics in output",
     )
+    parser.add_argument("--suppress", nargs="*", default=[],
+        choices=list(SUPPRESSION_RULES.keys()),
+        help="Noise suppression rules to apply after merge")
+    parser.add_argument("--actionable-only", action="store_true",
+        help="Emit only Type 1/2 exact clones at HIGH confidence after suppression")
 
     args = parser.parse_args()
 
@@ -402,6 +474,16 @@ def main() -> None:
         confidence_thresholds=user_thresholds,
         min_strategies_for_high=user_min_strategies,
     )
+
+    # Apply noise suppression if requested
+    if args.suppress or args.actionable_only:
+        pre_count = len(merged)
+        merged, suppression_meta = suppress_noise_patterns(
+            merged, rules=args.suppress, actionable_only=args.actionable_only, return_meta=True
+        )
+        print(f"\n  Suppressed {suppression_meta['suppressed_count']} noise pairs "
+              f"({len(merged)} remaining)", file=sys.stderr)
+
     summary = generate_summary(merged)
 
     print(f"\nMerge complete:", file=sys.stderr)
