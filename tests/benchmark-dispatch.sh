@@ -45,4 +45,5 @@ benchmark ".ts (3 validators)" \
   '{"tool_name":"Write","tool_input":{"file_path":"'"$TMPROOT"'/bench.ts","content":"const x = 1;"}}'
 
 echo ""
-echo "Target: vendor/md/json < 10ms, .py < 25ms, .ts < 50ms"
+echo "Target: vendor/md/json < 20ms, .py < 40ms, .ts < 60ms"
+echo "Baseline (old 15-hook fan-out on .md): ~203ms"
