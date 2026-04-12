@@ -113,8 +113,8 @@ def parse_args():
                    help="Bypass the memory pressure preflight check. "
                         "Use only when you know the system has headroom.")
     p.add_argument("--suppress", nargs="*",
-                   default=["selfcontained_wrappers", "storage_error_factories"],
-                   help="Noise suppression rules (default: selfcontained_wrappers storage_error_factories)")
+                   default=["selfcontained_wrappers", "storage_error_factories", "crud_boilerplate"],
+                   help="Noise suppression rules (default: selfcontained_wrappers storage_error_factories crud_boilerplate)")
     p.add_argument("--actionable-only", action="store_true",
                    help="Emit only Type 1/2 HIGH confidence pairs after suppression")
     return p.parse_args()
