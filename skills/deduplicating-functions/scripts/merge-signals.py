@@ -97,7 +97,14 @@ def suppress_noise_patterns(
         if actionable_only:
             ct = pair.get("clone_type", "")
             conf = pair.get("confidence", "")
-            if conf != "HIGH" or ct not in ("Type 1 (exact clone)", "Type 2 (renamed clone)"):
+            # Actionable = Type 1 exact clones at HIGH confidence with substantial body (>= 15 lines each)
+            if conf != "HIGH" or ct != "Type 1 (exact clone)":
+                suppressed += 1
+                continue
+            # Require both functions to have >= 20 body lines (skip trivial wrappers)
+            body_a = _body_lines(pair.get("func_a", {}))
+            body_b = _body_lines(pair.get("func_b", {}))
+            if body_a is not None and body_b is not None and (body_a < 20 or body_b < 20):
                 suppressed += 1
                 continue
         result.append(pair)
@@ -170,6 +177,7 @@ def merge_pair_signals(
     all_results: dict[str, list[dict]],
     confidence_thresholds: dict[str, float] | None = None,
     min_strategies_for_high: int = 3,
+    catalog_index: dict[tuple, dict] | None = None,
 ) -> list[dict]:
     """
     Merge all strategy results into unified pairs with multi-signal scoring.
@@ -283,10 +291,35 @@ def merge_pair_signals(
         else:
             continue  # Below minimum threshold, skip
 
-        # Pick representative func_a/func_b from first signal
+        # Pick representative func_a/func_b from first signal, then harvest
+        # size metadata (end_line) from ANY contributing strategy that has it.
         first_result = list(best_per_strategy.values())[0]
         func_a = first_result.get("func_a", {})
         func_b = first_result.get("func_b", {})
+
+        # Harvest end_line: try strategy results first, then catalog lookup
+        end_line_a = func_a.get("end_line")
+        end_line_b = func_b.get("end_line")
+        if end_line_a is None or end_line_b is None:
+            for strat_result in best_per_strategy.values():
+                if end_line_a is None:
+                    end_line_a = strat_result.get("func_a", {}).get("end_line")
+                if end_line_b is None:
+                    end_line_b = strat_result.get("func_b", {}).get("end_line")
+                if end_line_a is not None and end_line_b is not None:
+                    break
+        # Fall back to catalog lookup when detectors don't carry end_line
+        if catalog_index and (end_line_a is None or end_line_b is None):
+            key_a = (func_a.get("file", ""), func_a.get("line", 0), func_a.get("name", ""))
+            key_b = (func_b.get("file", ""), func_b.get("line", 0), func_b.get("name", ""))
+            if end_line_a is None:
+                cat_a = catalog_index.get(key_a)
+                if cat_a:
+                    end_line_a = cat_a.get("end_line")
+            if end_line_b is None:
+                cat_b = catalog_index.get(key_b)
+                if cat_b:
+                    end_line_b = cat_b.get("end_line")
 
         merged.append({
             "func_a": {
@@ -294,14 +327,14 @@ def merge_pair_signals(
                 "file": func_a.get("file", "unknown"),
                 "line": func_a.get("line", 0),
                 "qualified_name": func_a.get("qualified_name", func_a.get("name", "unknown")),
-                "end_line": func_a.get("end_line"),  # None if upstream didn't provide
+                "end_line": end_line_a,
             },
             "func_b": {
                 "name": func_b.get("name", "unknown"),
                 "file": func_b.get("file", "unknown"),
                 "line": func_b.get("line", 0),
                 "qualified_name": func_b.get("qualified_name", func_b.get("name", "unknown")),
-                "end_line": func_b.get("end_line"),  # None if upstream didn't provide
+                "end_line": end_line_b,
             },
             "composite_score": round(composite_score, 3),
             "confidence": confidence,
@@ -445,6 +478,8 @@ def main() -> None:
         help="Noise suppression rules to apply after merge")
     parser.add_argument("--actionable-only", action="store_true",
         help="Emit only Type 1/2 exact clones at HIGH confidence after suppression")
+    parser.add_argument("--catalog",
+        help="Path to unified catalog JSON for size metadata enrichment (auto-detected from input_dir)")
 
     args = parser.parse_args()
 
@@ -452,6 +487,29 @@ def main() -> None:
     user_thresholds = dict(CONFIDENCE_THRESHOLDS)
     user_thresholds["HIGH"] = args.high_threshold
     user_min_strategies = args.min_strategies_high
+
+    # Load catalog for size metadata enrichment (end_line)
+    catalog_index: dict[tuple[str, int, str], dict] = {}
+    catalog_path = args.catalog
+    if not catalog_path:
+        # Auto-detect: input_dir is the detect/ dir, catalog is in ../extract/
+        input_p = Path(args.input_dir) if not args.strategy_files else Path(args.strategy_files[0]).parent
+        candidate = input_p.parent / "extract" / "catalog-unified.json"
+        if candidate.exists():
+            catalog_path = str(candidate)
+    if catalog_path and Path(catalog_path).exists() and Path(catalog_path).stat().st_size > 2:
+        try:
+            with open(catalog_path) as cf:
+                catalog_data = json.load(cf)
+                if isinstance(catalog_data, list):
+                    for fn in catalog_data:
+                        if isinstance(fn, dict):
+                            key = (fn.get("file", ""), fn.get("line", 0), fn.get("name", ""))
+                            catalog_index[key] = fn
+            if catalog_index:
+                print(f"  Catalog loaded: {len(catalog_index)} functions (size metadata available)", file=sys.stderr)
+        except (json.JSONDecodeError, OSError):
+            pass  # Silently skip — catalog enrichment is optional
 
     # Collect strategy result files
     all_results: dict[str, list[dict]] = {}
@@ -499,6 +557,7 @@ def main() -> None:
         all_results,
         confidence_thresholds=user_thresholds,
         min_strategies_for_high=user_min_strategies,
+        catalog_index=catalog_index or None,
     )
 
     # Apply noise suppression if requested
