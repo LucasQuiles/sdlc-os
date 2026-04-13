@@ -1,0 +1,10 @@
+Bead is missing required FFT fields:
+  - Profile (must be BUILD|INVESTIGATE|REPAIR|EVOLVE)
+  - Security sensitive (must be true|false)
+  - Complexity source (must be essential|accidental)
+  - Decision trace (must contain path to trace file)
+  - Deterministic checks (list of checks routed to scripts)
+  - Turbulence (loop cycle counts)
+
+All beads must include FFT decision backbone fields.
+See references/fft-decision-trees.md for the full FFT specification.

@@ -1,0 +1,7 @@
+AQS Schema Validation Failed for findings-security.md:
+Finding #1 (SQL-1) missing required field: Minimal reproduction:
+Finding #1 (SQL-1) missing required field: Impact:
+Finding #1 (SQL-1) missing required field: Evidence:
+Finding #1 (SQL-1) missing required field: Confidence:
+
+Fix these issues and retry the write.
