@@ -1,0 +1,12 @@
+Hardening report is missing required sections:
+  - ## Pre-Clean Results
+  - ## Instrumentation Summary
+  - ## Edge Case Tests Generated
+  - ## Red Team Findings
+  - ## Post-Clean Results
+  - ## WYSIATI Coverage Sweep
+  - ## Evidence Ledger
+  - ## Verdict
+
+All hardening reports must include these sections per the Phase 4.5 spec.
+See docs/specs/2026-03-26-reliability-hardening-phase-design.md for the required format.

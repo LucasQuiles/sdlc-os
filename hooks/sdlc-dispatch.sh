@@ -83,6 +83,11 @@ fi
 VALIDATORS_DIR="$SCRIPT_DIR/validators"
 
 # --- Validator runner functions ---
+# CONTRACT: Validator files MUST define only functions (no top-level side effects).
+# Each file is source'd into this shell; top-level exits/failures would abort the
+# dispatcher. The function name is the validator's entry point (passed to run_blocking
+# or run_advisory). Known false-positive class: P_GENERIC_SOURCE matches .bak/.swp/.tmp
+# extensions — these hit safety-constraints advisory validation, which is benign.
 run_blocking() {
   local validator_file="$1"
   shift

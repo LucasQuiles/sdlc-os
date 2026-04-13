@@ -1,0 +1,1 @@
+{"tool_name":"Write","tool_input":{"file_path":"/home/q/LAB/test-project/docs/sdlc/active/task-1/adversarial/findings-security.md","content":"## Finding: SQL-1\n\n**Domain:** security\n**Severity:** high\n**Claim:** SQL injection in search endpoint\n\nMissing: Minimal reproduction, Impact, Evidence, Confidence"}}
