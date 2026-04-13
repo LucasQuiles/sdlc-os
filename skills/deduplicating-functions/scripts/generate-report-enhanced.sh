@@ -100,6 +100,33 @@ fi
     echo "---"
     echo ""
 
+    # Actionable Tier — Type 1 + Type 2 HIGH pairs only
+    echo "## Actionable Tier"
+    echo ""
+    echo "> Type 1 (exact clone) and Type 2 (renamed clone) pairs at HIGH confidence."
+    echo "> These are the highest-priority consolidation targets."
+    echo ""
+
+    jq -r "$PAIRS_EXPR"' |
+        map(select(
+            .confidence == "HIGH" and
+            (.clone_type == "Type 1 (exact clone)" or .clone_type == "Type 2 (renamed clone)")
+        )) |
+        if length == 0 then
+            "> No actionable pairs found.\n"
+        else
+            "| Pair | Score | Strategies | File A | File B |\n" +
+            "|------|-------|------------|--------|--------|\n" +
+            (map(
+                "| `\(.func_a.name)` / `\(.func_b.name)` | \(.composite_score) | \(.num_strategies) | `\(.func_a.file):\(.func_a.line)` | `\(.func_b.file):\(.func_b.line)` |"
+            ) | join("\n")) + "\n"
+        end
+    ' "$MERGED"
+
+    echo ""
+    echo "---"
+    echo ""
+
     # HIGH confidence section
     echo "## HIGH Confidence Duplicates"
     echo ""
