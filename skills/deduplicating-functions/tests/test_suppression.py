@@ -74,18 +74,24 @@ class TestSuppressNoisePatterns:
         result = suppress_noise_patterns(pairs, rules=[])
         assert len(result) == 2
 
-    def test_actionable_only_filters_to_type1_high(self):
+    def test_actionable_only_filters_to_type1_high_substantial(self):
+        # _pair uses line=1 by default; add end_line for substantial body
+        substantial = _pair("deleteClient", "deleteTemplate", clone_type="Type 1 (exact clone)", confidence="HIGH")
+        substantial["func_a"]["end_line"] = 30  # 30 body lines (>= 20 threshold)
+        substantial["func_b"]["end_line"] = 30
+        tiny = _pair("foo", "bar", clone_type="Type 1 (exact clone)", confidence="HIGH")
+        tiny["func_a"]["end_line"] = 10  # too small (< 20 threshold)
+        tiny["func_b"]["end_line"] = 10
         pairs = [
-            _pair("deleteClient", "deleteTemplate", clone_type="Type 1 (exact clone)", confidence="HIGH"),
-            _pair("foo", "bar", clone_type="Type 4 (semantic clone)", confidence="HIGH"),
+            substantial,
+            tiny,
+            _pair("x", "y", clone_type="Type 4 (semantic clone)", confidence="HIGH"),
             _pair("baz", "qux", clone_type="Type 1 (exact clone)", confidence="MEDIUM"),
             _pair("a", "b", clone_type="Type 2 (renamed clone)", confidence="HIGH"),
         ]
         result = suppress_noise_patterns(pairs, rules=[], actionable_only=True)
-        assert len(result) == 2  # Type 1 HIGH + Type 2 HIGH
-        names = {r["func_a"]["name"] for r in result}
-        assert "deleteClient" in names
-        assert "a" in names
+        assert len(result) == 1  # Only substantial Type 1 HIGH
+        assert result[0]["func_a"]["name"] == "deleteClient"
 
     def test_suppression_metadata_returned(self):
         pairs = [
@@ -130,6 +136,8 @@ class TestSuppressionNegativeControls:
         real_finding = _pair("deleteClient", "deleteTemplate",
             "client-storage-manager.ts", "client-storage-manager.ts",
             score=1.0, clone_type="Type 1 (exact clone)", confidence="HIGH")
+        real_finding["func_a"]["end_line"] = 30  # substantial body
+        real_finding["func_b"]["end_line"] = 30
         noise = _pair("getAllTablesSelfContained", "getEquipmentSelfContained")
         pairs = [noise, real_finding]
         result = suppress_noise_patterns(
