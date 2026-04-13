@@ -30,7 +30,7 @@ for payload in "$FIXTURES"/*.payload.json; do
   norm_actual=$(echo "$actual_stderr" | sed 's/[[:space:]]*$//')
 
   if [[ "$norm_expected" != "$norm_actual" ]]; then
-    echo "FAIL: $base �� stderr mismatch" >&2
+    echo "FAIL: $base -- stderr mismatch" >&2
     diff <(echo "$norm_expected") <(echo "$norm_actual") >&2 || true
     FAIL=$((FAIL + 1))
     continue
