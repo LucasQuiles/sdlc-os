@@ -16,15 +16,14 @@ repos are the canonical home for a given project family after consolidation/cano
 
 - **canonical_id:** CANON-PROJ-001
 - **project_family:** Agent365 (Microsoft 365 always-on event capture + token broker, plus its MCP plugin)
-- **service_repo:** `git@github.com:LucasQuiles/agent365.git` (private)
-- **service_local_path:** `/Users/q/LAB/Agent365.token-broker-codex`
+- **repo:** `git@github.com:LucasQuiles/agent365.git` (private)
+- **local_path:** `/Users/q/LAB/Agent365.token-broker-codex`
 - **service_stack:** Python 3.12, FastAPI, SQLite WAL, MSAL confidential client, Pinecone
-- **service_default_branch:** `main`
-- **plugin_repo:** `git@github.com:LucasQuiles/microsoft-365-claude-plugin.git` (private)
-- **plugin_local_path:** `/Users/q/.claude/plugins/microsoft-365`
+- **plugin_path:** `claude-plugin/`
 - **plugin_stack:** TypeScript / Node, MCP stdio server, MSAL public client (device code)
-- **plugin_default_branch:** `main`
-- **integration_boundary:** HTTP only — plugin's `agent365-bridge` provider calls Agent365 REST on `http://127.0.0.1:10000`; plugin must never import Agent365 Python internals or spawn Python subprocesses
+- **default_branch:** `main`
+- **integration_boundary:** In-repo runtime separation — Python service lives at repo root and Claude MCP plugin lives under `claude-plugin/`; this is not a cross-repo HTTP integration boundary, and the plugin must never import Agent365 Python internals or spawn Python subprocesses
+- **retired_repos:** `git@github.com:LucasQuiles/microsoft-365-claude-plugin.git` (private; pending archival)
 - **retired_near_miss_directories:** `m365-plugin*`, `microsoft-365-dev`, `microsoft_365-inline`, `m365-agent365*`, `Agent365.token-broker-codex/.bridge-wrapper`
 - **sdlc_state:** `/Users/q/LAB/project-state/sdlc/active/agent365-canonicalization/state.md`
 - **introduced_by:** 2026-05-22 (post canonicalization phase 4 merges of PRs #1-#7)
