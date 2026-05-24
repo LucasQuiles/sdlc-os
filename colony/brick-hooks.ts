@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
-const BRICK_BASE_URL = 'https://brick.tail64ad01.ts.net:8443';
+const DEFAULT_BRICK_BASE_URL = 'https://brick.tail64ad01.ts.net:8443';
 const BRICK_TIMEOUT_MS = 30_000;
 
 export interface BrickEvalResult {
@@ -24,6 +24,12 @@ function getBrickApiKey(): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+function getBrickBaseUrl(): string {
+  return process.env.SDLC_OS_BRICK_BASE_URL
+    ?? process.env.BRICK_BASE_URL
+    ?? DEFAULT_BRICK_BASE_URL;
 }
 
 /**
@@ -72,7 +78,7 @@ export async function preprocessForEvaluation(
 
   const params = buildBrickEvalParams(fullContent);
   try {
-    const response = await fetch(`${BRICK_BASE_URL}/enrich/v1/preprocess`, {
+    const response = await fetch(`${getBrickBaseUrl()}/enrich/v1/preprocess`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

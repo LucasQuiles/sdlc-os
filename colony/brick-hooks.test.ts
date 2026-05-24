@@ -45,6 +45,8 @@ describe('brick-hooks', () => {
 
   afterEach(() => {
     delete process.env.BRICK_API_KEY;
+    delete process.env.SDLC_OS_BRICK_BASE_URL;
+    delete process.env.BRICK_BASE_URL;
     vi.restoreAllMocks();
     rmSync(CLONE_DIR, { recursive: true, force: true });
   });
@@ -58,6 +60,22 @@ describe('brick-hooks', () => {
     expect(result.available).toBe(true);
     expect(result.summary).toBe('Brick analysis complete');
     expect(result.flagged_risks).toContain('potential regression in auth module');
+  });
+
+  it('uses configured Brick base URL', async () => {
+    process.env.SDLC_OS_BRICK_BASE_URL = 'https://brick.example.test:8443';
+    writeFileSync(
+      `${CLONE_DIR}/bead-output.md`,
+      '# Output\nTask completed successfully.\n<!-- BEAD_OUTPUT_COMPLETE -->',
+    );
+
+    const result = await preprocessForEvaluation(CLONE_DIR, 'B-test');
+
+    expect(result.available).toBe(true);
+    expect(fetch).toHaveBeenCalledWith(
+      'https://brick.example.test:8443/enrich/v1/preprocess',
+      expect.any(Object),
+    );
   });
 
   it('returns available=false when bead-output.md missing', async () => {
