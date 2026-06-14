@@ -8,7 +8,7 @@ The Colony Runtime is a persistent multi-agent execution layer that bridges sdlc
 
 ## Architecture
 
-```
+```text
                           +---------------------+
                           |      systemd         |
                           | sdlc-colony-deacon   |
@@ -82,6 +82,7 @@ The Deacon is a 3-state async Python daemon:
 **How it watches:** The Deacon runs two concurrent asyncio tasks. The primary watcher uses `inotifywait -m` to monitor `.db` and `.db-wal` file modifications in the database directory. Events are debounced by draining the buffer before checking for work. A 60-second timer provides a safety-net fallback if `inotifywait` is unavailable or misses events.
 
 **How it spawns Conductors:** When `check_for_work()` returns truthy and `can_spawn_conductor()` confirms no active lock, the Deacon launches `claude -p` with:
+
 - `--model opus`
 - `--output-format json`
 - `--permission-mode bypassPermissions`
@@ -112,7 +113,7 @@ The lock file (`/tmp/sdlc-colony-conductor.lock`) is written _after_ `Popen` suc
 
 **systemd unit:** `colony/systemd/sdlc-colony-deacon.service`
 
-```
+```ini
 Type=notify
 WatchdogSec=120
 Restart=on-failure
@@ -120,6 +121,7 @@ RestartSec=15 (escalates to 120s over 5 steps)
 ```
 
 Install to `~/.config/systemd/user/`:
+
 ```bash
 cp colony/systemd/sdlc-colony-deacon.service ~/.config/systemd/user/
 # Edit the service file to set SDLC_PROJECT_DIR and TMUP_DB_PATH
@@ -144,6 +146,7 @@ The Bridge is a deterministic (no LLM) TypeScript module that synchronizes tmup 
 | L2.75 | `hardened` | `reliability-proven` |
 
 **Core function `bridgeUpdateBead()`:**
+
 1. Checks SC-COL-14: rejects `null`/`undefined`/empty loop level as fatal
 2. Reads the bead file and parses fields
 3. On task failure: appends a correction entry (no status change) and returns `action: 'correction'`
@@ -153,6 +156,7 @@ The Bridge is a deterministic (no LLM) TypeScript module that synchronizes tmup 
 7. Writes updated bead file atomically via temp + rename (SC-COL-28)
 
 **`bridgeCommitBeadUpdate()`:**
+
 1. Verifies current git branch matches `expectedBranch` (SC-COL-30)
 2. Stages only the specific bead file with `git add -- <file>` (SC-COL-29) -- never `git add -A`
 3. Commits with message `fix(sdlc): bridge update bead {beadId} [{loopLevel}]`
@@ -177,6 +181,7 @@ The Bridge is a deterministic (no LLM) TypeScript module that synchronizes tmup 
 **CLI usage (`bridge-cli.ts`):**
 
 Successful completion:
+
 ```bash
 npx tsx colony/bridge-cli.ts \
   --bead-file docs/sdlc/active/{task-id}/beads/{bead-id}.md \
@@ -191,6 +196,7 @@ npx tsx colony/bridge-cli.ts \
 ```
 
 Failed task (append correction):
+
 ```bash
 npx tsx colony/bridge-cli.ts \
   --bead-file docs/sdlc/active/{task-id}/beads/{bead-id}.md \
@@ -216,6 +222,7 @@ Deterministic markdown parser for bead files. Uses regex (`**FieldName:** value`
 **Optional fields with defaults:** `LoopLevel` (`L0`), `WorkerType` (`codex`), `Phase` (`execute`), `CynefinDomain` (`complicated`), `Description`, `AcceptanceCriteria`, `ScopeFiles`, `Output`, `CorrectionHistory`.
 
 **Exports:**
+
 - `parseBeadFile(content)` -- Parse markdown into `BeadFields` struct
 - `updateBeadField(content, fieldName, newValue)` -- Replace or append a field value
 - `appendCorrection(content, level, cycle, finding)` -- Append a `- [L{level} cycle {cycle}] {finding}` entry to `CorrectionHistory`
@@ -251,6 +258,7 @@ The Conductor is an Opus-tier Claude Code session launched by the Deacon. Its sy
 **RECOVER:** Triggered when the Deacon detects stale state. Reconciles tmup task status against bead files, re-runs bridge for unsynced completions, resets stale claims, and verifies clone integrity.
 
 **Session bootstrap protocol (all types):**
+
 1. `tmup_init` (idempotent reattach)
 2. Write pre-flight handoff block to `state.md` (SC-COL-04)
 3. `tmup_status` -- read session state
@@ -285,6 +293,7 @@ Colony mode extends tmup with new types, schema columns, and tool parameters.
 **Migration v4 (`tmup/shared/src/migrations.ts`, line 259):**
 
 New columns on `tasks` table:
+
 - `bead_id TEXT` -- links task to bead
 - `sdlc_loop_level TEXT` -- constrained to `L0`/`L1`/`L2`/`L2.5`/`L2.75`
 - `output_path TEXT` -- path to worker output
@@ -293,12 +302,14 @@ New columns on `tasks` table:
 - `bridge_synced INTEGER DEFAULT 0` -- whether bridge has updated bead file
 
 New table `task_corrections`:
+
 - Primary key: `(task_id, level)`
 - Columns: `cycle`, `max_cycles` (default 2), `last_finding`
 
 Indexes: `idx_tasks_bead` (partial, on `bead_id`), `idx_tasks_colony` (partial, on `sdlc_loop_level` + `status`).
 
 **Constants (`tmup/shared/src/constants.ts`, line 57):**
+
 - `CONDUCTOR_BUDGET_USD = 10.0`
 - `WORKER_BUDGET_SONNET_USD = 3.0`
 - `WORKER_BUDGET_HAIKU_USD = 0.5`
@@ -308,6 +319,7 @@ Indexes: `idx_tasks_bead` (partial, on `bead_id`), `idx_tasks_colony` (partial, 
 **`tmup_heartbeat` tool:** Registers agent liveness. Accepts `agent_id` (required) and optional `codex_session_id`. Retries up to 3 times with 500ms backoff on `SQLITE_BUSY`. Returns `next_heartbeat_due` timestamp (SC-COL-19).
 
 **`tmup_dispatch` tool:** Extended with two colony parameters:
+
 - `worker_type` (`'codex'` | `'claude_code'`) -- determines launch path in `dispatch-agent.sh`
 - `clone_isolation` (`boolean`) -- if true, creates an isolated git clone before launching the worker
 
@@ -316,6 +328,7 @@ Indexes: `idx_tasks_bead` (partial, on `bead_id`), `idx_tasks_colony` (partial, 
 When `--clone-isolation` is set, the script sources `clone-manager.sh`, calls `colony_clone_create` to create the clone, and `colony_clone_verify` to validate it. The `WORKING_DIR` is then set to the clone path.
 
 Worker type determines the launch command:
+
 - `claude_code`: Launches `claude -p --model sonnet --permission-mode bypassPermissions --plugin-dir tmup --max-budget-usd 3.00`. Reads prompt from a file, writes output to `session-output.json`. Uses MCP heartbeat (no background loop).
 - `codex`: Starts a background heartbeat loop via `disown`, then `exec codex -s danger-full-access --no-alt-screen -C $WORKING_DIR`. Sends the prompt via `tmux send-keys` after detecting codex readiness.
 
@@ -327,19 +340,24 @@ After codex launch, the script captures the Codex session ID from `~/.codex/hist
 
 1. Ensure tmup is installed and the plugin is loaded in Claude Code.
 2. Configure the systemd service file with your project paths:
+
    ```bash
    cp colony/systemd/sdlc-colony-deacon.service ~/.config/systemd/user/
    # Edit: set SDLC_PROJECT_DIR, TMUP_DB_PATH
    systemctl --user daemon-reload
    ```
+
 3. Start the Deacon:
+
    ```bash
    systemctl --user start sdlc-colony-deacon
    ```
+
 4. Start an SDLC workflow via the Conductor (e.g., `/sdlc` skill). After Phase 3 (Architect) produces beads, the Conductor detects colony mode via `tmup_status` and dispatches beads as tmup tasks.
 5. The Deacon watches the DB and spawns Conductor sessions as work progresses through loop levels.
 
 Alternatively, run the Deacon manually for development:
+
 ```bash
 TMUP_DB_PATH=/path/to/tmup.db \
 SDLC_PROJECT_DIR=/path/to/project \
@@ -358,6 +376,7 @@ python3 colony/deacon.py
 | systemd journal | `journalctl --user -u sdlc-colony-deacon` | Deacon state transitions, errors, watchdog events |
 
 **`audit-metrics.sh`:**
+
 ```bash
 bash colony/audit-metrics.sh
 # Or with custom log paths:
@@ -367,6 +386,7 @@ bash colony/audit-metrics.sh --sessions-log /path/to/sessions.log --bridge-log /
 Outputs: total sessions, total cost (USD), average cost per session, average/total wall clock time, bridge action counts by type, average/max bridge latency, and SC-COL constraint hit counts.
 
 **Key metrics to watch:**
+
 - Conductor session cost (should stay under $10.00 per session)
 - Bridge error rate (high `error` action count indicates systemic issues)
 - Wall clock time (sessions near 30-minute timeout may need investigation)
@@ -395,22 +415,26 @@ Exit code 0 if all 6 pass, 1 otherwise.
 ### Troubleshooting
 
 **Lock file issues:**
+
 - Symptom: Deacon logs "cannot spawn conductor" but no Conductor is running.
 - Check: `cat /tmp/sdlc-colony-conductor.lock` -- contains PID and timestamp.
 - Fix: If the PID is dead (`kill -0 <pid>` fails), remove the lock: `rm /tmp/sdlc-colony-conductor.lock`. The Deacon does this automatically for locks older than 180 seconds.
 
 **Bridge lock blocking timeout:**
+
 - Symptom: Deacon logs `bridge_lock_deferral` repeatedly.
 - Check: `cat /tmp/sdlc-colony-bridge.lock`. If PID is dead or timestamp > 60 seconds, the Deacon treats it as stale.
 - Fix: Remove `/tmp/sdlc-colony-bridge.lock` if the bridge process is dead.
 
 **Stale claims:**
+
 - Symptom: Tasks stuck in `claimed` status with no worker activity.
 - Check: `journalctl --user -u sdlc-colony-deacon | grep heartbeat_stale`.
 - Fix: Send `SIGUSR2` to the Deacon PID to force a recovery cycle: `kill -USR2 $(pidof python3 deacon.py)`. Or wait -- the Deacon checks heartbeats every 60 seconds.
 - Per-domain thresholds: `clear`/`chaotic` = 5min, `complicated`/`confusion` = 15min, `complex` = 30min.
 
 **Bridge failures:**
+
 - Symptom: Tasks complete but bead files do not advance.
 - Check: `colony-bridge.log` for error entries. Common causes:
   - `SC-COL-14`: Task dispatched without a loop level. Fix the dispatch logic.
@@ -420,11 +444,13 @@ Exit code 0 if all 6 pass, 1 otherwise.
   - `SC-COL-30`: Branch mismatch. Verify `EXPECTED_BRANCH` matches the project's current branch.
 
 **Workers not starting:**
+
 - Check tmux panes: `tmux list-panes -t <session>`.
 - Check grid state: `cat <state-dir>/grid/grid-state.json | jq '.panes'`.
 - Verify `codex` or `claude` CLI is on PATH.
 
 **Database locked errors:**
+
 - The Deacon uses WAL mode with `busy_timeout=8000`. If locks persist, check for other processes holding the DB.
 - tmup_heartbeat retries 3 times with 500ms backoff on `SQLITE_BUSY`.
 

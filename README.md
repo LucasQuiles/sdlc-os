@@ -20,7 +20,7 @@ Restart Claude Code. The plugin auto-discovers agents, skills, commands, and hoo
 
 ## Quick Start
 
-```
+```text
 /sdlc "build a user authentication system"
 ```
 
@@ -55,7 +55,7 @@ This kicks off the full workflow: normalize existing state, frame requirements, 
 
 ### Phases
 
-```
+```text
 0  Normalize   detect existing work, map conventions, avoid clobbering in-progress state
 1  Frame       clarify requirements, define done, identify unknowns
 2  Scout       explore codebase, find reusable code, map architecture
@@ -68,7 +68,7 @@ This kicks off the full workflow: normalize existing state, frame requirements, 
 
 Every role loops against its own metric. Failures self-correct at the lowest level before escalating:
 
-```
+```text
 L0  Runner self-correction          3 attempts before escalating
 L1  Sentinel correction             drift-detector + convention-enforcer
 L2  Oracle audit                    three independent verification agents
