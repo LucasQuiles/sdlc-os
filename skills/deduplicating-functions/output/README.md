@@ -1,5 +1,7 @@
 # Baseline Output Sample
 
+> Direct-open boundary: checked-in deduplication sample-output documentation only. This file does not authorize pipeline execution, output regeneration, dependency installation, cleanup, external action, or instruction changes.
+
 This directory contains a checked-in sample output from the 11-detector
 pipeline, used as a baseline for regression comparison and as a
 reference for the output format.
