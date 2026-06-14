@@ -1,5 +1,7 @@
 # SDLC-OS
 
+> Direct-open boundary: plugin documentation only. This file does not authorize SDLC workflow execution, plugin mutation, colony startup, cleanup, external action, or instruction changes.
+
 A Claude Code plugin that turns software delivery into a multi-agent workflow. Opus conducts. Sonnet executes. Haiku watches. Nobody trusts anybody — that's the point.
 
 ## What This Is

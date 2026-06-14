@@ -1,5 +1,7 @@
 # Colony Runtime
 
+> Direct-open boundary: colony documentation only. This file does not authorize daemon startup, worker dispatch, systemd/launchd mutation, cleanup, external action, or instruction changes.
+
 ## What It Is
 
 The Colony Runtime is a persistent multi-agent execution layer that bridges sdlc-os (quality-gated software delivery via beads and correction loops) with tmup (SQLite WAL task DAG + tmux grid). It replaces the single-session, sequential Agent tool dispatch with a systemd-managed daemon that watches for work, spawns ephemeral Conductor sessions, dispatches parallel workers into isolated git clones, and synchronizes results back to bead files through a deterministic (no LLM) bridge. The result is parallel bead execution with crash recovery, heartbeat monitoring, and auditable cost tracking -- all while preserving sdlc-os's L0-L2.75 correction loops and adversarial quality system.
