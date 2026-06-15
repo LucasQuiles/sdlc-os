@@ -1,6 +1,6 @@
 ---
 name: sdlc-normalize
-description: "Mid-stream pickup and session entry normalization. Mandatory on every SDLC entry — detects clean state, interrupted workflows, or unstructured changes. Dispatches normalizer agent with smart depth detection. Also invocable via /normalize command for manual convention refresh."
+description: "Use for SDLC mid-stream pickup, session entry normalization, interrupted workflows, or /normalize refresh."
 ---
 
 # Normalization Protocol

@@ -1,6 +1,6 @@
 ---
 name: sdlc-refactor
-description: "Refactoring mode for working with existing code. Preserves behavior while improving structure. Establishes baseline proof, characterizes existing behavior via LSP, transforms in atomic steps with continuous equivalence verification."
+description: "Use when refactoring existing code while preserving behavior with baseline proof and continuous verification."
 ---
 
 # Refactor Mode

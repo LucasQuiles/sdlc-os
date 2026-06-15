@@ -1,6 +1,6 @@
 ---
 name: sdlc-crossmodel
-description: "Cross-model adversarial review using tmup/Codex workers. Dispatched by the Conductor when FFT-14 triggers FULL or TARGETED cross-model escalation post-AQS, pre-hardened. Manages on-demand tmux grid lifecycle, Codex worker dispatch, artifact collection, and finding normalization. Advisory-only day 1."
+description: "Use when SDLC needs tmup/Codex cross-model adversarial review after AQS or before hardening."
 ---
 
 # Cross-Model Adversarial Review

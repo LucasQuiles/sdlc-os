@@ -1,6 +1,6 @@
 ---
 name: sdlc-adversarial
-description: "This skill should be used when the Conductor activates adversarial quality review during Execute phase, when the user runs '/adversarial', or when beads reach 'proven' status and need red team/blue team probing across functionality, security, usability, and resilience domains. Provides the full AQS cycle: recon burst, directed strike with guppy swarms, blue team defense, Kahneman arbitration, and bead hardening."
+description: "Use when SDLC Conductor activates adversarial review, /adversarial runs, or proven beads need red-team probing."
 ---
 
 # Adversarial Quality System (AQS)

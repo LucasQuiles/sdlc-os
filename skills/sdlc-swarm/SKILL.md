@@ -1,6 +1,6 @@
 ---
 name: sdlc-swarm
-description: "Wield guppy swarms to chip away at a problem progressively. Decompose a question into micro-directives, dispatch haiku guppies in parallel, synthesize findings, and re-swarm on gaps. Used by the Conductor or Sentinel to attack problems with focused, disposable micro-agents."
+description: "Use when decomposing a problem into small parallel micro-agent probes and synthesizing the findings."
 ---
 
 # Swarm Control

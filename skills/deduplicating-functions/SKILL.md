@@ -1,6 +1,6 @@
 ---
 name: deduplicating-functions
-description: "This skill should be used when auditing a codebase for duplicate functions, semantic duplication, code clones, or redundant implementations. Especially useful for LLM-generated codebases where new functions are created rather than reusing existing ones. Triggers include \"find duplicates\", \"detect code clones\", \"deduplicate functions\", \"consolidation audit\", \"find redundant code\", \"dedup\"."
+description: "Use when auditing duplicate functions, semantic code clones, redundant implementations, or consolidation candidates."
 ---
 
 # Deduplicating Functions — Multi-Signal Detection
