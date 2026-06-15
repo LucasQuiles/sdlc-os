@@ -14,6 +14,15 @@ export class CostEnforcer {
   private costs: Map<string, number> = new Map();
 
   constructor(ceilingUsd: number) {
+    // Fail closed: a non-positive or non-finite ceiling would make `ratio`
+    // NaN/Infinity in checkBudget, silently disabling the budget guard
+    // (NaN >= 1.0 and NaN >= 0.8 are both false → allowed). Refuse to construct
+    // a misconfigured enforcer instead.
+    if (!Number.isFinite(ceilingUsd) || ceilingUsd <= 0) {
+      throw new Error(
+        `CostEnforcer requires a positive finite ceiling, got ${ceilingUsd}`,
+      );
+    }
     this.ceiling = ceilingUsd;
   }
 

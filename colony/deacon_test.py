@@ -403,6 +403,28 @@ class TestSpawnConductor:
             assert call_kwargs["stdin"] == subprocess.DEVNULL
 
 
+class TestCostGateFailClosed:
+    def test_db_error_blocks_dispatch(self, deacon: Deacon) -> None:
+        """A DB error during the budget check must block dispatch (fail closed),
+        not fall through to Popen and spawn an unbudgeted conductor."""
+        with patch.object(deacon, "_get_db", side_effect=sqlite3.Error("db down")), \
+                patch("deacon.subprocess.Popen") as mock_popen:
+            result = deacon.spawn_conductor("DISPATCH")
+        assert result is None
+        mock_popen.assert_not_called()
+        assert deacon.state != DeaconState.CONDUCTING
+
+    def test_nonpositive_ceiling_blocks_dispatch(self, deacon: Deacon) -> None:
+        """A non-positive BEAD_COST_CEILING_USD must block dispatch (fail closed),
+        not treat every bead as within budget (the old `if ceiling > 0 else 0`)."""
+        with patch("deacon.BEAD_COST_CEILING_USD", 0.0), \
+                patch("deacon.subprocess.Popen") as mock_popen:
+            result = deacon.spawn_conductor("DISPATCH")
+        assert result is None
+        mock_popen.assert_not_called()
+        assert deacon.state != DeaconState.CONDUCTING
+
+
 class TestRecoverStaleClaims:
     def test_resets_stale_claimed_tasks(self, deacon: Deacon) -> None:
         """Stale claimed tasks should be reset to pending."""
