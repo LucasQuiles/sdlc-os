@@ -41,12 +41,12 @@ evaluate_fft15() {
     # Single python3 invocation: parse YAML once, output space-separated values
     local _rates
     _rates=$(python3 -c "
-import yaml
-with open('$rules_file') as f:
+import sys, yaml
+with open(sys.argv[1]) as f:
     r = yaml.safe_load(f)
 s = r.get('fft15_sampling', {})
 print(s.get('sampled_rate', 0.50), s.get('anti_turkey_rate', 0.30), s.get('hormetic_rate', 0.10), s.get('clean_streak_threshold', 5))
-" 2>/dev/null || echo "0.50 0.30 0.10 5")
+" "$rules_file" 2>/dev/null || echo "0.50 0.30 0.10 5")
     read -r sampled_rate anti_turkey_rate hormetic_rate clean_streak_threshold <<< "$_rates"
   else
     sampled_rate="0.50"

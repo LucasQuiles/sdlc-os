@@ -175,7 +175,7 @@ for task_dir in "$ACTIVE_DIR"/*/; do
   # -------------------------------------------------------------------------
   if [ "$has_hdl" = true ]; then
     # HDL already exists as an artifact — just ensure summary is derived
-    if ! python3 -c "import yaml; d=yaml.safe_load(open('${task_dir}hazard-defense-ledger.yaml')); assert d.get('artifact_status') == 'final'" 2>/dev/null; then
+    if ! python3 -c "import sys, yaml; d=yaml.safe_load(open(sys.argv[1])); assert d.get('artifact_status') == 'final'" "${task_dir}hazard-defense-ledger.yaml" 2>/dev/null; then
       echo "  [hazard-defense-ledger.yaml] deriving summary (--status final)..." >&2
       if "$SCRIPT_DIR/derive-hazard-defense-summary.sh" "$task_dir" --status final 2>&1 | sed 's/^/    /'; then
         echo "  [hazard-defense-ledger.yaml] summary derived OK" >&2
@@ -188,7 +188,7 @@ for task_dir in "$ACTIVE_DIR"/*/; do
     # Append to system ledger
     if task_in_ledger "$HDL_LEDGER" "$task_id"; then
       echo "  [system-hazard-defense.jsonl] already has $task_id — skipping" >&2
-    elif ! python3 -c "import yaml; d=yaml.safe_load(open('${task_dir}hazard-defense-ledger.yaml')); assert d.get('artifact_status') == 'final'" 2>/dev/null; then
+    elif ! python3 -c "import sys, yaml; d=yaml.safe_load(open(sys.argv[1])); assert d.get('artifact_status') == 'final'" "${task_dir}hazard-defense-ledger.yaml" 2>/dev/null; then
       echo "  [system-hazard-defense.jsonl] SKIP: artifact_status not final" >&2
     else
       echo "  [system-hazard-defense.jsonl] appending $task_id..." >&2
@@ -207,7 +207,7 @@ for task_dir in "$ACTIVE_DIR"/*/; do
   if [ "$has_stress" = true ]; then
     if task_in_ledger "$STRESS_LEDGER" "$task_id"; then
       echo "  [system-stress.jsonl] already has $task_id — skipping" >&2
-    elif ! python3 -c "import yaml; d=yaml.safe_load(open('${task_dir}stress-session.yaml')); assert d.get('artifact_status') == 'final'" 2>/dev/null; then
+    elif ! python3 -c "import sys, yaml; d=yaml.safe_load(open(sys.argv[1])); assert d.get('artifact_status') == 'final'" "${task_dir}stress-session.yaml" 2>/dev/null; then
       echo "  [system-stress.jsonl] SKIP: artifact_status not final" >&2
     else
       echo "  [system-stress.jsonl] appending $task_id..." >&2
