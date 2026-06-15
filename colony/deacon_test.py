@@ -2025,3 +2025,19 @@ class TestJsonlInboxIngestion:
         rows = conn.execute("SELECT event_id FROM events").fetchall()
         conn.close()
         assert rows[0][0] == "enrich-001"
+
+import os
+def test_ensure_colony_base_creates_owner_only(tmp_path) -> None:
+    import deacon
+    p = deacon._ensure_colony_base(tmp_path / "colony")
+    assert p.exists()
+    assert (p.stat().st_mode & 0o777) == 0o700
+
+def test_ensure_colony_base_tightens_existing(tmp_path) -> None:
+    import deacon
+    c2 = tmp_path / "c2"
+    os.makedirs(c2, 0o755)
+    os.chmod(c2, 0o755)
+    p = deacon._ensure_colony_base(c2)
+    assert p.exists()
+    assert (p.stat().st_mode & 0o777) == 0o700
