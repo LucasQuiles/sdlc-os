@@ -195,6 +195,10 @@ def main() -> None:
     with open(args.catalog) as f:
         catalog = json.load(f)
 
+    if not isinstance(catalog, list):
+        print("Error: catalog must be a JSON array", file=sys.stderr)
+        sys.exit(1)
+
     results = detect_tfidf_duplicates(catalog, args.threshold, args.min_shared_idf)
 
     with open(args.output, "w") as f:

@@ -271,7 +271,8 @@ def extract_for_language(
         try:
             with open(path, encoding="utf-8", errors="replace") as f:
                 lines = f.readlines()
-        except OSError:
+        except OSError as exc:
+            print(f"Warning: skipping unreadable file {path}: {exc}", file=sys.stderr)
             continue
 
         rel = os.path.relpath(path, source_dir)
