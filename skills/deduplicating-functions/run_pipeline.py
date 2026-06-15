@@ -54,6 +54,7 @@ def _strict_gate(phase: str, message: str, strict: bool, log_file: str = "") -> 
 # Adjust here (one place) if per-detector RSS drops in Phase 2/3 of the
 # OOM safety work.
 MAX_DETECTOR_JOBS = 4
+DETECTOR_TIMEOUT_S = int(os.environ.get("DEDUP_DETECTOR_TIMEOUT_S", "300"))
 
 
 def _default_jobs() -> int:
@@ -362,11 +363,19 @@ def main():
         # stderr matters, future work should write to temp files and
         # concatenate in collect-order.
         with open(log_file, "a") as lf:
-            cp = subprocess.run(
-                [PYTHON, script_path, catalog_unified, "-o", out_file],
-                stderr=lf, stdout=subprocess.PIPE,
-            )
-        return label, out_file, cp.returncode
+            try:
+                cp = subprocess.run(
+                    [PYTHON, script_path, catalog_unified, "-o", out_file],
+                    stderr=lf, stdout=subprocess.PIPE,
+                    timeout=DETECTOR_TIMEOUT_S,
+                )
+                rc = cp.returncode
+            except subprocess.TimeoutExpired:
+                lf.write(
+                    f"\n[{label}] TIMEOUT after {DETECTOR_TIMEOUT_S}s - counted as failure\n"
+                )
+                rc = 124
+        return label, out_file, rc
 
     # Submit all runnable detectors to a bounded executor.
     # We submit in detector-list order; results are collected in the
