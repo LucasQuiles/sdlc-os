@@ -57,8 +57,12 @@ export function openEventsDb(dbPath: string): void {
       if (/^\s*PRAGMA\b/i.test(stmt)) continue;
       try {
         db.exec(stmt);
-      } catch {
-        // Ignore CREATE IF NOT EXISTS collisions
+      } catch (err) {
+        // Only tolerate "already exists" collisions; real DDL errors must surface.
+        const msg = err instanceof Error ? err.message : String(err);
+        if (!/already exists/i.test(msg)) {
+          throw err;
+        }
       }
     }
   } catch (err) {
@@ -132,7 +136,7 @@ export function queryEvents(
       params.push(opts.event_type);
     }
     sql += ' ORDER BY timestamp DESC';
-    if (opts?.limit) {
+    if (opts?.limit !== undefined) {
       sql += ' LIMIT ?';
       params.push(opts.limit);
     }

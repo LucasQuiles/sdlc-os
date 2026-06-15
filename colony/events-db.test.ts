@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import Database from 'better-sqlite3';
 import { openEventsDb, closeEventsDb, insertEvent, queryEvents, getEventsDb, ColonyDbError } from './events-db.js';
 import type { TypedEvent } from './event-types.js';
 import { unlinkSync } from 'node:fs';
@@ -72,6 +73,50 @@ describe('events-db', () => {
     expect(names).toContain('schema_meta');
   });
 
+  it('can reopen the same events DB path idempotently', () => {
+    closeEventsDb();
+    expect(() => openEventsDb(TEST_DB)).not.toThrow();
+    closeEventsDb();
+    expect(() => openEventsDb(TEST_DB)).not.toThrow();
+  });
+
+  it('tolerates already-exists DDL collisions during schema init', () => {
+    closeEventsDb();
+    cleanupDb();
+    let thrown = false;
+    const execSpy = vi.spyOn(Database.prototype, 'exec');
+    execSpy.mockImplementation(function (this: Database.Database, source: string): Database.Database {
+      if (!thrown && source.includes('CREATE TABLE')) {
+        thrown = true;
+        throw new Error('table events already exists');
+      }
+      return this;
+    });
+
+    try {
+      expect(() => openEventsDb(TEST_DB)).not.toThrow();
+      expect(thrown).toBe(true);
+    } finally {
+      execSpy.mockRestore();
+    }
+  });
+
+  it('rethrows non-collision DDL errors during schema init', () => {
+    closeEventsDb();
+    cleanupDb();
+    const execSpy = vi.spyOn(Database.prototype, 'exec');
+    execSpy.mockImplementation(function (this: Database.Database): Database.Database {
+      throw new Error('near "X": syntax error');
+    });
+
+    try {
+      expect(() => openEventsDb(TEST_DB)).toThrow(ColonyDbError);
+      expect(execSpy).toHaveBeenCalled();
+    } finally {
+      execSpy.mockRestore();
+    }
+  });
+
   it('throws ColonyDbError when DB is not open', () => {
     closeEventsDb();
     expect(() => getEventsDb()).toThrow(ColonyDbError);
@@ -112,5 +157,26 @@ describe('events-db', () => {
     }
     const limited = queryEvents('ws-limit', { limit: 2 });
     expect(limited).toHaveLength(2);
+  });
+
+  it('honors zero, omitted, and positive limits', () => {
+    const base = {
+      workstream_id: 'ws-limit-boundary',
+      event_type: 'bead_started' as const,
+      payload: {},
+      processing_level: 'pending' as const,
+    };
+    for (let i = 0; i < 3; i++) {
+      insertEvent({
+        ...base,
+        event_id: `limit-boundary-${i}`,
+        timestamp: new Date(Date.now() + i * 1000).toISOString(),
+        idempotency_key: `limit-boundary-${i}`,
+      });
+    }
+
+    expect(queryEvents('ws-limit-boundary', { limit: 0 })).toHaveLength(0);
+    expect(queryEvents('ws-limit-boundary')).toHaveLength(3);
+    expect(queryEvents('ws-limit-boundary', { limit: 1 })).toHaveLength(1);
   });
 });
