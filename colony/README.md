@@ -533,6 +533,8 @@ Exit code 0 if all 6 pass, 1 otherwise.
 
 **How to run:**
 
+> **Runtime:** colony's `better-sqlite3` is built for Node 20-23. On a machine whose default `node` is 24+ (e.g. Node 26), run the test/build suite under Node 20 and rebuild the native module first: `PATH=/opt/homebrew/opt/node@20/bin:$PATH npm rebuild better-sqlite3`
+
 ```bash
 # TypeScript tests (bridge + bead-parser)
 cd colony && npx vitest run

@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=notify
-ExecStart=/usr/bin/python3 /home/q/.claude/plugins/sdlc-os/colony/deacon.py
+ExecStart=/usr/bin/python3 %h/.claude/plugins/sdlc-os/colony/deacon.py
 Restart=on-failure
 RestartSec=15
 RestartSteps=5
