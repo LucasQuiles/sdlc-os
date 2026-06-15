@@ -1,6 +1,6 @@
 ---
 name: sdlc-fitness
-description: "Architectural fitness function runner. Automated checks that validate DRY, SSOT, SoC, convention adherence, and structural health. Integrates with the loop system — BLOCKING scores trigger L1 corrections."
+description: "Use when running SDLC architectural fitness checks for DRY, SSOT, SoC, conventions, or structure."
 ---
 
 # Architectural Fitness Functions

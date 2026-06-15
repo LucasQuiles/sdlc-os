@@ -1,6 +1,6 @@
 ---
 name: sdlc-feature-sweep
-description: "Codebase-wide neglected-feature sweep. Finder wave discovers incomplete/forgotten/unwired work and updates docs/sdlc/feature-matrix.md; Finisher wave triages findings and writes completion specs for 50%+ complete items."
+description: "Use when running SDLC neglected-feature sweeps for incomplete, forgotten, or unwired work."
 ---
 
 # SDLC Feature Sweep

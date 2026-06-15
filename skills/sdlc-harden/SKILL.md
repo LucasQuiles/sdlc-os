@@ -1,6 +1,6 @@
 ---
 name: sdlc-harden
-description: "This skill should be used when the Conductor activates Phase 4.5 reliability hardening on a bead that has reached 'hardened' status from AQS, or when the user runs '/harden'. Provides the full per-bead hardening pipeline: premortem, sandwich clean, observability instrumentation, error hardening, red/blue reliability probing, WYSIATI sweep, and evidence ledger."
+description: "Use when SDLC Conductor activates Phase 4.5 hardening, /harden runs, or beads need reliability hardening."
 ---
 
 # Phase 4.5: Reliability Hardening

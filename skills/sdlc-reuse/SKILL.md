@@ -1,6 +1,6 @@
 ---
 name: sdlc-reuse
-description: "Reuse-first protocol. Ensures runners see existing solutions before they start work. Pre-dispatch context injection via the 6-layer analysis chain. Every implementation bead gets a reuse scout report injected into its runner context."
+description: "Use when SDLC work needs reuse-first discovery of existing solutions before implementation dispatch."
 ---
 
 # Reuse-First Protocol

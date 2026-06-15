@@ -1,6 +1,6 @@
 ---
 name: sdlc-loop
-description: "The feedback engine. Every role loops against its own metric. Tight self-correction inside tight self-correction inside tight self-correction. Failures propagate pressure backward only when a loop exhausts its budget."
+description: "Use when SDLC role loops need metric-driven self-correction or loop-budget failure propagation."
 ---
 
 # Loop Mechanics

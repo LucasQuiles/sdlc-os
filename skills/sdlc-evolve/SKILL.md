@@ -1,6 +1,6 @@
 ---
 name: sdlc-evolve
-description: "System self-improvement mode. Dispatches evolution beads for auto-rule generation from repeated findings, constitution staleness checks, calibration parameter tuning via Deming PDSA, precedent coherence audits, and deviance normalization monitoring. Triggered automatically when quality budget reaches WARNING, every 20th task, or manually via /evolve."
+description: "Use when SDLC evolution is triggered for repeated findings, stale doctrine, calibration, or deviance monitoring."
 ---
 
 # SDLC Evolve: System Self-Improvement

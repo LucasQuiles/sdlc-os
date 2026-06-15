@@ -1,6 +1,6 @@
 ---
 name: sdlc-gap-analysis
-description: "Coordinated gap analysis waves — Feature Finder pre-implementation maps what exists vs what's needed, Feature Finisher post-implementation verifies delivery completeness. Automatically during Scout (Finder) and Synthesize (Finisher), or on-demand via /gap-analysis."
+description: "Use when running SDLC feature gap analysis before implementation or delivery-completeness checks after implementation."
 ---
 
 # Gap Analysis Waves
