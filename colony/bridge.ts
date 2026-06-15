@@ -27,6 +27,7 @@ import { parseBeadFile, updateBeadField, appendCorrection } from './bead-parser.
 export interface BridgeInput {
   beadFilePath: string;
   cloneDir: string;
+  dbPath?: string;
   loopLevel: string | null | undefined;
   taskCompleted: boolean;
   finding?: string;
@@ -98,6 +99,11 @@ export interface BridgeEvent {
 export function appendEventToInbox(inboxPath: string, event: BridgeEvent): void {
   const line = JSON.stringify(event) + '\n';
   appendFileSync(inboxPath, line, 'utf8');
+}
+
+// Canonical inbox location; must match deacon.py _ingest_jsonl_inbox.
+function inboxPathForDb(dbPath: string): string {
+  return join(dirname(dbPath), 'events-inbox.jsonl');
 }
 
 function makeEventId(beadId: string): string {
@@ -286,21 +292,24 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
 
     // Emit bead_failed event to JSONL inbox
     try {
-      const inboxPath = join(dirname(cloneDir), 'events-inbox.jsonl');
-      appendEventToInbox(inboxPath, {
-        event_id: makeEventId(beadId),
-        event_type: 'bead_failed',
-        workstream_id: extractWorkstreamId(beadFilePath),
-        bead_id: beadId,
-        timestamp: new Date().toISOString(),
-        payload: {
-          finding: correctionText,
-          cycle: correctionCycle,
-          loop_level: loopLevel,
-        },
-        processing_level: loopLevel,
-        idempotency_key: `bead_failed:${beadId}:${loopLevel}:${correctionCycle}`,
-      });
+      if (input.dbPath) {
+        appendEventToInbox(inboxPathForDb(input.dbPath), {
+          event_id: makeEventId(beadId),
+          event_type: 'bead_failed',
+          workstream_id: extractWorkstreamId(beadFilePath),
+          bead_id: beadId,
+          timestamp: new Date().toISOString(),
+          payload: {
+            finding: correctionText,
+            cycle: correctionCycle,
+            loop_level: loopLevel,
+          },
+          processing_level: loopLevel,
+          idempotency_key: `bead_failed:${beadId}:${loopLevel}:${correctionCycle}`,
+        });
+      } else {
+        console.warn('[bridge] Warning: skipping bead_failed event emit because dbPath is missing');
+      }
     } catch {
       // Event emission must never crash the bridge
     }
@@ -400,21 +409,24 @@ export function bridgeUpdateBead(input: BridgeInput): BridgeResult {
 
   // Emit bead_completed event to JSONL inbox
   try {
-    const inboxPath = join(dirname(cloneDir), 'events-inbox.jsonl');
-    appendEventToInbox(inboxPath, {
-      event_id: makeEventId(beadId),
-      event_type: 'bead_completed',
-      workstream_id: extractWorkstreamId(beadFilePath),
-      bead_id: beadId,
-      timestamp: new Date().toISOString(),
-      payload: {
-        new_status: transition.to,
-        loop_level: loopLevel,
-        output_summary: `Bead ${beadId} advanced to ${transition.to}`,
-      },
-      processing_level: loopLevel,
-      idempotency_key: `bead_completed:${beadId}:${loopLevel}:${statusIndex(transition.to)}`,
-    });
+    if (input.dbPath) {
+      appendEventToInbox(inboxPathForDb(input.dbPath), {
+        event_id: makeEventId(beadId),
+        event_type: 'bead_completed',
+        workstream_id: extractWorkstreamId(beadFilePath),
+        bead_id: beadId,
+        timestamp: new Date().toISOString(),
+        payload: {
+          new_status: transition.to,
+          loop_level: loopLevel,
+          output_summary: `Bead ${beadId} advanced to ${transition.to}`,
+        },
+        processing_level: loopLevel,
+        idempotency_key: `bead_completed:${beadId}:${loopLevel}:${statusIndex(transition.to)}`,
+      });
+    } else {
+      console.warn('[bridge] Warning: skipping bead_completed event emit because dbPath is missing');
+    }
   } catch {
     // Event emission must never crash the bridge
   }
@@ -446,6 +458,7 @@ export function bridgeCommitBeadUpdate(
   loopLevel: string,
   expectedBranch: string,
   taskId?: string,
+  dbPath?: string,
 ): CommitResult {
   // SC-COL-30: Verify branch
   let currentBranch: string;
@@ -523,21 +536,24 @@ export function bridgeCommitBeadUpdate(
 
   // Emit commit_created event to JSONL inbox
   try {
-    const inboxPath = join(dirname(projectDir), 'events-inbox.jsonl');
-    appendEventToInbox(inboxPath, {
-      event_id: makeEventId(beadId),
-      event_type: 'commit_created',
-      workstream_id: extractWorkstreamId(beadFilePath),
-      bead_id: beadId,
-      timestamp: new Date().toISOString(),
-      payload: {
-        commit_hash: commitHash,
-        changed_files: changedFiles,
-        loop_level: loopLevel,
-      },
-      processing_level: loopLevel,
-      idempotency_key: `commit_created:${beadId}:${loopLevel}:${commitHash.slice(0, 8)}`,
-    });
+    if (dbPath) {
+      appendEventToInbox(inboxPathForDb(dbPath), {
+        event_id: makeEventId(beadId),
+        event_type: 'commit_created',
+        workstream_id: extractWorkstreamId(beadFilePath),
+        bead_id: beadId,
+        timestamp: new Date().toISOString(),
+        payload: {
+          commit_hash: commitHash,
+          changed_files: changedFiles,
+          loop_level: loopLevel,
+        },
+        processing_level: loopLevel,
+        idempotency_key: `commit_created:${beadId}:${loopLevel}:${commitHash.slice(0, 8)}`,
+      });
+    } else {
+      console.warn('[bridge] Warning: skipping commit_created event emit because dbPath is missing');
+    }
   } catch {
     // Event emission must never crash the bridge
   }

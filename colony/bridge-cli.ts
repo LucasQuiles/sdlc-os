@@ -110,6 +110,7 @@ function main(): void {
   const bridgeInput: BridgeInput = {
     beadFilePath: parsed.beadFile,
     cloneDir: parsed.cloneDir,
+    dbPath: parsed.dbPath,
     loopLevel: parsed.loopLevel,
     taskCompleted: parsed.completed,
     finding: parsed.finding,
@@ -142,6 +143,7 @@ function main(): void {
     parsed.loopLevel,
     parsed.expectedBranch,
     parsed.taskId,
+    parsed.dbPath,
   );
 
   // Step 3: Mark bridge_synced only on successful advancement (not corrections)
