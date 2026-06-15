@@ -128,6 +128,12 @@ def clean_lock_files() -> None:
     BRIDGE_LOCK_FILE.unlink(missing_ok=True)
 
 
+@pytest.fixture(autouse=True)
+def mock_claude_binary() -> Iterator[None]:
+    with patch("deacon.shutil.which", return_value="/usr/local/bin/claude"):
+        yield
+
+
 def _init_events_db(tmp_db: str) -> Path:
     """Bootstrap a minimal events.db alongside the tmup fixture DB."""
     events_db = Path(tmp_db).with_name("events.db")
@@ -327,6 +333,24 @@ class TestCanSpawnConductor:
 
 
 class TestSpawnConductor:
+    def test_missing_claude_binary_fails_fast(self, deacon: Deacon) -> None:
+        with (
+            patch("deacon.shutil.which", return_value=None),
+            patch("deacon.subprocess.Popen") as mock_popen,
+        ):
+            with pytest.raises(RuntimeError, match="claude executable not found"):
+                deacon.spawn_conductor("DISPATCH")
+
+        mock_popen.assert_not_called()
+        assert not LOCK_FILE.exists()
+
+    def test_build_command_uses_resolved_claude_binary(self, deacon: Deacon) -> None:
+        with patch("deacon.shutil.which", return_value="/opt/homebrew/bin/claude"):
+            cmd = deacon._build_conductor_command("DISPATCH", "prompt text")
+
+        assert cmd[0] == "/opt/homebrew/bin/claude"
+        assert cmd[1] == "-p"
+
     def test_command_string_validation_m5(self, deacon: Deacon) -> None:
         """Council M5: Verify spawn_conductor command contains required flags."""
         with patch("deacon.subprocess.Popen") as mock_popen:
@@ -1270,6 +1294,23 @@ class TestEscalation:
         assert data["bead_id"] == "bead-x"
 
 
+class TestEventPersistence:
+    def test_persist_event_deadletters_on_db_failure(self, tmp_db: str, tmp_path: Path) -> None:
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        deadletter_path = tmp_path / "events-deadletter.jsonl"
+
+        with (
+            patch.dict(os.environ, {"EVENTS_DEADLETTER": str(deadletter_path)}),
+            patch.object(deacon, "_connect_events_db", side_effect=sqlite3.Error("boom")),
+        ):
+            deacon._persist_event("test_event", {"answer": 42})
+
+        record = json.loads(deadletter_path.read_text().strip())
+        assert record["event_type"] == "test_event"
+        assert record["payload"] == {"answer": 42}
+        assert record["error"] == "boom"
+
+
 class TestMaintenanceWatchdog:
     """Maintenance cycle failure tracking, alerting, and degraded mode."""
 
@@ -1479,6 +1520,38 @@ class TestSynthesizeTimeout:
 
 class TestClonePruning:
     """SC-COL-31: Prune stale clone directories."""
+
+    def test_connect_error_logs_without_unbound_conn_error(
+        self,
+        tmp_db: str,
+        tmp_path: Path,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        import sys
+
+        deacon = Deacon(db_path=tmp_db, project_dir=str(tmp_path))
+        unbound_errors: list[BaseException] = []
+
+        def trace_unbound_conn(frame, event: str, arg):
+            if event == "exception" and frame.f_code.co_name == "_prune_stale_clones":
+                exc_type, exc, _tb = arg
+                if issubclass(exc_type, UnboundLocalError):
+                    unbound_errors.append(exc)
+            return trace_unbound_conn
+
+        previous_trace = sys.gettrace()
+        try:
+            with (
+                patch("deacon.sqlite3.connect", side_effect=sqlite3.Error("nope")),
+                caplog.at_level(logging.ERROR, logger="deacon"),
+            ):
+                sys.settrace(trace_unbound_conn)
+                deacon._prune_stale_clones()
+        finally:
+            sys.settrace(previous_trace)
+
+        assert unbound_errors == []
+        assert any("clone_prune_db_error" in record.message for record in caplog.records)
 
     def test_prune_synced_clone(self, tmp_db: str, tmp_path: Path) -> None:
         """Synced completed clone with no active tasks should be pruned."""

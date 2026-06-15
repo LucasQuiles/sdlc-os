@@ -322,6 +322,22 @@ class Deacon:
             conn.commit()
         except Exception as e:
             log.warning("Failed to persist event %s: %s", event_type, e)
+            dl_path = os.environ.get(
+                "EVENTS_DEADLETTER",
+                os.path.expanduser("~/agents/lab/events-deadletter.jsonl"),
+            )
+            try:
+                self._write_deadletter(
+                    dl_path,
+                    {
+                        "event_type": event_type,
+                        "payload": payload,
+                        "error": str(e),
+                        "timestamp": time.time(),
+                    },
+                )
+            except OSError:
+                log.warning("events_deadletter_write_failed event_type=%s", event_type)
         finally:
             if conn is not None:
                 try:
@@ -619,6 +635,7 @@ class Deacon:
         SC-COL-31: Only prune if zero active tasks reference the clone_dir.
         Prune if bridge_synced=1 OR clone age > 24h.
         """
+        conn = None
         try:
             # Open a fresh connection for this thread — _get_db() returns the
             # main-thread connection which cannot be used from asyncio.to_thread.
@@ -681,10 +698,11 @@ class Deacon:
         except sqlite3.Error:
             log.exception("clone_prune_db_error")
         finally:
-            try:
-                conn.close()
-            except Exception:
-                pass
+            if conn is not None:
+                try:
+                    conn.close()
+                except sqlite3.Error:
+                    pass
 
         # Log rotation
         for log_name in ("colony-sessions.log", "colony-bridge.log", "clone-events.log"):
@@ -1006,8 +1024,13 @@ class Deacon:
 
     def _build_conductor_command(self, session_type: str, prompt_text: str) -> list[str]:
         """Build the claude -p command for the Conductor."""
+        claude_bin = shutil.which("claude")
+        if claude_bin is None:
+            raise RuntimeError(
+                "claude executable not found on PATH — cannot spawn Conductor"
+            )
         cmd = [
-            "claude",
+            claude_bin,
             "-p",
             "--model",
             "opus",
