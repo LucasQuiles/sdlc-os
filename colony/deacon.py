@@ -1387,16 +1387,25 @@ def _parse_conductor_output(
         else:
             stdout, _stderr = proc.communicate(timeout=10)
 
-        # Parse output or use sentinel values
+        # Empty or unparseable conductor stdout is a session failure, not a
+        # $0 success.
         session_id = "unknown"
         cost = 0.0
-        if stdout:
+        outcome = "ok"
+        failure_reason = ""
+        if not stdout:
+            outcome = "failed"
+            failure_reason = "empty_conductor_output"
+            log.error("Conductor produced no output; recording session failure")
+        else:
             try:
                 data: dict[str, Any] = json.loads(stdout)
                 session_id = data.get("session_id", "unknown")
                 cost = data.get("total_cost_usd", 0.0)
             except json.JSONDecodeError:
-                log.warning("Failed to parse conductor JSON output, using sentinel values")
+                outcome = "failed"
+                failure_reason = "unparseable_conductor_output"
+                log.error("Failed to parse conductor JSON output; recording session failure")
 
         log.info("Conductor session %s cost $%.4f", session_id, cost)
 
@@ -1426,6 +1435,8 @@ def _parse_conductor_output(
             "exit_code": proc.returncode,
             "wall_clock_s": round(wall_clock_s, 1),
             "bead_ids": bead_ids,
+            "outcome": outcome,
+            "failure_reason": failure_reason,
         }
 
         # Append to session log
@@ -1505,12 +1516,20 @@ async def _check_conductor_timeout(deacon: Deacon) -> None:
                     # Reset deferral counters on actual termination
                     deacon._bridge_deferral_count = 0
                     deacon._bridge_deferral_start = 0.0
-                    proc.terminate()  # SIGTERM
+                    stdout = b""
                     try:
-                        stdout, _stderr = proc.communicate(timeout=5)
-                    except subprocess.TimeoutExpired:
-                        proc.kill()
-                        stdout, _stderr = proc.communicate()
+                        proc.terminate()  # SIGTERM
+                        try:
+                            stdout, _stderr = proc.communicate(timeout=5)
+                        except subprocess.TimeoutExpired:
+                            proc.kill()
+                            stdout, _stderr = proc.communicate()
+                    except (ValueError, OSError, ProcessLookupError):
+                        log.exception("conductor terminate/kill raised; forcing kill")
+                        try:
+                            proc.kill()
+                        except (ValueError, OSError, ProcessLookupError):
+                            pass
                     # Pass stdout directly to parser instead of side-channel
                     _parse_conductor_output(proc, deacon, stdout_override=stdout)
                     deacon._release_lock()

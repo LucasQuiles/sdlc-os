@@ -49,6 +49,7 @@ from deacon import (
     WATCHDOG_SELF_TIMEOUT_S,
     MAX_BRIDGE_DEFERRAL_COUNT,
     MAX_WATCHER_BACKOFF,
+    _DEFAULT_SESSION_LOG,
     _is_lock_stale,
     _is_bridge_lock_stale,
     _wait_for_git_lock_release,
@@ -697,6 +698,127 @@ class TestConductorTimeoutCleanup:
         assert mock_proc.communicate.call_count == 2
         assert not LOCK_FILE.exists()
 
+    def test_terminate_error_force_kills_and_recovers(self, deacon: Deacon) -> None:
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None
+        mock_proc.returncode = 1
+        mock_proc.terminate.side_effect = OSError("terminate failed")
+        deacon.conductor_process = mock_proc
+        deacon.state = DeaconState.CONDUCTING
+
+        old_time = time.time() - CONDUCTOR_TIMEOUT_DISPATCH_S - 10
+        LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
+        try:
+            with (
+                patch.object(deacon, "_release_lock", wraps=deacon._release_lock) as release_lock,
+                patch("deacon._parse_conductor_output") as parse_output,
+            ):
+                asyncio.run(_check_conductor_timeout(deacon))
+
+            mock_proc.terminate.assert_called_once()
+            mock_proc.kill.assert_called_once()
+            parse_output.assert_called_once_with(mock_proc, deacon, stdout_override=b"")
+            release_lock.assert_called_once()
+            assert deacon.conductor_process is None
+            assert deacon.state == DeaconState.RECOVERING
+            assert not LOCK_FILE.exists()
+        finally:
+            LOCK_FILE.unlink(missing_ok=True)
+
+    def test_process_lookup_error_force_kills_and_recovers(self, deacon: Deacon) -> None:
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None
+        mock_proc.returncode = 1
+        mock_proc.terminate.side_effect = ProcessLookupError("process gone")
+        deacon.conductor_process = mock_proc
+        deacon.state = DeaconState.CONDUCTING
+
+        old_time = time.time() - CONDUCTOR_TIMEOUT_DISPATCH_S - 10
+        LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
+        try:
+            with (
+                patch.object(deacon, "_release_lock", wraps=deacon._release_lock) as release_lock,
+                patch("deacon._parse_conductor_output") as parse_output,
+            ):
+                asyncio.run(_check_conductor_timeout(deacon))
+
+            mock_proc.kill.assert_called_once()
+            parse_output.assert_called_once_with(mock_proc, deacon, stdout_override=b"")
+            release_lock.assert_called_once()
+            assert deacon.conductor_process is None
+            assert deacon.state == DeaconState.RECOVERING
+        finally:
+            LOCK_FILE.unlink(missing_ok=True)
+
+    def test_communicate_oserror_force_kills_and_recovers(self, deacon: Deacon) -> None:
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None
+        mock_proc.returncode = 1
+        mock_proc.communicate.side_effect = OSError("communicate failed")
+        deacon.conductor_process = mock_proc
+        deacon.state = DeaconState.CONDUCTING
+
+        old_time = time.time() - CONDUCTOR_TIMEOUT_DISPATCH_S - 10
+        LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
+        try:
+            with (
+                patch.object(deacon, "_release_lock", wraps=deacon._release_lock) as release_lock,
+                patch("deacon._parse_conductor_output") as parse_output,
+            ):
+                asyncio.run(_check_conductor_timeout(deacon))
+
+            mock_proc.terminate.assert_called_once()
+            mock_proc.kill.assert_called_once()
+            parse_output.assert_called_once_with(mock_proc, deacon, stdout_override=b"")
+            release_lock.assert_called_once()
+            assert deacon.conductor_process is None
+            assert deacon.state == DeaconState.RECOVERING
+        finally:
+            LOCK_FILE.unlink(missing_ok=True)
+
+    def test_normal_timeout_path_still_recovers(self, deacon: Deacon) -> None:
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None
+        mock_proc.returncode = 0
+        mock_proc.communicate.return_value = (b'{"session_id":"s1"}', b"")
+        deacon.conductor_process = mock_proc
+        deacon.state = DeaconState.CONDUCTING
+
+        old_time = time.time() - CONDUCTOR_TIMEOUT_DISPATCH_S - 10
+        LOCK_FILE.write_text(f"{os.getpid()}\n{old_time}\n")
+        try:
+            with patch("deacon._parse_conductor_output") as parse_output:
+                asyncio.run(_check_conductor_timeout(deacon))
+
+            mock_proc.terminate.assert_called_once()
+            parse_output.assert_called_once_with(
+                mock_proc,
+                deacon,
+                stdout_override=b'{"session_id":"s1"}',
+            )
+            assert deacon.conductor_process is None
+            assert deacon.state == DeaconState.RECOVERING
+        finally:
+            LOCK_FILE.unlink(missing_ok=True)
+
+    def test_recent_lock_does_not_transition(self, deacon: Deacon) -> None:
+        mock_proc = MagicMock()
+        mock_proc.poll.return_value = None
+        deacon.conductor_process = mock_proc
+        deacon.state = DeaconState.CONDUCTING
+
+        LOCK_FILE.write_text(f"{os.getpid()}\n{time.time()}\n")
+        try:
+            with patch.object(deacon, "_transition_to", wraps=deacon._transition_to) as transition:
+                asyncio.run(_check_conductor_timeout(deacon))
+
+            mock_proc.terminate.assert_not_called()
+            transition.assert_not_called()
+            assert deacon.conductor_process is mock_proc
+            assert deacon.state == DeaconState.CONDUCTING
+        finally:
+            LOCK_FILE.unlink(missing_ok=True)
+
 
 class TestSpawnLock:
     """Adversarial A3: _spawn_lock must exist and be an asyncio.Lock."""
@@ -965,6 +1087,72 @@ class TestParseOutputEnhanced:
                 log_path.write_text(existing_content)
             elif log_path.exists():
                 log_path.unlink()
+
+
+class TestOutputValidationFailClosed:
+    def _parse_last_record(self) -> dict[str, object]:
+        log_path = Path(_DEFAULT_SESSION_LOG)
+        return json.loads(log_path.read_text().strip().split("\n")[-1])
+
+    def _preserve_session_log(self) -> tuple[Path, bool, str]:
+        log_path = Path(_DEFAULT_SESSION_LOG)
+        return log_path, log_path.exists(), log_path.read_text() if log_path.exists() else ""
+
+    def _restore_session_log(self, log_path: Path, had_existing: bool, content: str) -> None:
+        if had_existing:
+            log_path.write_text(content)
+        elif log_path.exists():
+            log_path.unlink()
+
+    def test_empty_stdout_records_failed_outcome(self, deacon: Deacon) -> None:
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        log_path, had_existing, existing_content = self._preserve_session_log()
+
+        try:
+            _parse_conductor_output(mock_proc, deacon, stdout_override=b"")
+
+            record = self._parse_last_record()
+            assert record["outcome"] == "failed"
+            assert record["failure_reason"] == "empty_conductor_output"
+            assert record["total_cost_usd"] == 0.0
+        finally:
+            self._restore_session_log(log_path, had_existing, existing_content)
+
+    def test_unparseable_stdout_records_failed_outcome(self, deacon: Deacon) -> None:
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        log_path, had_existing, existing_content = self._preserve_session_log()
+
+        try:
+            _parse_conductor_output(mock_proc, deacon, stdout_override=b"garbage")
+
+            record = self._parse_last_record()
+            assert record["outcome"] == "failed"
+            assert record["failure_reason"] == "unparseable_conductor_output"
+            assert record["session_id"] == "unknown"
+        finally:
+            self._restore_session_log(log_path, had_existing, existing_content)
+
+    def test_valid_json_records_ok_outcome(self, deacon: Deacon) -> None:
+        mock_proc = MagicMock()
+        mock_proc.returncode = 0
+        log_path, had_existing, existing_content = self._preserve_session_log()
+
+        try:
+            _parse_conductor_output(
+                mock_proc,
+                deacon,
+                stdout_override=b'{"session_id":"s1","total_cost_usd":1.5}',
+            )
+
+            record = self._parse_last_record()
+            assert record["outcome"] == "ok"
+            assert record["failure_reason"] == ""
+            assert record["session_id"] == "s1"
+            assert record["total_cost_usd"] == 1.5
+        finally:
+            self._restore_session_log(log_path, had_existing, existing_content)
 
 
 class TestWatchdogNearMiss:
