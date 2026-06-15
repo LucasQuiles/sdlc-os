@@ -15,6 +15,11 @@ set -euo pipefail
 
 COLONY_BASE="${COLONY_BASE:-/tmp/sdlc-colony}"
 
+_ensure_colony_base() {
+  mkdir -p "${COLONY_BASE}"
+  chmod 700 "${COLONY_BASE}" 2>/dev/null || true
+}
+
 # _colony_log <event> <key=val pairs...>
 # Appends a timestamped JSON line to ${COLONY_BASE}/clone-events.log
 # Pure-bash implementation (no python3 subprocess per call).
@@ -55,6 +60,7 @@ colony_clone_create() {
   local start_ns=$(date +%s%N)
 
   # Ensure parent directory exists
+  _ensure_colony_base
   mkdir -p "$(dirname "$clone_dir")"
 
   # Full clone via file:// protocol (not shallow — workers need full history)
@@ -186,6 +192,7 @@ colony_clone_recover_output() {
   local task_id="${2:?colony_clone_recover_output: task_id required}"
 
   local recover_dir="${COLONY_BASE}/recovered-outputs/${task_id}"
+  _ensure_colony_base
   mkdir -p "${recover_dir}"
 
   local found=0

@@ -38,6 +38,19 @@ log = logging.getLogger("deacon")
 LOCK_FILE = Path("/tmp/sdlc-colony-conductor.lock")
 BRIDGE_LOCK_FILE = Path("/tmp/sdlc-colony-bridge.lock")
 COLONY_BASE = "/tmp/sdlc-colony/"
+
+def _ensure_colony_base(base: "str | Path" = COLONY_BASE) -> Path:
+    """Create the colony base dir owner-only (0700) so other users on a shared
+    host cannot traverse/inject under a predictable /tmp path. Enforces 0700 even
+    if the dir pre-existed with looser perms."""
+    p = Path(base)
+    p.mkdir(mode=0o700, parents=True, exist_ok=True)
+    try:
+        os.chmod(p, 0o700)
+    except OSError as e:
+        log.warning("colony_base_chmod_failed path=%s err=%s", p, e)
+    return p
+
 STALE_LOCK_TIMEOUT_S = 180  # 3 minutes
 BRIDGE_STALE_TIMEOUT_S = 60  # 1 minute
 HEARTBEAT_STALE_THRESHOLD_S = 300  # 5 minutes default
@@ -1150,6 +1163,7 @@ class Deacon:
                     else:
                         output_path = Path(real_clone) / "bead-output.md"
                         if output_path.exists():
+                            _ensure_colony_base()
                             recover_dir = Path(COLONY_BASE) / "recovered-outputs" / task_id
                             recover_dir.mkdir(parents=True, exist_ok=True)
                             (recover_dir / "bead-output.md").write_text(
