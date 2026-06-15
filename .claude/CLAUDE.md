@@ -34,6 +34,8 @@ Claude Code plugin: 15 skills, 45 agents, quality-gated delivery through beads, 
 
 ### Testing — Required Before Any Commit to colony/
 
+> **Runtime:** colony's `better-sqlite3` is built for Node 20-23. On a machine whose default `node` is 24+ (e.g. Node 26), run the test/build suite under Node 20 and rebuild the native module first: `PATH=/opt/homebrew/opt/node@20/bin:$PATH npm rebuild better-sqlite3`
+
     cd colony && npx tsc --noEmit            # TypeScript: 0 errors
     cd colony && npx vitest run              # 40 tests pass
     cd colony && python3 -m pytest deacon_test.py -q  # 84 tests pass
