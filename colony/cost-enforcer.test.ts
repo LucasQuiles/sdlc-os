@@ -35,4 +35,16 @@ describe('CostEnforcer', () => {
     expect(enforcer.checkBudget('ws-001').phase).toBe('warning');
     expect(enforcer.checkBudget('ws-002').phase).toBe('normal');
   });
+
+  it('fails closed: refuses a zero ceiling (no NaN-ratio fail-open)', () => {
+    expect(() => new CostEnforcer(0)).toThrow(/positive finite ceiling/);
+  });
+
+  it('fails closed: refuses a negative ceiling', () => {
+    expect(() => new CostEnforcer(-5)).toThrow(/positive finite ceiling/);
+  });
+
+  it('fails closed: refuses a NaN ceiling', () => {
+    expect(() => new CostEnforcer(Number.NaN)).toThrow(/positive finite ceiling/);
+  });
 });

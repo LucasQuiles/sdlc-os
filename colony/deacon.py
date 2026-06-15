@@ -943,18 +943,27 @@ class Deacon:
 
         # Cost enforcement: check per-bead budgets before DISPATCH/DISCOVER
         if st in (SessionType.DISPATCH, SessionType.DISCOVER):
+            ceiling = BEAD_COST_CEILING_USD
+            if ceiling <= 0:
+                # A non-positive ceiling is a misconfiguration. Fail closed:
+                # block dispatch rather than treating every bead as in-budget
+                # (the old `ratio = ... if ceiling > 0 else 0` silently allowed all).
+                log.error(
+                    "BEAD_COST_CEILING_USD=%.2f is not positive — blocking dispatch (fail closed)",
+                    ceiling,
+                )
+                return None
             try:
                 conn = self._get_db()
                 bead_rows = conn.execute(
                     "SELECT DISTINCT bead_id FROM tasks "
                     "WHERE sdlc_loop_level IS NOT NULL AND bead_id IS NOT NULL AND status = 'pending'"
                 ).fetchall()
-                ceiling = BEAD_COST_CEILING_USD
                 cost_map = self._build_cost_map()
                 for br in bead_rows:
                     bid = br["bead_id"]
                     cost = cost_map.get(bid, 0.0)
-                    ratio = cost / ceiling if ceiling > 0 else 0
+                    ratio = cost / ceiling
                     if ratio >= 1.0:
                         log.warning(
                             "Budget exceeded for %s: $%.2f / $%.2f — blocking dispatch",
@@ -965,7 +974,10 @@ class Deacon:
                         log.info("Budget warning for %s — discovery disabled", bid)
                         return None
             except sqlite3.Error:
-                log.exception("Cost enforcement check failed")
+                # Cost enforcement could not run — fail closed: do not dispatch an
+                # unbudgeted conductor just because the budget DB read failed.
+                log.exception("Cost enforcement check failed — blocking dispatch (fail closed)")
+                return None
 
         # Read conductor prompt
         prompt_text = CONDUCTOR_PROMPT_FILE.read_text() if CONDUCTOR_PROMPT_FILE.exists() else ""
