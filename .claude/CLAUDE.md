@@ -67,7 +67,13 @@ Key constraints:
 - tools: allowlists are enforced at session startup only (not after /reload-plugins)
 - Read-only agents cannot Bash, Write, or Edit
 - Write-capable agents get worktree isolation and local memory
-- Phase 2 (hooks, mcpServers, permissionMode) requires promotion to ~/.claude/agents/
+- Phase 2 (executed 2026-07-05 via current harness, no file promotion needed):
+  - permissionMode → dispatch-time `mode` param on the Agent tool; sdlc-orchestrate
+    dispatches `sonnet-implementer` with `acceptEdits` (SKILL.md step 2, wave-definitions Execute)
+  - mcpServers → satisfied by session-global plugin MCP servers; agent `tools:`
+    allowlists name them directly (e.g. reuse-scout → mcp__plugin_pinecone_pinecone__*)
+  - hooks → no agent defines hook values; promotion to `~/.claude/agents/` remains
+    the documented path only if an agent-scoped hook consumer ever appears
 
 ## Development Conventions
 - TypeScript: strict mode, vitest, ES2022
