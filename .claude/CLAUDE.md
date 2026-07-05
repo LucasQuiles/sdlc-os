@@ -67,15 +67,11 @@ Key constraints:
 - tools: allowlists are enforced at session startup only (not after /reload-plugins)
 - Read-only agents cannot Bash, Write, or Edit
 - Write-capable agents get worktree isolation and local memory
-- Phase 2 (executed 2026-07-05 via current harness, no file promotion needed):
-  - permissionMode → dispatch-time `mode` param on the Agent tool; runners dispatch
-    with `mode: auto` (inherits parent allow/deny — SKILL.md "How to Dispatch Runners");
-    `acceptEdits` only for edit-only auto-acceptance under worktree isolation when
-    the parent allow-list lacks Edit/Write (it does NOT cover Bash)
-  - mcpServers → satisfied by session-global plugin MCP servers; agent `tools:`
-    allowlists name them directly (e.g. reuse-scout → `mcp__plugin_pinecone_pinecone__*`)
-  - hooks → no agent defines hook values; promotion to `~/.claude/agents/` remains
-    the documented path only if an agent-scoped hook consumer ever appears
+- Phase 2 (executed 2026-07-05, no file promotion needed): permissionMode =
+  dispatch-time Agent-tool `mode` param — authority is sdlc-orchestrate SKILL.md
+  "How to Dispatch Runners" (`mode: auto`); mcpServers = session-global plugin MCP
+  named in agent `tools:`; hooks = no consumer (promote to `~/.claude/agents/`
+  only if one appears)
 
 ## Development Conventions
 - TypeScript: strict mode, vitest, ES2022

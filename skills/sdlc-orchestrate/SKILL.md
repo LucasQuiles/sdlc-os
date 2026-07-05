@@ -239,7 +239,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - Dispatch `reuse-scout` (haiku) — runs the 6-layer analysis chain (episodic → Pinecone → grep → LSP symbols → LSP calls → synthesis)
    - Inject scout report into runner context as "Existing Solutions"
 1.5. **Stress sampling (FFT-15):** Before dispatching runners, evaluate FFT-15 from `references/fft-decision-trees.md` using quality-budget.yaml state, clean streak from system-stress.jsonl, bead complexity, and the deterministic seed (`sha256(task_id)`). If FFT-15 returns anything other than SKIP, create `stress-session.yaml` with `artifact_status: planned` and the selected stressors. Stressor probes are applied during AQS (Step 4) alongside domain probes.
-2. Dispatch execution units — `sonnet-implementer` runners by default, or tmup-managed Codex lanes when warm context, repo-scale coordination, or interactive reprompting justifies a persistent lane. Parallel when independent. Phase 2 permissionMode is enforced at dispatch time via the Agent tool's `mode` param: runners (including `sonnet-implementer`) always dispatch with `mode: auto` per "How to Dispatch Runners" below — it inherits the parent's allow/deny lists so Write/Edit/Bash flow without prompts. Reserve `acceptEdits` for the narrow case where the parent's allow-list lacks Edit/Write AND the runner is worktree-isolated; it auto-accepts only edit tools, so Bash would still prompt.
+2. Dispatch execution units — `sonnet-implementer` runners by default, or tmup-managed Codex lanes when warm context, repo-scale coordination, or interactive reprompting justifies a persistent lane. Parallel when independent. Dispatch mode for every runner is governed by "How to Dispatch Runners" below (`mode: auto` — Phase 2 permissionMode, enforced at dispatch time).
 3. After each runner submits, sentinel loop runs:
    - `haiku-verifier` checks acceptance criteria
    - `drift-detector` checks DRY/SSOT/SoC/pattern/boundary violations
@@ -350,7 +350,7 @@ Agent tool:
     {format from the agent definition — varies by agent type}
 ```
 
-**IMPORTANT: Always set `mode: auto`** for runners and sentinels. Without this, subagents start with an empty allow list under dontAsk mode — even when the parent session allows Write/Edit/Bash. `auto` inherits the parent's allow/deny lists and auto-approves without prompting. Do NOT use `bypassPermissions` — it skips deny lists and may skip hooks.
+**IMPORTANT: Always set `mode: auto`** for runners and sentinels. Without this, subagents start with an empty allow list under dontAsk mode — even when the parent session allows Write/Edit/Bash. `auto` inherits the parent's allow/deny lists and auto-approves without prompting. Do NOT use `bypassPermissions` — it skips deny lists and may skip hooks. `acceptEdits` is a narrower fallback (auto-accepts only edit tools — Bash still prompts): use it only for a worktree-isolated writer when the parent allow-list lacks Edit/Write.
 
 tmup-managed Codex lanes are the deliberate exception to the disposable-runner pattern. When you choose tmup, do not copy this packet verbatim into a pane. tmup already injects the baseline runtime contract, lane discipline, tmux input model, process context, quality posture, internal team rules, and `tmup-cli` reference. Add only the mission-specific delta, then supervise the lane with `harvest -> evaluate -> reprompt`. If the lane still has the right context, reuse it instead of spawning a replacement.
 
