@@ -1,6 +1,6 @@
 ---
 name: sonnet-investigator
-description: Sonnet-powered investigator for SDLC discovery and requirements analysis.
+description: "Sonnet-powered investigator for SDLC discovery and requirements analysis."
 model: sonnet
 effort: high
 tools: Read, Grep, Glob, LS, LSP, Skill

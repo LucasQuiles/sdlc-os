@@ -1,6 +1,6 @@
 ---
 name: blue-usability
-description: Blue team usability defender — triages red team usability findings, produces interface improvements for accepted findings, evidence-based rebuttals…
+description: "Blue team usability defender — triages red team usability findings, produces interface improvements for accepted findings, evidence-based rebuttals…"
 model: sonnet
 ---
 

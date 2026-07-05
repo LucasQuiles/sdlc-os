@@ -1,6 +1,6 @@
 ---
 name: sonnet-reviewer
-description: Sonnet-powered code reviewer for SDLC review phase.
+description: "Sonnet-powered code reviewer for SDLC review phase."
 model: sonnet
 effort: high
 tools: Read, Grep, Glob, LS, LSP

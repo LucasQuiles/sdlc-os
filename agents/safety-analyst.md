@@ -1,6 +1,6 @@
 ---
 name: safety-analyst
-description: Performs STPA analysis during Phase 3 — enumerates unsafe control actions for complex/security-sensitive beads and checks boundary constraints.
+description: "Performs STPA analysis during Phase 3 — enumerates unsafe control actions for complex/security-sensitive beads and checks boundary constraints."
 model: sonnet
 ---
 

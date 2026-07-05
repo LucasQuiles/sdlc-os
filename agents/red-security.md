@@ -1,6 +1,6 @@
 ---
 name: red-security
-description: Red team security specialist — commands guppy swarms to probe completed beads for injection vectors, auth bypass, data exposure, insecure defaults…
+description: "Red team security specialist — commands guppy swarms to probe completed beads for injection vectors, auth bypass, data exposure, insecure defaults…"
 model: sonnet
 ---
 

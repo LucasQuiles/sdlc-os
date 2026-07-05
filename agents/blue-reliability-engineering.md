@@ -1,6 +1,6 @@
 ---
 name: blue-reliability-engineering
-description: Blue team reliability engineering defender — triages red team reliability findings, produces instrumentation/hardening fixes for accepted findings…
+description: "Blue team reliability engineering defender — triages red team reliability findings, produces instrumentation/hardening fixes for accepted findings…"
 model: sonnet
 ---
 

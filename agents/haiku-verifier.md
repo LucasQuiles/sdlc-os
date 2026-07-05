@@ -1,6 +1,6 @@
 ---
 name: haiku-verifier
-description: Haiku-powered verifier for SDLC verification and gate-checking.
+description: "Haiku-powered verifier for SDLC verification and gate-checking."
 model: haiku
 ---
 

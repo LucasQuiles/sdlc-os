@@ -1,6 +1,6 @@
 ---
 name: drift-detector
-description: Post-submission agent that detects DRY violations, architectural drift, invariant breakage, and separation-of-concern violations in runner output.
+description: "Post-submission agent that detects DRY violations, architectural drift, invariant breakage, and separation-of-concern violations in runner output."
 model: sonnet
 ---
 

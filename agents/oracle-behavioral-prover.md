@@ -1,6 +1,6 @@
 ---
 name: oracle-behavioral-prover
-description: Oracle council member: behavioral prover.
+description: "Oracle council member: behavioral prover."
 model: haiku
 ---
 

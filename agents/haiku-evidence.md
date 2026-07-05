@@ -1,6 +1,6 @@
 ---
 name: haiku-evidence
-description: Haiku-powered evidence collector and fact checker.
+description: "Haiku-powered evidence collector and fact checker."
 model: haiku
 ---
 

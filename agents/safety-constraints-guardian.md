@@ -1,6 +1,6 @@
 ---
 name: safety-constraints-guardian
-description: Maintains the Safety Constraints Registry — system-wide invariants that must hold across all beads.
+description: "Maintains the Safety Constraints Registry — system-wide invariants that must hold across all beads."
 model: sonnet
 ---
 

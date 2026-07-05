@@ -1,6 +1,6 @@
 ---
 name: debt-crawler
-description: Debt intelligence engine — multi-stage pipeline for adoption tracking and duplicate detection.
+description: "Debt intelligence engine — multi-stage pipeline for adoption tracking and duplicate detection."
 model: sonnet
 ---
 

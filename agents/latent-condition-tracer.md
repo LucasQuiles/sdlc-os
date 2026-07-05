@@ -1,6 +1,6 @@
 ---
 name: latent-condition-tracer
-description: Traces accepted findings backward through loop layers to identify which upstream defense had the hole.
+description: "Traces accepted findings backward through loop layers to identify which upstream defense had the hole."
 model: haiku
 ---
 

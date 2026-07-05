@@ -1,6 +1,6 @@
 ---
 name: haiku-handoff
-description: Haiku-powered handoff recorder for SDLC wave transitions and final delivery.
+description: "Haiku-powered handoff recorder for SDLC wave transitions and final delivery."
 model: haiku
 ---
 

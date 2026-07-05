@@ -1,6 +1,6 @@
 ---
 name: sonnet-designer
-description: Sonnet-powered solution designer for SDLC design phase.
+description: "Sonnet-powered solution designer for SDLC design phase."
 model: sonnet
 effort: high
 tools: Read, Grep, Glob, LS, LSP, Skill

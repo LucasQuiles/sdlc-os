@@ -1,6 +1,6 @@
 ---
 name: standards-curator
-description: Standards-to-protocol translator — reads /Users/q/LAB/Research/Standards and produces enforceable local artifacts.
+description: "Standards-to-protocol translator — reads /Users/q/LAB/Research/Standards and produces enforceable local artifacts."
 model: sonnet
 ---
 

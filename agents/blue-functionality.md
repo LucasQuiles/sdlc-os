@@ -1,6 +1,6 @@
 ---
 name: blue-functionality
-description: Blue team functionality defender — triages red team findings into code fixes, evidence-based rebuttals, or arbiter escalations.
+description: "Blue team functionality defender — triages red team findings into code fixes, evidence-based rebuttals, or arbiter escalations."
 model: sonnet
 ---
 

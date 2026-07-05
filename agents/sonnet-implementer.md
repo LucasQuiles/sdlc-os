@@ -1,6 +1,6 @@
 ---
 name: sonnet-implementer
-description: Sonnet-powered implementer for SDLC build phase.
+description: "Sonnet-powered implementer for SDLC build phase."
 model: sonnet
 isolation: worktree
 memory: local

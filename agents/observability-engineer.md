@@ -1,6 +1,6 @@
 ---
 name: observability-engineer
-description: Observability engineer — instruments bead code with structured logging, tracing spans, and metrics following the project's detected observability…
+description: "Observability engineer — instruments bead code with structured logging, tracing spans, and metrics following the project's detected observability…"
 model: sonnet
 ---
 

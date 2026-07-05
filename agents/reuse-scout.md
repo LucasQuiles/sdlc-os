@@ -1,6 +1,6 @@
 ---
 name: reuse-scout
-description: Pre-dispatch scout that finds existing solutions before a runner starts work.
+description: "Pre-dispatch scout that finds existing solutions before a runner starts work."
 model: haiku
 effort: low
 background: true

@@ -1,6 +1,6 @@
 ---
 name: variation-classifier
-description: Classifies drift and noise signals as common-cause or special-cause variation using SPC (Western Electric rules, Deming Funnel).
+description: "Classifies drift and noise signals as common-cause or special-cause variation using SPC (Western Electric rules, Deming Funnel)."
 model: haiku
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: reliability-conductor
-description: Reliability engineering conductor — orchestrates per-bead Phase 4.5 hardening pipeline: premortem, sandwich clean, observability instrumentation…
+description: "Reliability engineering conductor — orchestrates per-bead Phase 4.5 hardening pipeline: premortem, sandwich clean, observability instrumentation…"
 model: sonnet
 ---
 
