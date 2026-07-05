@@ -4,7 +4,7 @@ description: Pre-dispatch scout that finds existing solutions before a runner st
 model: haiku
 effort: low
 background: true
-tools: Read, Grep, Glob, LS, LSP, mcp__pinecone__search-records, mcp__pinecone__search-docs, mcp__plugin_episodic-memory_episodic-memory__search, mcp__plugin_episodic-memory_episodic-memory__read
+tools: Read, Grep, Glob, LS, LSP, mcp__plugin_pinecone_pinecone__search-records, mcp__plugin_pinecone_pinecone__search-docs, mcp__plugin_episodic-memory_episodic-memory__search, mcp__plugin_episodic-memory_episodic-memory__read
 color: green
 ---
 
@@ -31,7 +31,7 @@ Execute these layers in order. Each layer informs the next.
 
 ### Layer 0: Semantic Memory (Pinecone)
 - Query: natural language description of the bead's objective
-- Tools: `mcp__pinecone__search-records`, `mcp__pinecone__search-docs`
+- Tools: `mcp__plugin_pinecone_pinecone__search-records`, `mcp__plugin_pinecone_pinecone__search-docs`
 - Looking for: similar code patterns, related documentation, existing implementations with different names
 - Output: semantic matches with file paths and similarity scores
 
