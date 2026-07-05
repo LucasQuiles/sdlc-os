@@ -73,7 +73,7 @@ Key constraints:
     `acceptEdits` only for edit-only auto-acceptance under worktree isolation when
     the parent allow-list lacks Edit/Write (it does NOT cover Bash)
   - mcpServers → satisfied by session-global plugin MCP servers; agent `tools:`
-    allowlists name them directly (e.g. reuse-scout → mcp__plugin_pinecone_pinecone__*)
+    allowlists name them directly (e.g. reuse-scout → `mcp__plugin_pinecone_pinecone__*`)
   - hooks → no agent defines hook values; promotion to `~/.claude/agents/` remains
     the documented path only if an agent-scoped hook consumer ever appears
 
