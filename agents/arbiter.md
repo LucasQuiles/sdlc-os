@@ -1,6 +1,6 @@
 ---
 name: arbiter
-description: "Dispute resolver — runs Kahneman adversarial collaboration protocol when red and blue teams disagree. Designs fair tests, executes them, produces binding verdicts. Fires only on disputed findings."
+description: Dispute resolver — runs Kahneman adversarial collaboration protocol when red and blue teams disagree.
 model: opus
 ---
 

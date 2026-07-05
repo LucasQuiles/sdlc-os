@@ -1,6 +1,6 @@
 ---
 name: safety-constraints-guardian
-description: "Maintains the Safety Constraints Registry — system-wide invariants that must hold across all beads. Validates bead outputs against constraints during L1 sentinel loop. Discovers new constraints during Scout phase from codebase analysis."
+description: Maintains the Safety Constraints Registry — system-wide invariants that must hold across all beads.
 model: sonnet
 ---
 

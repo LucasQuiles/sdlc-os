@@ -1,6 +1,6 @@
 ---
 name: llm-self-security
-description: "OWASP LLM Top 10 self-audit agent — audits the SDLC-OS workflow itself for prompt injection exposure, excessive agency, unbounded consumption, insecure output handling, and cross-agent scope bleed. Dispatched during Synthesize, every Evolve cycle, and automatically when tasks touch agent specs, hooks, commands, or orchestration files."
+description: OWASP LLM Top 10 self-audit agent — audits the SDLC-OS workflow itself for prompt injection exposure, excessive agency, unbounded consumption…
 model: haiku
 ---
 

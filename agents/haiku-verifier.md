@@ -1,6 +1,6 @@
 ---
 name: haiku-verifier
-description: "Haiku-powered verifier for SDLC verification and gate-checking. Dispatched during Wave 4 (Design), Wave 5 (Gate), Wave 7 (Verify), and Wave 9 (Loop) to independently assess work against stated criteria."
+description: Haiku-powered verifier for SDLC verification and gate-checking.
 model: haiku
 ---
 

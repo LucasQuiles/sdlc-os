@@ -1,6 +1,6 @@
 ---
 name: feature-finder
-description: "Codebase feature archaeologist — finds neglected, incomplete, unwired, undocumented, and abandoned feature work across code, structure, git history, and docs. Writes item-level findings to docs/sdlc/feature-matrix.md."
+description: Codebase feature archaeologist — finds neglected, incomplete, unwired, undocumented, and abandoned feature work across code, structure, git history…
 model: sonnet
 ---
 

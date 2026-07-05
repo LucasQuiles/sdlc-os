@@ -1,6 +1,6 @@
 ---
 name: sonnet-implementer
-description: "Sonnet-powered implementer for SDLC build phase. Dispatched during Wave 6 (Build) to execute the design in small, reviewable increments with intermediate validation."
+description: Sonnet-powered implementer for SDLC build phase.
 model: sonnet
 isolation: worktree
 memory: local

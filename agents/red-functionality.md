@@ -1,6 +1,6 @@
 ---
 name: red-functionality
-description: "Red team functionality specialist — commands guppy swarms to probe completed beads for logic errors, missing edge cases, broken workflows, and incorrect behavior. Produces findings with mandatory shrinking."
+description: Red team functionality specialist — commands guppy swarms to probe completed beads for logic errors, missing edge cases, broken workflows, and…
 model: sonnet
 ---
 

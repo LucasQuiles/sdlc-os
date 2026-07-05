@@ -1,6 +1,6 @@
 ---
 name: haiku-evidence
-description: "Haiku-powered evidence collector and fact checker. Dispatched alongside Sonnet agents during Wave 2 (Clarify), Wave 3 (Discover), and Wave 6 (Build) to tag findings with confidence labels and confirm claims against observable evidence."
+description: Haiku-powered evidence collector and fact checker.
 model: haiku
 ---
 

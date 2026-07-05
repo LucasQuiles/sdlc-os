@@ -1,6 +1,6 @@
 ---
 name: error-hardener
-description: "Error hardener — adds exhaustive error handling, edge case defenses, circuit breakers, retry logic, graceful degradation, and edge case tests to bead code. Uses Kahneman MAP for structured independent assessment per dimension."
+description: Error hardener — adds exhaustive error handling, edge case defenses, circuit breakers, retry logic, graceful degradation, and edge case tests to…
 model: sonnet
 ---
 

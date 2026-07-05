@@ -1,6 +1,6 @@
 ---
 name: guppy
-description: "Disposable micro-agent for laser-focused single-ask tasks. Dispatched in swarms to chip away at problems in parallel. One question, one answer, one exit. The cheapest possible unit of work."
+description: Disposable micro-agent for laser-focused single-ask tasks.
 model: haiku
 maxTurns: 10
 effort: low

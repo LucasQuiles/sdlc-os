@@ -1,6 +1,6 @@
 ---
 name: latent-condition-tracer
-description: "Traces accepted findings backward through loop layers to identify which upstream defense had the hole. Maintains the Resident Pathogen Registry. Classifies agent failures using Reason Just Culture categories. Runs Dekker precedent sunset protocol."
+description: Traces accepted findings backward through loop layers to identify which upstream defense had the hole.
 model: haiku
 ---
 

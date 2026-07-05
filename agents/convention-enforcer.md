@@ -1,6 +1,6 @@
 ---
 name: convention-enforcer
-description: "Convention compliance auditor — checks runner output against the project's Convention Map for naming violations, wrong file locations, styling drift, and structural inconsistencies. Runs in L1 sentinel loop alongside drift-detector."
+description: Convention compliance auditor — checks runner output against the project's Convention Map for naming violations, wrong file locations, styling…
 model: sonnet
 ---
 

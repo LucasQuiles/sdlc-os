@@ -1,6 +1,6 @@
 ---
 name: red-usability
-description: "Red team usability specialist — commands guppy swarms to probe completed beads for confusing APIs, poor error messages, inconsistent interfaces, accessibility gaps, and developer experience friction. Produces findings with mandatory shrinking."
+description: Red team usability specialist — commands guppy swarms to probe completed beads for confusing APIs, poor error messages, inconsistent interfaces…
 model: sonnet
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: oracle-test-integrity
-description: "Oracle council member: truth integrity auditor. Ensures ALL claims — tests, findings, design rationale, implementation correctness — are verifiable, observable, repeatable, and provable. Detects vacuous assertions, unsupported conclusions, and theatrical verification across all bead types."
+description: Oracle council member: truth integrity auditor.
 model: sonnet
 ---
 

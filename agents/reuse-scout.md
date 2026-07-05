@@ -1,6 +1,6 @@
 ---
 name: reuse-scout
-description: "Pre-dispatch scout that finds existing solutions before a runner starts work. Runs the 6-layer analysis chain: episodic memory → Pinecone vectors → grep → LSP symbols → LSP call graphs → synthesis. Dispatched by the Conductor before every implementation bead."
+description: Pre-dispatch scout that finds existing solutions before a runner starts work.
 model: haiku
 effort: low
 background: true

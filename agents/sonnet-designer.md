@@ -1,6 +1,6 @@
 ---
 name: sonnet-designer
-description: "Sonnet-powered solution designer for SDLC design phase. Dispatched during Wave 4 (Design) to generate options, analyze tradeoffs, and recommend an approach with justification."
+description: Sonnet-powered solution designer for SDLC design phase.
 model: sonnet
 effort: high
 tools: Read, Grep, Glob, LS, LSP, Skill

@@ -1,6 +1,6 @@
 ---
 name: red-reliability-engineering
-description: "Red team reliability engineering specialist — commands guppy swarms to probe hardened beads for observability gaps, error handling failures, degradation path issues, and edge case coverage holes. Uses System 1/2 tiering with anti-anchoring protocol."
+description: Red team reliability engineering specialist — commands guppy swarms to probe hardened beads for observability gaps, error handling failures…
 model: sonnet
 ---
 

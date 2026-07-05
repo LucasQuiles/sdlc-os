@@ -1,6 +1,6 @@
 ---
 name: red-resilience
-description: "Red team resilience specialist — commands guppy swarms to probe completed beads for failure handling gaps, missing recovery paths, resource exhaustion, and degradation failures. Produces findings with mandatory shrinking."
+description: Red team resilience specialist — commands guppy swarms to probe completed beads for failure handling gaps, missing recovery paths, resource…
 model: sonnet
 ---
 

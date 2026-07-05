@@ -1,6 +1,6 @@
 ---
 name: safety-analyst
-description: "Performs STPA analysis during Phase 3 — enumerates control actions and unsafe control actions for Complex/security-sensitive beads, checks bead boundary integration constraints, and monitors feedback channel health. Produces stpa-analysis.yaml; bead fields are projected from the hazard-defense ledger."
+description: Performs STPA analysis during Phase 3 — enumerates control actions and unsafe control actions for Complex/security-sensitive beads, checks bead…
 model: sonnet
 ---
 

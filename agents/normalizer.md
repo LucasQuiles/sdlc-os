@@ -1,6 +1,6 @@
 ---
 name: normalizer
-description: "Session entry guard and final consistency pass — mandatory on every SDLC entry, detects existing work (dirty git, partial SDLC artifacts, unstructured changes), produces normalization directives or resumes interrupted workflows. Also runs as final cross-bead consistency sweep during Synthesize."
+description: Session entry guard and final consistency pass — mandatory on every SDLC entry, detects existing work (dirty git, partial SDLC artifacts…
 model: sonnet
 ---
 

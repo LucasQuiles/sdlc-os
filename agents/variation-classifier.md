@@ -1,6 +1,6 @@
 ---
 name: variation-classifier
-description: "Classifies drift and noise signals as common-cause or special-cause variation using Statistical Process Control (Western Electric rules and Deming Funnel). Must run before any corrective action is taken on calibration, noise, fitness, or reliability metrics."
+description: Classifies drift and noise signals as common-cause or special-cause variation using Statistical Process Control (Western Electric rules and Deming…
 model: haiku
 ---
 

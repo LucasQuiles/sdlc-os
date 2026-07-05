@@ -1,6 +1,6 @@
 ---
 name: drift-detector
-description: "Post-submission agent that detects DRY violations, architectural drift, invariant breakage, and separation-of-concern violations in runner output. Uses LSP call hierarchy + Pinecone semantic search to catch both literal and semantic duplication. Part of the L1 sentinel loop."
+description: Post-submission agent that detects DRY violations, architectural drift, invariant breakage, and separation-of-concern violations in runner output.
 model: sonnet
 ---
 

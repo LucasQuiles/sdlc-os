@@ -1,6 +1,6 @@
 ---
 name: standards-curator
-description: "Standards-to-protocol translator — reads /Users/q/LAB/Research/Standards and produces enforceable local artifacts. Dispatched during Scout for project-specific standards discovery, and during Evolve for protocol refresh. Maintains references/standards-checklist.md and proposes updates to safety-constraints, quality-slos, fitness-functions, and attack libraries."
+description: Standards-to-protocol translator — reads /Users/q/LAB/Research/Standards and produces enforceable local artifacts.
 model: sonnet
 ---
 

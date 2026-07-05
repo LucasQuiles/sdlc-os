@@ -1,6 +1,6 @@
 ---
 name: oracle-behavioral-prover
-description: "Oracle council member: behavioral prover. Runs tests, examines outputs, and independently proves that implementation matches stated behavior. Produces reproducible evidence."
+description: Oracle council member: behavioral prover.
 model: haiku
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: sonnet-reviewer
-description: "Sonnet-powered code reviewer for SDLC review phase. Dispatched during Wave 8 (Review) to critically evaluate implementation quality, architectural fit, and maintainability."
+description: Sonnet-powered code reviewer for SDLC review phase.
 model: sonnet
 effort: high
 tools: Read, Grep, Glob, LS, LSP

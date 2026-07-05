@@ -1,6 +1,6 @@
 ---
 name: process-drift-monitor
-description: "Monitors normalization of deviance, verification depth degradation, protection erosion, process model staleness, and work-as-done vs work-as-prescribed drift. Computes safety culture health scores. Produces deviance alerts from decision trace trend analysis."
+description: Monitors normalization of deviance, verification depth degradation, protection erosion, process model staleness, and work-as-done vs…
 model: haiku
 ---
 

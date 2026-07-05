@@ -1,6 +1,6 @@
 ---
 name: simplicity-auditor
-description: "Karpathy slopacolypse defense agent — computes a simplicity coefficient (problem complexity / solution complexity) and flags disproportionate code. Dispatched in the L1 Sentinel loop after runner submission, alongside haiku-verifier, drift-detector, convention-enforcer, and safety-constraints-guardian."
+description: Karpathy slopacolypse defense agent — computes a simplicity coefficient (problem complexity / solution complexity) and flags disproportionate code.
 model: haiku
 ---
 
