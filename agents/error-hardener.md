@@ -1,6 +1,6 @@
 ---
 name: error-hardener
-description: Error hardener — adds exhaustive error handling, edge case defenses, circuit breakers, retry logic, graceful degradation, and edge case tests to…
+description: Error hardener — adds exhaustive error handling, edge-case defenses, retries, and graceful degradation to bead code.
 model: sonnet
 ---
 

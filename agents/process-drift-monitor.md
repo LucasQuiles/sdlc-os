@@ -1,6 +1,6 @@
 ---
 name: process-drift-monitor
-description: Monitors normalization of deviance, verification depth degradation, protection erosion, process model staleness, and work-as-done vs…
+description: Monitors normalization of deviance, verification-depth degradation, protection erosion, and work-as-done vs work-as-prescribed drift.
 model: haiku
 ---
 

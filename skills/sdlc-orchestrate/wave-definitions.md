@@ -84,7 +84,7 @@ Phases are orientation markers, not approval gates. The Conductor flows through 
 **Purpose:** Build the thing. This is where most time is spent.
 
 **Conductor does:**
-- Dispatch `sonnet-implementer` runners — one per bead, with Agent-tool `mode: "acceptEdits"` (worktree-isolated writer; Phase 2 permissionMode)
+- Dispatch `sonnet-implementer` runners — one per bead, with Agent-tool `mode: auto` (Phase 2 permissionMode; inherits parent allow/deny — see "How to Dispatch Runners")
 - Parallelize independent beads, serialize dependent ones
 - Sentinel watches continuously (not after completion)
 - Re-dispatch fresh runners when sentinel flags problems (max 3 cycles per bead)
