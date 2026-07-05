@@ -1,6 +1,6 @@
 ---
 name: gap-analyst
-description: "Bidirectional feature gap analyst — Finder mode maps what exists vs what's needed before implementation, Finisher mode verifies delivery…"
+description: "Bidirectional gap analyst — Finder mode maps exists-vs-needed pre-implementation; Finisher mode verifies delivery completeness after."
 model: sonnet
 ---
 

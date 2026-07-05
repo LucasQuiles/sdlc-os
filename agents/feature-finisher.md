@@ -1,6 +1,6 @@
 ---
 name: feature-finisher
-description: "Feature closure analyst — triages feature-matrix findings, estimates effort and dependencies, and produces completion specs for findings that are…"
+description: "Feature closure analyst — triages feature-matrix findings and produces completion specs for findings that are 50%+ complete."
 model: sonnet
 ---
 

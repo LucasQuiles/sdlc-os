@@ -1,6 +1,6 @@
 ---
 name: reliability-ledger
-description: "Reliability telemetry agent — aggregates bead turbulence fields across a completed task to compute per-step first-pass success rates, identify…"
+description: "Reliability telemetry agent — aggregates bead turbulence fields to compute first-pass success rates and track nines progression."
 model: haiku
 ---
 

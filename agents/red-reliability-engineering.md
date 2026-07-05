@@ -1,6 +1,6 @@
 ---
 name: red-reliability-engineering
-description: "Red team reliability engineering specialist — commands guppy swarms to probe hardened beads for observability gaps, error handling failures…"
+description: "Red team reliability specialist — guppy swarms probe hardened beads for observability gaps, error-handling failures, and degradation issues."
 model: sonnet
 ---
 

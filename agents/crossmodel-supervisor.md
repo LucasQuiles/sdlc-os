@@ -1,6 +1,6 @@
 ---
 name: crossmodel-supervisor
-description: "Cross-model review session controller — owns the tmup session lifecycle, worker dispatch/monitoring, artifact verification, retry/fallback…"
+description: "Cross-model review session controller — owns tmup session lifecycle, worker dispatch, artifact verification, and circuit breakers for one bead's review."
 model: sonnet
 ---
 

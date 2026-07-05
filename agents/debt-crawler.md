@@ -1,6 +1,6 @@
 ---
 name: debt-crawler
-description: "Debt intelligence engine — multi-stage pipeline for adoption tracking and duplicate detection."
+description: "Debt intelligence engine — adoption tracking and duplicate detection; dispatched during Evolve bead types #18 (Adoption Scan) and #19 (Duplicate Scan)."
 model: sonnet
 ---
 

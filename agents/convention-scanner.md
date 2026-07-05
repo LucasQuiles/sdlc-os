@@ -1,6 +1,6 @@
 ---
 name: convention-scanner
-description: "Codebase convention mapper — dynamically scans a project to produce a Convention Map documenting naming patterns, styling approach, file structure…"
+description: "Codebase convention mapper — produces the Convention Map; dispatched during Scout and by the normalizer when no Convention Map exists."
 model: sonnet
 ---
 

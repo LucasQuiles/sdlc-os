@@ -1,6 +1,6 @@
 ---
 name: losa-observer
-description: "Random-sample quality observer — audits completed beads that passed all review layers to establish baseline quality and detect silent system…"
+description: "Random-sample quality observer — audits beads that passed all review layers; fires on random sample, not on flagged issues."
 model: haiku
 ---
 

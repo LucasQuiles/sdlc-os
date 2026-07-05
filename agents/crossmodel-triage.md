@@ -1,6 +1,6 @@
 ---
 name: crossmodel-triage
-description: "Cross-model finding deduplicator — receives Stage B (independent review) findings from Codex, deduplicates against existing AQS results and L1…"
+description: "Cross-model finding deduplicator — dedups Codex Stage B findings against AQS/L1 results; escalates net-new findings as HIGH through the L1 loop."
 model: haiku
 ---
 
