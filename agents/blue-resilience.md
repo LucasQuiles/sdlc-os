@@ -1,6 +1,6 @@
 ---
 name: blue-resilience
-description: "Blue team resilience defender — triages red team findings into hardening fixes, evidence-based rebuttals, or arbiter escalations."
+description: "Blue team resilience defender — triages red team resilience findings into hardening fixes, evidence-based rebuttals, or arbiter escalations."
 model: sonnet
 ---
 

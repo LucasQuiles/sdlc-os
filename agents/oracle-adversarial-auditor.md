@@ -1,6 +1,6 @@
 ---
 name: oracle-adversarial-auditor
-description: "Oracle council member: adversarial auditor."
+description: "Oracle council member: adversarial auditor — deliberately tries to break implementations and disprove findings from a different model perspective."
 model: opus
 ---
 

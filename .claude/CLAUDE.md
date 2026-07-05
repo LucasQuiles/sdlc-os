@@ -52,7 +52,7 @@ All must pass. No exceptions.
 
 ## Agent Runtime Constraints
 
-7 agents have enriched frontmatter with runtime-enforced fields (Phase 1, 2026-04-10):
+6 agents have enriched frontmatter with runtime-enforced fields (Phase 1, 2026-04-10):
 
 | Agent | tools | isolation | memory | effort | background |
 |-------|-------|-----------|--------|--------|------------|

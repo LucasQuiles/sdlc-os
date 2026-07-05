@@ -1,6 +1,6 @@
 ---
 name: blue-security
-description: "Blue team security defender — triages red team vulnerabilities into code fixes, evidence-based rebuttals, or arbiter escalations."
+description: "Blue team security defender — triages red team security findings: fixes for accepted vulnerabilities, rebuttals for false positives, or arbiter escalation."
 model: sonnet
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: oracle-test-integrity
-description: "Oracle council member: truth integrity auditor."
+description: "Oracle council member: truth integrity auditor — detects vacuous assertions, unsupported conclusions, and theatrical verification."
 model: sonnet
 ---
 

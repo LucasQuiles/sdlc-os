@@ -336,7 +336,7 @@ The reuse scout would have missed this without Pinecone. With it, the runner get
 ```
 Layer 0 — Semantic Memory (Pinecone)
   Query: "What existing code/docs relate to {bead objective}?"
-  Tool: mcp__pinecone__search-records or mcp__pinecone__search-docs
+  Tool: mcp__plugin_pinecone_pinecone__search-records or mcp__plugin_pinecone_pinecone__search-docs
   Returns: related functions, patterns, documentation with similarity scores
   Cost: one API call
 
