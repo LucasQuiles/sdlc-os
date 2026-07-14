@@ -53,7 +53,7 @@ This plan was hardened from the repository root with the 27-pass PlanPrompt prot
 
 The plan-hardening orchestrator runs all 27 named PlanPrompt passes strictly in numeric order: control/scope/assumptions/validation/observability/readiness/decomposition/verification/testing/handoff/orchestration (1–12), reuse/impact/error/silent-failure/messages/TDD/tooling/contradiction (13–20), then lint/regression/hooks/rules/docs/capabilities/final synthesis (21–27). Before each pass it re-reads and snapshots the current plan; after each pass it records diff stats, required artifact-contract results, verdict, risks, and summary in the run manifest. A missing required artifact or failed render is recorded and corrected or stops the review. No code execution readiness claim is made until pass 27 finalizes consistency.
 
-The pass-20 integration audit is recorded in `artifacts/contradiction_check.md`. It corrected missing installed-validator coverage, eliminated a second operational version literal, bound pre-commit Linux reproduction to `git write-tree`, and removed a post-review evidence commit that would invalidate the reviewed candidate. Pass 27 corrected one setup error: the safe red driver creates its decoy `tests/lib/` directory and copies that source directory only when it exists, because the shared helper is intentionally absent until Task 1 Step 3. The post-commit Task 1 entry audit then found `P27-07`: that decoy also needs the manifest required by the future resolver, explicit physical CWD/directory isolation, and post-swap signal/concurrency proof. During Task 1 green replay, `P27-08` proved that Apple Bash 3.2 does not apply `errexit` to the planned false `[[ ... ]]` conditional command; the copied test emitted its marker, continued through all 11 cases, and exited `0`. The amended failpoint uses `/usr/bin/false`, requires exact child exit `1` with empty child stdout, and retains a fail-closed unreachable exit. These corrections use plan-only amendment commits before their implementation bytes are admitted. PlanPrompt's Python 3.14 helper runtime is separated from canonical implementation Python 3.12; plan-review artifacts are separated from release receipts; and focused temp-helper proof is separated from the unsafe full smoke suite.
+The pass-20 integration audit is recorded in `artifacts/contradiction_check.md`. It corrected missing installed-validator coverage, eliminated a second operational version literal, bound pre-commit Linux reproduction to `git write-tree`, and removed a post-review evidence commit that would invalidate the reviewed candidate. Pass 27 corrected one setup error: the safe red driver creates its decoy `tests/lib/` directory and copies that source directory only when it exists, because the shared helper is intentionally absent until Task 1 Step 3. The post-commit Task 1 entry audit then found `P27-07`: that decoy also needs the manifest required by the future resolver, explicit physical CWD/directory isolation, and post-swap signal/concurrency proof. During Task 1 green replay, `P27-08` proved that Apple Bash 3.2 does not apply `errexit` to the planned false `[[ ... ]]` conditional command; the copied test emitted its marker, continued through all 11 cases, and exited `0`. The amended failpoint uses `/usr/bin/false`, requires exact child exit `1` with empty child stdout, and retains a fail-closed unreachable exit. Subsequent read-only containment review found `P27-09` restore-evidence deletion, `P27-10` ancestor-retargetable lexical cleanup, and `P27-11` SIGINT distortion by a backgrounding capture wrapper. The amended design preserves failed fixture trees, recursively clears the captured root only through held directory descriptors before a nonrecursive final removal, and records SIGINT evidence from a foreground launch. These corrections use plan-only amendment commits before their implementation bytes are admitted. PlanPrompt's Python 3.14 helper runtime is separated from canonical implementation Python 3.12; plan-review artifacts are separated from release receipts; and focused temp-helper proof is separated from the unsafe full smoke suite.
 
 ### Pass 27 First-Hand Synthesis
 
@@ -80,7 +80,7 @@ Time-bound Git provenance before the plan-only commit is: approved source `1c328
 
 | Criterion | Concrete check | Required threshold | Evidence |
 |---|---|---|---|
-| F-01 disarmed | Forced direct assertion after fixture swap plus byte/sidecar comparisons | `Pass`; marker is temporary, source/decoy are identical, installed bytes are identical when applicable, and unexplained concurrent installed drift is `Inconclusive` | `.verification-results/.../s1a-f01-dispatch-isolation/{receipt.json,stdout,stderr}` |
+| F-01 disarmed | Forced direct assertion after fixture swap plus byte/sidecar/cleanup comparisons | `Pass`; marker is temporary, source/decoy are identical, installed bytes are identical when applicable, restore failure retains evidence, cleanup retargeting deletes neither tree, and unexplained concurrent installed drift is `Inconclusive` | `.verification-results/.../s1a-f01-dispatch-isolation/{receipt.json,stdout,stderr}` |
 | Relocatable tests | Run four scripts from an archived checkout in a path containing spaces; scan old literal | `Pass`; `13/13`, `14/14`, dispatcher/benchmark exit `0`, zero matches | Stage 1A root/relocation receipts |
 | Portable/contained clone shell | Run helper/clone tests on macOS and Linux | `Pass` on both; positive byte telemetry, invalid identifiers mutate nothing, zero GNU literals | macOS/Linux helper and clone receipts |
 | tmup discovery | Isolated manifest fixtures and installed-entry read-only observation | `Pass`; declared entry selected, escape/missing cases rejected | tmup discovery receipt and captured installed manifest digest |
@@ -146,6 +146,9 @@ Task 7 converts this register and every prior baseline finding into the full com
 | `P27-06` | applicability mismatch; `NONMATERIAL`; P2 | Codex root; plan review only | 201 question-bank rows target an unrelated guard/watchdog product; retain explicit `INCONCLUSIVE` reports, create no guard code | `NOT_APPLICABLE_TO_1A`; 2026-07-14; three report hashes and exact ID coverage |
 | `P27-07` | plan dependency/isolation defect; `CRITICAL`; P0 | Codex root; `F-01`/T1; before any implementation byte | decoy omitted the manifest required by the planned resolver, inherited the source CWD, and lacked exact post-swap signal/concurrency admission; copy the manifest, create/canonicalize all isolated roots, execute from the isolated project, and test direct/signal/concurrent cleanup | `RESOLVED_IN_PLAN`; 2026-07-14; static call-chain audit, safe temporary resolver probe, and exact plan-amendment commit; T1 behavior receipts remain mandatory |
 | `P27-08` | runtime-compatibility defect; `CRITICAL`; P0 | Codex root; `F-01`/T1; before further Task 1 implementation | Apple Bash 3.2 returns status `1` from `[[ 1 -eq 0 ]]` without triggering `errexit`, so the post-swap failpoint can continue and false-pass; use `/usr/bin/false`, retain an unreachable `exit 125`, require exact child exit `1`, and reject any child stdout | `RESOLVED_IN_PLAN`; 2026-07-14; Bash 3.2 falsifier plus isolated copied-test marker/`Results: 11 passed, 0 failed` evidence and exact plan-amendment commit; corrected T1 behavior receipt remains mandatory |
+| `P27-09` | evidence-preservation defect; `CRITICAL`; P0 | Codex root; `F-01`/T1; before Task 1 admission | a failed restore can consume its backup, then both EXIT traps delete the only bounded diagnostic tree; latch restore failure before emitting it, skip all further restore/delete attempts, preserve both nested roots, and prove retention after the failing process exits | `RESOLVED_IN_PLAN`; 2026-07-14; disposable exact-flow red plus copied-fixture `restore-failure` receipt and retained-tree inspection remain mandatory |
+| `P27-10` | cleanup-containment defect; `CRITICAL`; P0 | Codex root; `F-01`/T1; before Task 1 admission | lexical suffix checks followed by `rm -rf` can be redirected through a retargeted ancestor; capture parent/root device and inode, traverse with no-follow directory descriptors, recursively clear only the opened root, and perform a separately revalidated nonrecursive final removal | `RESOLVED_IN_PLAN`; 2026-07-14; ancestor/victim and post-open root-swap receipts plus zero raw production cleanup sites remain mandatory |
+| `P27-11` | evidence-harness limitation; `MATERIAL`; P1 | Codex root; `F-01`/T1 and T7; before SIGINT admission | the optional hypothesis capture wrapper backgrounds its command, so Apple Bash inherits ignored SIGINT and the copied child reaches exit `125`; capture INT stdout/stderr/exit with a foreground raw-file launch, and never treat wrapper output as the SIGINT row | `RESOLVED_IN_PLAN`; 2026-07-14; paired wrapper/foreground reproduction plus foreground receipt remains mandatory |
 
 The A-series assumption rows are material unless explicitly constrained as non-load-bearing; A-04 and A-09 are critical safety/state boundaries. Task 7 imports every A-series row into the unified register with severity, priority, evidence, rationale, owner, mitigation, review date, and closure proof while retaining the assumption-specific quality/disposition fields. Existing 1B/1C findings are valid deferrals only with their named release, owner, trigger, rationale, mitigation, review date, and closure proof; an item discovered to invalidate 1A is immediately reclassified P0 and cannot remain deferred.
 
@@ -384,6 +387,7 @@ Stop this release and report `INCONCLUSIVE` if F-01 cannot be proven without tou
 | Path | Responsibility |
 |---|---|
 | `tests/lib/plugin-root.sh` | Resolve and validate `CLAUDE_PLUGIN_ROOT` or a test script's physical checkout root |
+| `tests/lib/f01-temp-tree.py` | Reject temp-root identity drift and recursively clear only an opened F-01 tree through no-follow descriptor-relative operations |
 | `tests/test-sdlc-dispatch-isolation.sh` | Force a direct post-swap assertion and prove installed/decoy validators remain unchanged |
 | `tests/test-sdlc-dispatch.sh` | Exercise dispatcher behavior only against an inner copied fixture tree |
 | `tests/test-plugin-root-resolution.sh` | Prove explicit, fallback, invalid, symlinked, and relocated checkout resolution |
@@ -537,19 +541,22 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
 **Files:**
 - Create: `tests/lib/plugin-root.sh`
+- Create: `tests/lib/f01-temp-tree.py`
 - Create: `tests/test-sdlc-dispatch-isolation.sh`
 - Modify: `tests/test-sdlc-dispatch.sh`
 - Test: `tests/test-sdlc-dispatch-isolation.sh`
 
 **Interfaces:**
-- Consumes: caller path from `${BASH_SOURCE[0]}` and optional `CLAUDE_PLUGIN_ROOT`.
-- Produces: `resolve_plugin_root <caller-script>` on stdout; dispatcher failpoint `SDLC_TEST_FAILPOINT=after-validator-swap`; optional outer selectors `F01_TEST_MODE=assert|concurrent` and `F01_TEST_SIGNAL=HUP|INT|TERM`; inner selector `SDLC_TEST_SIGNAL=HUP|INT|TERM`; exact marker `F01_FORCED_ASSERTION_AFTER_VALIDATOR_SWAP:<fixture-path>` on stderr.
+- Consumes: caller path from `${BASH_SOURCE[0]}`, optional `CLAUDE_PLUGIN_ROOT`, and canonical Python 3.12.
+- Produces: `resolve_plugin_root <caller-script>` on stdout; `f01-temp-tree.py capture|remove <root> <allowed-prefix> [token]`; dispatcher failpoint `SDLC_TEST_FAILPOINT=after-validator-swap`; optional outer selectors `F01_TEST_MODE=assert|concurrent|restore-failure|cleanup-retarget|signal-wrapper-negative` and `F01_TEST_SIGNAL=HUP|INT|TERM`; inner selectors `SDLC_TEST_SIGNAL=HUP|INT|TERM` plus a fixed restore-failure falsifier; exact marker `F01_FORCED_ASSERTION_AFTER_VALIDATOR_SWAP:<fixture-path>` on stderr.
 
 - [ ] **Step 1: Add the safe outer regression driver before touching the hazardous test**
 
+  First add `tests/lib/f01-temp-tree.py` as a Python 3.12-only CLI, before the outer driver can create a root it must later delete. `capture` requires an absolute non-root directory whose raw leaf begins with the fixed caller-supplied prefix, traverses its physical parent from `/` using `O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC`, and emits a versioned token containing the raw leaf plus parent/root device and inode. `remove` strictly parses that token, repeats the no-follow traversal, opens and `fstat`-matches the captured root, and recursively clears entries only through held no-follow directory descriptors. Each child directory is opened and identity-checked before recursion; a changed entry causes nonzero retention rather than a fresh recursive lookup. After the opened root is empty, the helper revalidates that the original leaf still names the captured root and uses only nonrecursive `os.rmdir(..., dir_fd=parent_fd)`; mismatch retains the empty captured tree and replacement. A deterministic test-only post-open swap hook must prove a nonempty replacement sentinel is never traversed or removed, while the ancestor-retarget falsifier must preserve both original and victim sentinels. Portable POSIX/Python has no atomic expected-inode recursive-delete primitive against a hostile same-UID renamer; that actor is outside this test-fixture threat model because it can directly mutate all protected owner files. Unique roots are mode `0700`, unexplained concurrent drift is non-pass, and no claim of sandboxing a malicious same-UID process is made.
+
   Create `tests/test-sdlc-dispatch-isolation.sh` with `umask 077`, an outer `mktemp -d` trap, signal handlers, and a retained child PID. `F01_TEST_MODE=concurrent` is a bounded orchestration mode that launches exactly two child driver processes with `F01_TEST_MODE=assert`, retains both exits and raw artifacts, rejects recursive concurrent mode, and emits an aggregate pass only when both isolated drivers pass. In `assert` mode, before execution, create and physically verify isolated `home`, `runtime`, `project`, `evidence`, and decoy directories beneath the unique outer root. The driver creates `$DECOY_ROOT/tests/lib` and `$DECOY_ROOT/.claude-plugin`, copies `tests/test-sdlc-dispatch.sh`, `.claude-plugin/plugin.json`, `hooks/`, and `scripts/`, and copies the contents of source `tests/lib/` only when that directory exists. This conditional setup is required because the behavioral-red Step 2 precedes creation of `tests/lib/plugin-root.sh`; the manifest is unconditional because Step 3's resolver requires it. A missing copied dependency, isolated directory, physical-containment check, optional source-directory handling error, or symlink in a copied dependency tree is a setup failure and cannot count as the red proof.
 
-  Require source and decoy validators to be existing regular non-symlink files with distinct canonical roots and inodes; freeze installed applicability before launch and require the same file properties when present. Store all evidence outside source, decoy, and installed roots. Snapshot raw bytes, mode, size, SHA-256, and sorted sidecar path/size/hash inventories for the source validator, decoy validator, and `${SDLC_INSTALLED_PLUGIN_ROOT:-$HOME/.claude/plugins/sdlc-os}/hooks/validators/safety-constraints.sh`, using canonical Python 3.12 rather than host-specific `shasum`/`sha256sum`. Launch only the copied test as a retained child from the physical isolated project directory under an empty environment with isolated `HOME`, `TMPDIR`, `CLAUDE_PLUGIN_ROOT`, `CLAUDE_PROJECT_DIR`, the direct failpoint, and optional signal selector; capture stdout, stderr, and true wait status without a pipeline. The installed snapshot is required on the owner host and may be evidence-backed `NOT_APPLICABLE` only when absence was frozen before launch; disappearance or type drift afterward is `INCONCLUSIVE`.
+  Require source and decoy validators to be existing regular non-symlink files with distinct canonical roots and inodes; freeze installed applicability before launch and require the same file properties when present. Store all evidence outside source, decoy, and installed roots. Snapshot raw bytes, mode, size, SHA-256, and versioned sorted sidecar inventories for the source validator, decoy validator, and `${SDLC_INSTALLED_PLUGIN_ROOT:-$HOME/.claude/plugins/sdlc-os}/hooks/validators/safety-constraints.sh`, using canonical Python 3.12 rather than host-specific `shasum`/`sha256sum`. A sidecar is every same-directory raw basename that begins with the exact validator basename but is not the validator itself; hex-encoded names, type, mode, size, and content or link-target digest are strictly parsed, and header-only output is the sole valid empty inventory. The driver mutates one dotless decoy-only associated entry and requires the detector to reject it before restoring the baseline. Launch only the copied test as a retained child from the physical isolated project directory under an empty environment with isolated `HOME`, `TMPDIR`, `CLAUDE_PLUGIN_ROOT`, `CLAUDE_PROJECT_DIR`, the direct failpoint, and optional signal selector; capture stdout, stderr, and true wait status without a pipeline. The installed snapshot is required on the owner host and may be evidence-backed `NOT_APPLICABLE` only when absence was frozen before launch; disappearance or type drift afterward is `INCONCLUSIVE`.
 
   The decisive assertions are:
 
@@ -561,23 +568,33 @@ Expected: tracked state is clean before and after; the commit contains exactly t
     TERM) EXPECTED_CHILD_EXIT=143 ;;
     *) exit 64 ;;
   esac
+  run_copied_child() {
+    (
+      cd "$OUTER_ROOT/project"
+      exec env -i \
+        PATH="$PATH" \
+        HOME="$OUTER_ROOT/home" \
+        TMPDIR="$OUTER_ROOT/runtime" \
+        CLAUDE_PLUGIN_ROOT="$DECOY_ROOT" \
+        CLAUDE_PROJECT_DIR="$OUTER_ROOT/project" \
+        SDLC_TEST_FAILPOINT=after-validator-swap \
+        SDLC_TEST_SIGNAL="${F01_TEST_SIGNAL:-}" \
+        /bin/bash "$DECOY_ROOT/tests/test-sdlc-dispatch.sh"
+    )
+  }
   set +e
-  (
-    cd "$OUTER_ROOT/project"
-    exec env -i \
-      PATH="$PATH" \
-      HOME="$OUTER_ROOT/home" \
-      TMPDIR="$OUTER_ROOT/runtime" \
-      CLAUDE_PLUGIN_ROOT="$DECOY_ROOT" \
-      CLAUDE_PROJECT_DIR="$OUTER_ROOT/project" \
-      SDLC_TEST_FAILPOINT=after-validator-swap \
-      SDLC_TEST_SIGNAL="${F01_TEST_SIGNAL:-}" \
-      /bin/bash "$DECOY_ROOT/tests/test-sdlc-dispatch.sh"
-  ) >"$STDOUT_FILE" 2>"$STDERR_FILE" &
-  CHILD_PID=$!
-  wait "$CHILD_PID"
-  child_rc=$?
-  CHILD_PID=""
+  if [[ "${F01_TEST_SIGNAL:-}" == "INT" ]]; then
+    run_copied_child >"$STDOUT_FILE" 2>"$STDERR_FILE"
+    child_rc=$?
+  else
+    set -m
+    run_copied_child >"$STDOUT_FILE" 2>"$STDERR_FILE" &
+    CHILD_PID=$!
+    set +m
+    wait "$CHILD_PID"
+    child_rc=$?
+    CHILD_PID=""
+  fi
   set -e
 
   cmp -s "$SOURCE_SNAPSHOT" "$SOURCE_VALIDATOR" || exit 1
@@ -597,7 +614,7 @@ Expected: tracked state is clean before and after; the commit contains exactly t
   [[ "$child_rc" -eq "$EXPECTED_CHILD_EXIT" ]] || exit 1
   ```
 
-  Protected-state comparisons occur before marker/result admission so even the expected red proves no source, decoy, or installed mutation. When the marker is absent, require evidence that child execution reached the isolated legacy lookup and emit exactly `F01_FAILPOINT_NOT_REACHED child_exit=1`; any other setup/red signature is rejected. Direct assertion must exit exactly `1` with empty child stdout; self-signals after the swap must exit `129`, `130`, and `143` for `HUP`, `INT`, and `TERM`. Any `Results:` line or other child stdout proves execution continued beyond the failpoint and fails admission. An outer interruption terminates and waits for its retained child, emits `F01_DRIVER_INTERRUPTED`, and exits `3` without a pass marker. Source or decoy mutation is `FAIL`; installed-tree drift is exit `3`/`INCONCLUSIVE` because the child has no installed path or handle and concurrent external drift cannot be attributed to it. The driver must never run the original hazardous script in place.
+  Protected-state comparisons occur before marker/result admission so even the expected red proves no source, decoy, or installed mutation. When the marker is absent, require evidence that child execution reached the isolated legacy lookup and emit exactly `F01_FAILPOINT_NOT_REACHED child_exit=1`; any other setup/red signature is rejected. Direct assertion must exit exactly `1` with empty child stdout; self-signals after the swap must exit `129`, `130`, and `143` for `HUP`, `INT`, and `TERM`. The outer INT row and its copied child both execute synchronously in the foreground with raw-file redirection; direct/HUP/TERM retain a monitor-mode child for interruption handling. `signal-wrapper-negative` deliberately backgrounds a fresh outer INT process and must reproduce the known non-pass signature before a separate foreground INT run passes. Any `Results:` line or other child stdout proves execution continued beyond the failpoint and fails admission. An outer interruption terminates and waits for its retained child, emits `F01_DRIVER_INTERRUPTED`, and exits `3` without a pass marker. Source or decoy mutation is `FAIL`; installed-tree drift is exit `3`/`INCONCLUSIVE` because the child has no installed path or handle and concurrent external drift cannot be attributed to it. The driver must never run the original hazardous script in place.
 
 - [ ] **Step 2: Run the safe driver and verify the expected red state**
 
@@ -617,18 +634,21 @@ Expected: tracked state is clean before and after; the commit contains exactly t
   ```bash
   resolve_plugin_root() {
     local caller="${1:?resolve_plugin_root: caller script required}"
-    local candidate
+    local candidate canonical
     if [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]]; then
       candidate="$CLAUDE_PLUGIN_ROOT"
     else
-      candidate="$(cd "$(dirname "$caller")/.." && pwd -P)"
+      candidate="$(dirname "$caller")/.."
     fi
-    candidate="$(cd "$candidate" 2>/dev/null && pwd -P)" || {
-      printf 'ERROR: invalid SDLC-OS plugin root: %s\n' "$candidate" >&2
+    if ! canonical="$(cd "$candidate" 2>/dev/null && pwd -P)"; then
+      printf 'ROOT_INVALID:invalid SDLC-OS plugin root: %s\n' "$candidate" >&2
       return 1
-    }
-    if [[ ! -f "$candidate/.claude-plugin/plugin.json" || ! -d "$candidate/hooks" ]]; then
-      printf 'ERROR: invalid SDLC-OS plugin root: %s\n' "$candidate" >&2
+    fi
+    candidate="$canonical"
+    if [[ ! -f "$candidate/.claude-plugin/plugin.json" ||
+          -L "$candidate/.claude-plugin/plugin.json" ||
+          ! -d "$candidate/hooks" || -L "$candidate/hooks" ]]; then
+      printf 'ROOT_INVALID:invalid SDLC-OS plugin root: %s\n' "$candidate" >&2
       return 1
     fi
     printf '%s\n' "$candidate"
@@ -648,21 +668,25 @@ Expected: tracked state is clean before and after; the commit contains exactly t
   [[ ! "$FIXTURE_VALIDATOR" -ef "$SOURCE_VALIDATOR" ]]
   ```
 
-  Install signal-to-exit traps plus an `EXIT` cleanup that preserves the original status, restores and byte-verifies a fixture backup before deleting the temp tree, and cannot recurse. Every restore/remove operation is handled explicitly rather than relying on `errexit`; restoration failure emits `F01_RESTORE_FAILED`, returns a distinct non-success status, and preserves the bounded fixture for diagnosis:
+  Install signal-to-exit traps plus an `EXIT` cleanup that preserves the original status, restores and byte-verifies a fixture backup before deleting the temp tree, and cannot recurse. Capture the helper token immediately after each temp root is physically resolved. Every restore/remove operation is handled explicitly rather than relying on `errexit`; `record_restore_failure` latches `RESTORE_FAILED=1` and `PRESERVE_TMPROOT=1` before emitting `F01_RESTORE_FAILED`. Once latched, cleanup makes no further restore or deletion attempt and exits `125`. Successful cleanup delegates only to the captured-token Python helper; raw `rm -rf "$TMPROOT"` and `rm -rf "$OUTER_ROOT"` are prohibited:
 
   ```bash
   cleanup() {
     local rc=$?
     trap - EXIT HUP INT TERM
-    if [[ -n "${BACKUP_VALIDATOR:-}" && -e "$BACKUP_VALIDATOR" ]]; then
+    if [[ "$RESTORE_FAILED" -eq 0 &&
+          -n "${BACKUP_VALIDATOR:-}" && -e "$BACKUP_VALIDATOR" ]]; then
       if ! rm -f "$FIXTURE_VALIDATOR" ||
           ! mv "$BACKUP_VALIDATOR" "$FIXTURE_VALIDATOR" ||
           ! cmp -s "$FIXTURE_BASELINE" "$FIXTURE_VALIDATOR"; then
-        printf 'F01_RESTORE_FAILED:%s\n' "$FIXTURE_ROOT" >&2
-        exit 125
+        record_restore_failure
       fi
     fi
-    if ! rm -rf "$TMPROOT"; then
+    if [[ "$PRESERVE_TMPROOT" -ne 0 ]]; then
+      exit 125
+    fi
+    if ! "$PYTHON_BIN" "$TEMP_TREE_HELPER" remove \
+        "$TMPROOT" sdlc-dispatch-test. "$TMPROOT_TOKEN"; then
       printf 'CLEANUP_FAILED:%s\n' "$TMPROOT" >&2
       exit 125
     fi
@@ -673,6 +697,8 @@ Expected: tracked state is clean before and after; the commit contains exactly t
   trap 'exit 130' INT
   trap 'exit 143' TERM
   ```
+
+  The outer driver applies the same identity-checked descriptor-held removal to its root. Immediately after `wait`, before any other admission or early return, it recognizes exactly one bounded `F01_RESTORE_FAILED` marker, latches `PRESERVE_OUTER_ROOT=1`, emits `F01_RESTORE_RETAINED:<outer-root>`, and exits `125`; a malformed marker also preserves and fails closed. `F01_TEST_MODE=restore-failure` is a supervising controller: it creates and token-captures a physical grandparent, launches a fresh copied `assert` process with `TMPDIR` beneath that grandparent, corrupts only the inner fixture baseline after the backup move, then proves both retained roots exist after the failing process exits with source/decoy/installed state unchanged. The controller accepts the retained path only when no-follow traversal and the grandparent token prove it is a direct descendant, captures a fresh helper token whose parent identity equals that grandparent token, removes the retained root through the helper, and confirms the grandparent contains no unexpected entry. No exited child token is assumed or transmitted. `F01_TEST_MODE=cleanup-retarget` runs both the ancestor-retarget and deterministic post-open root-swap falsifiers and passes only when every original/replacement/victim sentinel required by that case remains. The same mode normalizes shell line continuations and rejects any `rm` command in the two production test scripts whose argv contains `-r`, `-R`, or `--recursive`, plus indirect cleanup command dispatch; there is no raw-recursive-delete allowlist.
 
   Invoke every dispatcher child from `(cd "$WORK_ROOT" && ...)` with a minimal `env -i`, controlled `PATH`, `HOME="$ISOLATED_HOME"`, `TMPDIR="$TMPROOT/runtime"`, `CLAUDE_PLUGIN_ROOT="$FIXTURE_ROOT"`, and `CLAUDE_PROJECT_DIR="$WORK_ROOT"`. After the first fixture validator moves to its temp backup, emit the marker once, optionally self-send the allowlisted `SDLC_TEST_SIGNAL`, then execute `/usr/bin/false` when no signal was requested. Apple Bash 3.2 does not apply `errexit` to a false `[[ ... ]]` conditional command, so `[[ 1 -eq 0 ]]` is prohibited as this failpoint. The unreachable explicit exit keeps any future unexpected `errexit` suppression non-green:
 
@@ -698,6 +724,7 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
   ```bash
   /bin/bash -n tests/lib/plugin-root.sh tests/test-sdlc-dispatch.sh tests/test-sdlc-dispatch-isolation.sh
+  python3.12 -m py_compile tests/lib/f01-temp-tree.py
   SDLC_INSTALLED_PLUGIN_ROOT="$HOME/.claude/plugins/sdlc-os" /bin/bash tests/test-sdlc-dispatch-isolation.sh
   for signal in HUP INT TERM; do
     F01_TEST_SIGNAL="$signal" \
@@ -705,10 +732,13 @@ Expected: tracked state is clean before and after; the commit contains exactly t
       /bin/bash tests/test-sdlc-dispatch-isolation.sh
   done
   F01_TEST_MODE=concurrent /bin/bash tests/test-sdlc-dispatch-isolation.sh
+  F01_TEST_MODE=signal-wrapper-negative /bin/bash tests/test-sdlc-dispatch-isolation.sh
+  F01_TEST_MODE=cleanup-retarget /bin/bash tests/test-sdlc-dispatch-isolation.sh
+  F01_TEST_MODE=restore-failure /bin/bash tests/test-sdlc-dispatch-isolation.sh
   CLAUDE_PLUGIN_ROOT="$PWD" /bin/bash tests/test-sdlc-dispatch.sh
   ```
 
-  Expected: direct and three signal modes report the one forced marker beneath their runtime temp roots with exact child exits `1/129/130/143`; every failpoint child has empty stdout, so no `Results:` line is admitted; two concurrent drivers use distinct roots and both pass; source/decoy snapshots and sorted sidecar inventories are byte-identical; installed bytes are unchanged when applicable; no new sidecars exist; and the separate normal dispatcher suite reports exactly `Results: 11 passed, 0 failed`. Exit `3` is retained as `INCONCLUSIVE`, never coerced to green. Task 8 separately attacks an external interruption of the outer driver; Task 1 does not infer that result from inner self-signals.
+  Expected: direct and three signal modes report the one forced marker beneath their runtime temp roots with exact child exits `1/129/130/143`; every failpoint child has empty stdout, so no `Results:` line is admitted. The INT outer command and copied child must both execute in the foreground with direct raw stdout/stderr files; the deliberate background-wrapper negative must reproduce exit `125` without being admitted as the INT row, then the separate foreground INT row must pass. Two concurrent drivers use distinct roots and both pass; source/decoy snapshots and complete versioned sidecar inventories are byte-identical; installed bytes are unchanged when applicable; the dotless sidecar falsifier is detected; retargeted cleanup preserves both sentinels; restore failure is observed only after both bounded trees are retained and then safely removed by the parent test; the normalized source-policy gate finds zero direct or indirect raw recursive-delete commands; and the separate normal dispatcher suite reports exactly `Results: 11 passed, 0 failed`. Exit `3` is retained as `INCONCLUSIVE`, never coerced to green. Task 8 separately attacks an external interruption of the outer driver; Task 1 does not infer that result from inner self-signals.
 
 - [ ] **Step 6: Inspect and commit the atomic F-01/root change**
 
@@ -716,14 +746,14 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
   ```bash
   git diff --check
-  git diff -- tests/lib/plugin-root.sh tests/test-sdlc-dispatch-isolation.sh tests/test-sdlc-dispatch.sh
+  git diff -- tests/lib/plugin-root.sh tests/lib/f01-temp-tree.py tests/test-sdlc-dispatch-isolation.sh tests/test-sdlc-dispatch.sh
   git status --short
-  git add tests/lib/plugin-root.sh tests/test-sdlc-dispatch-isolation.sh tests/test-sdlc-dispatch.sh
+  git add tests/lib/plugin-root.sh tests/lib/f01-temp-tree.py tests/test-sdlc-dispatch-isolation.sh tests/test-sdlc-dispatch.sh
   git diff --cached --check
   git commit -m "test: isolate dispatcher validator fixtures"
   ```
 
-  Expected: local commit succeeds; no installed validator or sidecar changed; no other file is staged.
+  Expected: local commit succeeds with exactly the four Task 1 paths; no installed validator or sidecar changed; no other file is staged.
 
 ### Task 2: Make All Four Checkout-Bound Tests Relocatable
 
@@ -1210,11 +1240,11 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
 - [ ] **Step 5: Create the Stage 1A manifest and honest baseline inventories**
 
-  Add required 1A rows for F-01 direct assertion, each `HUP`/`INT`/`TERM` signal mode, two-driver concurrency, normal dispatcher, root relocation, shims, fixture regression, portable shell helpers, clone manager, tmup discovery fixture, metadata checker, strict plugin validation, inventory checker, local/offline `tsx`, TypeScript typecheck, discovered Vitest suite, touched-shell syntax, old-literal scans, and clean committed candidate. Every F-01 row declares `inconclusive_exit_codes: [3]`; no undeclared nonzero exit may be coerced to green.
+  Add required 1A rows for F-01 direct assertion, each foreground `HUP`/`INT`/`TERM` signal mode, the background-wrapper SIGINT negative, two-driver concurrency, sidecar mutation, restore retention, cleanup retarget/source-policy rejection, normal dispatcher, root relocation, shims, fixture regression, portable shell helpers, clone manager, tmup discovery fixture, metadata checker, strict plugin validation, inventory checker, local/offline `tsx`, TypeScript typecheck, discovered Vitest suite, touched-shell syntax, old-literal scans, and clean committed candidate. Every F-01 row declares `inconclusive_exit_codes: [3]`; no undeclared nonzero exit may be coerced to green.
 
   `verification/baseline-inventory.json` is the unified Stage 1 register. Every entry requires `stable_id`, `class`, `severity` (`CRITICAL | MATERIAL | NONMATERIAL`), numeric `priority`, `owner`, `affected_requirements`, `affected_stage_release`, `trigger_or_due`, `evidence`, `rationale`, `mitigation`, `current_verdict`, `disposition`, ISO `review_date`, and `closure_proof`. The inventory, error catalog, and review state each have independent schema versions with current-version-only loaders and malformed/future-version negatives. Schema tests reject omitted fields, invalid deferral of a load-bearing item, or a later owner/release without a trigger and closure proof. Include:
 
-  - checkout fixture `0/13`, validator shims `0/14`, dispatcher path exit `127`, clone manager `19/24`, clone identifier traversal, both `du -sb` sites, three `mktemp --suffix` sites, tmup stale entry, version/inventory/tsx drift, no-test config, and `P27-01..P27-08` as 1A or plan-review disposition;
+  - checkout fixture `0/13`, validator shims `0/14`, dispatcher path exit `127`, clone manager `19/24`, clone identifier traversal, both `du -sb` sites, three `mktemp --suffix` sites, tmup stale entry, version/inventory/tsx drift, no-test config, and `P27-01..P27-11` as 1A or plan-review disposition;
   - direct registry surgery, bridge false-sync handling, age-only prune, shared inbox loss risk, and weak health evidence as 1B;
   - Deacon's independent `recovered-outputs/<task_id>` path containment, the legacy `colony/validation/run-all.sh` `eval` runner, best-effort Colony permission/log writes, log-field privacy minimization, dedup runner/package mismatch, ShellCheck, Ruff, weak/assertion-free/skipped/sleeping tests, masked provider paths, fixed `/tmp` tests, shared smoke lock, full deterministic matrix, and systemd/launchd packaging as 1C. These remain visible and cannot support 1A or Stage 1 green; Task 3 claims only the shell clone-manager boundary. A manifest schema test proves no mandatory 1A row invokes the legacy `eval` runner.
 
@@ -1340,6 +1370,8 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 - [ ] No step runs the hazardous original dispatcher suite before isolation.
 - [ ] The Task 1 decoy includes its manifest and optional helper tree, all isolated roots/CWDs are physically contained, and direct/signal/concurrent post-swap proofs run before its commit.
 - [ ] The direct post-swap failpoint uses `/usr/bin/false`, exits exactly `1`, and admits no child stdout; a false Bash `[[ ... ]]` command is not treated as an `errexit` proof.
+- [ ] Complete versioned validator-prefix inventories detect dot and dotless decoy sidecars; restore failure retains both bounded trees; recursive cleanup is descriptor-held, no-follow, identity-checked, ancestor/root-swap tested, and makes no malicious-same-UID sandbox claim.
+- [ ] SIGINT evidence comes from a foreground raw-file launch; the backgrounding hypothesis capture wrapper is recorded as incompatible and cannot satisfy that row.
 - [ ] No step runs the unsafe full Colony smoke test before its shared-lock fixture is isolated in 1C.
 - [ ] Clone session/agent/task traversal is rejected before any `_ensure_colony_base`, `mkdir`, `git clone`, or `cp`, with zero outside-base side effect.
 - [ ] macOS and owner-authorized Linux surfaces, runtimes, expected exits, and inconclusive fallbacks are explicit without committing private host locators.
