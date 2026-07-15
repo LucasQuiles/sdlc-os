@@ -1,0 +1,1912 @@
+{
+  "schema_version": "sdlc-os-verification-manifest-v1",
+  "requirement_catalog": {
+    "S1-01": {
+      "source": "governing spec section 9.1 item 1",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "S1-02": {
+      "source": "governing spec section 9.1 item 2",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "S1-03": {
+      "source": "governing spec section 9.1 item 3",
+      "disposition": "PARTIAL",
+      "owner_release": "1A",
+      "closure_in_1a": false
+    },
+    "S1-04": {
+      "source": "governing spec section 9.1 item 4",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "S1-05": {
+      "source": "governing spec section 9.1 item 5",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "S1-06": {
+      "source": "governing spec section 9.1 item 6",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "S1-07": {
+      "source": "governing spec section 9.1 item 7",
+      "disposition": "PARTIAL",
+      "owner_release": "1A",
+      "closure_in_1a": false
+    },
+    "AP-01": {
+      "source": "approved scope record AP-01",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-02": {
+      "source": "approved scope record AP-02",
+      "disposition": "DEFERRED",
+      "owner_release": "Later",
+      "closure_in_1a": false
+    },
+    "AP-03": {
+      "source": "approved scope record AP-03",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-04": {
+      "source": "approved scope record AP-04",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-05": {
+      "source": "approved scope record AP-05",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-06": {
+      "source": "approved scope record AP-06",
+      "disposition": "DEFERRED",
+      "owner_release": "Later",
+      "closure_in_1a": false
+    },
+    "AP-07": {
+      "source": "approved scope record AP-07",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-08": {
+      "source": "approved scope record AP-08",
+      "disposition": "DEFERRED",
+      "owner_release": "Later",
+      "closure_in_1a": false
+    },
+    "AP-09": {
+      "source": "approved scope record AP-09",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-10": {
+      "source": "approved scope record AP-10",
+      "disposition": "PARTIAL",
+      "owner_release": "1A",
+      "closure_in_1a": false
+    },
+    "AP-11": {
+      "source": "approved scope record AP-11",
+      "disposition": "PARTIAL",
+      "owner_release": "1A",
+      "closure_in_1a": false
+    },
+    "AP-12": {
+      "source": "approved scope record AP-12",
+      "disposition": "DEFERRED",
+      "owner_release": "Later",
+      "closure_in_1a": false
+    },
+    "AP-13": {
+      "source": "approved scope record AP-13",
+      "disposition": "PARTIAL",
+      "owner_release": "1A",
+      "closure_in_1a": false
+    },
+    "AP-14": {
+      "source": "approved scope record AP-14",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-15": {
+      "source": "approved scope record AP-15",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-16": {
+      "source": "approved scope record AP-16",
+      "disposition": "PARTIAL",
+      "owner_release": "1A",
+      "closure_in_1a": false
+    },
+    "AP-17": {
+      "source": "approved scope record AP-17",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-18": {
+      "source": "approved scope record AP-18",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-19": {
+      "source": "approved scope record AP-19",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-20": {
+      "source": "approved scope record AP-20",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-21": {
+      "source": "approved scope record AP-21",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-22": {
+      "source": "approved scope record AP-22",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-23": {
+      "source": "approved scope record AP-23",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "AP-24": {
+      "source": "approved scope record AP-24",
+      "disposition": "REQUIRED",
+      "owner_release": "Task8",
+      "closure_in_1a": false
+    },
+    "F-01": {
+      "source": "owner review finding F-01",
+      "disposition": "REQUIRED",
+      "owner_release": "1A",
+      "closure_in_1a": true
+    },
+    "F-02": {
+      "source": "owner review finding F-02",
+      "disposition": "PARTIAL",
+      "owner_release": "Task8",
+      "closure_in_1a": false
+    },
+    "F-03": {
+      "source": "owner review finding F-03",
+      "disposition": "DEFERRED",
+      "owner_release": "Stage2",
+      "closure_in_1a": false
+    },
+    "AC-07": {
+      "source": "approved containment requirement AC-07",
+      "disposition": "OWNER_GATED",
+      "owner_release": "1B",
+      "closure_in_1a": false
+    },
+    "TF-08": {
+      "source": "approved containment requirement TF-08",
+      "disposition": "OWNER_GATED",
+      "owner_release": "1B",
+      "closure_in_1a": false
+    },
+    "P27-01": {
+      "source": "pre-implementation finding P27-01",
+      "disposition": "OWNER_GATED",
+      "owner_release": "1B",
+      "closure_in_1a": false
+    }
+  },
+  "executable_allowlist": [
+    {
+      "executable": "bash",
+      "argument_mode": "script",
+      "allowed_roots": [
+        "tests",
+        "scripts",
+        "colony"
+      ],
+      "allowed_scripts": [
+        "tests/test-sdlc-dispatch-isolation.sh",
+        "tests/test-sdlc-dispatch.sh",
+        "tests/test-plugin-root-resolution.sh",
+        "tests/test-validator-shims.sh",
+        "tests/test-portable-shell-helpers.sh",
+        "colony/clone-manager.test.sh",
+        "tests/test-crossmodel-preflight.sh",
+        "tests/test-colony-tooling.sh"
+      ],
+      "allowed_flags": [
+        "-n"
+      ]
+    },
+    {
+      "executable": "python3.12",
+      "argument_mode": "script",
+      "allowed_roots": [
+        "tests",
+        "scripts",
+        "HOST"
+      ],
+      "allowed_scripts": [
+        "scripts/check-plugin-metadata.py",
+        "scripts/check-repository-inventory.py"
+      ],
+      "allowed_modules": [
+        "unittest",
+        "json.tool"
+      ]
+    },
+    {
+      "executable": "node",
+      "argument_mode": "script",
+      "allowed_roots": [
+        "HOST"
+      ],
+      "allowed_scripts": [],
+      "allowed_flags": [
+        "--check"
+      ]
+    },
+    {
+      "executable": "git",
+      "argument_mode": "read_only",
+      "allowed_subcommands": [
+        "diff",
+        "grep",
+        "log",
+        "merge-base",
+        "rev-parse",
+        "show",
+        "status"
+      ]
+    },
+    {
+      "executable": "claude",
+      "argument_mode": "prefix",
+      "allowed_prefixes": [
+        [
+          "plugin",
+          "validate"
+        ]
+      ]
+    },
+    {
+      "executable": "colony/run-tsx.sh",
+      "argument_mode": "exact",
+      "allowed_argv": [
+        [
+          "--version"
+        ]
+      ]
+    },
+    {
+      "executable": "./node_modules/.bin/tsc",
+      "argument_mode": "exact",
+      "allowed_argv": [
+        [
+          "--noEmit"
+        ]
+      ]
+    },
+    {
+      "executable": "./node_modules/.bin/vitest",
+      "argument_mode": "exact",
+      "allowed_argv": [
+        [
+          "run",
+          "--no-cache",
+          "--configLoader",
+          "runner"
+        ]
+      ]
+    }
+  ],
+  "protected_ignored_paths": [
+    "artifacts",
+    ".superpowers",
+    "colony/node_modules"
+  ],
+  "checks": [
+    {
+      "check_id": "s1a-f01-direct-sidecar",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {
+        "SDLC_INSTALLED_PLUGIN_ROOT": "${HOST_HOME}/.claude/plugins/sdlc-os",
+        "F01_TEST_MODE": "assert",
+        "F01_EMIT_FINGERPRINTS": "1"
+      },
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The copied dispatcher fixture and source/installed fingerprints are required mechanical safety evidence."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [
+        3
+      ],
+      "expected_observation": {
+        "type": "regex",
+        "stream": "stdout",
+        "pattern": "\\AF01_FINGERPRINTS source=[0-9a-f]{64} decoy=[0-9a-f]{64} installed=(?:[0-9a-f]{64}|NOT_APPLICABLE)\\nF01 isolation PASS mode=assert\\n?\\Z"
+      },
+      "negative_falsifier": "Any source, installed, or decoy mutation; missing failpoint; survivor; sidecar; or uncontained path is non-pass.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-15",
+        "F-01"
+      ],
+      "command": [
+        "bash",
+        "tests/test-sdlc-dispatch-isolation.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "cp",
+        "find",
+        "mktemp",
+        "sed",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-f01-signal-hup",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {
+        "SDLC_INSTALLED_PLUGIN_ROOT": "${HOST_HOME}/.claude/plugins/sdlc-os",
+        "F01_TEST_MODE": "assert",
+        "F01_TEST_SIGNAL": "HUP"
+      },
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The copied dispatcher fixture and source/installed fingerprints are required mechanical safety evidence."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [
+        3
+      ],
+      "expected_observation": {
+        "type": "contains",
+        "stream": "stdout",
+        "value": "F01 isolation PASS mode=assert signal=HUP"
+      },
+      "negative_falsifier": "Any source, installed, or decoy mutation; missing failpoint; survivor; sidecar; or uncontained path is non-pass.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-15",
+        "F-01"
+      ],
+      "command": [
+        "bash",
+        "tests/test-sdlc-dispatch-isolation.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "cp",
+        "find",
+        "mktemp",
+        "sed",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-f01-signal-int",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {
+        "SDLC_INSTALLED_PLUGIN_ROOT": "${HOST_HOME}/.claude/plugins/sdlc-os",
+        "F01_TEST_MODE": "assert",
+        "F01_TEST_SIGNAL": "INT"
+      },
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The copied dispatcher fixture and source/installed fingerprints are required mechanical safety evidence."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [
+        3
+      ],
+      "expected_observation": {
+        "type": "contains",
+        "stream": "stdout",
+        "value": "F01 isolation PASS mode=assert signal=INT launch=foreground"
+      },
+      "negative_falsifier": "Any source, installed, or decoy mutation; missing failpoint; survivor; sidecar; or uncontained path is non-pass.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-15",
+        "F-01"
+      ],
+      "command": [
+        "bash",
+        "tests/test-sdlc-dispatch-isolation.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "cp",
+        "find",
+        "mktemp",
+        "sed",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-f01-signal-term",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {
+        "SDLC_INSTALLED_PLUGIN_ROOT": "${HOST_HOME}/.claude/plugins/sdlc-os",
+        "F01_TEST_MODE": "assert",
+        "F01_TEST_SIGNAL": "TERM"
+      },
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The copied dispatcher fixture and source/installed fingerprints are required mechanical safety evidence."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [
+        3
+      ],
+      "expected_observation": {
+        "type": "contains",
+        "stream": "stdout",
+        "value": "F01 isolation PASS mode=assert signal=TERM"
+      },
+      "negative_falsifier": "Any source, installed, or decoy mutation; missing failpoint; survivor; sidecar; or uncontained path is non-pass.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-15",
+        "F-01"
+      ],
+      "command": [
+        "bash",
+        "tests/test-sdlc-dispatch-isolation.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "cp",
+        "find",
+        "mktemp",
+        "sed",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-f01-concurrent",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {
+        "SDLC_INSTALLED_PLUGIN_ROOT": "${HOST_HOME}/.claude/plugins/sdlc-os",
+        "F01_TEST_MODE": "concurrent"
+      },
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The copied dispatcher fixture and source/installed fingerprints are required mechanical safety evidence."
+      },
+      "timeout_seconds": 120,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [
+        3
+      ],
+      "expected_observation": {
+        "type": "contains",
+        "stream": "stdout",
+        "value": "F01 isolation PASS mode=concurrent"
+      },
+      "negative_falsifier": "Any source, installed, or decoy mutation; missing failpoint; survivor; sidecar; or uncontained path is non-pass.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-15",
+        "F-01"
+      ],
+      "command": [
+        "bash",
+        "tests/test-sdlc-dispatch-isolation.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "cp",
+        "find",
+        "mktemp",
+        "sed",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-f01-wrapper-negative",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {
+        "SDLC_INSTALLED_PLUGIN_ROOT": "${HOST_HOME}/.claude/plugins/sdlc-os",
+        "F01_TEST_MODE": "signal-wrapper-negative"
+      },
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The copied dispatcher fixture and source/installed fingerprints are required mechanical safety evidence."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [
+        3
+      ],
+      "expected_observation": {
+        "type": "contains",
+        "stream": "stdout",
+        "value": "F01 isolation PASS mode=signal-wrapper-negative"
+      },
+      "negative_falsifier": "Any source, installed, or decoy mutation; missing failpoint; survivor; sidecar; or uncontained path is non-pass.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-15",
+        "F-01"
+      ],
+      "command": [
+        "bash",
+        "tests/test-sdlc-dispatch-isolation.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "cp",
+        "find",
+        "mktemp",
+        "sed",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-f01-admission-negative",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {
+        "SDLC_INSTALLED_PLUGIN_ROOT": "${HOST_HOME}/.claude/plugins/sdlc-os",
+        "F01_TEST_MODE": "admission-negative"
+      },
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The copied dispatcher fixture and source/installed fingerprints are required mechanical safety evidence."
+      },
+      "timeout_seconds": 120,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [
+        3
+      ],
+      "expected_observation": {
+        "type": "contains",
+        "stream": "stdout",
+        "value": "F01 isolation PASS mode=admission-negative"
+      },
+      "negative_falsifier": "Any source, installed, or decoy mutation; missing failpoint; survivor; sidecar; or uncontained path is non-pass.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-15",
+        "F-01"
+      ],
+      "command": [
+        "bash",
+        "tests/test-sdlc-dispatch-isolation.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "cp",
+        "find",
+        "mktemp",
+        "sed",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-f01-cleanup-source-policy",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {
+        "SDLC_INSTALLED_PLUGIN_ROOT": "${HOST_HOME}/.claude/plugins/sdlc-os",
+        "F01_TEST_MODE": "cleanup-retarget"
+      },
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The copied dispatcher fixture and source/installed fingerprints are required mechanical safety evidence."
+      },
+      "timeout_seconds": 120,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [
+        3
+      ],
+      "expected_observation": {
+        "type": "contains",
+        "stream": "stdout",
+        "value": "F01 isolation PASS mode=cleanup-retarget"
+      },
+      "negative_falsifier": "Any source, installed, or decoy mutation; missing failpoint; survivor; sidecar; or uncontained path is non-pass.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-15",
+        "F-01"
+      ],
+      "command": [
+        "bash",
+        "tests/test-sdlc-dispatch-isolation.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "cp",
+        "find",
+        "mktemp",
+        "sed",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-f01-restore-retention",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {
+        "SDLC_INSTALLED_PLUGIN_ROOT": "${HOST_HOME}/.claude/plugins/sdlc-os",
+        "F01_TEST_MODE": "restore-failure"
+      },
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The copied dispatcher fixture and source/installed fingerprints are required mechanical safety evidence."
+      },
+      "timeout_seconds": 120,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [
+        3
+      ],
+      "expected_observation": {
+        "type": "contains",
+        "stream": "stdout",
+        "value": "F01 isolation PASS mode=restore-failure"
+      },
+      "negative_falsifier": "Any source, installed, or decoy mutation; missing failpoint; survivor; sidecar; or uncontained path is non-pass.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-15",
+        "F-01"
+      ],
+      "command": [
+        "bash",
+        "tests/test-sdlc-dispatch-isolation.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "cp",
+        "find",
+        "mktemp",
+        "sed",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-dispatch-normal",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "test_count_regex",
+        "stream": "stdout",
+        "pattern": "(?m)^Results: ([0-9]+) passed, 0 failed$",
+        "min_count": 11
+      },
+      "negative_falsifier": "Any changed legacy exit, warning, or fewer than eleven passing dispatcher cases fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-07",
+        "AP-15",
+        "F-01"
+      ],
+      "command": [
+        "bash",
+        "tests/test-sdlc-dispatch.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "jq",
+        "perl",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-plugin-root-relocation",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 300,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "contains",
+        "stream": "stdout",
+        "value": "Plugin root relocation: PASS"
+      },
+      "negative_falsifier": "Any invalid, symlinked, escaped, checkout-bound, or semantically changed relocated execution fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-15",
+        "F-01"
+      ],
+      "command": [
+        "bash",
+        "tests/test-plugin-root-resolution.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "git",
+        "jq",
+        "perl",
+        "python3.12",
+        "rg"
+      ]
+    },
+    {
+      "check_id": "s1a-validator-shims",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "test_count_regex",
+        "stream": "stdout",
+        "pattern": "(?m)^Results: ([0-9]+) passed, 0 failed$",
+        "min_count": 14
+      },
+      "negative_falsifier": "Any shim mismatch or fewer than fourteen passing cases fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-15"
+      ],
+      "command": [
+        "bash",
+        "tests/test-validator-shims.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "jq"
+      ]
+    },
+    {
+      "check_id": "s1a-portable-shell-helpers",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "test_count_regex",
+        "stream": "stdout",
+        "pattern": "(?m)^Passed: ([0-9]+)$",
+        "min_count": 7
+      },
+      "negative_falsifier": "Any nonpositive byte result, unsafe prefix, GNU-only literal, or fewer than seven passing cases fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-01",
+        "AP-14"
+      ],
+      "command": [
+        "bash",
+        "tests/test-portable-shell-helpers.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "du",
+        "mktemp"
+      ]
+    },
+    {
+      "check_id": "s1a-clone-manager-mechanical",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 120,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "test_count_regex",
+        "stream": "stdout",
+        "pattern": "(?m)^Passed: ([0-9]+)$",
+        "min_count": 24
+      },
+      "negative_falsifier": "Any portability regression, changed telemetry name, or fewer than twenty-four passing cases fails; no containment claim is made.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-01",
+        "AP-14"
+      ],
+      "command": [
+        "bash",
+        "colony/clone-manager.test.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "git",
+        "du",
+        "mktemp"
+      ]
+    },
+    {
+      "check_id": "s1a-tmup-discovery-fixture",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "test_count_regex",
+        "stream": "stdout",
+        "pattern": "(?m)^Results: ([0-9]+) passed, 0 failed$",
+        "min_count": 4
+      },
+      "negative_falsifier": "A missing, malformed, stale, or escaping manifest entry must be rejected.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-03",
+        "AP-10",
+        "AP-16"
+      ],
+      "command": [
+        "bash",
+        "tests/test-crossmodel-preflight.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-tmup-installed-manifest",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {
+        "TMUP_PLUGIN_ROOT": "${HOST_HOME}/.claude/plugins/tmup"
+      },
+      "platforms": [
+        "macos"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The owner host has an installed tmup plugin whose manifest is observed read-only."
+      },
+      "timeout_seconds": 30,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "regex",
+        "stream": "stdout",
+        "pattern": "\\$\\{CLAUDE_PLUGIN_ROOT\\}/mcp-server/dist/index\\.js"
+      },
+      "negative_falsifier": "A malformed installed manifest or a declaration other than the supported entry fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-03",
+        "AP-10",
+        "AP-16"
+      ],
+      "command": [
+        "python3.12",
+        "-m",
+        "json.tool",
+        "${HOST_HOME}/.claude/plugins/tmup/.claude-plugin/plugin.json"
+      ],
+      "required_tools": [
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-tmup-installed-entry-syntax",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {
+        "TMUP_PLUGIN_ROOT": "${HOST_HOME}/.claude/plugins/tmup"
+      },
+      "platforms": [
+        "macos"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The owner-host installed tmup entry is checked read-only and is not launched."
+      },
+      "timeout_seconds": 30,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "empty",
+        "stream": "stderr"
+      },
+      "negative_falsifier": "A missing or syntactically invalid installed entry fails without touching tmup state.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-03",
+        "AP-10",
+        "AP-16"
+      ],
+      "command": [
+        "node",
+        "--check",
+        "${HOST_HOME}/.claude/plugins/tmup/mcp-server/dist/index.js"
+      ],
+      "required_tools": [
+        "node"
+      ]
+    },
+    {
+      "check_id": "s1a-metadata-unit",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "test_count_regex",
+        "stream": "stderr",
+        "pattern": "(?m)^Ran ([0-9]+) tests? in [0-9.]+s$",
+        "min_count": 8
+      },
+      "negative_falsifier": "Any accepted duplicate version, stale count, or fewer than eight mutation tests fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-04",
+        "AP-17"
+      ],
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "tests/test_metadata_inventory.py",
+        "-v"
+      ],
+      "required_tools": [
+        "python3.12",
+        "git"
+      ]
+    },
+    {
+      "check_id": "s1a-metadata-checker",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 30,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "json_subset",
+        "stream": "stdout",
+        "value": {
+          "marketplace_version_authority": "plugin_manifest",
+          "plugin_version": "10.0.0"
+        }
+      },
+      "negative_falsifier": "Any duplicate or divergent operational version authority fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-04",
+        "AP-17"
+      ],
+      "command": [
+        "python3.12",
+        "scripts/check-plugin-metadata.py",
+        "--root",
+        "."
+      ],
+      "required_tools": [
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-plugin-validate-root",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The installed Claude CLI supplies the strict plugin schema gate on the owner host."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "empty",
+        "stream": "stderr"
+      },
+      "negative_falsifier": "Any strict plugin-schema error or warning fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-04",
+        "AP-17"
+      ],
+      "command": [
+        "claude",
+        "plugin",
+        "validate",
+        ".",
+        "--strict"
+      ],
+      "required_tools": [
+        "claude"
+      ]
+    },
+    {
+      "check_id": "s1a-plugin-validate-marketplace",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The installed Claude CLI supplies the strict marketplace schema gate on the owner host."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "empty",
+        "stream": "stderr"
+      },
+      "negative_falsifier": "Any strict marketplace-schema error or warning fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-04",
+        "AP-17"
+      ],
+      "command": [
+        "claude",
+        "plugin",
+        "validate",
+        ".claude-plugin/marketplace.json",
+        "--strict"
+      ],
+      "required_tools": [
+        "claude"
+      ]
+    },
+    {
+      "check_id": "s1a-inventory-checker",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 30,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "json_subset",
+        "stream": "stdout",
+        "value": {
+          "readme_core_agents": 29,
+          "repository_agents": 46,
+          "repository_skills": 16
+        }
+      },
+      "negative_falsifier": "Any repository/documentation projection drift fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-06",
+        "AP-19"
+      ],
+      "command": [
+        "python3.12",
+        "scripts/check-repository-inventory.py",
+        "--root",
+        "."
+      ],
+      "required_tools": [
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-colony-tooling-contracts",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 120,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "test_count_regex",
+        "stream": "stdout",
+        "pattern": "(?m)^Results: ([0-9]+) passed, 0 failed$",
+        "min_count": 5
+      },
+      "negative_falsifier": "Any dynamic tsx acquisition, missing-binary false pass, zero-test success, or fewer than five passing contracts fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-05",
+        "AP-18"
+      ],
+      "command": [
+        "bash",
+        "tests/test-colony-tooling.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "node",
+        "npm",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "s1a-tsx-offline-version",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {
+        "npm_config_offline": "true",
+        "npm_config_cache": "${CHECK_TMPDIR}/npm-cache"
+      },
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 30,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "regex",
+        "stream": "stdout",
+        "pattern": "(?m)^tsx v4\\.23\\.1$"
+      },
+      "negative_falsifier": "Any network-dependent or non-4.23.1 tsx execution fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-05",
+        "AP-18"
+      ],
+      "command": [
+        "colony/run-tsx.sh",
+        "--version"
+      ],
+      "required_tools": [
+        "bash",
+        "node"
+      ]
+    },
+    {
+      "check_id": "s1a-typescript-typecheck",
+      "stage": "1A",
+      "working_directory": "colony",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 120,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "empty",
+        "stream": "stderr"
+      },
+      "negative_falsifier": "Any TypeScript diagnostic or nonzero typecheck exit fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-05",
+        "AP-18"
+      ],
+      "command": [
+        "./node_modules/.bin/tsc",
+        "--noEmit"
+      ],
+      "required_tools": [
+        "node"
+      ]
+    },
+    {
+      "check_id": "s1a-vitest-discovered-suite",
+      "stage": "1A",
+      "working_directory": "colony",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 180,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "test_count_regex",
+        "stream": "stdout",
+        "pattern": "(?m)^[ \\t]*Tests[ \\t]+([0-9]+)[ \\t]+passed[ \\t]+\\(\\1\\)[ \\t]*$",
+        "min_count": 153
+      },
+      "negative_falsifier": "A zero-test, under-counted, or failing Vitest run cannot pass; existing stderr debt remains visible in 1C.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-05",
+        "AP-18"
+      ],
+      "command": [
+        "./node_modules/.bin/vitest",
+        "run",
+        "--no-cache",
+        "--configLoader",
+        "runner"
+      ],
+      "required_tools": [
+        "node"
+      ]
+    },
+    {
+      "check_id": "s1a-verification-runner-contracts",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 600,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "test_count_regex",
+        "stream": "stderr",
+        "pattern": "(?m)^Ran ([0-9]+) tests? in [0-9.]+s$",
+        "min_count": 38
+      },
+      "negative_falsifier": "Any false pass, unsafe manifest, masked exit, missing artifact, durability fault, survivor, or authority drift fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-07",
+        "AP-11",
+        "AP-13"
+      ],
+      "command": [
+        "python3.12",
+        "-m",
+        "unittest",
+        "tests/test_verification_runner.py",
+        "-v"
+      ],
+      "required_tools": [
+        "python3.12",
+        "git"
+      ]
+    },
+    {
+      "check_id": "s1a-touched-shell-syntax",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "empty",
+        "stream": "stderr"
+      },
+      "negative_falsifier": "Any syntax error in a touched shell file fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-01",
+        "S1-02",
+        "S1-03",
+        "S1-05",
+        "AP-14",
+        "AP-15",
+        "AP-16",
+        "AP-18"
+      ],
+      "command": [
+        "bash",
+        "-n",
+        "tests/lib/plugin-root.sh",
+        "tests/test-sdlc-dispatch.sh",
+        "tests/test-sdlc-dispatch-isolation.sh",
+        "tests/benchmark-dispatch.sh",
+        "tests/test-validator-shims.sh",
+        "tests/test-fixture-regression.sh",
+        "tests/test-plugin-root-resolution.sh",
+        "colony/lib/portable-shell.sh",
+        "colony/clone-manager.sh",
+        "colony/clone-manager.test.sh",
+        "colony/smoke-test.sh",
+        "tests/test-portable-shell-helpers.sh",
+        "scripts/lib/tmup-discovery.sh",
+        "scripts/crossmodel-preflight.sh",
+        "tests/test-crossmodel-preflight.sh",
+        "colony/run-tsx.sh",
+        "tests/test-colony-tooling.sh"
+      ],
+      "required_tools": [
+        "bash"
+      ]
+    },
+    {
+      "check_id": "s1a-checkout-literal-scan",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 1,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "empty",
+        "stream": "stdout"
+      },
+      "negative_falsifier": "Any old checkout-bound executable literal fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-02",
+        "AP-15"
+      ],
+      "command": [
+        "git",
+        "grep",
+        "-n",
+        "-F",
+        "$HOME/LAB/sdlc-os",
+        "--",
+        "tests/benchmark-dispatch.sh",
+        "tests/test-validator-shims.sh",
+        "tests/test-fixture-regression.sh",
+        "tests/test-sdlc-dispatch.sh"
+      ],
+      "required_tools": [
+        "git"
+      ]
+    },
+    {
+      "check_id": "s1a-gnu-literal-scan",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 1,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "empty",
+        "stream": "stdout"
+      },
+      "negative_falsifier": "Any remaining GNU-only size or suffix invocation fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-01",
+        "AP-14"
+      ],
+      "command": [
+        "git",
+        "grep",
+        "-n",
+        "-E",
+        "du -sb|mktemp --suffix",
+        "--",
+        "colony/clone-manager.sh",
+        "colony/smoke-test.sh"
+      ],
+      "required_tools": [
+        "git"
+      ]
+    },
+    {
+      "check_id": "s1a-dynamic-tsx-scan",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 1,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "empty",
+        "stream": "stdout"
+      },
+      "negative_falsifier": "Any dynamic tsx invocation inside the exact Task 6 boundary fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-05",
+        "AP-18"
+      ],
+      "command": [
+        "git",
+        "grep",
+        "-n",
+        "-E",
+        "npx[[:space:]]+tsx|#!/usr/bin/env[[:space:]]+npx[[:space:]]+tsx",
+        "--",
+        "colony/smoke-test.sh",
+        "colony/bridge.test.ts",
+        "colony/bridge-cli.ts",
+        "colony/README.md",
+        "colony/conductor-prompt.md",
+        "colony/scripts/bootstrap-colony.ts",
+        "colony/scripts/capture-findings.ts"
+      ],
+      "required_tools": [
+        "git"
+      ]
+    },
+    {
+      "check_id": "s1a-range-scope",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "empty",
+        "stream": "stdout"
+      },
+      "negative_falsifier": "Any changed path outside the approved Stage 1A file/interface map fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-07",
+        "AP-01",
+        "AP-03",
+        "AP-04",
+        "AP-07",
+        "AP-09",
+        "AP-20",
+        "AP-21",
+        "AP-22",
+        "AP-23"
+      ],
+      "command": [
+        "git",
+        "diff",
+        "--quiet",
+        "1c3285ad92c0daea2449bf3c5d56a3c248841a20..HEAD",
+        "--",
+        ".",
+        ":(exclude).claude-plugin/marketplace.json",
+        ":(exclude).claude/CLAUDE.md",
+        ":(exclude).gitignore",
+        ":(exclude)README.md",
+        ":(exclude)colony/README.md",
+        ":(exclude)colony/bridge-cli.ts",
+        ":(exclude)colony/bridge.test.ts",
+        ":(exclude)colony/clone-manager.sh",
+        ":(exclude)colony/clone-manager.test.sh",
+        ":(exclude)colony/conductor-prompt.md",
+        ":(exclude)colony/lib/portable-shell.sh",
+        ":(exclude)colony/package-lock.json",
+        ":(exclude)colony/package.json",
+        ":(exclude)colony/run-tsx.sh",
+        ":(exclude)colony/scripts/bootstrap-colony.ts",
+        ":(exclude)colony/scripts/capture-findings.ts",
+        ":(exclude)colony/smoke-test.sh",
+        ":(exclude)colony/vitest.config.ts",
+        ":(exclude)docs/superpowers/plans/2026-07-14-sdlc-os-stage-1a-mechanical-baseline.md",
+        ":(exclude)docs/superpowers/specs/2026-07-14-sdlc-os-production-control-plane-design.md",
+        ":(exclude)scripts/check-plugin-metadata.py",
+        ":(exclude)scripts/check-repository-inventory.py",
+        ":(exclude)scripts/crossmodel-preflight.sh",
+        ":(exclude)scripts/lib/tmup-discovery.sh",
+        ":(exclude)scripts/run-verification.py",
+        ":(exclude)tests/benchmark-dispatch.sh",
+        ":(exclude)tests/lib/f01-temp-tree.py",
+        ":(exclude)tests/lib/plugin-root.sh",
+        ":(exclude)tests/test-colony-tooling.sh",
+        ":(exclude)tests/test-crossmodel-preflight.sh",
+        ":(exclude)tests/test-fixture-regression.sh",
+        ":(exclude)tests/test-plugin-root-resolution.sh",
+        ":(exclude)tests/test-portable-shell-helpers.sh",
+        ":(exclude)tests/test-sdlc-dispatch-isolation.sh",
+        ":(exclude)tests/test-sdlc-dispatch.sh",
+        ":(exclude)tests/test-validator-shims.sh",
+        ":(exclude)tests/test_metadata_inventory.py",
+        ":(exclude)tests/test_verification_runner.py",
+        ":(exclude)verification/README.md",
+        ":(exclude)verification/baseline-inventory.json",
+        ":(exclude)verification/error-catalog.json",
+        ":(exclude)verification/manifest.json",
+        ":(exclude)verification/review-result.schema.json",
+        ":(exclude)verification/review-state.json"
+      ],
+      "required_tools": [
+        "git"
+      ]
+    },
+    {
+      "check_id": "s1a-range-messages",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "empty",
+        "stream": "stdout"
+      },
+      "negative_falsifier": "Any prohibited attribution, model label, or work-email pattern in a Stage 1A commit message fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-07",
+        "AP-05",
+        "AP-20"
+      ],
+      "command": [
+        "git",
+        "log",
+        "--format=%H",
+        "--regexp-ignore-case",
+        "--extended-regexp",
+        "--grep=Co-Authored-By|Claude|Opus|Sonnet|Haiku|Fable|claude-|noreply@anthropic\\.com|Generated with Claude|🤖|@bes-efficiency\\.com",
+        "1c3285ad92c0daea2449bf3c5d56a3c248841a20..HEAD"
+      ],
+      "required_tools": [
+        "git"
+      ]
+    },
+    {
+      "check_id": "s1a-clean-candidate",
+      "stage": "1A",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The reviewed 1A command is required on both supported platforms."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "empty",
+        "stream": "stdout"
+      },
+      "negative_falsifier": "Any tracked, staged, or untracked candidate drift fails.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": true,
+      "requirement_ids": [
+        "S1-07",
+        "AP-01",
+        "AP-03",
+        "AP-04",
+        "AP-05",
+        "AP-09",
+        "AP-20",
+        "AP-21",
+        "AP-22",
+        "AP-23"
+      ],
+      "command": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "required_tools": [
+        "git"
+      ]
+    }
+  ]
+}

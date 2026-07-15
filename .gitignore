@@ -20,3 +20,8 @@ __pycache__/
 
 # artifact-sweep plugin output (dry-run manifests and backups)
 .sweep/
+
+# Local verification and plan-execution evidence
+/.verification-results/
+/artifacts/
+/.superpowers/

@@ -173,6 +173,30 @@ validate_file_state() {
   ' "$1"
 }
 
+emit_validator_fingerprints() {
+  local source_digest decoy_digest installed_digest
+  source_digest="$(awk -F '\t' 'NR == 1 { print $3 }' \
+    "$EVIDENCE_ROOT/source.state.before")"
+  decoy_digest="$(awk -F '\t' 'NR == 1 { print $3 }' \
+    "$EVIDENCE_ROOT/decoy.state.before")"
+  if [[ "$INSTALLED_APPLICABLE" == "1" ]]; then
+    installed_digest="$(awk -F '\t' 'NR == 1 { print $3 }' \
+      "$EVIDENCE_ROOT/installed.state.before")"
+  else
+    installed_digest="NOT_APPLICABLE"
+  fi
+  [[ "$source_digest" =~ ^[0-9a-f]{64}$ ]] ||
+    fail_fixture "cannot emit validator fingerprints"
+  [[ "$decoy_digest" =~ ^[0-9a-f]{64}$ ]] ||
+    fail_fixture "cannot emit validator fingerprints"
+  if [[ "$installed_digest" != "NOT_APPLICABLE" ]]; then
+    [[ "$installed_digest" =~ ^[0-9a-f]{64}$ ]] ||
+      fail_fixture "cannot emit validator fingerprints"
+  fi
+  printf 'F01_FINGERPRINTS source=%s decoy=%s installed=%s\n' \
+    "$source_digest" "$decoy_digest" "$installed_digest"
+}
+
 sidecar_inventory() {
   "$PYTHON_BIN" - "$1" <<'PY'
 import hashlib
@@ -1070,6 +1094,10 @@ run_assert() {
     ""|blank-line) ;;
     *) return 64 ;;
   esac
+  case "${F01_EMIT_FINGERPRINTS:-}" in
+    ""|1) ;;
+    *) return 64 ;;
+  esac
   if [[ "${F01_TEST_INSTALLED_DRIFT:-}" == "synthetic" &&
         "${F01_TEST_PRE_FAILPOINT_FAILURE:-}" != "synthetic" ]]; then
     return 64
@@ -1273,11 +1301,14 @@ run_assert() {
       *) return 64 ;;
     esac
   fi
-  if [[ "${F01_TEST_SIGNAL:-}" == "INT" ]]; then
-    printf 'F01 isolation PASS mode=assert signal=INT launch=foreground\n'
-  else
-    printf 'F01 isolation PASS mode=assert\n'
+  if [[ "${F01_EMIT_FINGERPRINTS:-}" == "1" ]]; then
+    emit_validator_fingerprints
   fi
+  case "${F01_TEST_SIGNAL:-}" in
+    INT) printf 'F01 isolation PASS mode=assert signal=INT launch=foreground\n' ;;
+    HUP|TERM) printf 'F01 isolation PASS mode=assert signal=%s\n' "$F01_TEST_SIGNAL" ;;
+    "") printf 'F01 isolation PASS mode=assert\n' ;;
+  esac
 }
 
 case "${F01_TEST_MODE:-assert}" in

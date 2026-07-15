@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sdlc-os-review-result-v1",
+  "title": "SDLC-OS immutable-candidate review result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "candidate_sha",
+    "manifest_sha256",
+    "requirement_catalog_sha256",
+    "reviewer",
+    "commands",
+    "material_claims",
+    "findings",
+    "limitations",
+    "protected_evidence_hashes",
+    "verdict"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "sdlc-os-review-result-v1"
+    },
+    "candidate_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40,64}$"
+    },
+    "manifest_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "requirement_catalog_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runtime",
+        "method"
+      ],
+      "properties": {
+        "runtime": {
+          "type": "string",
+          "minLength": 1
+        },
+        "method": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "commands": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "argv",
+          "exit_code"
+        ],
+        "properties": {
+          "argv": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "exit_code": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          }
+        }
+      }
+    },
+    "material_claims": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claim",
+          "file_line",
+          "symbol_or_test",
+          "file_sha256"
+        ],
+        "properties": {
+          "claim": {
+            "type": "string",
+            "minLength": 1
+          },
+          "file_line": {
+            "type": "string",
+            "minLength": 1
+          },
+          "symbol_or_test": {
+            "type": "string",
+            "minLength": 1
+          },
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "finding",
+          "severity",
+          "disposition",
+          "evidence",
+          "owner",
+          "due_trigger",
+          "closure_proof"
+        ],
+        "properties": {
+          "finding": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "enum": [
+              "CRITICAL",
+              "MATERIAL",
+              "NONMATERIAL"
+            ]
+          },
+          "disposition": {
+            "enum": [
+              "ACCEPTED",
+              "ACCEPTED_RESIDUAL",
+              "REJECTED",
+              "UNRESOLVED"
+            ]
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "due_trigger": {
+            "type": "string",
+            "minLength": 1
+          },
+          "closure_proof": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "protected_evidence_hashes": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    },
+    "verdict": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "INCONCLUSIVE"
+      ]
+    }
+  }
+}

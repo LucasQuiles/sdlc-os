@@ -1,0 +1,1650 @@
+{
+  "schema_version": "sdlc-os-baseline-inventory-v1",
+  "items": [
+    {
+      "stable_id": "A-01",
+      "class": "assumption",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-04",
+        "AP-17"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Task 5 strict schema gate",
+      "evidence": "Task 5 strict root and marketplace validation exited zero",
+      "rationale": "A duplicate marketplace version would restore split authority",
+      "mitigation": "Keep plugin.json as sole operational version authority and rerun strict validation",
+      "current_verdict": "PASS",
+      "disposition": "VALIDATED",
+      "review_date": "2026-07-14",
+      "closure_proof": "Task 5 commit 7c76c5c plus strict validation receipts"
+    },
+    {
+      "stable_id": "A-02",
+      "class": "assumption",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-01",
+        "S1-07"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Task 8 Linux replay",
+      "evidence": "Earlier read-only probe observed Node 20.20.2 and Python 3.12.3 on the authorized Linux host",
+      "rationale": "Stale platform capability would invalidate cross-platform claims",
+      "mitigation": "Refresh host/runtime probes immediately before immutable-candidate transfer",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "CONSTRAINED",
+      "review_date": "2026-07-14",
+      "closure_proof": "Fresh capability probe and complete Linux run receipt"
+    },
+    {
+      "stable_id": "A-03",
+      "class": "assumption",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-01",
+        "AP-14"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Task 8 two-platform manifest",
+      "evidence": "Portable helper tests observe positive integer byte projections",
+      "rationale": "Different units or malformed output would corrupt byte telemetry",
+      "mitigation": "Require positive clone_bytes and output_bytes on macOS and Linux",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "CONSTRAINED",
+      "review_date": "2026-07-14",
+      "closure_proof": "Both-platform portable-helper and clone-manager receipts"
+    },
+    {
+      "stable_id": "A-04",
+      "class": "assumption",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02",
+        "F-01"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Task 1 and final replay",
+      "evidence": "Task 1 copied-call-chain and normal dispatcher receipts passed without source mutation",
+      "rationale": "A missing dependency could suppress the failpoint or reach source bytes",
+      "mitigation": "Retain source/installed/decoy hashes and run direct plus normal dispatcher rows",
+      "current_verdict": "PASS",
+      "disposition": "VALIDATED",
+      "review_date": "2026-07-14",
+      "closure_proof": "Task 1 commit 48d41e65 plus F-01 receipts"
+    },
+    {
+      "stable_id": "A-05",
+      "class": "assumption",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-03",
+        "AP-10",
+        "AP-16"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Task 4 and final replay",
+      "evidence": "Installed manifest names mcp-server/dist/index.js and the fixture current/future/escape cases pass",
+      "rationale": "Hardcoded or escaping discovery would select unsupported code",
+      "mitigation": "Parse the manifest read-only and reject missing or outside-root entries",
+      "current_verdict": "PASS",
+      "disposition": "CONSTRAINED",
+      "review_date": "2026-07-14",
+      "closure_proof": "Task 4 commit 8487f8a plus fixture and installed-observation rows"
+    },
+    {
+      "stable_id": "A-06",
+      "class": "assumption",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-05",
+        "AP-18"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Task 6 and final replay",
+      "evidence": "Exact lock, offline wrapper, typecheck, and 153-test Vitest run succeeded under Node 20",
+      "rationale": "An incompatible or dynamically fetched tool could make tooling nonreproducible",
+      "mitigation": "Use only colony/node_modules/.bin/tsx and exact lockfile bytes",
+      "current_verdict": "PASS",
+      "disposition": "VALIDATED",
+      "review_date": "2026-07-14",
+      "closure_proof": "Task 6 commit 4125e2f plus offline/typecheck/Vitest receipts"
+    },
+    {
+      "stable_id": "A-07",
+      "class": "assumption",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-01",
+        "AP-14"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "Source inspection proves the full smoke uses a shared lock while focused helper tests cover the three temp sites",
+      "rationale": "Running full smoke early can mutate shared state; omitting it forever leaves integration unproved",
+      "mitigation": "Keep full smoke prohibited in 1A and require isolated full-smoke closure in 1C",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "REPLACED",
+      "review_date": "2026-07-14",
+      "closure_proof": "1C isolated full smoke with unique lock and all cases passing"
+    },
+    {
+      "stable_id": "A-08",
+      "class": "assumption",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02",
+        "AP-15"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Task 8 platform replay",
+      "evidence": "macOS tools are present; Linux availability is time-bound",
+      "rationale": "A missing tool can masquerade as a root-resolution defect",
+      "mitigation": "Record command -v and version evidence before each platform run",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "UNRESOLVED",
+      "review_date": "2026-07-14",
+      "closure_proof": "Fresh macOS/Linux capability receipts and passing relocation row"
+    },
+    {
+      "stable_id": "A-09",
+      "class": "assumption",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "AP-03",
+        "AP-07"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Task 8 candidate freeze",
+      "evidence": "No Stage 1 task existed in nine legacy active directories and scoped commits have avoided them",
+      "rationale": "Any active-task mutation violates the approved legacy boundary",
+      "mitigation": "Compare pre/post hashes and base-to-candidate path scope",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "CONSTRAINED",
+      "review_date": "2026-07-14",
+      "closure_proof": "Zero diff beneath docs/sdlc/active and matching recorded hashes"
+    },
+    {
+      "stable_id": "A-10",
+      "class": "assumption",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-02",
+        "S1-07"
+      ],
+      "affected_stage_release": "Task8",
+      "trigger_or_due": "Before release verdict",
+      "evidence": "The owner nominated the Claude verifier; the OpenCode adversarial lane still requires a fresh availability/authority probe",
+      "rationale": "Unavailable or non-distinct review makes Release 1A inconclusive",
+      "mitigation": "Bind each reviewer to the immutable candidate and require source inspection plus command reproduction",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "UNRESOLVED",
+      "review_date": "2026-07-14",
+      "closure_proof": "Two validated candidate-bound review results from distinct non-author paths"
+    },
+    {
+      "stable_id": "A-11",
+      "class": "assumption",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-07",
+        "AP-24"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "conftest and osv-scanner were not installed during plan review",
+      "rationale": "Tool absence must not be promoted to a clean supply-chain claim",
+      "mitigation": "Keep absence explicit and require 1C SCA/SBOM disposition",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "CONSTRAINED",
+      "review_date": "2026-07-14",
+      "closure_proof": "1C supply-chain receipt or reviewed bounded exception"
+    },
+    {
+      "stable_id": "P27-01",
+      "class": "known latent containment finding",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Owner at 1B entry",
+      "affected_requirements": [
+        "AC-07",
+        "TF-08",
+        "P27-01"
+      ],
+      "affected_stage_release": "1B",
+      "trigger_or_due": "Before authorizing containment work",
+      "evidence": "Worker-controlled identifiers and pre-existing session/recovery symlinks may redirect clone or copy paths",
+      "rationale": "The threat model has not established multi-user or untrusted-writer exposure",
+      "mitigation": "Require an owner threat-model decision before any separate containment plan",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "OWNER_GATED_1B",
+      "review_date": "2026-07-14",
+      "closure_proof": "If admitted, disposable traversal/symlink red-green proof with zero outside-root mutation"
+    },
+    {
+      "stable_id": "P27-02",
+      "class": "runner durability limitation",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-07",
+        "AP-11"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 7 commit",
+      "evidence": "The original runner plan lacked result-root containment, write faults, process survivors, and source-mutation cases",
+      "rationale": "False evidence admission would invalidate every release receipt",
+      "mitigation": "Implement and execute fail-closed durability, privacy, lifecycle, and mutation contract tests",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-15",
+      "closure_proof": "Development run development-09455502429d-20260715T051312Z-44125 passed the 38-test runner contract row and every mandatory row except the intentionally dirty clean-candidate gate; frozen-authority confirmation is predeclared at .verification-results/development-task7-final-09455502429d/run.json"
+    },
+    {
+      "stable_id": "P27-03",
+      "class": "missing committed authority",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-07",
+        "AP-13"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 7 commit",
+      "evidence": "Only a review-local error catalog existed",
+      "rationale": "Unversioned error codes cannot be audited or drift-checked",
+      "mitigation": "Commit a versioned error catalog and exact coverage test",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-15",
+      "closure_proof": "The 38-test runner contract row in development run development-09455502429d-20260715T051312Z-44125 passed strict catalog validation and exact production-emitter equality; frozen-authority confirmation is predeclared at .verification-results/development-task7-final-09455502429d/run.json"
+    },
+    {
+      "stable_id": "P27-04",
+      "class": "candidate validation gap",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root plus non-author reviewers",
+      "affected_requirements": [
+        "F-02",
+        "S1-07"
+      ],
+      "affected_stage_release": "Task8",
+      "trigger_or_due": "Before release verdict",
+      "evidence": "Call-removal, dead-surface fitness, and copy-paste bundle replay are not yet executed",
+      "rationale": "Passing authored tests alone cannot prove interfaces are load-bearing or usable",
+      "mitigation": "Run mutation reachability, fitness, and fresh-operator replay on the immutable candidate",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "ACCEPTED_INTO_T8",
+      "review_date": "2026-07-14",
+      "closure_proof": "Candidate-bound adversarial and independent review receipts"
+    },
+    {
+      "stable_id": "P27-05",
+      "class": "privacy provenance",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "AP-20",
+        "AP-24"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before plan-only commit",
+      "evidence": "Earlier plan prose exposed machine-local paths",
+      "rationale": "Public execution plans must remain portable and avoid private locators",
+      "mitigation": "Use portable variables and retain local paths only in ignored evidence",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_IN_PLAN",
+      "review_date": "2026-07-14",
+      "closure_proof": "Plan-only private-locator scan and scoped amendment commit"
+    },
+    {
+      "stable_id": "P27-06",
+      "class": "applicability mismatch",
+      "severity": "NONMATERIAL",
+      "priority": 2,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "AP-24"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Plan review only",
+      "evidence": "A generic question bank contained unrelated guard and watchdog questions",
+      "rationale": "Inventing unrelated product surfaces would violate YAGNI",
+      "mitigation": "Record explicit inapplicability and create no guard code",
+      "current_verdict": "NOT_APPLICABLE",
+      "disposition": "NOT_APPLICABLE_TO_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Complete question-ID disposition with no implementation surface"
+    },
+    {
+      "stable_id": "P27-07",
+      "class": "F-01 decoy dependency and isolation defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01",
+        "S1-02"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 1 implementation",
+      "evidence": "The decoy omitted its manifest, inherited source CWD, and lacked signal/concurrency admission",
+      "rationale": "The test could reach real source or fail before exercising the hazard",
+      "mitigation": "Copy all required bytes, isolate roots/CWD, and test direct/signal/concurrent cleanup",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Task 1 direct, signal, concurrency, and normal dispatcher receipts"
+    },
+    {
+      "stable_id": "P27-08",
+      "class": "Apple Bash failpoint compatibility defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 1 admission",
+      "evidence": "A false [[ expression does not reliably trigger errexit in Apple Bash 3.2",
+      "rationale": "The planned hazard proof could continue and false-pass",
+      "mitigation": "Use /usr/bin/false with exact exit and stream assertions",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Task 1 failpoint receipt shows exact exit 1 and admitted marker"
+    },
+    {
+      "stable_id": "P27-09",
+      "class": "restore evidence preservation defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 1 admission",
+      "evidence": "A failed restore could consume its backup and delete bounded diagnostics",
+      "rationale": "Loss of the only evidence would make the safety result unreviewable",
+      "mitigation": "Latch failure, stop further cleanup, and retain both bounded trees",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Restore-failure mode retains and validates diagnostic trees"
+    },
+    {
+      "stable_id": "P27-10",
+      "class": "cleanup retarget containment defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 1 admission",
+      "evidence": "Lexical rm -rf cleanup could follow a retargeted ancestor",
+      "rationale": "A test cleanup could delete outside its owned tree",
+      "mitigation": "Use no-follow descriptor traversal and identity revalidation",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Cleanup-retarget and post-open swap receipts preserve both sentinels"
+    },
+    {
+      "stable_id": "P27-11",
+      "class": "SIGINT harness limitation",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01",
+        "S1-07"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before SIGINT admission",
+      "evidence": "A background capture wrapper changes Apple Bash SIGINT inheritance",
+      "rationale": "Wrapper behavior cannot prove a foreground interrupt contract",
+      "mitigation": "Use raw foreground capture and retain wrapper as a negative control",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Foreground INT and wrapper-negative rows both pass"
+    },
+    {
+      "stable_id": "P27-12",
+      "class": "pre-failpoint false-pass defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 1 admission",
+      "evidence": "Recorded pre-swap failures could still reach the marker",
+      "rationale": "Marker presence alone was insufficient admission evidence",
+      "mitigation": "Require exact PASS/FAIL totals and raw single-line marker bytes",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Admission-negative row rejects pre-case and stream mutations"
+    },
+    {
+      "stable_id": "P27-13",
+      "class": "restore obligation type-drift defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 1 admission",
+      "evidence": "A missing or type-drifted backup could be treated as no restore obligation",
+      "rationale": "Cleanup might erase evidence after losing the original validator",
+      "mitigation": "Require a regular non-symlink backup or latch and retain",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Restore-retention variants reject removed and mismatched backups"
+    },
+    {
+      "stable_id": "P27-14",
+      "class": "nested cleanup evidence loss",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 1 admission",
+      "evidence": "Outer cleanup could erase evidence of an inner capture or removal failure",
+      "rationale": "Nested failure provenance must survive the process",
+      "mitigation": "Propagate one bounded retention marker and preserve the outer container",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Forced inner capture/removal cases retain the bounded outer tree"
+    },
+    {
+      "stable_id": "P27-15",
+      "class": "F-01 verdict precedence defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before direct or concurrent admission",
+      "evidence": "Installed drift could mask a conclusive child or stream failure",
+      "rationale": "Conclusive failure must take precedence over inconclusive drift",
+      "mitigation": "Evaluate child/stream failures before drift exit 3",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Direct drift-plus-failure and concurrent mixed-exit counterexamples pass"
+    },
+    {
+      "stable_id": "P27-16",
+      "class": "post-open retained evidence defect",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before cleanup admission",
+      "evidence": "Identity drift could be detected only after clearing descriptor-held content",
+      "rationale": "Both original and replacement evidence must remain on retarget",
+      "mitigation": "Revalidate parent entry immediately before recursion",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Post-open original and replacement sentinels both remain"
+    },
+    {
+      "stable_id": "P27-17",
+      "class": "stderr framing false-pass defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before exact stream admission",
+      "evidence": "Bash command substitution strips trailing newlines",
+      "rationale": "Marker-plus-blank-lines could normalize to the expected text",
+      "mitigation": "Compare raw expected and observed files with cmp",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Trailing-blank-line falsifier is rejected"
+    },
+    {
+      "stable_id": "P27-18",
+      "class": "benchmark default mismatch",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 2 mutation",
+      "evidence": "Plan example said 100 while source default was 10",
+      "rationale": "Changing the default would alter existing behavior",
+      "mitigation": "Preserve 10 and add explicit one-iteration override",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Relocation test asserts default 10 and override execution"
+    },
+    {
+      "stable_id": "P27-19",
+      "class": "relocated red signature mismatch",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 2 red",
+      "evidence": "Child exit 127 is aggregated by legacy harnesses to top-level exit 1",
+      "rationale": "Expecting raw exit at the aggregate boundary would misdiagnose the defect",
+      "mitigation": "Assert aggregate counts and separately probe the missing child",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Task 2 red evidence binds aggregate 1 and raw probe 127"
+    },
+    {
+      "stable_id": "P27-20",
+      "class": "raw fixture release-gate contradiction",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02",
+        "S1-07"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "After root repair the static fixed-/tmp fixture deterministically reports 12/13",
+      "rationale": "Calling that raw suite green would hide known 1C isolation debt",
+      "mitigation": "Use the outer wrapper for 1A root proof and retain raw 13/13 closure in 1C",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "RESOLVED_IN_PLAN_DEFERRED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Separately isolated raw fixture reports 13/13 on required platforms"
+    },
+    {
+      "stable_id": "P27-21",
+      "class": "copied payload isolation gap",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 2 admission",
+      "evidence": "Other copied payloads retained absolute /tmp and legacy-home paths",
+      "rationale": "Validators could inspect or execute outside the isolated fixture",
+      "mitigation": "Strictly parse and remap every admitted source path beneath the runtime root",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Relocation evidence proves all remapped targets absent and contained"
+    },
+    {
+      "stable_id": "P27-22",
+      "class": "Linux tmp-prefix false negative",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 2 admission",
+      "evidence": "A generic /tmp scan rejects safe Linux runtime roots beneath /tmp",
+      "rationale": "The gate could fail valid contained Linux fixtures",
+      "mitigation": "Reject exact original paths and validate physical ancestry instead",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Linux TMPDIR=/tmp falsifier and ancestry assertions pass"
+    },
+    {
+      "stable_id": "P27-23",
+      "class": "relocated child inherited CWD",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 2 admission",
+      "evidence": "Relocated validators could discover the real Git worktree through CWD",
+      "rationale": "Read-only live-state reachability violates isolation",
+      "mitigation": "Run from a fresh empty non-Git work directory and assert it remains empty",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Relocation receipt proves isolated non-Git CWD before and after"
+    },
+    {
+      "stable_id": "P27-24",
+      "class": "hardlink source-mutation alias",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before copied-payload rewrite",
+      "evidence": "A copied payload can share device/inode with source",
+      "rationale": "Rewriting the copy could mutate source before post-hash detection",
+      "mitigation": "Reject matching no-follow device/inode before first write",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Hardlink falsifier leaves source bytes unchanged"
+    },
+    {
+      "stable_id": "P27-25",
+      "class": "mandatory probe false pass",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before relocation admission",
+      "evidence": "Git/find/rg failures could resemble expected non-Git, empty, or no-match states",
+      "rationale": "A probe must distinguish absence from tool failure",
+      "mitigation": "Capture exact tools, streams, and true exits",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Injected Git/find/rg error classifiers are rejected"
+    },
+    {
+      "stable_id": "P27-26",
+      "class": "nested relocation evidence loss",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02",
+        "S1-07"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before outer PASS admission",
+      "evidence": "Exact fixture/remap evidence lived only in a disposable tree",
+      "rationale": "An outer PASS line could not reconstruct the 12/13 boundary",
+      "mitigation": "Emit one content-addressed evidence envelope before cleanup",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Outer receipt decodes and rehashes exact nested streams/evidence"
+    },
+    {
+      "stable_id": "P27-27",
+      "class": "ambiguous Git negative classification",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before non-Git CWD admission",
+      "evidence": "Git exit 128 alone is not unique to a non-repository result",
+      "rationale": "Unrelated fatal errors could satisfy the gate",
+      "mitigation": "Require exact argv, exit, stdout, and locale-stable stderr",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Both-platform exact non-repository classification receipt"
+    },
+    {
+      "stable_id": "P27-28",
+      "class": "permissive evidence envelope",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02",
+        "S1-07"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before evidence admission",
+      "evidence": "Non-LF separators, boolean integers, whitespace, or DEL could pass permissive parsing",
+      "rationale": "Noncanonical evidence weakens replay and hash semantics",
+      "mitigation": "Require canonical ASCII/control-free sorted JSON plus one LF",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Separator, boolean, whitespace, DEL, and extra-line falsifiers fail"
+    },
+    {
+      "stable_id": "P27-29",
+      "class": "retained stream artifact false pass",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-02"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 2 correction",
+      "evidence": "Classifiers did not first require regular no-follow stream files",
+      "rationale": "Missing files or symlinks could masquerade as expected bytes",
+      "mitigation": "Create captures beneath one contained directory and validate type before content",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Missing-path and symlink stream falsifiers are rejected"
+    },
+    {
+      "stable_id": "P27-30",
+      "class": "contradictory error-catalog authority",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-07",
+        "AP-13"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 7 commit",
+      "evidence": "The prior catalog required seven labels with no Stage 1A production emitter",
+      "rationale": "Padding the catalog or inventing emitters would make exact drift coverage impossible",
+      "mitigation": "Catalog actual stable emitters and keep child diagnostics or Task 8 absence reasons outside that authority",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-15",
+      "closure_proof": "Plan amendment e671f40 and the production-emitter coverage regression pass"
+    },
+    {
+      "stable_id": "P27-31",
+      "class": "Task 7 executable conformance gap",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01",
+        "S1-02",
+        "S1-07",
+        "AP-13"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 7 commit",
+      "evidence": "The first complete runner suite exposed ambiguous aggregate-admission wording, unexported F-01 fingerprint values, and parser-only README examples",
+      "rationale": "Receipt admission, trust-boundary fingerprints, and operator commands must be independently reconstructable from executable evidence",
+      "mitigation": "Clarify orphan row semantics, bind direct F-01 fingerprint values to stdout receipts, and execute README examples at their declared preconditions",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-15",
+      "closure_proof": "Plan amendment 1d13e8a, the 38-test runner contract row, direct F-01 fingerprint receipt binding, and executable README examples passed; frozen-authority confirmation is predeclared at .verification-results/development-task7-final-09455502429d/run.json"
+    },
+    {
+      "stable_id": "P27-32",
+      "class": "Vitest cache source mutation",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-05",
+        "S1-07"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 7 commit",
+      "evidence": "Development run development-1d13e8a9e31f-20260715T045707Z-77542 passed 153 Vitest cases but changed colony/node_modules/.vite/vitest/.../results.json and was rejected as VERIFY_SOURCE_MUTATION",
+      "rationale": "A passing test process cannot mutate a protected dependency tree and still authorize a receipt",
+      "mitigation": "Invoke the exact reviewed Vitest row with --no-cache and --configLoader runner while retaining colony/node_modules protection",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-15",
+      "closure_proof": "Development run development-09455502429d-20260715T051312Z-44125 passed 153/153 Vitest tests with identical pre/post colony/node_modules SHA-256 e50986a4fdab3b8b91880a62a1716711d1714c01eb68b38a68156ead92a9dfbd; frozen-authority confirmation is predeclared at .verification-results/development-task7-final-09455502429d/run.json"
+    },
+    {
+      "stable_id": "P27-33",
+      "class": "Colony tooling subcheck cache mutation",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-05",
+        "S1-07"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 7 commit",
+      "evidence": "Development run development-1d13e8a9e31f-20260715T050351Z-53505 passed the five Colony tooling checks but the empty-suite subcheck created colony/node_modules/.vite-temp and was rejected as VERIFY_SOURCE_MUTATION",
+      "rationale": "A nested negative test cannot mutate the protected dependency tree while its parent row reports success",
+      "mitigation": "Commit 0945550 invokes the empty-suite Vitest subcheck with --no-cache and --configLoader runner; Task 7 asserts that exact invocation",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-15",
+      "closure_proof": "Commit 0945550 plus the exact-source regression passed; development run development-09455502429d-20260715T051312Z-44125 preserved sentinel SHA-256 07177e20c8d95f6836fb243a3ff78e05e97d9c6811ab4bdeb59025be09c2481c and protected node_modules SHA-256 e50986a4fdab3b8b91880a62a1716711d1714c01eb68b38a68156ead92a9dfbd; frozen-authority confirmation is predeclared at .verification-results/development-task7-final-09455502429d/run.json"
+    },
+    {
+      "stable_id": "P27-34",
+      "class": "test-integrity Bash parser incompatibility",
+      "severity": "NONMATERIAL",
+      "priority": 1,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01",
+        "S1-07"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Task 7 commit",
+      "evidence": "The new compound validator-fingerprint conditional passed Bash -n and ShellCheck but produced a tree-sitter ERROR at the regex terminator and a test-integrity parse advisory",
+      "rationale": "A changed test surface must remain readable by the repository semantic scanner even when the runtime shell accepts it",
+      "mitigation": "Split the compound fingerprint predicate into three equivalent Bash 3.2-compatible checks without changing admitted values",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-15",
+      "closure_proof": "Bash -n, ShellCheck, test-integrity with --fail-on-advisory, and the committed F-01 authority test all exit zero"
+    },
+    {
+      "stable_id": "BASE-1A-001",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-02",
+        "AP-15"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "Task 2 relocation wrapper now proves root routing while preserving exact 12/13 fixed-/tmp debt",
+      "rationale": "Checkout-bound children could not run from a relocated tree",
+      "mitigation": "Use isolated outer evidence rather than claiming the raw fixture green",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Plugin-root relocation PASS with exact embedded 12/13 signature"
+    },
+    {
+      "stable_id": "BASE-1A-002",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-02",
+        "AP-15"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "Original checkout literal made all fourteen shim cases fail",
+      "rationale": "A fixed checkout path prevented portable validation",
+      "mitigation": "Resolve the canonical copied plugin root",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Validator-shim row reports at least 14 passing cases"
+    },
+    {
+      "stable_id": "BASE-1A-003",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-02",
+        "F-01"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "Relocated red probe captured the missing child and aggregate failure",
+      "rationale": "The dispatcher test was bound to one home checkout",
+      "mitigation": "Adopt the shared root resolver after F-01 isolation",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Normal dispatcher and relocation rows pass"
+    },
+    {
+      "stable_id": "BASE-1A-004",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-01",
+        "AP-14"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "macOS rejected GNU du -sb while the mechanical suite otherwise ran",
+      "rationale": "GNU-only byte telemetry blocked the baseline",
+      "mitigation": "Use portable du -sk projection without containment changes",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Clone-manager mechanical row reports at least 24 passes"
+    },
+    {
+      "stable_id": "BASE-1A-005",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-01",
+        "AP-14"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "clone-manager source contained du -sb",
+      "rationale": "macOS lacks GNU byte-size option",
+      "mitigation": "Use path_size_bytes and retain field name",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Portable helper and positive clone_bytes receipt"
+    },
+    {
+      "stable_id": "BASE-1A-006",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-01",
+        "AP-14"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "recovery telemetry source contained du -sb",
+      "rationale": "macOS lacks GNU byte-size option",
+      "mitigation": "Use path_size_bytes and retain field name",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Portable helper and positive output_bytes receipt"
+    },
+    {
+      "stable_id": "BASE-1A-007",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-01",
+        "AP-14"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "smoke source contained the first suffix call",
+      "rationale": "BSD mktemp rejects GNU --suffix",
+      "mitigation": "Use make_temp_file within TMPDIR",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Helper test plus zero GNU-literal scan"
+    },
+    {
+      "stable_id": "BASE-1A-008",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-01",
+        "AP-14"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "smoke source contained the second suffix call",
+      "rationale": "BSD mktemp rejects GNU --suffix",
+      "mitigation": "Use make_temp_file within TMPDIR",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Helper test plus zero GNU-literal scan"
+    },
+    {
+      "stable_id": "BASE-1A-009",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-01",
+        "AP-14"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "smoke source contained the third suffix call",
+      "rationale": "BSD mktemp rejects GNU --suffix",
+      "mitigation": "Use make_temp_file within TMPDIR",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Helper test plus zero GNU-literal scan"
+    },
+    {
+      "stable_id": "BASE-1A-010",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-03",
+        "AP-10",
+        "AP-16"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "preflight probed tmup/index.js while the manifest declares mcp-server/dist/index.js",
+      "rationale": "Hardcoded layout made the reviewer dependency appear missing",
+      "mitigation": "Discover the declared canonical entry read-only",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Fixture current/future/escape and installed syntax rows pass"
+    },
+    {
+      "stable_id": "BASE-1A-011",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-04",
+        "AP-17"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "plugin.json was 10.0.0 while marketplace duplicated 4.0.0",
+      "rationale": "Two operational literals could diverge",
+      "mitigation": "Remove marketplace version and validate strict schema",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Metadata JSON reports plugin_manifest authority and version 10.0.0"
+    },
+    {
+      "stable_id": "BASE-1A-012",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-04",
+        "AP-17"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "strict metadata mutation tests covered required discovery metadata",
+      "rationale": "Incomplete marketplace metadata can fail strict loading",
+      "mitigation": "Keep validated discovery metadata without a second version",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Both strict plugin validations pass"
+    },
+    {
+      "stable_id": "BASE-1A-013",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-06",
+        "AP-19"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "Disk has 46 agent files and 16 skill directories",
+      "rationale": "Stale documentation misrepresents installed source inventory",
+      "mitigation": "Derive and check projections from repository bytes",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Inventory JSON reports 46 and 16"
+    },
+    {
+      "stable_id": "BASE-1A-014",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-06",
+        "AP-19"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "README enumerates 29 core agent names",
+      "rationale": "Calling the subset a 30-agent installed total is ambiguous",
+      "mitigation": "Label and validate the 29-name core subset",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Inventory JSON reports readme_core_agents 29"
+    },
+    {
+      "stable_id": "BASE-1A-015",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-05",
+        "AP-18"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "tsx was undeclared and seven executable/doc surfaces used npx tsx",
+      "rationale": "npx can dynamically acquire unreviewed code",
+      "mitigation": "Pin exact local tsx and route the scoped boundary through run-tsx.sh",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Offline version 4.23.1 and zero scoped dynamic-tsx matches"
+    },
+    {
+      "stable_id": "BASE-1A-016",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1A lead",
+      "affected_requirements": [
+        "S1-05",
+        "AP-18"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before Release 1A candidate freeze",
+      "evidence": "vitest.config.ts set passWithNoTests true",
+      "rationale": "A mandatory suite could exit zero without validation",
+      "mitigation": "Disable no-test success and test an empty suite negative",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-14",
+      "closure_proof": "Tooling contract rejects zero tests and full suite discovers 153"
+    },
+    {
+      "stable_id": "BASE-1B-001",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1B lead",
+      "affected_requirements": [
+        "S1-03",
+        "AP-10"
+      ],
+      "affected_stage_release": "1B",
+      "trigger_or_due": "Before Release 1B exit",
+      "evidence": "crossmodel-grid-down.sh writes tmup-owned state directly",
+      "rationale": "Unsupported teardown can corrupt shared registry state",
+      "mitigation": "Use a supported tmup teardown surface and prove zero direct registry writes",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1B",
+      "review_date": "2026-07-14",
+      "closure_proof": "Supported teardown receipt and zero direct registry mutations"
+    },
+    {
+      "stable_id": "BASE-1B-002",
+      "class": "baseline_defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Release 1B lead",
+      "affected_requirements": [
+        "AC-07"
+      ],
+      "affected_stage_release": "1B",
+      "trigger_or_due": "Before Release 1B exit",
+      "evidence": "bridge-cli calls markBridgeSynced without propagating failure",
+      "rationale": "A failed sync can be reported complete and permit destructive follow-on work",
+      "mitigation": "Propagate the failure and retain the clone/event for retry",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1B",
+      "review_date": "2026-07-14",
+      "closure_proof": "Failure-injection test retains state and returns nonzero"
+    },
+    {
+      "stable_id": "BASE-1B-003",
+      "class": "baseline_defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Release 1B lead",
+      "affected_requirements": [
+        "AC-07"
+      ],
+      "affected_stage_release": "1B",
+      "trigger_or_due": "Before Release 1B exit",
+      "evidence": "Deacon prunes clones by age without a proven synchronized state",
+      "rationale": "Unsynchronized work can be deleted",
+      "mitigation": "Require synchronized terminal evidence before pruning",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1B",
+      "review_date": "2026-07-14",
+      "closure_proof": "No unsynced age-only deletion in deterministic tests"
+    },
+    {
+      "stable_id": "BASE-1B-004",
+      "class": "baseline_defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Release 1B lead",
+      "affected_requirements": [
+        "AC-07"
+      ],
+      "affected_stage_release": "1B",
+      "trigger_or_due": "Before Release 1B exit",
+      "evidence": "append and read/rename/unlink paths lack a concurrent no-loss proof",
+      "rationale": "Concurrent ingestion can lose or duplicate events",
+      "mitigation": "Add isolated concurrent producer/consumer containment",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "PLANNED_1B",
+      "review_date": "2026-07-14",
+      "closure_proof": "Concurrency receipt accounts for every event exactly once"
+    },
+    {
+      "stable_id": "BASE-1B-005",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1B lead",
+      "affected_requirements": [
+        "AP-10"
+      ],
+      "affected_stage_release": "1B",
+      "trigger_or_due": "Before Release 1B exit",
+      "evidence": "health probing masks or approximates provider state",
+      "rationale": "A nominal health line can hide a failed dependency",
+      "mitigation": "Use exact fail-closed parsing and true exits",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1B",
+      "review_date": "2026-07-14",
+      "closure_proof": "Negative provider matrix rejects masked and stale health"
+    },
+    {
+      "stable_id": "BASE-1C-001",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-02"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "The isolated outer wrapper admits exactly one fixed-/tmp quality-budget failure",
+      "rationale": "The raw suite is not fully green",
+      "mitigation": "Materialize fixture-owned isolated paths without weakening the case",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Raw fixture reports 13/13 on required platforms"
+    },
+    {
+      "stable_id": "BASE-1C-002",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "AC-07"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "recovered-outputs/task_id uses an independently unvalidated path",
+      "rationale": "Untrusted identifiers can target unintended locations",
+      "mitigation": "Validate identifiers and no-follow containment in a disposable fixture",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Traversal/symlink red-green receipt with zero outside-root mutation"
+    },
+    {
+      "stable_id": "BASE-1C-003",
+      "class": "baseline_defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-07"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "colony/validation/run-all.sh executes command strings with eval",
+      "rationale": "Masked or injected commands can look green",
+      "mitigation": "Replace with argv-only true-exit execution",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Legacy runner has zero eval paths and mutation tests pass"
+    },
+    {
+      "stable_id": "BASE-1C-004",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "AP-13"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "Colony chmod and logging paths warn or continue on failure",
+      "rationale": "Required evidence or permissions can be absent despite success",
+      "mitigation": "Make load-bearing writes explicit and classified",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Permission/write fault matrix produces non-pass verdicts"
+    },
+    {
+      "stable_id": "BASE-1C-005",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "AP-13"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "No approved minimal-field/redaction canary closes log privacy",
+      "rationale": "Receipts may retain unnecessary identifiers",
+      "mitigation": "Define allowed fields and run redaction canaries",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Approved field policy and zero secret/private-locator leakage"
+    },
+    {
+      "stable_id": "BASE-1C-006",
+      "class": "baseline_defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-05"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "npm audit exit 1: esbuild low, postcss moderate, vite high, direct vitest critical",
+      "rationale": "Known dependency advisories prevent a clean supply-chain claim",
+      "mitigation": "Upgrade or document a reviewed bounded exception",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "npm audit clean or owner-approved time-bounded exception with reachability analysis"
+    },
+    {
+      "stable_id": "BASE-1C-007",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-05"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "153 tests pass but stderr is 40876 bytes across 716 lines",
+      "rationale": "Passing tests still hide Git and bridge diagnostic debt",
+      "mitigation": "Classify and eliminate unexpected diagnostics without masking streams",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Expected stderr contract with all remaining diagnostics dispositioned"
+    },
+    {
+      "stable_id": "BASE-1C-008",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-05"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "Outside the exact Task 6 tsx boundary, 42 npx vitest/tsc occurrences remain in 18 files",
+      "rationale": "Operational examples can still trigger dynamic acquisition",
+      "mitigation": "Replace actionable examples or label historical evidence explicitly",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Zero actionable dynamic invocations outside documented historical records"
+    },
+    {
+      "stable_id": "BASE-1C-009",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-07"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "The dedup test runner and package surface did not collect consistently",
+      "rationale": "A partial suite cannot establish repository baseline health",
+      "mitigation": "Repair collection and record complete test counts",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Complete dedup collection and disposition receipt"
+    },
+    {
+      "stable_id": "BASE-1C-010",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-07"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "Repository-wide shell static analysis remains non-green",
+      "rationale": "Changed and inherited shell defects can hide portability errors",
+      "mitigation": "Close error-level/new findings and disposition inherited warnings",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Repository ShellCheck receipt with no undispositioned finding"
+    },
+    {
+      "stable_id": "BASE-1C-011",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-07"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "A full repository Python lint/format receipt is absent",
+      "rationale": "Python static quality cannot be called green",
+      "mitigation": "Run configured Ruff check and format across owned Python surfaces",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Clean Ruff check/format receipt or explicit scoped configuration"
+    },
+    {
+      "stable_id": "BASE-1C-012",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-07"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "Test-integrity scan found weak assertions and unclosed skipped/timing patterns",
+      "rationale": "Nominal suite counts may overstate behavioral coverage",
+      "mitigation": "Disposition every blocking/advisory finding with independent assertions",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Full test-integrity inventory with zero blocking findings"
+    },
+    {
+      "stable_id": "BASE-1C-013",
+      "class": "baseline_defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-07"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "Provider/subprocess paths still have incomplete true-exit propagation proof",
+      "rationale": "A dependency failure can be reported as success",
+      "mitigation": "Add a deterministic true-exit propagation matrix",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Every mandatory provider/subprocess failure reaches a non-pass verdict"
+    },
+    {
+      "stable_id": "BASE-1C-014",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-02"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "Additional tests use shared fixed /tmp paths",
+      "rationale": "Parallel or pre-existing state can corrupt evidence",
+      "mitigation": "Move each fixture to owned isolated paths",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Zero shared fixed-/tmp test paths and parallel replay pass"
+    },
+    {
+      "stable_id": "BASE-1C-015",
+      "class": "baseline_defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-01",
+        "S1-05"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "colony/smoke-test.sh uses /tmp/sdlc-colony-conductor.lock",
+      "rationale": "Running full smoke can collide with live or parallel state",
+      "mitigation": "Give the smoke fixture a unique contained lock and state roots",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Safe full smoke passes without shared-state reachability"
+    },
+    {
+      "stable_id": "BASE-1C-016",
+      "class": "baseline_defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-07"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "Only release-scoped rows have been reproduced",
+      "rationale": "Stage 1 cannot exit without the remaining deterministic suites",
+      "mitigation": "Execute all named suites on required platforms with unmasked counts",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Complete macOS/Linux matrix with no mandatory non-pass row"
+    },
+    {
+      "stable_id": "BASE-1C-017",
+      "class": "baseline_defect",
+      "severity": "CRITICAL",
+      "priority": 0,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "S1-07"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "Type=notify is configured while sd_notify can be unavailable and no launchd package is proven",
+      "rationale": "Service supervision can report incorrect readiness or be absent on macOS",
+      "mitigation": "Package disabled systemd and launchd units with readiness smoke tests",
+      "current_verdict": "FAIL",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Disabled install/load and notification tests pass on both packaging surfaces"
+    },
+    {
+      "stable_id": "BASE-1C-018",
+      "class": "baseline_defect",
+      "severity": "MATERIAL",
+      "priority": 1,
+      "owner": "Release 1C lead",
+      "affected_requirements": [
+        "AP-24"
+      ],
+      "affected_stage_release": "1C",
+      "trigger_or_due": "Before Stage 1 exit",
+      "evidence": "No repository CI, SCA, SBOM, or signed attestation exists for this release",
+      "rationale": "Local hashes do not establish external identity or continuous enforcement",
+      "mitigation": "Define explicit 1C supply-chain and CI receipts without overstating local evidence",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "PLANNED_1C",
+      "review_date": "2026-07-14",
+      "closure_proof": "Reviewed CI/SCA/SBOM/attestation disposition and reproducible artifacts"
+    }
+  ]
+}
