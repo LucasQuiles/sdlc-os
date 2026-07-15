@@ -53,7 +53,7 @@ This plan was hardened from the repository root with the 27-pass PlanPrompt prot
 
 The plan-hardening orchestrator runs all 27 named PlanPrompt passes strictly in numeric order: control/scope/assumptions/validation/observability/readiness/decomposition/verification/testing/handoff/orchestration (1–12), reuse/impact/error/silent-failure/messages/TDD/tooling/contradiction (13–20), then lint/regression/hooks/rules/docs/capabilities/final synthesis (21–27). Before each pass it re-reads and snapshots the current plan; after each pass it records diff stats, required artifact-contract results, verdict, risks, and summary in the run manifest. A missing required artifact or failed render is recorded and corrected or stops the review. No code execution readiness claim is made until pass 27 finalizes consistency.
 
-The pass-20 integration audit is recorded in `artifacts/contradiction_check.md`. It corrected missing installed-validator coverage, eliminated a second operational version literal, bound pre-commit Linux reproduction to `git write-tree`, and removed a post-review evidence commit that would invalidate the reviewed candidate. Pass 27 corrected one setup error: the safe red driver creates its decoy `tests/lib/` directory and copies that source directory only when it exists, because the shared helper is intentionally absent until Task 1 Step 3. The post-commit Task 1 entry audit then found `P27-07`: that decoy also needs the manifest required by the future resolver, explicit physical CWD/directory isolation, and post-swap signal/concurrency proof. During Task 1 green replay, `P27-08` proved that Apple Bash 3.2 does not apply `errexit` to the planned false `[[ ... ]]` conditional command; the copied test emitted its marker, continued through all 11 cases, and exited `0`. The amended failpoint uses `/usr/bin/false`, requires exact child exit `1` with empty child stdout, and retains a fail-closed unreachable exit. Subsequent read-only containment review found `P27-09` restore-evidence deletion, `P27-10` ancestor-retargetable lexical cleanup, and `P27-11` SIGINT distortion by a backgrounding capture wrapper. A second source-only Task 1 review found `P27-12..P27-16`: pre-swap case failures could coexist with the admitted marker, a disappeared backup could erase the restore obligation, lexical root disappearance could bypass cleanup verification, mixed concurrent exits could demote failure to inconclusive, and post-open drift was rejected only after clearing the held original. Final source review then found `P27-17`: Bash command substitution strips all trailing newlines, so string comparison could admit a marker followed by blank lines despite the plan's byte-exact requirement. Task 2 source execution then found `P27-20`: the root fix exposes an existing fixed-`/tmp` fixture defect as exact `12/13`, while this plan simultaneously assigned fixed-`/tmp` tests to 1C and required raw fixture `13/13` in 1A. Focused review found `P27-21`: remapping only that one payload left other copied `/tmp` and legacy-home paths able to reach shared state. Pre-execution review then found `P27-22`, where a generic zero-`/tmp/` byte scan rejects a safe Linux runtime rooted beneath `/tmp`, and `P27-23`, where relocated children still inherit the real worktree CWD and can discover its Git state. The corrected 1A gate rejects exact source-declared paths, proves parsed canonical containment beneath an absent isolated payload tree, runs every child from an empty non-Git CWD, proves only root routing, and retains the raw fixture failure as explicitly non-green 1C work. PlanPrompt's Python 3.14 helper runtime is separated from canonical implementation Python 3.12; plan-review artifacts are separated from release receipts; and focused temp-helper proof is separated from the unsafe full smoke suite.
+The pass-20 integration audit is recorded in `artifacts/contradiction_check.md`. It corrected missing installed-validator coverage, eliminated a second operational version literal, bound pre-commit Linux reproduction to `git write-tree`, and removed a post-review evidence commit that would invalidate the reviewed candidate. Pass 27 corrected one setup error: the safe red driver creates its decoy `tests/lib/` directory and copies that source directory only when it exists, because the shared helper is intentionally absent until Task 1 Step 3. The post-commit Task 1 entry audit then found `P27-07`: that decoy also needs the manifest required by the future resolver, explicit physical CWD/directory isolation, and post-swap signal/concurrency proof. During Task 1 green replay, `P27-08` proved that Apple Bash 3.2 does not apply `errexit` to the planned false `[[ ... ]]` conditional command; the copied test emitted its marker, continued through all 11 cases, and exited `0`. The amended failpoint uses `/usr/bin/false`, requires exact child exit `1` with empty child stdout, and retains a fail-closed unreachable exit. Subsequent read-only containment review found `P27-09` restore-evidence deletion, `P27-10` ancestor-retargetable lexical cleanup, and `P27-11` SIGINT distortion by a backgrounding capture wrapper. A second source-only Task 1 review found `P27-12..P27-16`: pre-swap case failures could coexist with the admitted marker, a disappeared backup could erase the restore obligation, lexical root disappearance could bypass cleanup verification, mixed concurrent exits could demote failure to inconclusive, and post-open drift was rejected only after clearing the held original. Final source review then found `P27-17`: Bash command substitution strips all trailing newlines, so string comparison could admit a marker followed by blank lines despite the plan's byte-exact requirement. Task 2 source execution then found `P27-20`: the root fix exposes an existing fixed-`/tmp` fixture defect as exact `12/13`, while this plan simultaneously assigned fixed-`/tmp` tests to 1C and required raw fixture `13/13` in 1A. Focused review found `P27-21`: remapping only that one payload left other copied `/tmp` and legacy-home paths able to reach shared state. Pre-execution review then found `P27-22`, where a generic zero-`/tmp/` byte scan rejects a safe Linux runtime rooted beneath `/tmp`, and `P27-23`, where relocated children still inherit the real worktree CWD and can discover its Git state. Post-green source review found `P27-24..P27-26`: regular hash-equal payload copies could still hardlink to source before rewrite, mandatory Git/find/rg probes treated tool errors as successful negatives, and cleanup destroyed the nested evidence behind the exact `12/13` admission. Follow-up review found `P27-27` and `P27-28`: Git's expected negative was not uniquely classified, while permissive line splitting, boolean schema versions, and noncanonical JSON could violate the declared evidence envelope. The corrected 1A gate proves per-file inode separation, classifies mandatory probe exits and exact Git diagnostics fail-closed, emits a canonical content-addressed reconstructable evidence record before cleanup, rejects malformed line separators and schema types, rejects exact source-declared paths, proves parsed canonical containment beneath an absent isolated payload tree, runs every child from an empty non-Git CWD, proves only root routing, and retains the raw fixture failure as explicitly non-green 1C work. PlanPrompt's Python 3.14 helper runtime is separated from canonical implementation Python 3.12; plan-review artifacts are separated from release receipts; and focused temp-helper proof is separated from the unsafe full smoke suite.
 
 ### Pass 27 First-Hand Synthesis
 
@@ -161,6 +161,11 @@ Task 7 converts this register and every prior baseline finding into the full com
 | `P27-21` | fixture-isolation gap; `MATERIAL`; P0 | Codex root; `S1-02`/T2; before the P27-20 amendment commit | the first correction remapped only quality-budget, while other copied payloads retained `/tmp` and legacy-home absolute paths; AST checks can inspect their directories or execute a discovered tool against those paths | `RESOLVED_IN_PLAN`; 2026-07-14; strictly parse every copied payload, allow only `/tmp/` or one shared dynamically derived legacy-project prefix ending at `/LAB/test-project/`, remap them respectively to `payload-files/scratch/` and `payload-files/project/` beneath `RUNTIME_ROOT`, reject every other absolute/non-string path, require the mapped root and all targets absent, and prove no exact original path or legacy prefix remains before execution |
 | `P27-22` | cross-platform false-negative gate; `MATERIAL`; P0 | Codex root; `S1-02`/T2; before executing the remapper | the planned generic zero-`/tmp/` byte scan is impossible on Linux when the isolated absolute `RUNTIME_ROOT` itself is beneath `/tmp`; safe remapped targets would be rejected | `RESOLVED_IN_PLAN`; 2026-07-14; capture every exact source-declared path, reject those exact values rather than the generic token, require every parsed rewritten target under the physical absent payload root, and add a Linux-`TMPDIR=/tmp` falsifier |
 | `P27-23` | inherited-CWD live-state reachability; `MATERIAL`; P0 | Codex root; `S1-02`/T2; before executing relocated children | `run_relocated` inherits the real worktree CWD, so `bead-status.sh` and other Git-aware validators can discover and read that repository despite remapped payloads | `RESOLVED_IN_PLAN`; 2026-07-14; run every relocated child and the benchmark from a fresh empty `$RUNTIME_ROOT/work` directory, set `CLAUDE_PROJECT_DIR` to that directory, prove it is not inside a Git worktree, and require no child-created entry afterward |
+| `P27-24` | source-mutation alias; `CRITICAL`; P0 | Codex root; `S1-02`/T2; before any copied-payload rewrite | regular non-symlink source/copy payloads can be hardlinks with equal hashes, so rewriting the copy mutates source before a post-hash check detects it | `RESOLVED_IN_PLAN`; 2026-07-14; compare no-follow device/inode for every matching pair before the first write, reject equality, and add a hardlink falsifier that proves source bytes never change |
+| `P27-25` | mandatory-probe false pass; `MATERIAL`; P0 | Codex root; `S1-02`/T2; before relocation admission | Git/find failures can look like the expected non-Git/empty states, while rg exit `2`/`127` can look like the required no-match exit `1` | `RESOLVED_IN_PLAN`; 2026-07-14; resolve required executables, capture raw streams and true exits, require Git's expected non-repository status, find exit `0`, and rg exit `1`; every other result fails, with injected-error classification falsifiers |
+| `P27-26` | nested-evidence loss; `MATERIAL`; P0 | Codex root; `S1-02`/T2 and `S1-07`/T7; before treating outer exit `0` as evidence | exact fixture streams and remap evidence live only below the disposable tree and are deleted by cleanup, leaving only an outer PASS line that cannot reconstruct the admitted `12/13` result | `RESOLVED_IN_PLAN`; 2026-07-14; emit one versioned content-addressed JSON evidence line containing base64 exact fixture stdout/stderr and remap evidence before cleanup, capture outer streams durably, decode/re-hash them, and reject missing/extra/malformed evidence |
+| `P27-27` | ambiguous Git-negative classification; `MATERIAL`; P0 | Codex root; `S1-02`/T2; before non-Git CWD admission | Git exit `128` with empty stdout is not unique to a non-repository result, so an unrelated fatal error with the same exit could satisfy the first P27-25 correction | `RESOLVED_IN_PLAN`; 2026-07-14; invoke exact argv under `LC_ALL=C` and require exit `128`, empty stdout, and the one exact newline-terminated non-repository stderr line observed on both required platforms |
+| `P27-28` | permissive evidence envelope; `MATERIAL`; P0 | Codex root; `S1-02`/T2 and `S1-07`/T7; before evidence admission | `splitlines()` accepts non-LF separators, Python booleans compare equal to integer schema `1`, noncanonical JSON whitespace contradicted the exact compact-line contract, and an initial `< 0x20` filter omitted ASCII DEL `0x7f` | `RESOLVED_IN_PLAN`; 2026-07-14; require one ASCII/control-free canonical sorted JSON record terminated by one LF, reject every byte below `0x20` plus `0x7f`, require an exact final PASS line and integer schema types, and prove byte equality to canonical serialization with separator/boolean/whitespace/DEL falsifiers |
 
 The A-series assumption rows are material unless explicitly constrained as non-load-bearing; A-04 and A-09 are critical safety/state boundaries. Task 7 imports every A-series row into the unified register with severity, priority, evidence, rationale, owner, mitigation, review date, and closure proof while retaining the assumption-specific quality/disposition fields. Existing 1B/1C findings are valid deferrals only with their named release, owner, trigger, rationale, mitigation, review date, and closure proof; an item discovered to invalidate 1A is immediately reclassified P0 and cannot remain deferred.
 
@@ -792,7 +797,7 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
 **Interfaces:**
 - Consumes: `resolve_plugin_root <caller-script>` from Task 1.
-- Produces: zero executable occurrences of literal `$HOME/LAB/sdlc-os`; `BENCHMARK_ITERATIONS` defaults to the existing count and permits a bounded relocated smoke run.
+- Produces: zero executable occurrences of literal `$HOME/LAB/sdlc-os`; `BENCHMARK_ITERATIONS` defaults to the existing count and permits a bounded relocated smoke run; successful relocation stdout contains exactly one versioned `PLUGIN_ROOT_RELOCATION_EVIDENCE` JSON line followed by `Plugin root relocation: PASS`.
 
 - [ ] **Step 1: Write root-resolution and relocated-checkout tests**
 
@@ -818,6 +823,8 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
   Run all four relocated scripts with isolated `HOME`, `CLAUDE_PLUGIN_ROOT="$RELOCATED_ROOT"`, and `CLAUDE_PROJECT_DIR="$RUNTIME_ROOT/work"`; execute each child from that same fresh empty non-Git CWD, and require it to remain empty afterward. Set `BENCHMARK_ITERATIONS=1` for the benchmark. Before invoking the copied fixture regression, use canonical Python 3.12 to enumerate exactly 13 matching regular non-symlink source/copy payloads, require every initial copied hash to equal its source, and strictly parse every copied `*.payload.json`. Reject duplicate members, non-finite constants, malformed UTF-8/JSON, or a missing/non-string/empty/non-absolute/NUL-containing `tool_input.file_path`. Require exactly six `/tmp/<relative>` values and seven values containing exactly one `/LAB/test-project/` marker; reject a value matching both classes and require every marker-based path to share one dynamically derived prefix, which stays local evidence and is never committed. Remap the former to `$RUNTIME_ROOT/payload-files/scratch/<relative>` and the suffix after the marker to `$RUNTIME_ROOT/payload-files/project/<relative>`, rejecting empty, dot, dot-dot, repeated-separator, or escaping segments while preserving suffix/basename predicates. The physical `$RUNTIME_ROOT/payload-files` root must be absent before mapping and remain absent afterward; every parsed rewritten target must canonically remain beneath its class root and remain absent. Before launch, require zero occurrences of every exact original source-declared path and zero occurrences of the dynamically derived legacy prefix in copied bytes; do not reject a safe rewritten path merely because the physical Linux runtime itself begins `/tmp/`. Never inspect, create, replace, or remove any source-declared absolute target. Mutation falsifiers cover duplicate keys, malformed/encoded paths, class ambiguity, prefix mismatch, payload/root symlinks, source/copy drift, mapped-target creation, unrelated-Git CWD execution, and extra/trailing diagnostic bytes. Finish with `rg -n -F '$HOME/LAB/sdlc-os'` over the four executable files and fail on any match.
 
+  Before the first copied-payload write, also compare no-follow device/inode identities for every source/copy pair and reject equality; a hardlink falsifier must fail before mutation with source bytes unchanged. Resolve Git, find, and rg to absolute executables before use. Under `LC_ALL=C`, the non-Git probe runs exactly `"$GIT_BIN" -C "$WORK_ROOT" rev-parse --is-inside-work-tree` and admits only exit `128`, empty stdout, and stderr exactly `fatal: not a git repository (or any of the parent directories): .git` plus one LF; this signature was observed on both required platforms. The empty-directory probe runs exactly `"$FIND_BIN" "$WORK_ROOT" -mindepth 1 -print -quit` and admits only exit `0` with empty stdout/stderr. The literal scan admits only rg exit `1` with empty stdout/stderr. Missing tools and every other exit or stream are failures. Pure classification falsifiers inject Git/find/rg error statuses and wrong Git stderr while proving none can reach PASS.
+
 - [ ] **Step 2: Run the new test and verify it fails for the remaining three scripts**
 
   Run `bash tests/test-plugin-root-resolution.sh`.
@@ -839,18 +846,212 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
   The copied fixture run is a root-routing subcheck, not a green fixture-regression claim. Capture its raw streams and require all of the following: exit `1`; stdout exactly `Fixture regression: 12 passed, 1 failed (13 total)`; stderr exactly the five-line diff for `quality-budget.block` whose final line names `$RUNTIME_ROOT/payload-files/scratch/quality-budget.yaml`; no other failure; no source-declared absolute prefix or exit `127`; every mapped target remains absent; and the source payload bytes remain unchanged. The outer relocation test exits `0` only after admitting that exact known 1C signature. Any `13/13`, different count/diagnostic, shared-path access, created target, source-fixture drift, or extra failure is `INCONCLUSIVE` or `FAIL` until explained; it is never silently promoted.
 
+  Before disposable cleanup, emit exactly one canonical ASCII JSON line created with `sort_keys=True`, `separators=(",", ":")`, `ensure_ascii=True`, and `allow_nan=False`; it has event `PLUGIN_ROOT_RELOCATION_EVIDENCE` and integer schema version `1`. Its exact top-level members are `event`, `schema_version`, `binding`, and `artifacts`. `binding` contains exactly `candidate_test_sha256` (the executing source wrapper), `relocated_test_sha256` (its copied counterpart, required equal), and `source_fixture_tree_sha256` (SHA-256 of the sorted compact JSON `source_sha256` map inside remap evidence). `artifacts` contains exactly `fixture_stdout`, `fixture_stderr`, and `remap_evidence`; each contains exactly `bytes`, `sha256`, and `base64`. One LF terminates that record; final PASS remains the second and last exact LF-terminated stdout line. The outer captured stdout is the durable container. Tests decode each embedded artifact, validate length/hash, bind the candidate test hash to the current file, compare the fixture streams byte-for-byte to values derived from strict remap evidence, and reject a missing, duplicate, extra, non-ASCII/control-containing, noncanonical, malformed, truncated, or hash-mismatched evidence line. Cleanup may then remove the temporary originals without erasing the retained proof.
+
 - [ ] **Step 4: Prove relocated execution and zero old literals**
 
   Run:
 
   ```bash
   bash -n tests/lib/plugin-root.sh tests/benchmark-dispatch.sh tests/test-validator-shims.sh tests/test-fixture-regression.sh tests/test-plugin-root-resolution.sh
-  bash tests/test-plugin-root-resolution.sh
+  mkdir -p .verification-results/manual
+  RESULT_DIR="$(mktemp -d "$PWD/.verification-results/manual/T2.4.XXXXXX")"
+  set +e
+  bash tests/test-plugin-root-resolution.sh >"$RESULT_DIR/relocation.stdout" 2>"$RESULT_DIR/relocation.stderr"
+  relocation_rc=$?
+  set -e
+  [[ "$relocation_rc" -eq 0 && ! -s "$RESULT_DIR/relocation.stderr" ]]
+  python3.12 - "$RESULT_DIR/relocation.stdout" tests/test-plugin-root-resolution.sh <<'PY'
+  import base64
+  import binascii
+  import hashlib
+  import json
+  import re
+  import sys
+  from pathlib import Path
+
+  class EvidenceError(Exception):
+      pass
+
+  def reject_duplicates(pairs):
+      value = {}
+      for key, item in pairs:
+          if key in value:
+              raise EvidenceError(f"duplicate JSON member: {key}")
+          value[key] = item
+      return value
+
+  def reject_constant(value):
+      raise EvidenceError(f"invalid JSON constant: {value}")
+
+  def load_json(raw, label):
+      try:
+          return json.loads(
+              raw,
+              object_pairs_hook=reject_duplicates,
+              parse_constant=reject_constant,
+          )
+      except (UnicodeDecodeError, json.JSONDecodeError, EvidenceError) as exc:
+          raise EvidenceError(f"{label} is malformed: {exc}") from exc
+
+  def exact_keys(value, keys, label):
+      if not isinstance(value, dict) or set(value) != set(keys):
+          raise EvidenceError(f"{label} members differ from schema")
+
+  def require_sha256(value, label):
+      if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None:
+          raise EvidenceError(f"{label} is not a lowercase SHA-256")
+
+  try:
+      outer = Path(sys.argv[1]).read_bytes()
+      pass_line = b"Plugin root relocation: PASS\n"
+      if not outer.endswith(pass_line):
+          raise EvidenceError("outer evidence must contain one JSON line and one exact PASS line")
+      record_with_lf = outer[: -len(pass_line)]
+      if not record_with_lf.endswith(b"\n"):
+          raise EvidenceError("outer evidence JSON record lacks its exact LF terminator")
+      record = record_with_lf[:-1]
+      if not record or b"\n" in record or not record.isascii() or any(
+          byte < 0x20 or byte == 0x7F for byte in record
+      ):
+          raise EvidenceError("outer evidence JSON record is not one control-free ASCII line")
+      event = load_json(record, "outer evidence line")
+      exact_keys(event, ("event", "schema_version", "binding", "artifacts"), "outer evidence")
+      if event["event"] != "PLUGIN_ROOT_RELOCATION_EVIDENCE" or (
+          type(event["schema_version"]) is not int or event["schema_version"] != 1
+      ):
+          raise EvidenceError("outer evidence identity is invalid")
+      canonical_event = json.dumps(
+          event,
+          sort_keys=True,
+          separators=(",", ":"),
+          ensure_ascii=True,
+          allow_nan=False,
+      ).encode("ascii")
+      if record != canonical_event:
+          raise EvidenceError("outer evidence JSON is not canonical compact serialization")
+
+      binding = event["binding"]
+      exact_keys(
+          binding,
+          ("candidate_test_sha256", "relocated_test_sha256", "source_fixture_tree_sha256"),
+          "binding",
+      )
+      for key, value in binding.items():
+          require_sha256(value, f"binding.{key}")
+      candidate_hash = hashlib.sha256(Path(sys.argv[2]).read_bytes()).hexdigest()
+      if binding["candidate_test_sha256"] != candidate_hash:
+          raise EvidenceError("candidate test hash does not match current bytes")
+      if binding["relocated_test_sha256"] != candidate_hash:
+          raise EvidenceError("relocated test hash does not match candidate")
+
+      artifacts = event["artifacts"]
+      exact_keys(
+          artifacts,
+          ("fixture_stdout", "fixture_stderr", "remap_evidence"),
+          "artifacts",
+      )
+      decoded = {}
+      for name, record in artifacts.items():
+          exact_keys(record, ("bytes", "sha256", "base64"), f"artifacts.{name}")
+          if type(record["bytes"]) is not int or record["bytes"] < 0:
+              raise EvidenceError(f"artifacts.{name}.bytes is invalid")
+          require_sha256(record["sha256"], f"artifacts.{name}.sha256")
+          if not isinstance(record["base64"], str):
+              raise EvidenceError(f"artifacts.{name}.base64 is invalid")
+          try:
+              raw = base64.b64decode(record["base64"], validate=True)
+          except (ValueError, binascii.Error) as exc:
+              raise EvidenceError(f"artifacts.{name}.base64 is malformed") from exc
+          if len(raw) != record["bytes"] or hashlib.sha256(raw).hexdigest() != record["sha256"]:
+              raise EvidenceError(f"artifacts.{name} length/hash mismatch")
+          decoded[name] = raw
+
+      remap_raw = decoded["remap_evidence"]
+      if not remap_raw.endswith(b"\n") or b"\n" in remap_raw[:-1]:
+          raise EvidenceError("remap evidence must be one LF-terminated JSON record")
+      remap_record = remap_raw[:-1]
+      if not remap_record or not remap_record.isascii() or any(
+          byte < 0x20 or byte == 0x7F for byte in remap_record
+      ):
+          raise EvidenceError("remap evidence is not one control-free ASCII line")
+      remap = load_json(remap_record, "remap evidence")
+      exact_keys(
+          remap,
+          (
+              "schema_version",
+              "legacy_prefix",
+              "original_paths",
+              "payload_targets",
+              "source_sha256",
+              "copied_sha256",
+          ),
+          "remap evidence",
+      )
+      if type(remap["schema_version"]) is not int or remap["schema_version"] != 1:
+          raise EvidenceError("remap evidence schema is invalid")
+      canonical_remap = json.dumps(
+          remap,
+          sort_keys=True,
+          separators=(",", ":"),
+          ensure_ascii=True,
+          allow_nan=False,
+      ).encode("ascii")
+      if remap_record != canonical_remap:
+          raise EvidenceError("remap evidence is not canonical compact serialization")
+      source_map = remap["source_sha256"]
+      if not isinstance(source_map, dict) or not source_map:
+          raise EvidenceError("source fixture hash map is invalid")
+      for key, value in source_map.items():
+          if not isinstance(key, str):
+              raise EvidenceError("source fixture hash name is invalid")
+          require_sha256(value, f"source_sha256.{key}")
+      source_map_bytes = json.dumps(
+          source_map, sort_keys=True, separators=(",", ":")
+      ).encode("utf-8")
+      if hashlib.sha256(source_map_bytes).hexdigest() != binding["source_fixture_tree_sha256"]:
+          raise EvidenceError("source fixture tree binding mismatch")
+      targets = remap["payload_targets"]
+      if not isinstance(targets, dict):
+          raise EvidenceError("payload target evidence is invalid")
+      quality_target = targets.get("quality-budget.block.payload.json")
+      if not isinstance(quality_target, str) or not quality_target.endswith(
+          "/payload-files/scratch/quality-budget.yaml"
+      ):
+          raise EvidenceError("quality-budget target evidence is invalid")
+
+      expected_stdout = b"Fixture regression: 12 passed, 1 failed (13 total)\n"
+      expected_stderr = (
+          "FAIL: quality-budget.block -- stderr mismatch\n"
+          "1c1\n"
+          '< {"decision":"deny","reason":"quality-budget.yaml missing task_id field"}\n'
+          "---\n"
+          f"> quality-budget.yaml written but file not found at {quality_target}\n"
+      ).encode("utf-8")
+      if decoded["fixture_stdout"] != expected_stdout:
+          raise EvidenceError("fixture stdout differs from the admitted 12/13 signature")
+      if decoded["fixture_stderr"] != expected_stderr:
+          raise EvidenceError("fixture stderr differs from the admitted five-line signature")
+  except (OSError, EvidenceError) as exc:
+      raise SystemExit(f"PLUGIN_ROOT_RELOCATION_EVIDENCE_INVALID:{exc}")
+  PY
   CLAUDE_PLUGIN_ROOT="$PWD" bash tests/test-validator-shims.sh
-  if rg -n -F '$HOME/LAB/sdlc-os' tests/benchmark-dispatch.sh tests/test-validator-shims.sh tests/test-fixture-regression.sh tests/test-sdlc-dispatch.sh; then exit 1; fi
+  RG_BIN="$(command -v rg)"
+  [[ "$RG_BIN" == /* && -x "$RG_BIN" ]]
+  set +e
+  "$RG_BIN" -n -F '$HOME/LAB/sdlc-os' \
+    tests/benchmark-dispatch.sh \
+    tests/test-validator-shims.sh \
+    tests/test-fixture-regression.sh \
+    tests/test-sdlc-dispatch.sh \
+    >"$RESULT_DIR/literal-scan.stdout" 2>"$RESULT_DIR/literal-scan.stderr"
+  literal_rc=$?
+  set -e
+  [[ "$literal_rc" -eq 1 ]]
+  [[ ! -s "$RESULT_DIR/literal-scan.stdout" && ! -s "$RESULT_DIR/literal-scan.stderr" ]]
   ```
 
-  Expected: root-resolution suite passes after recording the exact isolated `12/13` fixed-`/tmp` signature as non-green 1C work; validator shims report `14/14`; dispatcher and one-iteration benchmark pass inside the wrapper; literal scan emits nothing. Do not invoke the raw source fixture command in 1A because its committed payload names shared `/tmp`; it cannot support 1A or Stage 1 green.
+  Expected: root-resolution suite passes after its retained evidence line decodes to the exact isolated `12/13` fixed-`/tmp` signature and valid remap record; validator shims report `14/14`; dispatcher and one-iteration benchmark pass inside the wrapper; literal scan exits exactly `1` with empty streams. Do not invoke the raw source fixture command in 1A because its committed payload names shared `/tmp`; it cannot support 1A or Stage 1 green. A bare outer PASS without decoded nested evidence is `INCONCLUSIVE`.
 
 - [ ] **Step 5: Commit the relocatability change**
 
@@ -1271,7 +1472,7 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
   `verification/baseline-inventory.json` is the unified Stage 1 register. Every entry requires `stable_id`, `class`, `severity` (`CRITICAL | MATERIAL | NONMATERIAL`), numeric `priority`, `owner`, `affected_requirements`, `affected_stage_release`, `trigger_or_due`, `evidence`, `rationale`, `mitigation`, `current_verdict`, `disposition`, ISO `review_date`, and `closure_proof`. The inventory, error catalog, and review state each have independent schema versions with current-version-only loaders and malformed/future-version negatives. Schema tests reject omitted fields, invalid deferral of a load-bearing item, or a later owner/release without a trigger and closure proof. Include:
 
-  - checkout fixture `0/13`, validator shims `0/14`, dispatcher child path exit `127` with aggregate exit `1`, clone manager `19/24`, clone identifier traversal, both `du -sb` sites, three `mktemp --suffix` sites, tmup stale entry, version/inventory/tsx drift, no-test config, and `P27-01..P27-23` as 1A or plan-review disposition;
+  - checkout fixture `0/13`, validator shims `0/14`, dispatcher child path exit `127` with aggregate exit `1`, clone manager `19/24`, clone identifier traversal, both `du -sb` sites, three `mktemp --suffix` sites, tmup stale entry, version/inventory/tsx drift, no-test config, and `P27-01..P27-28` as 1A or plan-review disposition;
   - direct registry surgery, bridge false-sync handling, age-only prune, shared inbox loss risk, and weak health evidence as 1B;
   - the post-root exact fixture result `12/13` whose sole failure is the unmaterialized fixed-`/tmp` quality-budget payload, Deacon's independent `recovered-outputs/<task_id>` path containment, the legacy `colony/validation/run-all.sh` `eval` runner, best-effort Colony permission/log writes, log-field privacy minimization, dedup runner/package mismatch, inherited ShellCheck/Ruff findings, weak/assertion-free/skipped/sleeping tests, masked provider paths, other fixed `/tmp` tests, shared smoke lock, full deterministic matrix, and systemd/launchd packaging as 1C. These remain visible and cannot support 1A or Stage 1 green; the fixture finding closes only when a separately planned isolated fixture-owned path yields raw `13/13` on required platforms before Stage 1 exit. Task 3 claims only the shell clone-manager boundary. Manifest schema tests prove no mandatory 1A row invokes the raw fixture command or the legacy `eval` runner.
 
