@@ -1,8 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-DISPATCH="$HOME/LAB/sdlc-os/hooks/sdlc-dispatch.sh"
-ITERATIONS=10
+TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=tests/lib/plugin-root.sh
+source "$TEST_DIR/lib/plugin-root.sh"
+PLUGIN_ROOT="$(resolve_plugin_root "${BASH_SOURCE[0]}")"
+DISPATCH="$PLUGIN_ROOT/hooks/sdlc-dispatch.sh"
+ITERATIONS="${BENCHMARK_ITERATIONS:-10}"
 TMPROOT="$(mktemp -d)"
 trap 'rm -rf "$TMPROOT"' EXIT
 
