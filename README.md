@@ -78,7 +78,9 @@ L3-L5  Bead -> Phase -> Task        structural escalation when loops exhaust the
 
 The red team (functionality, security, usability, resilience specialists) attacks completed work. The blue team defends it. If they disagree, the arbiter runs a Kahneman adversarial collaboration protocol to produce a binding verdict. Every finding gets minimized to its smallest reproducible case before anyone acts on it.
 
-### Agents (30)
+### Core-Agent Subset (29)
+
+The repository contains 46 agent files and 16 skill directories; runtime composition is reported separately because it may include non-repository skills.
 
 **Runners:** sonnet-investigator, sonnet-designer, sonnet-implementer, sonnet-reviewer
 

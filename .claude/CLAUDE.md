@@ -1,12 +1,12 @@
 # sdlc-os — Multi-Agent SDLC Orchestration Plugin
 
 ## What This Is
-Claude Code plugin: 15 skills, 45 agents, quality-gated delivery through beads, L0-L5 correction loops, adversarial quality review. Includes the Colony Runtime for persistent multi-agent orchestration.
+Claude Code plugin: 16 skills, 46 agents, quality-gated delivery through beads, L0-L5 correction loops, adversarial quality review. Includes the Colony Runtime for persistent multi-agent orchestration.
 
 ## Project Layout
 
-    skills/        — 15 SDLC skills (orchestrate, normalize, adversarial, etc.)
-    agents/        — 45 agent prompts (sonnet-implementer, oracle-*, red-*, blue-*, etc.)
+    skills/        — 16 SDLC skills (orchestrate, normalize, adversarial, etc.)
+    agents/        — 46 agent prompts (sonnet-implementer, oracle-*, red-*, blue-*, etc.)
     colony/        — Colony Runtime (Deacon, Bridge, Clone Manager)
     hooks/         — Event hooks (naming, AQS, bead status, etc.)
     commands/      — Slash commands
