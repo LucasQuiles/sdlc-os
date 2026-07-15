@@ -59,7 +59,7 @@ The pass-20 integration audit is recorded in `artifacts/contradiction_check.md`.
 
 Three read-only inherited-model lanes audited the frozen pre-edit plan snapshot by disjoint Question IDs; their reports are advisory evidence, not independent candidate review. The reports cover IDs `1..320` exactly once and are retained as `artifacts/pass27-bank-{a-f,g-l,m-t}.md` with SHA-256 values `a5e5599c8615cfa77c9ca441cea541355b7b0a606a6e4c7284f2e6615a11e0bf`, `a76dc5921a9d58994caf8350b28ed7ad7aa196d0e130be29c8c60b4193d0c3e0`, and `df2a92b5fc300889ae7a9e94ed48d665204dff7d6c783050620e778ad48ea6f4`. Combined dispositions are 30 `PASS`, 62 `PARTIAL`, 27 `FAIL`, and 201 `INCONCLUSIVE`.
 
-Most `INCONCLUSIVE` rows concern an unrelated guard/watchdog product and cannot establish SDLC-OS coverage. The applicable failures produced concrete revisions: requirement-to-receipt traceability, exact plan-only staging, pre-mutation clone identifier containment, protected evidence handling and durable receipt writes, a committed error-catalog authority, complete register fields, call-removal/dead-surface falsifiers, and fresh-bundle usability replay. The pass-27 artifact verdict remains `Inconclusive` because implementation, platform, and non-author candidate evidence do not yet exist; execution readiness remains `Ready with Constraints` for the safe Task 1 action only.
+Most `INCONCLUSIVE` rows concern an unrelated guard/watchdog product and cannot establish SDLC-OS coverage. The applicable failures produced concrete revisions: requirement-to-receipt traceability, exact plan-only staging, protected evidence handling and durable receipt writes, a committed error-catalog authority, complete register fields, call-removal/dead-surface falsifiers, and fresh-bundle usability replay. The later clone-identifier/symlink finding is retained as owner-gated 1B work rather than mixed into the mechanical 1A release. The pass-27 artifact verdict remains `Inconclusive` because implementation, platform, and non-author candidate evidence do not yet exist; execution readiness remains `Ready with Constraints` for the safe Task 1 action only.
 
 Time-bound Git provenance before the plan-only commit is: approved source `1c3285ad92c0daea2449bf3c5d56a3c248841a20`, merge base `bdc6635020d39ce005b4785481196aa096d1e989`, branch one commit ahead of local and SSH-origin `main`, no upstream configured, and origin `git@github.com:LucasQuiles/sdlc-os.git`. Current Git/source bytes outrank the bounded Pinecone search: the search found no directly matching Stage 1A record, only older low-relevance context, so no retrieved text is implementation proof.
 
@@ -82,7 +82,7 @@ Time-bound Git provenance before the plan-only commit is: approved source `1c328
 |---|---|---|---|
 | F-01 disarmed | Forced direct assertion after fixture swap plus byte/sidecar/cleanup comparisons | `Pass`; marker is temporary, source/decoy are identical, installed bytes are identical when applicable, restore failure retains evidence, cleanup retargeting deletes neither tree, and unexplained concurrent installed drift is `Inconclusive` | `.verification-results/.../s1a-f01-dispatch-isolation/{receipt.json,stdout,stderr}` |
 | Relocatable tests | Exercise four scripts from an archived checkout in a path containing spaces; scan old literal | `Pass`; shims `14/14`, dispatcher/benchmark exit `0`, the copied fixture reaches exact isolated `12/13` with only the fixed-`/tmp` 1C failure and no legacy-root error, zero matches | Stage 1A root/relocation receipt plus non-green 1C fixture finding |
-| Portable/contained clone shell | Run helper/clone tests on macOS and Linux | `Pass` on both; positive byte telemetry, invalid identifiers mutate nothing, zero GNU literals | macOS/Linux helper and clone receipts |
+| Portable Colony shell | Run helper/clone tests on macOS and Linux | `Pass` on both; positive byte telemetry and zero GNU literals | macOS/Linux helper and clone receipts |
 | tmup discovery | Isolated manifest fixtures and installed-entry read-only observation | `Pass`; declared entry selected, escape/missing cases rejected | tmup discovery receipt and captured installed manifest digest |
 | Metadata/inventory | Mutation tests, two checkers, two strict Claude plugin validations | `Pass`; version authority `10.0.0`, counts `46/16`, core subset `29` | metadata/inventory/plugin validation receipts |
 | Local TypeScript runner | Offline/empty-cache execution, absent-install negative, TypeScript/Vitest | `Pass`; exact `tsx 4.23.1`, absent local binary exits `127`, nonempty tests | Colony tooling/typecheck/Vitest receipts |
@@ -98,7 +98,7 @@ The manifest retains every listed requirement ID even when Release 1A owns only 
 | Requirement(s) | 1A disposition and owner | Task/files | Red, green, and negative proof | Manifest/receipt and remaining work |
 |---|---|---|---|---|
 | `S1-01`, `AP-14` | Required in 1A; Codex root | T3; portable helper, clone manager, smoke call sites | Missing helper/GNU literals and macOS alias red; positive bytes on macOS/Linux green; invalid size/prefix negatives | portable/clone rows; no remaining 1A portability work after both platforms pass |
-| `AC-07`, `TF-08`, `P27-01` | Applicable security amendment discovered before implementation; shell boundary only | T3; clone create/recovery and focused caller/docs tests | traversal and pre-existing-symlink red inside disposable outer root; contained physical parent green; empty/separator/symlink negatives | clone-security row; analogous Deacon recovery path is inventoried for 1C, not claimed fixed |
+| `AC-07`, `TF-08`, `P27-01` | Known latent containment finding; owner-gated for 1B proportionality/threat-model decision | Separate 1B plan only; no 1A code or mandatory row | Current source evidence and a future disposable traversal/symlink threat-model fixture if the owner admits the work | Visible 1B inventory item; it cannot support 1A green and does not invalidate the enumerated mechanical 1A scope absent the multi-user/untrusted-writer threat model |
 | `S1-02`, `AP-15`, `F-01` | Required in 1A; F-01 precedes all root adoption | T1–T2; dispatcher isolation/root tests and four scripts | Safe outer failpoint red; copied-fixture root routing and relocated path green; invalid/symlink/path-escape/source-installed mutation negatives | F-01/root/relocation rows; raw fixed-`/tmp` fixture remains non-green 1C work; source, decoy, and installed fingerprints bind to receipts |
 | `S1-03`, `AP-10`, `AP-16` | `PARTIAL`: only manifest-declared entry discovery is 1A | T4; tmup discovery/preflight | Hardcoded-entry red; current/future manifest green; missing/escaping entry negatives | entry-discovery row; supported teardown and registry non-mutation remain 1B |
 | `S1-04`, `AP-17` | Required in 1A | T5; metadata checker/manifests | duplicate-version red; strict validation green; mutated version/omission negatives | metadata rows; authoritative approved value asserted in verification, not duplicated operational metadata |
@@ -138,7 +138,7 @@ Task 7 converts this register and every prior baseline finding into the full com
 
 | ID | Class; severity; priority | Owner; affected requirement/stage; due | Evidence and mitigation | Disposition; review date; closure proof |
 |---|---|---|---|---|
-| `P27-01` | defect; `CRITICAL`; P0 | Codex root; `AC-07`/`TF-08`/T3; before any shell clone create/recovery mutation | identifiers and pre-existing session/recovery symlinks can redirect `git clone`/`cp`; validate segments, reject symlinks, and use a physically contained parent | `ACCEPTED` into T3; 2026-07-14; red/green clone receipt plus outside-path absence |
+| `P27-01` | known latent containment finding; `MATERIAL`; P1 | Owner at 1B entry; `AC-07`/`TF-08`; before authorizing containment work | identifiers and pre-existing session/recovery symlinks may redirect `git clone`/`cp`; the owner must first confirm a multi-user or untrusted-writer threat model and then approve a separate bounded plan | `OWNER_GATED_1B`; 2026-07-14; no 1A implementation or closure claim; if admitted, closure requires disposable traversal/symlink red-green proof and zero outside-root mutation |
 | `P27-02` | limitation/defect; `MATERIAL`; P0 | Codex root; `S1-07`/T7; before runner commit | runner plan lacked result-root containment, protected modes, ENOSPC/write/rename/clock/background/source-mutation cases; implement fail-closed durability/privacy contract | `ACCEPTED` into T7; 2026-07-14; runner mutation/fault receipts |
 | `P27-03` | missing authority; `MATERIAL`; P0 | Codex root; T7; before error-code claims | only review-local error catalog existed; create committed versioned catalog and drift test | `ACCEPTED` into T7; 2026-07-14; catalog schema/coverage receipt |
 | `P27-04` | verification gap; `MATERIAL`; P0 | Codex root plus non-author reviewers; T8; before release verdict | add written-but-not-consumed mutations, call-removal reachability, DRY/dead-surface fitness, and copy-paste Git-bundle replay | `ACCEPTED` into T8; 2026-07-14; reviewer and usability receipts |
@@ -267,7 +267,7 @@ Each checkbox step is an atomic unit with ID `T<task>.<step>` and parent `T<task
 |---|---|---|---|---|
 | T1 | Approved source; source/decoy/installed snapshots; no root consumer changed | Fixture-isolated dispatcher and failpoint driver; normal suite green | Direct assertion, HUP/INT/TERM self-signals, two-driver concurrency, byte/mode/size/hash and sidecar checks; `manual/T1.*/` | Any installed reachability blocks; retry only after test/plan correction; rollback by local revert commit; no predecessor |
 | T2 | T1 committed; shared resolver interface fixed | Four scripts resolve explicit/fallback physical roots | Relocated path-with-spaces run and literal scan; `manual/T2.*/` | Any old literal or changed assertion fails; revert Task 2 commit; depends T1 |
-| T3 | T2 committed; isolated clone/temp roots | Portable size/temp functions, pre-mutation identifier validation, and canonical path boundary | macOS/Linux positive-byte, traversal, and lexical/physical tests; `manual/T3.*/` | Any outside-base side effect fails; platform absence is inconclusive; no full smoke; revert Task 3 commit; depends T2 |
+| T3 | T2 committed; isolated clone/temp roots | Portable size/temp functions at two size and three temp call sites | macOS/Linux positive-byte tests and GNU-literal scans; `manual/T3.*/` | Helper or platform failure is non-pass; no full smoke or containment change; revert Task 3 commit; depends T2 |
 | T4 | T3 committed; fake tmup/state/binaries | Manifest-declared entry resolution | Current/future/missing/escape fixtures; `manual/T4.*/` | Any live grid/registry access blocks; revert Task 4 commit; depends T3 |
 | T5 | T4 committed; plugin schema CLI available | Sole version authority and exact inventory projection | Mutation tests plus strict validation; `manual/T5.*/` | Schema rejection stops for plan amendment; revert Task 5 commit; depends T4 |
 | T6 | T5 committed; Node 20 and lockfile | Exact local `tsx` wrapper and nonempty Vitest policy | Offline/absent/zero-test negatives, typecheck, Vitest; `manual/T6.*/` | Dynamic fetch or zero-test green fails; revert Task 6 commit; depends T5 |
@@ -411,8 +411,8 @@ Stop this release and report `INCONCLUSIVE` if F-01 cannot be proven without tou
 | `tests/test-plugin-root-resolution.sh` | Prove explicit, fallback, invalid, symlinked, and relocated checkout resolution |
 | `tests/{benchmark-dispatch,test-validator-shims,test-fixture-regression}.sh` | Consume the shared canonical root without changing test semantics |
 | `colony/lib/portable-shell.sh` | Provide portable path-size and temporary-file primitives |
-| `colony/clone-manager.sh` | Consume byte-size helper, reject unsafe identifier segments before mutation, and compare canonical clone/base paths |
-| `colony/clone-manager.test.sh` | Assert positive byte telemetry, `/var`/`/private/var` equivalence, and zero traversal side effects |
+| `colony/clone-manager.sh` | Consume the portable byte-size helper without changing clone, recovery, verify, or prune semantics |
+| `colony/clone-manager.test.sh` | Assert positive byte telemetry on isolated clone state |
 | `colony/smoke-test.sh` | Replace three GNU-only `mktemp --suffix` calls with the portable helper |
 | `tests/test-portable-shell-helpers.sh` | Prove size/temp behavior without executing unsafe shared-lock smoke paths |
 | `scripts/lib/tmup-discovery.sh` | Resolve tmup's manifest-declared MCP entry while retaining the plugin root |
@@ -425,7 +425,7 @@ Stop this release and report `INCONCLUSIVE` if F-01 cannot be proven without tou
 | `colony/run-tsx.sh` | Execute only `colony/node_modules/.bin/tsx`, failing clearly when absent |
 | `colony/package.json`, `colony/package-lock.json` | Pin exact `tsx` `4.23.1` and preserve Node `>=20 <24` |
 | `colony/vitest.config.ts` | Reject zero-test success |
-| `colony/{smoke-test.sh,bridge.test.ts,bridge-cli.ts,README.md,conductor-prompt.md}` and `colony/scripts/*.ts` | Document the safe clone-identifier grammar and replace dynamic-download examples/invocations with the local wrapper |
+| `colony/{smoke-test.sh,bridge.test.ts,bridge-cli.ts,README.md,conductor-prompt.md}` and `colony/scripts/*.ts` | Replace dynamic-download examples/invocations with the local wrapper |
 | `tests/test-colony-tooling.sh` | Prove local/offline `tsx`, missing-install failure, no dynamic invocation, and no-test failure |
 | `verification/manifest.json` | Versioned authoritative list of executable Stage 1A checks |
 | `verification/README.md` | Operator contract for manifest schema, runner exits, receipts, platform replay, and adding later-release rows |
@@ -460,7 +460,7 @@ Detailed caller search evidence is in `artifacts/blast_callers.txt` and the disp
 | Surface / callers and consumers | Direct and indirect effect | Coordination, containment, rollback |
 |---|---|---|
 | Four executable test scripts; dispatcher/hook validators copied beneath them | Root resolution and F-01 affect test execution only; production hook behavior must remain byte-identical | Task 1 precedes all root adoption; hashes and v1 exit regressions; local revert commit |
-| `colony/clone-manager.sh` direct callers in smoke/tests | Size telemetry becomes 1024-byte-granular positive bytes; physical base comparison accepts legitimate macOS `/var` aliases; unsafe or symlink-redirected session/agent/task destinations fail before mutation | Existing direct callers use compatible safe segments; no pruning authority change; focused clone tests both platforms; revert Task 3 if legitimate compatibility regresses or containment widens |
+| `colony/clone-manager.sh` direct callers in smoke/tests | Size telemetry becomes 1024-byte-granular positive bytes; clone/recovery/verify/prune behavior remains unchanged | No pruning or containment authority change; focused clone tests on both platforms; revert Task 3 if telemetry or compatibility regresses |
 | `colony/smoke-test.sh` | Three DB temp paths lose `.db` suffix; SQLite does not require the suffix | Helper-only proof in 1A; unsafe shared lock remains isolated and full smoke is 1C |
 | `scripts/crossmodel-preflight.sh` consumers in crossmodel workflow | Preflight discovers tmup through manifest and may progress farther than today's false missing result | Fake binaries/state; no live launch or teardown in 1A; manifest/missing/escape negatives; revert Task 4 |
 | `.claude-plugin/plugin.json` and marketplace consumed by Claude plugin loader | Plugin manifest remains `10.0.0`; duplicate marketplace version disappears | Two strict validations; no install/reload/deployment in this release; revert metadata commit if schema rejects |
@@ -519,7 +519,7 @@ Every failure writes a stable code from committed `verification/error-catalog.js
 
 User-facing summaries name the failed requirement/check, terminal verdict, whether work stopped, and the safe next decision; they do not expose raw environment values, private host aliases/addresses, temp paths containing user data, or untrusted subprocess content. Operator-facing diagnostics may name sanitized repository-relative paths, platform class, true exits/signals, tool versions, and receipt locations. `trace_id` is `null` in 1A; `run_id` plus `check_id` is the required correlation handle.
 
-Required codes include `F01_FIXTURE_ESCAPE`, `F01_INSTALLED_DRIFT`, `F01_FAILPOINT_NOT_REACHED`, `F01_DRIVER_INTERRUPTED`, `F01_TEMP_TREE_HELPER_MISSING`, `F01_PRE_FAILPOINT_CASES_FAILED`, `F01_RESTORE_FAILED`, `F01_INNER_RETAINED`, `F01_INNER_CONTAINER_RETAINED`, `F01_RESTORE_RETAINED`, `ROOT_INVALID`, `PORTABLE_SIZE_INVALID`, `CLONE_IDENTIFIER_INVALID`, `TMUP_MANIFEST_INVALID`, `TMUP_ENTRY_ESCAPE`, `PLUGIN_METADATA_DRIFT`, `INVENTORY_DRIFT`, `LOCAL_TSX_MISSING`, `ZERO_TESTS`, `VERIFY_MANIFEST_INVALID`, `VERIFY_SELECTION_EMPTY`, `VERIFY_RESULTS_ESCAPE`, `VERIFY_ENV_INVALID`, `VERIFY_PLATFORM_MISMATCH`, `VERIFY_EXECUTABLE_DRIFT`, `VERIFY_EXIT_MISMATCH`, `VERIFY_OBSERVATION_FAILED`, `VERIFY_ENCODING_INVALID`, `VERIFY_OUTPUT_LIMIT`, `VERIFY_WRITE_FAILED`, `VERIFY_TIMEOUT`, `VERIFY_INTERRUPTED`, `VERIFY_ARTIFACT_INVALID`, `VERIFY_BACKGROUND_PROCESS`, `VERIFY_SOURCE_DIRTY`, `VERIFY_SOURCE_MUTATION`, `CANDIDATE_MISMATCH`, `PLATFORM_UNAVAILABLE`, `REVIEW_UNAVAILABLE`, and `CLEANUP_FAILED`. `F01_FORCED_ASSERTION_AFTER_VALIDATOR_SWAP` remains a success-path test marker rather than an error code; every other emitted `F01_*` diagnostic is cataloged. Tests map every runner failure branch to exactly one code and assert that each production-code emitter resolves to exactly one committed catalog entry with audience, message template, remediation, and evidence fields. The drift scanner excludes test strings and declared selectors/markers; unused catalog entries and emitted-but-undefined codes fail.
+Required codes include `F01_FIXTURE_ESCAPE`, `F01_INSTALLED_DRIFT`, `F01_FAILPOINT_NOT_REACHED`, `F01_DRIVER_INTERRUPTED`, `F01_TEMP_TREE_HELPER_MISSING`, `F01_PRE_FAILPOINT_CASES_FAILED`, `F01_RESTORE_FAILED`, `F01_INNER_RETAINED`, `F01_INNER_CONTAINER_RETAINED`, `F01_RESTORE_RETAINED`, `ROOT_INVALID`, `PORTABLE_SIZE_INVALID`, `TMUP_MANIFEST_INVALID`, `TMUP_ENTRY_ESCAPE`, `PLUGIN_METADATA_DRIFT`, `INVENTORY_DRIFT`, `LOCAL_TSX_MISSING`, `ZERO_TESTS`, `VERIFY_MANIFEST_INVALID`, `VERIFY_SELECTION_EMPTY`, `VERIFY_RESULTS_ESCAPE`, `VERIFY_ENV_INVALID`, `VERIFY_PLATFORM_MISMATCH`, `VERIFY_EXECUTABLE_DRIFT`, `VERIFY_EXIT_MISMATCH`, `VERIFY_OBSERVATION_FAILED`, `VERIFY_ENCODING_INVALID`, `VERIFY_OUTPUT_LIMIT`, `VERIFY_WRITE_FAILED`, `VERIFY_TIMEOUT`, `VERIFY_INTERRUPTED`, `VERIFY_ARTIFACT_INVALID`, `VERIFY_BACKGROUND_PROCESS`, `VERIFY_SOURCE_DIRTY`, `VERIFY_SOURCE_MUTATION`, `CANDIDATE_MISMATCH`, `PLATFORM_UNAVAILABLE`, `REVIEW_UNAVAILABLE`, and `CLEANUP_FAILED`. `F01_FORCED_ASSERTION_AFTER_VALIDATOR_SWAP` remains a success-path test marker rather than an error code; every other emitted `F01_*` diagnostic is cataloged. Tests map every runner failure branch to exactly one code and assert that each production-code emitter resolves to exactly one committed catalog entry with audience, message template, remediation, and evidence fields. The drift scanner excludes test strings and declared selectors/markers; unused catalog entries and emitted-but-undefined codes fail.
 
 Generic messages such as `something went wrong`, silent catches, bare stack traces, random IDs, or diagnostics without an evidence path/operator action are invalid. Underlying tool stderr is preserved verbatim only in a hashed raw artifact and referenced from the sanitized catalog message. Redaction must itself be recorded; if safe diagnosis cannot be produced without leaking a protected value, emit the code and artifact hash, omit the value, and mark the dependent verdict `Inconclusive`.
 
@@ -1068,7 +1068,7 @@ Expected: tracked state is clean before and after; the commit contains exactly t
   git commit -m "test: make plugin checks relocatable"
   ```
 
-### Task 3: Make Colony Shell Boundaries Portable and Contained
+### Task 3: Make Colony Shell Primitives Portable
 
 **Files:**
 - Create: `colony/lib/portable-shell.sh`
@@ -1076,22 +1076,18 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 - Modify: `colony/clone-manager.sh`
 - Modify: `colony/clone-manager.test.sh`
 - Modify: `colony/smoke-test.sh`
-- Modify: `colony/README.md`
 
 **Interfaces:**
 - Produces: `path_size_bytes <existing-path>` printing a positive integer equal to `du -sk` kibibytes multiplied by `1024`; `make_temp_file <prefix>` printing a unique file inside `${TMPDIR:-/tmp}`.
-- Produces: `_validate_colony_identifier <kind> <value>` accepting only one safe `[A-Za-z0-9][A-Za-z0-9._-]*` path segment and returning `64`/`CLONE_IDENTIFIER_INVALID` before any filesystem mutation otherwise.
-- Preserves: telemetry fields remain named `clone_bytes` and `output_bytes`; no pruning semantics change.
+- Preserves: telemetry fields remain named `clone_bytes` and `output_bytes`; clone, recovery, verification, pruning, identifier, and path-containment semantics do not change in 1A.
 
-- [ ] **Step 1: Add failing portable-helper and canonical-path cases**
+Owner scope correction: Task 3 contains only the two `du -sb` replacements and three `mktemp --suffix` replacements enumerated by spec §9.1. The later identifier/symlink/lexical-alias finding is retained as `P27-01`, owner-gated for a separate 1B threat-model and proportionality decision. It has no 1A implementation step or mandatory verification row.
+
+- [ ] **Step 1: Add failing portable-helper cases**
 
   `tests/test-portable-shell-helpers.sh` must create an isolated `TMPDIR`, source the planned helper, and assert positive integer byte output for a nonempty directory, a unique temp file, and no GNU-only literal in `clone-manager.sh` or `smoke-test.sh`.
 
-  Extend `colony/clone-manager.test.sh` so `COLONY_BASE` uses the lexical `/var/...` spelling when its physical path is `/private/var/...` on macOS, then require valid-clone verification and pruning to succeed. Strengthen telemetry assertions to require both a positive `clone_bytes` and positive recovered `output_bytes`.
-
-  Add table-driven session, agent, and task identifier cases for empty/missing, `..`, `../outside`, embedded `/`, and newline. Begin with a nonexistent `COLONY_BASE` for the empty/invalid cases; require exit `64`, exact `CLONE_IDENTIFIER_INVALID`, and that `_ensure_colony_base` was never reached. Keep all later cases inside one outer temporary root; fingerprint the base and outer sentinel before each call; require no created/copied path anywhere outside the base. The red is safe because even the vulnerable destination remains inside the outer disposable root and cleanup removes that root only.
-
-  Add pre-existing symlink attacks for `$COLONY_BASE/<session>` and `$COLONY_BASE/recovered-outputs`, both pointing to an outer sentinel directory. Require rejection before `git clone`/`cp` and byte-identical sentinels. Add positive compatibility cases for every direct caller literal (`test-session`, `agent-1`, `agent-prune`, `agent-recover`, `agent-empty`, `task-recover-001`, `task-empty-001`, `smoke-session`, `agent1`) plus allowed `a.b` and `a_b` boundaries.
+  Strengthen the existing isolated `colony/clone-manager.test.sh` telemetry assertions to require both a positive `clone_bytes` and positive recovered `output_bytes`. Do not add identifier, symlink, prune, or recovery-containment behavior in 1A.
 
 - [ ] **Step 2: Run focused tests and capture the known red evidence**
 
@@ -1102,7 +1098,7 @@ Expected: tracked state is clean before and after; the commit contains exactly t
   bash colony/clone-manager.test.sh
   ```
 
-  Expected: helper test fails because the file does not exist and GNU literals remain; clone manager reports the reproduced `du: invalid option -- b`, lexical/physical path failures on macOS, and at least one controlled traversal side effect inside the outer disposable root. Preserve that red path/fingerprint before cleanup; no live Colony path is reachable.
+  Expected: helper test fails because the file does not exist and GNU literals remain; clone manager reports the reproduced `du: invalid option -- b` and nonpositive/missing byte telemetry on macOS. No live Colony path is reachable.
 
 - [ ] **Step 3: Implement the two portable primitives**
 
@@ -1127,38 +1123,7 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
   Source it by physical script path from clone manager and smoke test. Replace both `du -sb ... | cut -f1` sites with separate declaration/assignment calls to `path_size_bytes`. Replace all three `mktemp --suffix=.db` calls with `make_temp_file sdlc-colony-db`.
 
-- [ ] **Step 4: Validate identifiers before mutation and canonicalize the clone safety boundary**
-
-  Add a private Bash 3.2-compatible validator. Capture `session_name`, `agent_id`, and `task_id` with `${n-}` rather than `${n:?}` so empty/missing input reaches the validator and obeys the promised exit/code. Call it at the start of `colony_clone_create` and `colony_clone_recover_output`, before `_ensure_colony_base`, `mkdir`, `git clone`, or `cp`:
-
-  ```bash
-  _validate_colony_identifier() {
-    local kind="${1:?identifier kind required}"
-    local value="${2-}"
-    if [[ ! "$value" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
-      printf 'CLONE_IDENTIFIER_INVALID kind=%s remediation=use-one-safe-path-segment\n' \
-        "$kind" >&2
-      return 64
-    fi
-  }
-  ```
-
-  Existing in-repository callers use compatible identifiers. Document the public argument grammar in `colony/README.md`. Do not normalize, truncate, or replace rejected input; fail before mutation so two different identifiers cannot alias one path.
-
-  Add one private helper that creates and physically resolves `COLONY_BASE`, then compare both clone and base physical paths:
-
-  ```bash
-  _resolved_colony_base() {
-    _ensure_colony_base
-    (cd "$COLONY_BASE" && pwd -P)
-  }
-  ```
-
-  In `colony_clone_create`, derive the one-segment session path beneath `base_dir`, reject it when it is a symlink, create it only after that check, physically resolve it beneath `base_dir`, and construct the clone path from that physical parent. Reject a pre-existing clone path or symlink. In `colony_clone_recover_output`, apply the same sequence to fixed `recovered-outputs` and the one-segment task directory, then copy only through the physically contained task parent. The physical-parent value, not the original lexical spelling, is the mutation target.
-
-  In `colony_clone_verify` and `colony_clone_prune`, resolve `base_dir="$(_resolved_colony_base)"` and use `case "$resolved_dir/" in "$base_dir"/*) ...`. Preserve all current refusal conditions and log fields. The test records the residual same-user replacement race as non-exploitable within mode-`0700` serialized fixtures; any observed concurrent parent drift is `INCONCLUSIVE` and stops the check.
-
-- [ ] **Step 5: Run focused macOS checks**
+- [ ] **Step 4: Run focused macOS checks**
 
   ```bash
   bash -n colony/lib/portable-shell.sh colony/clone-manager.sh colony/clone-manager.test.sh colony/smoke-test.sh tests/test-portable-shell-helpers.sh
@@ -1167,17 +1132,17 @@ Expected: tracked state is clean before and after; the commit contains exactly t
   if rg -n 'du -sb|mktemp --suffix' colony/clone-manager.sh colony/smoke-test.sh; then exit 1; fi
   ```
 
-  Expected: helper suite passes; clone manager reports the updated explicit nonzero test count with zero failures; both byte fields are positive; every invalid identifier exits `64` before base creation; symlink attacks and traversal change no outer sentinel or path; all named compatibility literals pass; literal scan is empty. Do not run the full smoke suite yet because its shared `/tmp/sdlc-colony-conductor.lock` fixture is assigned to 1C containment.
+  Expected: helper suite passes; clone manager reports its existing 24 cases with zero failures; both byte fields are positive; literal scan is empty. Do not run the full smoke suite yet because its shared `/tmp/sdlc-colony-conductor.lock` fixture is assigned to 1C containment.
 
-- [ ] **Step 6: Reproduce platform-sensitive checks on the owner-authorized Linux host**
+- [ ] **Step 5: Reproduce platform-sensitive checks on the owner-authorized Linux host**
 
-  Resolve `LINUX_VERIFY_HOST` from owner-local inventory. Stage only the six Task 3 paths, create an exact candidate tree with `tree_id="$(git write-tree)"`, and produce `git archive "$tree_id"` plus its SHA-256. Copy that archive to a unique remote `/tmp` directory, verify the archive SHA-256 there, extract it, run only `tests/test-portable-shell-helpers.sh` and `colony/clone-manager.test.sh`, capture true exits/stdout/stderr, then remove only that unique remote directory. The local receipt binds `tree_id` to the archive digest; the extracted archive has no Git object database and must not claim to recompute the tree ID remotely. Expected: both commands exit `0`, traversal/symlink negatives have zero outside-base effects, compatibility literals pass, byte telemetry is positive, and local/remote archive digests match. If SSH, copy, digest, cleanup, or either command fails, record `INCONCLUSIVE` rather than green. Leave the exact scoped index staged for Step 7; do not stage any review artifact or unrelated path.
+  Resolve `LINUX_VERIFY_HOST` from owner-local inventory. Stage only the five Task 3 paths, create an exact candidate tree with `tree_id="$(git write-tree)"`, and produce `git archive "$tree_id"` plus its SHA-256. Copy that archive to a unique remote `/tmp` directory, verify the archive SHA-256 there, extract it, run only `tests/test-portable-shell-helpers.sh` and `colony/clone-manager.test.sh`, capture true exits/stdout/stderr, then remove only that unique remote directory. The local receipt binds `tree_id` to the archive digest; the extracted archive has no Git object database and must not claim to recompute the tree ID remotely. Expected: both commands exit `0`, byte telemetry is positive, and local/remote archive digests match. If SSH, copy, digest, cleanup, or either command fails, record `INCONCLUSIVE` rather than green. Leave the exact scoped index staged for Step 6; do not stage any review artifact or unrelated path.
 
-- [ ] **Step 7: Commit the portability change**
+- [ ] **Step 6: Commit the portability change**
 
   ```bash
   git diff --check
-  git diff --cached -- colony/lib/portable-shell.sh colony/clone-manager.sh colony/clone-manager.test.sh colony/smoke-test.sh colony/README.md tests/test-portable-shell-helpers.sh
+  git diff --cached -- colony/lib/portable-shell.sh colony/clone-manager.sh colony/clone-manager.test.sh colony/smoke-test.sh tests/test-portable-shell-helpers.sh
   git diff --cached --check
   git commit -m "fix: make colony shell helpers portable"
   ```
@@ -1448,7 +1413,7 @@ Expected: tracked state is clean before and after; the commit contains exactly t
     "command": ["bash", "tests/test-sdlc-dispatch-isolation.sh"],
     "required_tools": ["bash", "cp", "find", "mktemp", "sed", "python3.12"],
     "working_directory": ".",
-    "environment": {"LC_ALL": "C"},
+    "environment": {},
     "platforms": ["macos", "linux"],
     "applicability": {"state": "REQUIRED", "evidence": "Bash fixture boundary is platform-independent"},
     "timeout_seconds": 60,
@@ -1481,9 +1446,9 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
   `verification/baseline-inventory.json` is the unified Stage 1 register. Every entry requires `stable_id`, `class`, `severity` (`CRITICAL | MATERIAL | NONMATERIAL`), numeric `priority`, `owner`, `affected_requirements`, `affected_stage_release`, `trigger_or_due`, `evidence`, `rationale`, `mitigation`, `current_verdict`, `disposition`, ISO `review_date`, and `closure_proof`. The inventory, error catalog, and review state each have independent schema versions with current-version-only loaders and malformed/future-version negatives. Schema tests reject omitted fields, invalid deferral of a load-bearing item, or a later owner/release without a trigger and closure proof. Include:
 
-  - checkout fixture `0/13`, validator shims `0/14`, dispatcher child path exit `127` with aggregate exit `1`, clone manager `19/24`, clone identifier traversal, both `du -sb` sites, three `mktemp --suffix` sites, tmup stale entry, version/inventory/tsx drift, no-test config, and `P27-01..P27-29` as 1A or plan-review disposition;
-  - direct registry surgery, bridge false-sync handling, age-only prune, shared inbox loss risk, and weak health evidence as 1B;
-  - the post-root exact fixture result `12/13` whose sole failure is the unmaterialized fixed-`/tmp` quality-budget payload, Deacon's independent `recovered-outputs/<task_id>` path containment, the legacy `colony/validation/run-all.sh` `eval` runner, best-effort Colony permission/log writes, log-field privacy minimization, dedup runner/package mismatch, inherited ShellCheck/Ruff findings, weak/assertion-free/skipped/sleeping tests, masked provider paths, other fixed `/tmp` tests, shared smoke lock, full deterministic matrix, and systemd/launchd packaging as 1C. These remain visible and cannot support 1A or Stage 1 green; the fixture finding closes only when a separately planned isolated fixture-owned path yields raw `13/13` on required platforms before Stage 1 exit. Task 3 claims only the shell clone-manager boundary. Manifest schema tests prove no mandatory 1A row invokes the raw fixture command or the legacy `eval` runner.
+  - checkout fixture `0/13`, validator shims `0/14`, dispatcher child path exit `127` with aggregate exit `1`, clone manager `19/24`, both `du -sb` sites, three `mktemp --suffix` sites, tmup stale entry, version/inventory/tsx drift, no-test config, and `P27-02..P27-29` as 1A or plan-review disposition;
+  - `P27-01` clone-identifier/traversal/symlink containment as an owner-gated known latent issue, plus direct registry surgery, bridge false-sync handling, age-only prune, shared inbox loss risk, and weak health evidence as 1B;
+  - the post-root exact fixture result `12/13` whose sole failure is the unmaterialized fixed-`/tmp` quality-budget payload, Deacon's independent `recovered-outputs/<task_id>` path containment, the legacy `colony/validation/run-all.sh` `eval` runner, best-effort Colony permission/log writes, log-field privacy minimization, Task 6's npm-audit exit `1` with four advisories (esbuild low, postcss moderate, vite high, direct Vitest critical), passing-Vitest noisy stderr diagnostics, remaining dynamic `npx vitest`/`npx tsc` documentation outside the exact Task 6 `tsx` boundary, dedup runner/package mismatch, inherited ShellCheck/Ruff findings, weak/assertion-free/skipped/sleeping tests, masked provider paths, other fixed `/tmp` tests, shared smoke lock, full deterministic matrix, and systemd/launchd packaging as 1C. These remain visible and cannot support 1A or Stage 1 green; the fixture finding closes only when a separately planned isolated fixture-owned path yields raw `13/13` on required platforms before Stage 1 exit. Task 3 claims only portable shell mechanics. Manifest schema tests prove no mandatory 1A row invokes clone-containment behavior, the raw fixture command, or the legacy `eval` runner.
 
   Create `verification/error-catalog.json` with schema version, the codes listed under Error Messaging, audience, sanitized template, remediation, evidence fields, and owning requirement. Unit tests scan implementation/tests for emitted stable codes and fail on missing, duplicate, or unused catalog entries.
 
@@ -1577,7 +1542,7 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
 - [ ] **Step 5: Run a bounded adversarial mechanical-scope pass**
 
-  A second distinct read-only reasoning path is required to attack: installed-tree reachability, signal/interruption windows, symlink/path escape, clone identifier traversal before mutation, concurrent dispatcher runs, manifest command injection, result-root escape/overwrite, secret leakage into structured/reviewer evidence, permission/ENOSPC/partial-write/clock-jump handling, lingering/escaped background processes, zero-test/masked exits, tmup manifest escape, marketplace drift, offline `tsx`, and `/var` canonicalization. If it is unavailable, Release 1A is `INCONCLUSIVE`.
+  A second distinct read-only reasoning path is required to attack: installed-tree reachability, signal/interruption windows, symlink/path escape in 1A-owned roots/results, concurrent dispatcher runs, manifest command injection, result-root escape/overwrite, secret leakage into structured/reviewer evidence, permission/ENOSPC/partial-write/clock-jump handling, lingering/escaped background processes, zero-test/masked exits, tmup manifest escape, marketplace drift, and offline `tsx`. The reviewer must confirm that the known `P27-01` clone-containment issue remains visible and unclaimed rather than treating it as a passing 1A behavior. If the distinct path is unavailable, Release 1A is `INCONCLUSIVE`.
 
   In a disposable copy of the exact candidate, run a call-removal/written-but-not-consumed mutation matrix. Independently bypass the root-resolver call, portable size helper call, tmup manifest discovery call, local `tsx` wrapper call, and runner observation/artifact-consumption check; each mutation must make its named owning test fail. A test that stays green proves the interface is written but not load-bearing and blocks the release.
 
@@ -1613,7 +1578,7 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 - [ ] Task 2 keeps the committed benchmark default at `10`; only `BENCHMARK_ITERATIONS=1` shortens relocated smoke execution.
 - [ ] Task 2's red proof distinguishes child exit `127` from the shim/fixture aggregate exit `1`, records the exact zero-pass count, and captures the suppressed legacy-path failure in a separate raw probe.
 - [ ] No step runs the unsafe full Colony smoke test before its shared-lock fixture is isolated in 1C.
-- [ ] Clone session/agent/task traversal is rejected before any `_ensure_colony_base`, `mkdir`, `git clone`, or `cp`, with zero outside-base side effect.
+- [ ] Clone identifier/symlink containment is absent from 1A claims and remains a visible owner-gated `P27-01` 1B finding.
 - [ ] macOS and owner-authorized Linux surfaces, runtimes, expected exits, and inconclusive fallbacks are explicit without committing private host locators.
 - [ ] Prior same-reviewer passes are logged `INCONCLUSIVE`; native inherited-model workers are not mislabeled independent.
 - [ ] No active v1 task, live registry, installed validator, live database, service, remote repository, or external communication target is mutated.
@@ -1625,7 +1590,7 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
 ## Final Review and Handoff
 
-This file is the execution source of truth for Release 1A. A fresh operator must read the Global Constraints, pass-27 synthesis, Objective/Scope, traceability, assumption/finding registers, validation/readiness gates, Molecular Execution Contract, Verification Design, testing/logging rules, release map, file/interface map, Tasks 1–8, and Self-Review Checklist before acting. The current open risks are A-01/A-02/A-03/A-06/A-08/A-10 and accepted due-task findings P27-01..P27-04; none is accepted as a pass. F-01 ordering, installed/live-state exclusion, local-only commits, and the 1A-versus-Stage-1 claim boundary are blockers, not judgment calls.
+This file is the execution source of truth for Release 1A. A fresh operator must read the Global Constraints, pass-27 synthesis, Objective/Scope, traceability, assumption/finding registers, validation/readiness gates, Molecular Execution Contract, Verification Design, testing/logging rules, release map, file/interface map, Tasks 1–8, and Self-Review Checklist before acting. The current open risks are A-01/A-02/A-03/A-06/A-08/A-10 and accepted due-task findings P27-02..P27-04; none is accepted as a pass. `P27-01` is separately visible and owner-gated for a 1B proportionality decision. F-01 ordering, installed/live-state exclusion, local-only commits, and the 1A-versus-Stage-1 claim boundary are blockers, not judgment calls.
 
 Containment/rollback is task-local: stop the command, preserve raw evidence, restore only inner temporary fixtures via traps, and make a new explicit local revert/correction commit if committed bytes must change. Never use destructive Git reset/checkout/restore, never delete live tmup/task state, and never improvise around a failed platform/reviewer/contract gate. Two correction cycles are the maximum before returning to the owner checkpoint with a non-success verdict.
 
