@@ -84,7 +84,7 @@ Time-bound Git provenance before the plan-only commit is: approved source `1c328
 | Relocatable tests | Exercise four scripts from an archived checkout in a path containing spaces; scan old literal | `Pass`; shims `14/14`, dispatcher/benchmark exit `0`, the copied fixture reaches exact isolated `12/13` with only the fixed-`/tmp` 1C failure and no legacy-root error, zero matches | Stage 1A root/relocation receipt plus non-green 1C fixture finding |
 | Portable/contained clone shell | Run helper/clone tests on macOS and Linux | `Pass` on both; positive byte telemetry, invalid identifiers mutate nothing, zero GNU literals | macOS/Linux helper and clone receipts |
 | tmup discovery | Isolated manifest fixtures and installed-entry read-only observation | `Pass`; declared entry selected, escape/missing cases rejected | tmup discovery receipt and captured installed manifest digest |
-| Metadata/inventory | Mutation tests, two checkers, two strict Claude plugin validations | `Pass`; version authority `10.0.0`, counts `46/16`, core subset `30` | metadata/inventory/plugin validation receipts |
+| Metadata/inventory | Mutation tests, two checkers, two strict Claude plugin validations | `Pass`; version authority `10.0.0`, counts `46/16`, core subset `29` | metadata/inventory/plugin validation receipts |
 | Local TypeScript runner | Offline/empty-cache execution, absent-install negative, TypeScript/Vitest | `Pass`; exact `tsx 4.23.1`, absent local binary exits `127`, nonempty tests | Colony tooling/typecheck/Vitest receipts |
 | Verification authority | Runner unit tests and clean-candidate manifest run | `Pass`; true exits captured, no selected row `FAIL`/`INCONCLUSIVE`, run digest validates | runner tests and `run.json` |
 | Review | Distinct read-only candidate reproduction | `Pass`; immutable candidate hash matches and no material unresolved finding | validated candidate-bound review results plus reviewer command receipts |
@@ -103,7 +103,7 @@ The manifest retains every listed requirement ID even when Release 1A owns only 
 | `S1-03`, `AP-10`, `AP-16` | `PARTIAL`: only manifest-declared entry discovery is 1A | T4; tmup discovery/preflight | Hardcoded-entry red; current/future manifest green; missing/escaping entry negatives | entry-discovery row; supported teardown and registry non-mutation remain 1B |
 | `S1-04`, `AP-17` | Required in 1A | T5; metadata checker/manifests | duplicate-version red; strict validation green; mutated version/omission negatives | metadata rows; authoritative approved value asserted in verification, not duplicated operational metadata |
 | `S1-05`, `AP-18` | Required in 1A | T6; package/lock, wrapper, Vitest config/callers | undeclared/dynamic/zero-test red; offline local execution green; absent binary and empty suite negatives | tooling/typecheck/nonempty-Vitest rows |
-| `S1-06`, `AP-19` | Required in 1A | T5; inventory checker/docs | current drift red; `46/16/30` green; removed agent and stale projection negatives | inventory row; runtime-loaded counts remain separately labeled |
+| `S1-06`, `AP-19` | Required in 1A | T5; inventory checker/docs | current drift red; `46/16/29` green; removed agent and stale projection negatives | inventory row; runtime-loaded counts remain separately labeled |
 | `S1-07`, `AP-11`, `AP-13`, `AP-24`, `F-02` | `PARTIAL`: 1A mechanical baseline only | T7–T8; manifest, runner, receipts, non-author review | absent runner red; complete 1A rows/replay green; masked/zero/missing/stale/candidate-mismatch negatives | 1A aggregate and independent review; full Stage 1 remains blocked on 1B/1C |
 | `AP-01`, `AP-03`–`AP-05`, `AP-07`, `AP-09` | Binding scope/legacy/local-only constraints | Global constraints, T1–T8 scoped diffs | source/active-state hashes and v1 regressions; any push, policy change, rewrite, or permission change fails | action/diff receipts; no external mutation or v1 rejudging |
 | `AP-02`, `AP-06`, `AP-08`, `AP-12` | Design/future-stage requirements; not 1A implementation authority | approved spec and release map | absence of v2 enforcement/dialect/activation mutation is the 1A negative proof | remain owned by their specified later stages; cannot support 1A green |
@@ -418,10 +418,10 @@ Stop this release and report `INCONCLUSIVE` if F-01 cannot be proven without tou
 | `scripts/lib/tmup-discovery.sh` | Resolve tmup's manifest-declared MCP entry while retaining the plugin root |
 | `scripts/crossmodel-preflight.sh` | Consume supported tmup discovery; no teardown or registry mutation in 1A |
 | `tests/test-crossmodel-preflight.sh` | Exercise manifest-declared, future-equivalent, missing, and escaping entries in isolated state |
-| `scripts/check-plugin-metadata.py` | Enforce plugin manifest as sole version authority and reject duplicate marketplace version |
+| `scripts/check-plugin-metadata.py` | Enforce plugin manifest as sole version authority, reject duplicate marketplace version, and require the schema-mandated marketplace description |
 | `scripts/check-repository-inventory.py` | Derive repository agent/skill counts and validate their documentation projections |
-| `.claude-plugin/marketplace.json` | Keep marketplace discovery metadata without a duplicate version |
-| `.claude/CLAUDE.md`, `README.md` | Correct 46/16 repository inventory and label README's 30-agent core subset |
+| `.claude-plugin/marketplace.json` | Keep described marketplace discovery metadata without a duplicate version |
+| `.claude/CLAUDE.md`, `README.md` | Correct 46/16 repository inventory and label README's 29-agent core subset |
 | `colony/run-tsx.sh` | Execute only `colony/node_modules/.bin/tsx`, failing clearly when absent |
 | `colony/package.json`, `colony/package-lock.json` | Pin exact `tsx` `4.23.1` and preserve Node `>=20 <24` |
 | `colony/vitest.config.ts` | Reject zero-test success |
@@ -1245,6 +1245,8 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
 ### Task 5: Establish Metadata and Inventory Authorities
 
+**Bounded implementation amendment (2026-07-14):** A live strict-schema probe found that version omission is valid, but the existing marketplace also lacks the top-level `description` required by `claude plugin validate --strict`. Git history and the README category grammar independently prove the claimed 30-name roster has contained 29 names since its introduction, when the whole agent tree also contained 29 files; no canonical thirtieth member exists. This single amendment adds the descriptive marketplace field and corrects the core-subset projection to 29. It does not reopen any other task or introduce another metadata authority.
+
 **Files:**
 - Create: `scripts/check-plugin-metadata.py`
 - Create: `scripts/check-repository-inventory.py`
@@ -1255,31 +1257,32 @@ Expected: tracked state is clean before and after; the commit contains exactly t
 
 **Interfaces:**
 - Produces: metadata check JSON containing `plugin_version` and `marketplace_version_authority`; inventory check JSON containing `repository_agents`, `repository_skills`, and `readme_core_agents`.
-- Authority: `.claude-plugin/plugin.json` remains unchanged at `10.0.0`; marketplace metadata contains no `version` key.
+- Authority: `.claude-plugin/plugin.json` remains unchanged at `10.0.0`; marketplace metadata contains a nonempty top-level description and no `version` key.
 
 - [ ] **Step 1: Write mutation-based metadata and inventory tests**
 
   Use `unittest.TemporaryDirectory` to copy the minimum manifest/docs/agent/skill fixture, invoke each checker with `--root`, and assert:
 
-  - current repository returns plugin `10.0.0`, 46 agent Markdown files, 16 top-level skill directories containing `SKILL.md`, and a README core subset count of 30;
+  - current repository returns plugin `10.0.0`, 46 agent Markdown files, 16 top-level skill directories containing `SKILL.md`, and a README core subset count of 29;
+  - removing the top-level marketplace description fails strict local metadata validation;
   - inserting marketplace version `4.0.0` fails;
   - removing one agent fails the documented projection;
   - changing `.claude/CLAUDE.md` back to `45 agents` fails;
-  - describing README's 30 names as the installed total fails.
+  - describing README's 29 names as the installed total fails.
 
 - [ ] **Step 2: Run tests and verify the known drift**
 
   Run `python3.12 -m unittest tests/test_metadata_inventory.py -v`.
 
-  Expected: failures cite marketplace `4.0.0` versus manifest `10.0.0`, documentation `45/15` versus repository `46/16`, and an unlabeled installed-total/core-subset ambiguity.
+  Expected: failures cite the missing marketplace description, marketplace `4.0.0` versus manifest `10.0.0`, documentation `45/15` versus repository `46/16`, and an unlabeled installed-total/core-subset ambiguity.
 
 - [ ] **Step 3: Implement read-only checkers and correct projections**
 
-  `check-plugin-metadata.py` must parse both JSON files, require a valid nonempty semantic version only in the plugin manifest, reject a `version` key in the matching marketplace plugin object, and emit that authoritative version in sorted JSON. The release test/verification row—not another operational metadata field—asserts the approved candidate value is `10.0.0`.
+  `check-plugin-metadata.py` must parse both JSON files, require a valid nonempty semantic version only in the plugin manifest, require a nonempty top-level marketplace description, reject a `version` key in the matching marketplace plugin object, and emit that authoritative version in sorted JSON. The release test/verification row—not another operational metadata field—asserts the approved candidate value is `10.0.0`.
 
-  `check-repository-inventory.py` must derive counts from bytes on disk, parse the two documented projections, require exact equality, count README's enumerated names, and require the heading/text to label those 30 as a `core-agent subset`. Runtime-loaded counts must be described as separate and must not be inferred by this script.
+  `check-repository-inventory.py` must derive counts from bytes on disk, parse the two documented projections, require exact equality, count README's enumerated names, and require the heading/text to label those 29 as a `core-agent subset`. Runtime-loaded counts must be described as separate and must not be inferred by this script.
 
-  Remove only the duplicate marketplace `version`; update `.claude/CLAUDE.md` from `15/45` to `16/46`; change `### Agents (30)` to `### Core-Agent Subset (30)` and add one sentence that the repository contains 46 agent files and 16 skill directories while runtime composition is separate.
+  Remove the duplicate marketplace `version` and add the schema-required top-level `description`; update `.claude/CLAUDE.md` from `15/45` to `16/46`; change `### Agents (30)` to `### Core-Agent Subset (29)` and add one sentence that the repository contains 46 agent files and 16 skill directories while runtime composition is separate.
 
 - [ ] **Step 4: Run strict schema, drift, and mutation checks**
 
@@ -1291,7 +1294,7 @@ Expected: tracked state is clean before and after; the commit contains exactly t
   claude plugin validate .claude-plugin/marketplace.json --strict
   ```
 
-  Expected: all commands exit `0`; plugin output reports `10.0.0`; inventory output reports `46`, `16`, and core subset `30`. If strict validation rejects version omission, stop and amend the plan to generate the marketplace version from the manifest; do not reintroduce an independent literal.
+  Expected: all commands exit `0`; plugin output reports `10.0.0`; inventory output reports `46`, `16`, and core subset `29`. The temporary probe proved strict validation accepts version omission once the required marketplace description exists. If either strict command still fails on candidate bytes, stop; do not reintroduce an independent version literal.
 
 - [ ] **Step 5: Commit authority corrections**
 
