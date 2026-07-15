@@ -8,6 +8,7 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "${SCRIPT_DIR}/lib/portable-shell.sh"
 PASS_COUNT=0
 FAIL_COUNT=0
 TOTAL=7
@@ -386,7 +387,7 @@ st05_deacon_lock_behavior() {
   echo "1000000000.0" >> "$lock_file"
 
   local db_path
-  db_path="$(mktemp --suffix=.db)"
+  db_path="$(make_temp_file sdlc-colony-db)"
   register_cleanup "$db_path"
 
   # Create minimal DB so Deacon can instantiate
@@ -433,7 +434,7 @@ st06_deacon_check_for_work() {
   echo "ST-06: Deacon check_for_work"
 
   local db_path
-  db_path="$(mktemp --suffix=.db)"
+  db_path="$(make_temp_file sdlc-colony-db)"
   register_cleanup "$db_path"
 
   # Create schema and insert a pending task with bead_id
@@ -480,7 +481,7 @@ st07_synthesize_trigger() {
   echo "ST-07: Synthesize trigger"
 
   local db_path
-  db_path="$(mktemp --suffix=.db)"
+  db_path="$(make_temp_file sdlc-colony-db)"
   register_cleanup "$db_path"
 
   # Create schema and insert terminal+synced tasks with bead_id
