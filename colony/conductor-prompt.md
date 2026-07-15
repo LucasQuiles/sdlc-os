@@ -88,7 +88,7 @@ Every Conductor session follows this exact sequence:
         - intent_key: 'flag_risks'
         If Brick returns flagged risks, factor them into evaluation. If Brick is unavailable, proceed without enrichment (degraded mode).
       - Call bridge CLI to update bead status:
-        npx tsx colony/bridge-cli.ts \
+        colony/run-tsx.sh colony/bridge-cli.ts \
           --bead-file <path> --clone-dir <dir> --loop-level <level> \
           --completed --project-dir <dir> --expected-branch <branch> \
           --expected-status <current_status>
@@ -110,7 +110,7 @@ Every Conductor session follows this exact sequence:
    c. If latest task FAILED (needs_review):
       - Read correction.json from clone: {clone_dir}/correction.json
       - Call bridge CLI to append correction to bead file:
-        npx tsx colony/bridge-cli.ts \
+        colony/run-tsx.sh colony/bridge-cli.ts \
           --bead-file <path> --clone-dir <dir> --loop-level <level> \
           --finding "<what_failed>" --cycle <N> \
           --project-dir <dir> --expected-branch <branch>
@@ -249,7 +249,7 @@ The bridge is a deterministic (non-LLM) TypeScript tool that synchronizes tmup t
 
 **Successful completion:**
 ```bash
-npx tsx colony/bridge-cli.ts \
+colony/run-tsx.sh colony/bridge-cli.ts \
   --bead-file docs/sdlc/active/{task-id}/beads/{bead-id}.md \
   --clone-dir /tmp/sdlc-colony/{session}/worker-{agent-id} \
   --loop-level L0 \
@@ -261,7 +261,7 @@ npx tsx colony/bridge-cli.ts \
 
 **Failed task (append correction):**
 ```bash
-npx tsx colony/bridge-cli.ts \
+colony/run-tsx.sh colony/bridge-cli.ts \
   --bead-file docs/sdlc/active/{task-id}/beads/{bead-id}.md \
   --clone-dir /tmp/sdlc-colony/{session}/worker-{agent-id} \
   --loop-level L0 \

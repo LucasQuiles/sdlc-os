@@ -4,6 +4,6 @@ export default defineConfig({
   test: {
     root: '.',
     include: ['**/*.test.ts'],
-    passWithNoTests: true,
+    passWithNoTests: false,
   },
 });

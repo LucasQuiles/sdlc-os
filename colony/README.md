@@ -183,7 +183,7 @@ The Bridge is a deterministic (no LLM) TypeScript module that synchronizes tmup 
 Successful completion:
 
 ```bash
-npx tsx colony/bridge-cli.ts \
+colony/run-tsx.sh colony/bridge-cli.ts \
   --bead-file docs/sdlc/active/{task-id}/beads/{bead-id}.md \
   --clone-dir /tmp/sdlc-colony/{session}/worker-{agent-id} \
   --loop-level L0 \
@@ -198,7 +198,7 @@ npx tsx colony/bridge-cli.ts \
 Failed task (append correction):
 
 ```bash
-npx tsx colony/bridge-cli.ts \
+colony/run-tsx.sh colony/bridge-cli.ts \
   --bead-file docs/sdlc/active/{task-id}/beads/{bead-id}.md \
   --clone-dir /tmp/sdlc-colony/{session}/worker-{agent-id} \
   --loop-level L0 \

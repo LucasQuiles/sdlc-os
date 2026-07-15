@@ -6,7 +6,7 @@
  * bridgeCommitBeadUpdate, and outputs JSON result.
  *
  * Usage:
- *   npx tsx bridge-cli.ts \
+ *   ./run-tsx.sh bridge-cli.ts \
  *     --bead-file path/to/bead.md \
  *     --clone-dir /tmp/sdlc-colony/session/worker-1 \
  *     --loop-level L0 \
@@ -18,7 +18,7 @@
  *     --db-path /path/to/tmup.db
  *
  * On failure (not completed):
- *   npx tsx bridge-cli.ts \
+ *   ./run-tsx.sh bridge-cli.ts \
  *     --bead-file path/to/bead.md \
  *     --clone-dir /tmp/sdlc-colony/session/worker-1 \
  *     --loop-level L0 \

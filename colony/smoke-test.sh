@@ -135,7 +135,7 @@ st01_bridge_cli_roundtrip() {
   write_bead_output "$clone" "yes"
 
   local output exit_code
-  output="$(npx tsx "${SCRIPT_DIR}/bridge-cli.ts" \
+  output="$("$SCRIPT_DIR/run-tsx.sh" "${SCRIPT_DIR}/bridge-cli.ts" \
     --bead-file "$bead_file" \
     --clone-dir "$clone" \
     --loop-level L0 \
@@ -192,7 +192,7 @@ st02_bridge_rejects_missing_sentinel() {
   write_bead_output "$clone" "no"
 
   local output exit_code
-  output="$(npx tsx "${SCRIPT_DIR}/bridge-cli.ts" \
+  output="$("$SCRIPT_DIR/run-tsx.sh" "${SCRIPT_DIR}/bridge-cli.ts" \
     --bead-file "$bead_file" \
     --clone-dir "$clone" \
     --loop-level L0 \
@@ -236,7 +236,7 @@ st03_bridge_cas_rejection() {
   write_bead_output "$clone" "yes"
 
   local output exit_code
-  output="$(npx tsx "${SCRIPT_DIR}/bridge-cli.ts" \
+  output="$("$SCRIPT_DIR/run-tsx.sh" "${SCRIPT_DIR}/bridge-cli.ts" \
     --bead-file "$bead_file" \
     --clone-dir "$clone" \
     --loop-level L0 \

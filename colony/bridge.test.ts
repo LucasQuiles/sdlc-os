@@ -824,8 +824,8 @@ describe('bridge-cli elapsed_ms', () => {
     let output: string;
     try {
       output = execFileSync(
-        'npx',
-        ['tsx', join(__dirname, 'bridge-cli.ts'),
+        join(__dirname, 'run-tsx.sh'),
+        [join(__dirname, 'bridge-cli.ts'),
           '--bead-file', beadPath,
           '--clone-dir', cloneDir,
           '--loop-level', '',
