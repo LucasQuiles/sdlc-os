@@ -1332,6 +1332,46 @@ class DurabilityContainmentPrivacyTests(VerificationRunnerCase):
 
 
 class CommittedAuthorityTests(VerificationRunnerCase):
+    def test_python_unit_rows_disable_repository_bytecode(self):
+        manifest = json.loads(
+            (PROJECT_ROOT / "verification" / "manifest.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        rows = {row["check_id"]: row for row in manifest["checks"]}
+        expected = {
+            "s1a-metadata-unit",
+            "s1a-verification-runner-contracts",
+        }
+        declared = {
+            row["check_id"]
+            for row in manifest["checks"]
+            if row["environment"].get("PYTHONDONTWRITEBYTECODE") == "1"
+        }
+        self.assertEqual(declared, expected)
+        for check_id in expected:
+            with self.subTest(check_id=check_id):
+                self.assertEqual(
+                    rows[check_id]["environment"].get("PYTHONDONTWRITEBYTECODE"),
+                    "1",
+                )
+
+    def test_p27_35_cross_platform_finding_is_recorded_for_candidate_replay(self):
+        inventory = json.loads(
+            (PROJECT_ROOT / "verification" / "baseline-inventory.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        finding = next(
+            (item for item in inventory["items"] if item["stable_id"] == "P27-35"),
+            None,
+        )
+        self.assertIsNotNone(finding, "P27-35 is missing from the baseline inventory")
+        self.assertEqual(finding["affected_stage_release"], "1A")
+        self.assertEqual(finding["disposition"], "OWNER_ACCEPTED_CORRECTION_1")
+        self.assertEqual(finding["current_verdict"], "INCONCLUSIVE")
+        self.assertIn("macOS and Linux", finding["closure_proof"])
+
     def test_authority_files_validate_and_deferred_commands_stay_out(self):
         verification = PROJECT_ROOT / "verification"
         files = {
@@ -1418,6 +1458,7 @@ class CommittedAuthorityTests(VerificationRunnerCase):
                 "runner",
             ],
         )
+        self.assertEqual(vitest_row["expected_observation"]["min_count"], 154)
         tooling_source = (PROJECT_ROOT / "tests/test-colony-tooling.sh").read_text(
             encoding="utf-8"
         )
@@ -1522,14 +1563,28 @@ class CommittedAuthorityTests(VerificationRunnerCase):
             python_index = tokens.index("python3.12")
             self.assertEqual(tokens[python_index + 1], "scripts/run-verification.py")
             argv = tokens[python_index:]
-            return RUNNER.build_parser().parse_args(argv[2:]), argv
+            return (
+                RUNNER.build_parser().parse_args(argv[2:]),
+                argv,
+                tokens[:python_index],
+            )
 
-        release_args, release_command = parse_readme_command("Run Release 1A")
+        release_args, macos_release_command, _ = parse_readme_command("Run Release 1A")
         self.assertEqual(release_args.stage, "1A")
         self.assertEqual(release_args.platform, "macos")
         self.assertEqual(release_args.run_id, "$RUN_ID")
         self.assertEqual(release_args.results_dir, ".verification-results/$RUN_ID")
-        review_args, review_command = parse_readme_command("Validate a Review Result")
+        linux_args, linux_release_command, linux_prefix = parse_readme_command(
+            "Run Release 1A on Linux"
+        )
+        self.assertEqual(linux_args.stage, "1A")
+        self.assertEqual(linux_args.platform, "linux")
+        self.assertEqual(linux_args.run_id, "$RUN_ID")
+        self.assertEqual(linux_args.results_dir, ".verification-results/$RUN_ID")
+        self.assertIn("TMPDIR=/tmp", linux_prefix)
+        review_args, review_command, _ = parse_readme_command(
+            "Validate a Review Result"
+        )
         self.assertEqual(
             review_args.validate_review_result,
             ".verification-results/<candidate>-reviews/independent.json",
@@ -1541,6 +1596,11 @@ class CommittedAuthorityTests(VerificationRunnerCase):
         (scripts_dir / "run-verification.py").write_bytes(RUNNER_PATH.read_bytes())
         self.repo.write_manifest(self.repo.base_manifest())
         run_id = f"readme-example-{os.getpid()}"
+        release_command = (
+            macos_release_command
+            if CURRENT_PLATFORM == "macos"
+            else linux_release_command
+        )
         executable_release = [
             token.replace("$RUN_ID", run_id) for token in release_command
         ]
@@ -1548,6 +1608,8 @@ class CommittedAuthorityTests(VerificationRunnerCase):
         example_environment["PATH"] = (
             f"/opt/homebrew/opt/node@20/bin:{example_environment['PATH']}"
         )
+        if CURRENT_PLATFORM == "linux":
+            example_environment["TMPDIR"] = "/tmp"
         release_result = subprocess.run(
             executable_release,
             cwd=self.repo.root,

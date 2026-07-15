@@ -1118,7 +1118,9 @@
       "check_id": "s1a-metadata-unit",
       "stage": "1A",
       "working_directory": ".",
-      "environment": {},
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
       "platforms": [
         "macos",
         "linux"
@@ -1464,7 +1466,7 @@
         "type": "test_count_regex",
         "stream": "stdout",
         "pattern": "(?m)^[ \\t]*Tests[ \\t]+([0-9]+)[ \\t]+passed[ \\t]+\\(\\1\\)[ \\t]*$",
-        "min_count": 153
+        "min_count": 154
       },
       "negative_falsifier": "A zero-test, under-counted, or failing Vitest run cannot pass; existing stderr debt remains visible in 1C.",
       "independence_requirement": "author-executable; non-author reproduction required at the release gate",
@@ -1489,7 +1491,9 @@
       "check_id": "s1a-verification-runner-contracts",
       "stage": "1A",
       "working_directory": ".",
-      "environment": {},
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
       "platforms": [
         "macos",
         "linux"
@@ -1506,7 +1510,7 @@
         "type": "test_count_regex",
         "stream": "stderr",
         "pattern": "(?m)^Ran ([0-9]+) tests? in [0-9.]+s$",
-        "min_count": 38
+        "min_count": 40
       },
       "negative_falsifier": "Any false pass, unsafe manifest, masked exit, missing artifact, durability fault, survivor, or authority drift fails.",
       "independence_requirement": "author-executable; non-author reproduction required at the release gate",

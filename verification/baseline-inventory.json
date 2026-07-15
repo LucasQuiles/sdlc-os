@@ -887,6 +887,29 @@
       "closure_proof": "Bash -n, ShellCheck, test-integrity with --fail-on-advisory, and the committed F-01 authority test all exit zero"
     },
     {
+      "stable_id": "P27-35",
+      "class": "cross-platform verification fixture and runbook conformance",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "F-01",
+        "S1-02",
+        "S1-04",
+        "S1-05",
+        "S1-07"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before a second Linux candidate replay or reviewer dispatch",
+      "evidence": "Candidate 8ebe99ec9c6c9210161562ec5cb38ce53dcff0bd passed 34/34 macOS rows; Linux attempt run SHA-256 8e712d2dc8be8800ad512ac6e56cc6ab658ea7155ed3a0f0a0b46e8cda2b265e reported 16 PASS, 14 FAIL, and 4 NOT_APPLICABLE across four environment-sensitive test boundaries",
+      "rationale": "Release 1A requires the same mechanical candidate to produce unmasked applicable-row evidence on both required platforms",
+      "mitigation": "Use a readable Linux /tmp base, suppress repository bytecode in the two Python unit rows, replay the documented command for the detected host, and initialize test-only Git repositories explicitly on main without changing production behavior or applicability",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "OWNER_ACCEPTED_CORRECTION_1",
+      "review_date": "2026-07-15",
+      "closure_proof": "Fresh macOS and Linux candidate manifests plus focused red/green receipts must pass before the finding is admitted as closed"
+    },
+    {
       "stable_id": "BASE-1A-001",
       "class": "baseline_defect",
       "severity": "MATERIAL",

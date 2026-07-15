@@ -27,7 +27,23 @@ PATH="/opt/homebrew/opt/node@20/bin:$PATH" \
     --results-dir ".verification-results/$RUN_ID"
 ```
 
-Use the same committed candidate, manifest bytes, and a unique `RUN_ID` on Linux. Transfer an immutable Git bundle or archive, verify its digest and candidate SHA before execution, and copy the complete protected result tree back without changing modes. A platform, dependency, transfer, or hash failure is `INCONCLUSIVE`, never a macOS-only pass.
+## Run Release 1A on Linux
+
+Use the same committed candidate and manifest bytes on the authorized Linux x86_64 verification host. `/tmp` must be a readable, writable, and traversable directory for the verification user; the explicit temp base keeps descriptor-held F-01 evidence traversable independently of a login manager's private temp hierarchy.
+
+```bash
+test -d /tmp && test -r /tmp && test -w /tmp && test -x /tmp
+RUN_ID="$(git rev-parse --short=12 HEAD)-linux-$(date -u +%Y%m%dT%H%M%SZ)-$$"
+TMPDIR=/tmp \
+  python3.12 scripts/run-verification.py \
+    --manifest verification/manifest.json \
+    --stage 1A \
+    --platform linux \
+    --run-id "$RUN_ID" \
+    --results-dir ".verification-results/$RUN_ID"
+```
+
+Transfer an immutable Git bundle, verify its digest and candidate SHA before execution, and copy the complete protected result tree back without changing modes. A platform, dependency, transfer, or hash failure is `INCONCLUSIVE`, never a macOS-only pass.
 
 The command prints `RUN_SHA256=<digest>` only after `run.json` is durably written, fsynced, atomically admitted, and read back. Validate the printed digest against the retained file before using the result.
 

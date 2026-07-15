@@ -35,8 +35,12 @@ function writeValidOutput(cloneDir: string): void {
  * Initialize a git repo with an initial commit and a remote "origin"
  * pointing at a bare clone, so origin/main exists for SC-COL-26 checks.
  */
+function initGitRepoOnMain(dir: string): void {
+  execFileSync('git', ['init', '-b', 'main', dir], { encoding: 'utf-8' });
+}
+
 function initGitRepoWithOrigin(dir: string): void {
-  execFileSync('git', ['init', dir], { encoding: 'utf-8' });
+  initGitRepoOnMain(dir);
   execFileSync('git', ['-C', dir, 'config', 'user.email', 'test@test.com'], { encoding: 'utf-8' });
   execFileSync('git', ['-C', dir, 'config', 'user.name', 'Test'], { encoding: 'utf-8' });
   const readmePath = join(dir, 'README.md');
@@ -50,6 +54,30 @@ function initGitRepoWithOrigin(dir: string): void {
   execFileSync('git', ['-C', dir, 'remote', 'add', 'origin', bareDir], { encoding: 'utf-8' });
   execFileSync('git', ['-C', dir, 'fetch', 'origin'], { encoding: 'utf-8' });
 }
+
+describe('git test fixtures', () => {
+  it('initializes main independently of the configured default branch', () => {
+    const repoDir = makeTmpDir();
+    const configDir = makeTmpDir();
+    const priorGlobalConfig = process.env.GIT_CONFIG_GLOBAL;
+    process.env.GIT_CONFIG_GLOBAL = join(configDir, 'gitconfig');
+    try {
+      execFileSync('git', ['config', '--global', 'init.defaultBranch', 'master'], { encoding: 'utf-8' });
+      initGitRepoWithOrigin(repoDir);
+      const branch = execFileSync('git', ['-C', repoDir, 'branch', '--show-current'], { encoding: 'utf-8' });
+      expect(branch.trim()).toBe('main');
+    } finally {
+      if (priorGlobalConfig === undefined) {
+        delete process.env.GIT_CONFIG_GLOBAL;
+      } else {
+        process.env.GIT_CONFIG_GLOBAL = priorGlobalConfig;
+      }
+      rmSync(repoDir, { recursive: true, force: true });
+      rmSync(repoDir + '-bare', { recursive: true, force: true });
+      rmSync(configDir, { recursive: true, force: true });
+    }
+  });
+});
 
 const RUNNING_BEAD = `# Bead
 
@@ -421,7 +449,7 @@ describe('bridgeUpdateBead', () => {
 
   it('SC-COL-26: fails when clone has no origin remote (unresolvable ref)', () => {
     // Init git repo WITHOUT any remote -- verifyCloneHasCommits should return valid: false
-    execFileSync('git', ['init', cloneDir], { encoding: 'utf-8' });
+    initGitRepoOnMain(cloneDir);
     execFileSync('git', ['-C', cloneDir, 'config', 'user.email', 'test@test.com'], { encoding: 'utf-8' });
     execFileSync('git', ['-C', cloneDir, 'config', 'user.name', 'Test'], { encoding: 'utf-8' });
     writeFileSync(join(cloneDir, 'README.md'), '# Test\n', 'utf-8');
@@ -472,7 +500,7 @@ describe('bridgeCommitBeadUpdate', () => {
   beforeEach(() => {
     projectDir = makeTmpDir();
     // Initialize git repo
-    execFileSync('git', ['init', projectDir], { encoding: 'utf-8' });
+    initGitRepoOnMain(projectDir);
     execFileSync('git', ['-C', projectDir, 'config', 'user.email', 'test@test.com'], { encoding: 'utf-8' });
     execFileSync('git', ['-C', projectDir, 'config', 'user.name', 'Test'], { encoding: 'utf-8' });
     // Create initial commit so HEAD exists
@@ -953,7 +981,7 @@ describe('bridge event emission', () => {
     // Set up a git repo inside sessionDir so dirname(projectDir) = sessionDir
     const projectDir = join(sessionDir, 'project');
     mkdirSync(projectDir, { recursive: true });
-    execFileSync('git', ['init', projectDir], { encoding: 'utf-8' });
+    initGitRepoOnMain(projectDir);
     execFileSync('git', ['-C', projectDir, 'config', 'user.email', 'test@test.com'], { encoding: 'utf-8' });
     execFileSync('git', ['-C', projectDir, 'config', 'user.name', 'Test'], { encoding: 'utf-8' });
     writeFileSync(join(projectDir, 'README.md'), '# Test\n', 'utf-8');
@@ -1103,7 +1131,7 @@ describe('bridge event emission', () => {
   it('writes commit_created events to the dbPath inbox instead of the project parent', () => {
     const projectDir = join(sessionDir, 'project');
     mkdirSync(projectDir, { recursive: true });
-    execFileSync('git', ['init', projectDir], { encoding: 'utf-8' });
+    initGitRepoOnMain(projectDir);
     execFileSync('git', ['-C', projectDir, 'config', 'user.email', 'test@test.com'], { encoding: 'utf-8' });
     execFileSync('git', ['-C', projectDir, 'config', 'user.name', 'Test'], { encoding: 'utf-8' });
     writeFileSync(join(projectDir, 'README.md'), '# Test\n', 'utf-8');
