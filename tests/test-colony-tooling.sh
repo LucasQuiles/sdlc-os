@@ -188,7 +188,8 @@ check_empty_vitest_suite() {
   set +e
   (
     cd "$empty_root" || exit 125
-    "$VITEST_BIN" run --config "$COLONY_ROOT/vitest.config.ts"
+    "$VITEST_BIN" run --no-cache --configLoader runner \
+      --config "$COLONY_ROOT/vitest.config.ts"
   ) >"$stdout_file" 2>"$stderr_file"
   rc=$?
   set -e
