@@ -1358,6 +1358,7 @@ Owner scope correction: Task 3 contains only the two `du -sb` replacements and t
 - Create: `verification/review-result.schema.json`
 - Create: `scripts/run-verification.py`
 - Create: `tests/test_verification_runner.py`
+- Modify: `tests/test-sdlc-dispatch-isolation.sh`
 - Modify: `.gitignore`
 
 **Interfaces:**
@@ -1367,6 +1368,8 @@ Owner scope correction: Task 3 contains only the two `du -sb` replacements and t
 - Path contract: manifest, cwd, executable-with-slash, artifacts, and a previously nonexistent relative `--results-dir` resolve physically beneath the repository; `run-id` is one safe path segment; symlink/traversal/overwrite attempts fail before execution.
 - Environment/tool contract: before isolation, resolve every row's declared `required_tools` from the operator-supplied acquisition `PATH`, fingerprint them, build a runner-owned PATH from only their canonical parent directories plus `/usr/bin:/bin`, and replace `command[0]` with the already-resolved absolute executable. Child state then adds `LC_ALL=C`, `LANG=C`, `TZ=UTC`, per-check isolated `HOME`/`TMPDIR`, and only declared non-secret overrides; reserved keys (`PATH`, `HOME`, `TMPDIR`, locale/timezone keys) cannot be overridden. Manifest values may use only runner-owned `${REPO_ROOT}`, `${HOST_HOME}`, `${CHECK_HOME}`, and `${CHECK_TMPDIR}` substitutions; `HOST_HOME` comes from the OS account database before isolation, not ambient `HOME`. The exact expanded environment is a protected mode-`0600` local artifact; admitted receipts store only declared tokenized values, sanitized descriptors, and that artifact's hash.
 - Platform contract: detect and record kernel OS and architecture; `--platform` is an assertion, not an override. A mismatch exits `64`. Zero selected checks exits `64`; a selected release with no executed mandatory row is aggregate `INCONCLUSIVE`, never vacuous success.
+
+Implementation finding `P27-31` consolidates three executable conformance gaps found after the first complete runner suite: summary-admission wording did not distinguish truthful row evidence from an admitted aggregate; F-01 compared validator fingerprints internally without exporting their values into a receipt-bound stream; and README examples were parser-checked but not executed. Resolve it once in this task by retaining truthful orphan row receipts while forbidding `run.json`/digest admission on summary failure, emitting and regex-validating source/decoy/installed fingerprint values in the direct F-01 row, and executing the release example in a temporary Git repository while proving the review example fails at its documented missing-review precondition. No further prose review pass follows this amendment; the focused regressions, full suite, and development manifest are the oracle.
 
 - [ ] **Step 1: Write runner contract tests first**
 
@@ -1386,13 +1389,14 @@ Owner scope correction: Task 3 contains only the two `du -sb` replacements and t
   - an explicitly declared `inconclusive_exit_codes` value such as F-01's `3` yields `INCONCLUSIVE`; undeclared nonzero remains `FAIL` and cannot overlap `expected_exit`;
   - dirty source is recorded, a row requiring `clean_source: true` cannot pass, and any child-created tracked change or unignored path makes that row non-pass even when the child exits zero;
   - result directories/files use `0700`/`0600`; structured receipts/summaries never contain synthetic secret canaries, exact private environment values, or raw subprocess content; protected `environment.json` retains exact local replay bytes and is excluded from reviewer projections;
-  - read-only parent, permission denial, injected `ENOSPC`, short/partial write, failed flush/fsync/rename, and summary-write failure never emit `PASS` and cause exit `70` with the most complete protected partial evidence possible;
+  - read-only parent, permission denial, injected `ENOSPC`, short/partial write, failed flush/fsync/rename, and summary-write failure never admit or emit an aggregate `PASS`, never write/print a validated `run.json` digest, and cause exit `70`; already durable row receipts retain their truthful row verdicts as explicitly unadmitted protected partial evidence;
   - wall-clock jumps do not create negative or false durations because elapsed time uses `time.monotonic_ns()`; UTC wall timestamps remain labels only.
   - a child swapping a result path to a symlink cannot redirect writes: the runner retains directory descriptors, uses no-follow relative opens/replaces, and revalidates device/inode/ancestry before admission;
   - runner-owned `stdout`, `stderr`, `environment`, and `receipt` are distinct from row `required_artifacts`; check-produced artifacts must be regular no-follow files beneath `${CHECK_TMPDIR}`, satisfy declared type/size bounds, and are copied/hash-verified only after process termination;
   - manifest rows are bounded to 256 argv elements, 8 KiB per argument/value, timeout `1..1800` seconds, 16 MiB per raw stream/artifact, and 1 MiB regex/JSON observation input; a 100 ms monitor terminates the process group on overflow with `VERIFY_OUTPUT_LIMIT` and non-pass;
   - every authority/receipt JSON rejects malformed/truncated UTF-8, duplicate keys, NaN/Infinity, unknown/future schema versions, nesting deeper than 16, encoded input larger than 1 MiB, strings larger than 64 KiB, or containers larger than 4096 members; deterministic encoding is sorted UTF-8 with compact separators and `allow_nan=False`;
   - `verification/README.md` examples and `--help` output are parsed by the real CLI parser, and every copy-paste example either exits at its documented precondition or runs successfully in a temporary repository.
+  - the direct F-01 row enables an explicit fingerprint-output mode and regex-validates source, decoy, and installed validator SHA-256 values before its pass marker; the runner-owned stdout hash binds those values to the row receipt. Installed absence is the only allowed `NOT_APPLICABLE` fingerprint value.
 
 - [ ] **Step 2: Run the tests and verify the runner is absent**
 
@@ -1439,7 +1443,7 @@ Owner scope correction: Task 3 contains only the two `du -sb` replacements and t
 
   Capture pre/post commit and `git status --porcelain --untracked-files=all`; ignored result files are permitted, but any other child-created change is non-pass. Pre/post hash the protected ignored `artifacts/` tree and every manifest-declared ignored dependency fingerprint; the active result directory alone is allowed to change. This is mutation detection for reviewed checks, not sandbox isolation. Each receipt contains command, resolved executable/tool fingerprints, cwd, tokenized declared environment plus protected-environment hash, applicability, start/end UTC, monotonic duration, true exit/signal/timeout/background state, execution state, verdict/reason/error code, stdout/stderr relative paths/modes/sizes/hashes, pre/post source/protected-ignored state, detected OS/architecture, Python/Node/Git versions, full manifest hash, requirement-catalog hash, runner source/version hash, manifest-row hash, and candidate SHA.
 
-  Flush and `fsync` raw stdout/stderr/environment/check-artifact copies before hashing them. Write receipts and `run.json` as mode-`0600` temporary siblings, flush, `fsync`, then atomically replace them relative to the retained directory descriptor; fsync the containing directory before admission. A write/flush/rename/inode-validation failure returns `70`, never prints a success digest, and retains only protected partial evidence. The summary enumerates the complete selected, executed, not-run, not-applicable, and rejected check universe plus hashes and sanitized bounded diagnostics, never raw streams or private host/path values; its own SHA-256 is printed only after readback validation.
+  Flush and `fsync` raw stdout/stderr/environment/check-artifact copies before hashing them. Write receipts and `run.json` as mode-`0600` temporary siblings, flush, `fsync`, then atomically replace them relative to the retained directory descriptor; fsync the containing directory before admission. A write/flush/rename/inode-validation failure returns `70`, never prints a success digest, and may retain already durable truthful row receipts as unadmitted protected partial evidence; without a validated `run.json` and matching printed digest, no row receipt can authorize an aggregate result. The summary enumerates the complete selected, executed, not-run, not-applicable, and rejected check universe plus hashes and sanitized bounded diagnostics, never raw streams or private host/path values; its own SHA-256 is printed only after readback validation.
 
 - [ ] **Step 5: Create the Stage 1A manifest and honest baseline inventories**
 
@@ -1480,7 +1484,7 @@ Owner scope correction: Task 3 contains only the two `du -sb` replacements and t
 
   ```bash
   git diff --check
-  git add .gitignore verification/manifest.json verification/README.md verification/error-catalog.json verification/baseline-inventory.json verification/review-state.json verification/review-result.schema.json scripts/run-verification.py tests/test_verification_runner.py
+  git add .gitignore verification/manifest.json verification/README.md verification/error-catalog.json verification/baseline-inventory.json verification/review-state.json verification/review-result.schema.json scripts/run-verification.py tests/test-sdlc-dispatch-isolation.sh tests/test_verification_runner.py
   git diff --cached --check
   git commit -m "feat: add hermetic verification runner"
   ```
