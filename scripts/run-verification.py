@@ -44,6 +44,8 @@ MAX_STREAM_BYTES = 16 * 1024 * 1024
 MAX_OBSERVATION_BYTES = 1024 * 1024
 MONITOR_SECONDS = 0.1
 MONITOR_TOOL_TIMEOUT_SECONDS = 2.0
+MONITOR_TOOL_ATTEMPTS = 3
+MONITOR_TOOL_RETRY_SECONDS = 0.05
 TERM_GRACE_SECONDS = 2.0
 KILL_GRACE_SECONDS = 2.0
 
@@ -1576,23 +1578,37 @@ def _process_start_identity(pid: int) -> tuple[int, str] | None:
 
 
 def _ownership_holders(lsof: Path, lease_path: Path) -> dict[int, tuple[int, str]]:
-    try:
-        result = subprocess.run(
-            [str(lsof), "-nP", "-Fpn", "--", str(lease_path)],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False,
-            env={"PATH": "/usr/bin:/bin", "LC_ALL": "C", "LANG": "C"},
-            timeout=MONITOR_TOOL_TIMEOUT_SECONDS,
-        )
-    except subprocess.TimeoutExpired as error:
-        raise VerificationError(
-            "VERIFY_BACKGROUND_PROCESS", "process ownership inventory timed out", 3
-        ) from error
-    if result.returncode != 0:
+    result = None
+    last_timeout = None
+    for attempt in range(MONITOR_TOOL_ATTEMPTS):
+        try:
+            result = subprocess.run(
+                [str(lsof), "-nP", "-Fpn", "--", str(lease_path)],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+                env={"PATH": "/usr/bin:/bin", "LC_ALL": "C", "LANG": "C"},
+                timeout=MONITOR_TOOL_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired as error:
+            last_timeout = error
+        else:
+            if result.returncode == 0:
+                break
+            last_timeout = None
+        if attempt + 1 < MONITOR_TOOL_ATTEMPTS:
+            time.sleep(MONITOR_TOOL_RETRY_SECONDS)
+    else:
+        if last_timeout is not None:
+            raise VerificationError(
+                "VERIFY_BACKGROUND_PROCESS",
+                "process ownership inventory timed out",
+                3,
+            ) from last_timeout
         raise VerificationError(
             "VERIFY_BACKGROUND_PROCESS", "process ownership inventory failed", 3
         )
+    assert result is not None
     pids = set()
     for line in result.stdout.decode("utf-8", errors="strict").splitlines():
         if not line.startswith("p"):

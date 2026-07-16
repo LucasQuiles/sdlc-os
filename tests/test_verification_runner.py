@@ -1269,12 +1269,100 @@ class ProcessLifecycleTests(VerificationRunnerCase):
             RUNNER.subprocess,
             "run",
             side_effect=subprocess.TimeoutExpired(["lsof"], 2),
-        ):
+        ) as run:
             with self.assertRaises(RUNNER.VerificationError) as raised:
                 RUNNER._ownership_holders(
                     Path("/usr/sbin/lsof"), Path("/tmp/owner.sock")
                 )
         self.assertEqual(raised.exception.code, "VERIFY_BACKGROUND_PROCESS")
+        self.assertEqual(run.call_count, 3)
+
+    def test_process_monitor_transient_timeout_retries_before_observing_holders(self):
+        runner_pid = os.getpid()
+        observed = subprocess.CompletedProcess(
+            ["lsof"], 0, stdout=f"p{runner_pid}\n".encode(), stderr=b""
+        )
+        with mock.patch.object(
+            RUNNER.subprocess,
+            "run",
+            side_effect=[subprocess.TimeoutExpired(["lsof"], 2), observed],
+        ) as run:
+            with mock.patch.object(
+                RUNNER,
+                "_process_start_identity",
+                return_value=(os.getuid(), "runner-start"),
+            ):
+                holders = RUNNER._ownership_holders(
+                    Path("/usr/sbin/lsof"), Path("/tmp/owner.sock")
+                )
+        self.assertEqual(holders, {runner_pid: (os.getuid(), "runner-start")})
+        self.assertEqual(run.call_count, 2)
+
+    def test_process_monitor_transient_nonzero_retries_before_observing_holders(self):
+        runner_pid = os.getpid()
+        failed = subprocess.CompletedProcess(
+            ["lsof"], 1, stdout=b"", stderr=b"transient inventory failure"
+        )
+        observed = subprocess.CompletedProcess(
+            ["lsof"], 0, stdout=f"p{runner_pid}\n".encode(), stderr=b""
+        )
+        with mock.patch.object(
+            RUNNER.subprocess, "run", side_effect=[failed, observed]
+        ) as run:
+            with mock.patch.object(
+                RUNNER,
+                "_process_start_identity",
+                return_value=(os.getuid(), "runner-start"),
+            ):
+                holders = RUNNER._ownership_holders(
+                    Path("/usr/sbin/lsof"), Path("/tmp/owner.sock")
+                )
+        self.assertEqual(holders, {runner_pid: (os.getuid(), "runner-start")})
+        self.assertEqual(run.call_count, 2)
+
+    def test_process_monitor_persistent_nonzero_exhausts_bounded_retries(self):
+        failed = subprocess.CompletedProcess(
+            ["lsof"], 1, stdout=b"", stderr=b"persistent inventory failure"
+        )
+        with mock.patch.object(RUNNER.subprocess, "run", return_value=failed) as run:
+            with self.assertRaises(RUNNER.VerificationError) as raised:
+                RUNNER._ownership_holders(
+                    Path("/usr/sbin/lsof"), Path("/tmp/owner.sock")
+                )
+        self.assertEqual(raised.exception.code, "VERIFY_BACKGROUND_PROCESS")
+        self.assertEqual(run.call_count, 3)
+
+    def test_process_monitor_malformed_success_does_not_retry(self):
+        malformed = subprocess.CompletedProcess(
+            ["lsof"], 0, stdout=b"pnot-a-pid\n", stderr=b""
+        )
+        with mock.patch.object(RUNNER.subprocess, "run", return_value=malformed) as run:
+            with self.assertRaises(RUNNER.VerificationError) as raised:
+                RUNNER._ownership_holders(
+                    Path("/usr/sbin/lsof"), Path("/tmp/owner.sock")
+                )
+        self.assertEqual(raised.exception.code, "VERIFY_BACKGROUND_PROCESS")
+        self.assertIn("malformed", str(raised.exception))
+        self.assertEqual(run.call_count, 1)
+
+    def test_process_monitor_missing_runner_lease_does_not_retry(self):
+        other_pid = os.getpid() + 10_000
+        observed = subprocess.CompletedProcess(
+            ["lsof"], 0, stdout=f"p{other_pid}\n".encode(), stderr=b""
+        )
+        with mock.patch.object(RUNNER.subprocess, "run", return_value=observed) as run:
+            with mock.patch.object(
+                RUNNER,
+                "_process_start_identity",
+                return_value=(os.getuid(), "other-start"),
+            ):
+                with self.assertRaises(RUNNER.VerificationError) as raised:
+                    RUNNER._ownership_holders(
+                        Path("/usr/sbin/lsof"), Path("/tmp/owner.sock")
+                    )
+        self.assertEqual(raised.exception.code, "VERIFY_BACKGROUND_PROCESS")
+        self.assertIn("runner ownership lease is unobservable", str(raised.exception))
+        self.assertEqual(run.call_count, 1)
 
     def test_process_holder_with_unreadable_identity_fails_closed(self):
         runner_pid = os.getpid()
@@ -1291,7 +1379,9 @@ class ProcessLifecycleTests(VerificationRunnerCase):
                 return os.getuid(), "runner-start"
             return None
 
-        with mock.patch.object(RUNNER.subprocess, "run", return_value=lsof_result):
+        with mock.patch.object(
+            RUNNER.subprocess, "run", return_value=lsof_result
+        ) as run:
             with mock.patch.object(
                 RUNNER, "_process_start_identity", side_effect=identity_for
             ):
@@ -1301,6 +1391,7 @@ class ProcessLifecycleTests(VerificationRunnerCase):
                     )
         self.assertEqual(raised.exception.code, "VERIFY_BACKGROUND_PROCESS")
         self.assertIn("identity is unavailable", str(raised.exception))
+        self.assertEqual(run.call_count, 1)
 
     def test_darwin_process_identity_timeout_fails_closed(self):
         with mock.patch.object(RUNNER.platform, "system", return_value="Darwin"):
@@ -1529,7 +1620,7 @@ class CommittedAuthorityTests(VerificationRunnerCase):
             )
         )
         findings = {item["stable_id"]: item for item in inventory["items"]}
-        for stable_id in ("P27-35", "P27-36", "P27-37", "P27-38"):
+        for stable_id in ("P27-35", "P27-36", "P27-37", "P27-38", "P27-40"):
             with self.subTest(stable_id=stable_id):
                 finding = findings[stable_id]
                 self.assertEqual(finding["affected_stage_release"], "1A")

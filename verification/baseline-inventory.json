@@ -907,7 +907,7 @@
       "current_verdict": "PASS",
       "disposition": "RESOLVED_1A",
       "review_date": "2026-07-15",
-      "closure_proof": "Fresh macOS and Linux candidate manifests plus focused red/green receipts must pass before the finding is admitted as closed"
+      "closure_proof": "The recorded macOS and Linux candidate manifests passed every applicable row and both complete result trees passed fail-closed validation"
     },
     {
       "stable_id": "P27-36",
@@ -988,6 +988,26 @@
       "disposition": "ACCEPTED_RESIDUAL_DEFERRED_TO_1C",
       "review_date": "2026-07-15",
       "closure_proof": "Threat-model decision plus adversarial proof of OS-level containment or an owner-approved time-bounded exception"
+    },
+    {
+      "stable_id": "P27-40",
+      "class": "transient ownership inventory false inconclusive",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-07",
+        "AP-11"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before the second and final Release 1A independent-review cycle",
+      "evidence": "The first independent review reproduced four VERIFY_BACKGROUND_PROCESS rows across two fresh macOS runs when canonical lsof returned transient nonzero results despite zero escaped descendants; focused red/green tests cover timeout/nonzero recovery, persistent exhaustion, malformed output, missing runner lease, and unreadable identity",
+      "rationale": "A single transient monitor-tool failure made clean reviewed commands unreproducible while correctly avoiding a false pass",
+      "mitigation": "Retry only lsof timeouts and nonzero exits at most three times, discard failed-attempt output, and accept only a complete successful inventory; keep every ambiguity after successful observation immediately fail-closed",
+      "current_verdict": "PASS",
+      "disposition": "RESOLVED_1A",
+      "review_date": "2026-07-15",
+      "closure_proof": "The 54-case runner suite proves transient timeout/nonzero recovery and proves persistent, malformed, missing-runner, unreadable-identity, and identity-drift outcomes remain non-pass; the release gate separately binds those bytes to clean candidate and reviewer receipts"
     },
     {
       "stable_id": "BASE-1A-001",
