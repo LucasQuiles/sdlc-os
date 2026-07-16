@@ -4,8 +4,12 @@
 # exit code + stderr against saved golden outputs.
 set -euo pipefail
 
-DISPATCH="$HOME/LAB/sdlc-os/hooks/sdlc-dispatch.sh"
-FIXTURES="$(cd "$(dirname "$0")/fixtures/validator-baseline" && pwd)"
+TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=tests/lib/plugin-root.sh
+source "$TEST_DIR/lib/plugin-root.sh"
+PLUGIN_ROOT="$(resolve_plugin_root "${BASH_SOURCE[0]}")"
+DISPATCH="$PLUGIN_ROOT/hooks/sdlc-dispatch.sh"
+FIXTURES="$TEST_DIR/fixtures/validator-baseline"
 
 PASS=0
 FAIL=0

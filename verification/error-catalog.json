@@ -1,0 +1,453 @@
+{
+  "schema_version": "sdlc-os-error-catalog-v1",
+  "errors": [
+    {
+      "code": "F01_FIXTURE_ESCAPE",
+      "audience": "user/operator",
+      "template": "F01_FIXTURE_ESCAPE check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=Dispatcher fixture path escaped its admitted temporary tree evidence=<relative-artifact>.",
+      "remediation": "Stop before further root adoption; inspect the bounded F-01 receipt and retained fixture.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "F-01"
+    },
+    {
+      "code": "F01_INSTALLED_DRIFT",
+      "audience": "user/operator",
+      "template": "F01_INSTALLED_DRIFT check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=Installed validator bytes changed during isolated verification evidence=<relative-artifact>.",
+      "remediation": "Stop before further root adoption; inspect the bounded F-01 receipt and retained fixture.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "F-01"
+    },
+    {
+      "code": "F01_FAILPOINT_NOT_REACHED",
+      "audience": "user/operator",
+      "template": "F01_FAILPOINT_NOT_REACHED check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=The direct post-swap failpoint was not observed evidence=<relative-artifact>.",
+      "remediation": "Stop before further root adoption; inspect the bounded F-01 receipt and retained fixture.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "F-01"
+    },
+    {
+      "code": "F01_DRIVER_INTERRUPTED",
+      "audience": "user/operator",
+      "template": "F01_DRIVER_INTERRUPTED check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=The outer F-01 controller was interrupted evidence=<relative-artifact>.",
+      "remediation": "Stop before further root adoption; inspect the bounded F-01 receipt and retained fixture.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "F-01"
+    },
+    {
+      "code": "F01_TEMP_TREE_HELPER_MISSING",
+      "audience": "user/operator",
+      "template": "F01_TEMP_TREE_HELPER_MISSING check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=The no-follow temporary-tree helper is unavailable evidence=<relative-artifact>.",
+      "remediation": "Stop before further root adoption; inspect the bounded F-01 receipt and retained fixture.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "F-01"
+    },
+    {
+      "code": "F01_PRE_FAILPOINT_CASES_FAILED",
+      "audience": "user/operator",
+      "template": "F01_PRE_FAILPOINT_CASES_FAILED check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=A required pre-swap dispatcher case failed evidence=<relative-artifact>.",
+      "remediation": "Stop before further root adoption; inspect the bounded F-01 receipt and retained fixture.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "F-01"
+    },
+    {
+      "code": "F01_RESTORE_FAILED",
+      "audience": "user/operator",
+      "template": "F01_RESTORE_FAILED check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=Fixture validator restoration failed evidence=<relative-artifact>.",
+      "remediation": "Stop before further root adoption; inspect the bounded F-01 receipt and retained fixture.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "F-01"
+    },
+    {
+      "code": "F01_INNER_RETAINED",
+      "audience": "user/operator",
+      "template": "F01_INNER_RETAINED check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=An inner F-01 tree was retained for bounded diagnosis evidence=<relative-artifact>.",
+      "remediation": "Stop before further root adoption; inspect the bounded F-01 receipt and retained fixture.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "F-01"
+    },
+    {
+      "code": "F01_INNER_CONTAINER_RETAINED",
+      "audience": "user/operator",
+      "template": "F01_INNER_CONTAINER_RETAINED check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=The outer F-01 container was retained after inner cleanup failure evidence=<relative-artifact>.",
+      "remediation": "Stop before further root adoption; inspect the bounded F-01 receipt and retained fixture.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "F-01"
+    },
+    {
+      "code": "F01_RESTORE_RETAINED",
+      "audience": "user/operator",
+      "template": "F01_RESTORE_RETAINED check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=A restore-failure fixture was retained as required evidence evidence=<relative-artifact>.",
+      "remediation": "Stop before further root adoption; inspect the bounded F-01 receipt and retained fixture.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "F-01"
+    },
+    {
+      "code": "ROOT_INVALID",
+      "audience": "user/operator",
+      "template": "ROOT_INVALID check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=The selected plugin root is missing, malformed, or unsafe evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-02"
+    },
+    {
+      "code": "PLUGIN_METADATA_DRIFT",
+      "audience": "user/operator",
+      "template": "PLUGIN_METADATA_DRIFT check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=Plugin and marketplace version authority drifted evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-04"
+    },
+    {
+      "code": "INVENTORY_DRIFT",
+      "audience": "user/operator",
+      "template": "INVENTORY_DRIFT check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=Repository inventory and documentation projections differ evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-06"
+    },
+    {
+      "code": "VERIFY_MANIFEST_INVALID",
+      "audience": "user/operator",
+      "template": "VERIFY_MANIFEST_INVALID check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=The verification invocation or authority manifest is invalid evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_SELECTION_EMPTY",
+      "audience": "user/operator",
+      "template": "VERIFY_SELECTION_EMPTY check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=The selected verification stage contains zero checks evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_RESULTS_ESCAPE",
+      "audience": "user/operator",
+      "template": "VERIFY_RESULTS_ESCAPE check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=The result path is outside the admitted unique repository result root evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_ENV_INVALID",
+      "audience": "user/operator",
+      "template": "VERIFY_ENV_INVALID check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=A declared environment key or value violates the minimal-environment contract evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_PLATFORM_MISMATCH",
+      "audience": "user/operator",
+      "template": "VERIFY_PLATFORM_MISMATCH check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=The asserted platform does not match the observed host evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_EXECUTABLE_DRIFT",
+      "audience": "user/operator",
+      "template": "VERIFY_EXECUTABLE_DRIFT check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=A required tool is absent or changed after fingerprinting evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_EXIT_MISMATCH",
+      "audience": "user/operator",
+      "template": "VERIFY_EXIT_MISMATCH check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=The true child exit or signal differs from the declared contract evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_OBSERVATION_FAILED",
+      "audience": "user/operator",
+      "template": "VERIFY_OBSERVATION_FAILED check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=The structured expected observation was not satisfied evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_ENCODING_INVALID",
+      "audience": "user/operator",
+      "template": "VERIFY_ENCODING_INVALID check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=Required structured output is not valid UTF-8 evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_OUTPUT_LIMIT",
+      "audience": "user/operator",
+      "template": "VERIFY_OUTPUT_LIMIT check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=A raw stream or observation exceeded its declared bound evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_WRITE_FAILED",
+      "audience": "user/operator",
+      "template": "VERIFY_WRITE_FAILED check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=Protected evidence could not be durably written and read back evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_TIMEOUT",
+      "audience": "user/operator",
+      "template": "VERIFY_TIMEOUT check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=A check exceeded its wall timeout and was terminated evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_INTERRUPTED",
+      "audience": "user/operator",
+      "template": "VERIFY_INTERRUPTED check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=The runner received an operator interrupt and contained the child group evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_ARTIFACT_INVALID",
+      "audience": "user/operator",
+      "template": "VERIFY_ARTIFACT_INVALID check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=A required artifact is missing, unsafe, malformed, or outside size bounds evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_BACKGROUND_PROCESS",
+      "audience": "user/operator",
+      "template": "VERIFY_BACKGROUND_PROCESS check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=A launched group survivor or escaped descendant was observed evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_SOURCE_DIRTY",
+      "audience": "user/operator",
+      "template": "VERIFY_SOURCE_DIRTY check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=A row requiring a clean candidate observed source drift evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "VERIFY_SOURCE_MUTATION",
+      "audience": "user/operator",
+      "template": "VERIFY_SOURCE_MUTATION check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=A check changed tracked, untracked, or protected ignored source state evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "S1-07"
+    },
+    {
+      "code": "CANDIDATE_MISMATCH",
+      "audience": "user/operator",
+      "template": "CANDIDATE_MISMATCH check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=Review evidence is not bound to the asserted immutable candidate evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "F-02"
+    },
+    {
+      "code": "CLEANUP_FAILED",
+      "audience": "user/operator",
+      "template": "CLEANUP_FAILED check=<check_id> run=<run_id> candidate=<short-sha> where=<relative-surface> what=Bounded fixture or remote-temporary cleanup failed evidence=<relative-artifact>.",
+      "remediation": "Inspect the named protected receipt and raw artifact, correct the owning check, and replay on the unchanged candidate.",
+      "evidence_fields": [
+        "check_id",
+        "run_id",
+        "candidate_sha",
+        "error_code",
+        "artifact_sha256"
+      ],
+      "owning_requirement": "F-01"
+    }
+  ]
+}

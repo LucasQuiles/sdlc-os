@@ -1,5 +1,6 @@
 {
   "name": "sdlc-os-dev",
+  "description": "Local marketplace for SDLC-OS plugin development",
   "owner": {
     "name": "q"
   },
@@ -7,8 +8,7 @@
     {
       "name": "sdlc-os",
       "source": "./",
-      "description": "Multi-Agent SDLC Operating System — Conductor/Runner/Guppy/Sentinel/Oracle roles across Opus/Sonnet/Haiku",
-      "version": "4.0.0"
+      "description": "Multi-Agent SDLC Operating System — Conductor/Runner/Guppy/Sentinel/Oracle roles across Opus/Sonnet/Haiku"
     }
   ]
 }

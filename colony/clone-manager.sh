@@ -13,6 +13,9 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+source "${SCRIPT_DIR}/lib/portable-shell.sh"
+
 COLONY_BASE="${COLONY_BASE:-/tmp/sdlc-colony}"
 
 _ensure_colony_base() {
@@ -79,7 +82,8 @@ colony_clone_create() {
   git -C "${clone_dir}" remote set-url --push origin no-push
 
   local elapsed_ms=$(( ($(date +%s%N) - start_ns) / 1000000 ))
-  local clone_bytes=$(du -sb "${clone_dir}" | cut -f1)
+  local clone_bytes
+  clone_bytes="$(path_size_bytes "${clone_dir}")"
   _colony_log "clone_created" "source=${source}" "session=${session_name}" "agent_id=${agent_id}" "clone_dir=${clone_dir}" "elapsed_ms=${elapsed_ms}" "clone_bytes=${clone_bytes}"
 
   # Return the clone path on stdout
@@ -213,7 +217,8 @@ colony_clone_recover_output() {
     return 1
   fi
 
-  local output_bytes=$(du -sb "${recover_dir}" | cut -f1)
+  local output_bytes
+  output_bytes="$(path_size_bytes "${recover_dir}")"
   _colony_log "clone_output_recovered" "clone_dir=${clone_dir}" "task_id=${task_id}" "output_bytes=${output_bytes}"
   return 0
 }

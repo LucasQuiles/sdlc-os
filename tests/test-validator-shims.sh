@@ -1,6 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
+TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=tests/lib/plugin-root.sh
+source "$TEST_DIR/lib/plugin-root.sh"
+PLUGIN_ROOT="$(resolve_plugin_root "${BASH_SOURCE[0]}")"
+HOOKS_DIR="$PLUGIN_ROOT/hooks/scripts"
+
 PASS=0
 FAIL=0
 
@@ -15,8 +21,6 @@ test_shim() {
     FAIL=$((FAIL + 1))
   fi
 }
-
-HOOKS_DIR="$HOME/LAB/sdlc-os/hooks/scripts"
 
 test_shim "$HOOKS_DIR/validate-quality-budget.sh" \
   '{"tool_name":"Write","tool_input":{"file_path":"/tmp/foo.py","content":"x"}}' \

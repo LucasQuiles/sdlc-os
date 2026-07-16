@@ -5,8 +5,12 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=scripts/lib/tmup-discovery.sh
+source "$SCRIPT_DIR/lib/tmup-discovery.sh"
+
 TASK_ID="${1:-}"
-PLUGIN_DIR="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+PLUGIN_DIR="${CLAUDE_PLUGIN_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd -P)}"
 
 # --- Helpers ---
 
@@ -37,12 +41,21 @@ CODEX_VERSION=$(codex --version 2>/dev/null | head -1 | tr -d '\n' || echo "unkn
 # --- Check 3: tmup MCP reachable ---
 
 TMUP_ENTRY=""
-for candidate in \
-  "${PLUGIN_DIR}/../tmup/index.js" \
-  "${HOME}/.claude/plugins/tmup/index.js" \
-  "${HOME}/.local/share/tmup/index.js"; do
-  if [[ -f "$candidate" ]]; then
-    TMUP_ENTRY="$candidate"
+TMUP_PLUGIN_DIR=""
+if [[ -n "${TMUP_PLUGIN_ROOT:-}" ]]; then
+  TMUP_CANDIDATE_ROOTS=("$TMUP_PLUGIN_ROOT")
+else
+  TMUP_CANDIDATE_ROOTS=(
+    "${PLUGIN_DIR}/../tmup"
+    "${HOME}/.claude/plugins/tmup"
+    "${HOME}/.local/share/tmup"
+  )
+fi
+
+for candidate_root in "${TMUP_CANDIDATE_ROOTS[@]}"; do
+  [[ -n "$candidate_root" && -d "$candidate_root" ]] || continue
+  if TMUP_ENTRY="$(discover_tmup_entry "$candidate_root" 2>/dev/null)"; then
+    TMUP_PLUGIN_DIR="$(cd "$candidate_root" && pwd -P)"
     break
   fi
 done
@@ -51,7 +64,6 @@ if [[ -z "$TMUP_ENTRY" ]]; then
   fail "TMUP_MISSING" "tmup MCP entry point not found — expected tmup plugin alongside sdlc-os"
 fi
 
-TMUP_PLUGIN_DIR="$(cd "$(dirname "$TMUP_ENTRY")" && pwd)"
 TMUP_SYNC_SCRIPT="${TMUP_PLUGIN_DIR}/scripts/sync-codex-agents.sh"
 
 if [[ ! -f "$TMUP_SYNC_SCRIPT" ]]; then

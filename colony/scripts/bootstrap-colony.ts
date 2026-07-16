@@ -1,7 +1,6 @@
-#!/usr/bin/env npx tsx
 /**
  * Bootstrap the colony events database for a project.
- * Usage: npx tsx colony/scripts/bootstrap-colony.ts <events-db-path> <repo> <branch> <mission-id> [scope-region]
+ * Usage: colony/run-tsx.sh colony/scripts/bootstrap-colony.ts <events-db-path> <repo> <branch> <mission-id> [scope-region]
  */
 import { bootstrapColony, createWorkstream } from '../bootstrap.js';
 import { closeEventsDb } from '../events-db.js';
@@ -9,7 +8,7 @@ import { closeEventsDb } from '../events-db.js';
 const [dbPath, repo, branch, missionId, scopeRegion] = process.argv.slice(2);
 
 if (!dbPath || !repo || !branch || !missionId) {
-  console.error('Usage: npx tsx bootstrap-colony.ts <db-path> <repo> <branch> <mission-id> [scope-region]');
+  console.error('Usage: colony/run-tsx.sh colony/scripts/bootstrap-colony.ts <db-path> <repo> <branch> <mission-id> [scope-region]');
   process.exit(1);
 }
 

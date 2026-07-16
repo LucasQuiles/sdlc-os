@@ -7,7 +7,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/clone-manager.sh"
 
 # Use a unique test-scoped COLONY_BASE to avoid interfering with real data
-TEST_BASE="/tmp/sdlc-colony-test-$$"
+TEST_BASE_RAW="$(mktemp -d "${TMPDIR:-/tmp}/sdlc-colony-test.XXXXXX")"
+TEST_BASE="$(cd "$TEST_BASE_RAW" && pwd -P)"
 export COLONY_BASE="${TEST_BASE}"
 
 PASS=0
@@ -292,10 +293,10 @@ for line in open('${LOG_FILE}'):
 else:
     print(-1)
 ")
-if [[ "${RECOVER_BYTES}" -ge 0 ]]; then
-  pass "clone_output_recovered event logged with output_bytes"
+if [[ "${RECOVER_BYTES}" -gt 0 ]]; then
+  pass "clone_output_recovered event logged with positive output_bytes"
 else
-  fail "clone_output_recovered event not found"
+  fail "clone_output_recovered event missing positive output_bytes"
 fi
 
 echo ""

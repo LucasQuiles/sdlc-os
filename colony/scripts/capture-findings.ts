@@ -1,6 +1,6 @@
 /**
  * Capture external observations as structured findings in the colony events DB.
- * Run: cd colony && npx tsx scripts/capture-findings.ts
+ * Run: cd colony && ./run-tsx.sh scripts/capture-findings.ts
  */
 import { openEventsDb, insertEvent, closeEventsDb } from '../events-db.js';
 import { createFinding } from '../finding-ops.js';
