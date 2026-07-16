@@ -262,6 +262,9 @@
       "allowed_modules": [
         "unittest",
         "json.tool"
+      ],
+      "allowed_flags": [
+        "-S"
       ]
     },
     {
@@ -1149,6 +1152,7 @@
       ],
       "command": [
         "python3.12",
+        "-S",
         "-m",
         "unittest",
         "tests/test_metadata_inventory.py",
@@ -1510,7 +1514,7 @@
         "type": "test_count_regex",
         "stream": "stderr",
         "pattern": "(?m)^Ran ([0-9]+) tests? in [0-9.]+s$",
-        "min_count": 54
+        "min_count": 56
       },
       "negative_falsifier": "Any false pass, unsafe manifest, masked exit, missing artifact, durability fault, survivor, or authority drift fails.",
       "independence_requirement": "author-executable; non-author reproduction required at the release gate",
@@ -1523,6 +1527,7 @@
       ],
       "command": [
         "python3.12",
+        "-S",
         "-m",
         "unittest",
         "tests/test_verification_runner.py",

@@ -295,13 +295,13 @@
       ],
       "affected_stage_release": "Task8",
       "trigger_or_due": "Before release verdict",
-      "evidence": "Call-removal, dead-surface fitness, and copy-paste bundle replay are not yet executed",
+      "evidence": "Candidate b7734edeeffac4f37de6de7dd9c2976fa75640f5 passed the five-call mutation matrix and nine-surface fitness scan, but its fresh bundle-plus-README replay passed 32/34 rows and conclusively failed s1a-metadata-unit and s1a-verification-runner-contracts because an ambient site-package tests package shadowed the repository namespace; correction-cycle-3 red proofs reproduce both the shadow and missing startup-flag admission",
       "rationale": "Passing authored tests alone cannot prove interfaces are load-bearing or usable",
-      "mitigation": "Run mutation reachability, fitness, and fresh-operator replay on the immutable candidate",
+      "mitigation": "Isolate only the two unittest module rows with an allowlisted python3.12 -S startup flag, then rerun mutation reachability, fitness, both platform manifests, and fresh non-author bundle-plus-README replay on the corrected immutable candidate",
       "current_verdict": "INCONCLUSIVE",
-      "disposition": "ACCEPTED_INTO_T8",
-      "review_date": "2026-07-14",
-      "closure_proof": "Candidate-bound adversarial and independent review receipts"
+      "disposition": "OWNER_APPROVED_CORRECTION_3",
+      "review_date": "2026-07-16",
+      "closure_proof": "Pending one corrected-candidate evidence set: focused ambient-shadow regression, clean macOS/Linux manifests, five-call mutation and fitness receipts, fresh independent/adversarial reviews, and a strict-valid fresh bundle-plus-README replay"
     },
     {
       "stable_id": "P27-05",

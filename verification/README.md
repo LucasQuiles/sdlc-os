@@ -138,7 +138,7 @@ Every executed check inherits a private runner-owned Unix-socket descriptor. The
 
 ## Command Admission and Source Mutation
 
-The manifest allowlist is fail-closed. Interpreter command strings (`-c`, `--command`, `-e`, and equivalents), `env`, unlisted executables, unlisted script paths, unsafe path segments, and scripts outside their physically resolved roots are rejected before execution. Git is limited to the manifest's read-only subcommands; the Claude CLI is limited to `plugin validate`; the Colony launcher, TypeScript compiler, and Vitest accept only their exact declared argv. Python module mode is limited to `unittest` and `json.tool`; Bash and Node flags are limited to the declared safe forms.
+The manifest allowlist is fail-closed. Interpreter command strings (`-c`, `--command`, `-e`, and equivalents), `env`, unlisted executables, unlisted script paths, unsafe path segments, and scripts outside their physically resolved roots are rejected before execution. Git is limited to the manifest's read-only subcommands; the Claude CLI is limited to `plugin validate`; the Colony launcher, TypeScript compiler, and Vitest accept only their exact declared argv. Python module mode is limited to `unittest` and `json.tool`. The only admitted Python startup flag is `-S`, exactly once and only before `-m`, so the two unit rows cannot import ambient site packages; duplicate, misplaced, unknown, direct-script, and command-string startup forms are rejected. Bash and Node flags are limited to the declared safe forms.
 
 ### Exact Script Allowlist
 

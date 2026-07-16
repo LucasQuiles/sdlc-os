@@ -17,6 +17,7 @@ import sys
 import tempfile
 import time
 import unittest
+import venv
 from pathlib import Path
 from unittest import mock
 
@@ -679,6 +680,36 @@ class ManifestContractTests(VerificationRunnerCase):
         self.repo.write_manifest(self.repo.base_manifest([git_write]))
         git_rejected = self.repo.run()
         self.assertEqual(git_rejected.returncode, 64, git_rejected.stderr)
+
+    def test_python_startup_flag_is_allowed_once_before_module_only(self):
+        manifest = self.repo.base_manifest()
+        python_entry = next(
+            entry
+            for entry in manifest["executable_allowlist"]
+            if entry["executable"] == "python3.12"
+        )
+        python_entry["allowed_modules"] = ["unittest"]
+        python_entry["allowed_flags"] = ["-S"]
+        manifest["checks"][0]["command"] = [
+            "python3.12",
+            "-S",
+            "-m",
+            "unittest",
+            "checks/probe.py",
+        ]
+        RUNNER.validate_manifest(manifest, self.repo.root)
+
+        for command in (
+            ["python3.12", "-S", "-S", "-m", "unittest", "checks/probe.py"],
+            ["python3.12", "-m", "unittest", "-S", "checks/probe.py"],
+            ["python3.12", "-E", "-m", "unittest", "checks/probe.py"],
+            ["python3.12", "-S", "checks/probe.py"],
+        ):
+            with self.subTest(command=command):
+                invalid = copy.deepcopy(manifest)
+                invalid["checks"][0]["command"] = command
+                with self.assertRaises(RUNNER.VerificationError):
+                    RUNNER.validate_manifest(invalid, self.repo.root)
 
     def test_deferred_or_mutating_script_families_are_not_admissible(self):
         commands = [
@@ -1589,6 +1620,70 @@ class DurabilityContainmentPrivacyTests(VerificationRunnerCase):
 
 
 class CommittedAuthorityTests(VerificationRunnerCase):
+    def test_python_unit_rows_ignore_ambient_tests_package(self):
+        manifest = json.loads(
+            (PROJECT_ROOT / "verification" / "manifest.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        rows = {row["check_id"]: row for row in manifest["checks"]}
+        expected = {
+            "s1a-metadata-unit": [
+                "python3.12",
+                "-S",
+                "-m",
+                "unittest",
+                "tests/test_metadata_inventory.py",
+                "-v",
+            ],
+            "s1a-verification-runner-contracts": [
+                "python3.12",
+                "-S",
+                "-m",
+                "unittest",
+                "tests/test_verification_runner.py",
+                "-v",
+            ],
+        }
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            environment_root = Path(temp_dir) / "python"
+            venv.EnvBuilder(with_pip=False).create(environment_root)
+            python = environment_root / "bin" / "python3.12"
+            purelib = subprocess.run(
+                [
+                    str(python),
+                    "-c",
+                    "import sysconfig; print(sysconfig.get_path('purelib'))",
+                ],
+                check=True,
+                stdout=subprocess.PIPE,
+                text=True,
+            ).stdout.strip()
+            shadow = Path(purelib) / "tests"
+            shadow.mkdir()
+            (shadow / "__init__.py").write_text("", encoding="utf-8")
+
+            command = [str(python), *rows["s1a-metadata-unit"]["command"][1:]]
+            result = subprocess.run(
+                command,
+                cwd=PROJECT_ROOT,
+                env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            self.assertEqual(
+                result.returncode,
+                0,
+                result.stderr.decode(errors="replace"),
+            )
+            self.assertRegex(result.stderr, rb"(?m)^Ran 8 tests in [0-9.]+s$")
+
+        for check_id, command in expected.items():
+            with self.subTest(check_id=check_id):
+                self.assertEqual(rows[check_id]["command"], command)
+
     def test_python_unit_rows_disable_repository_bytecode(self):
         manifest = json.loads(
             (PROJECT_ROOT / "verification" / "manifest.json").read_text(

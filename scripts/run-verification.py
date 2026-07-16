@@ -863,12 +863,32 @@ def _validate_command_shape(row, allowlist, repo_root: Path):
         ]
         modules = entry.get("allowed_modules", [])
         flags = set(entry.get("allowed_flags", []))
-        if arguments[:1] == ["-m"]:
-            if len(arguments) < 2 or arguments[1] not in modules:
+        module_arguments = arguments
+        startup_flags = []
+        if basename == "python3.12":
+            while module_arguments[:1] and module_arguments[0] in flags:
+                startup_flags.append(module_arguments[0])
+                module_arguments = module_arguments[1:]
+            if len(startup_flags) != len(set(startup_flags)):
+                raise VerificationError(
+                    "VERIFY_MANIFEST_INVALID", "Python startup flag is duplicated"
+                )
+            if startup_flags and module_arguments[:1] != ["-m"]:
+                raise VerificationError(
+                    "VERIFY_MANIFEST_INVALID",
+                    "Python startup flags require module mode",
+                )
+        if module_arguments[:1] == ["-m"]:
+            if len(module_arguments) < 2 or module_arguments[1] not in modules:
                 raise VerificationError(
                     "VERIFY_MANIFEST_INVALID", "Python module is not allowlisted"
                 )
-            for item in arguments[2:]:
+            for item in module_arguments[2:]:
+                if item in flags:
+                    raise VerificationError(
+                        "VERIFY_MANIFEST_INVALID",
+                        "Python startup flag must precede module mode",
+                    )
                 if not item.startswith("-"):
                     _validate_script_path(row, repo_root, item, roots)
         elif arguments[:1] and arguments[0] in flags:
