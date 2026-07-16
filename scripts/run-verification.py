@@ -13,6 +13,7 @@ import re
 import selectors
 import shutil
 import signal
+import socket
 import stat
 import subprocess
 import sys
@@ -42,6 +43,7 @@ MAX_ARGS = 256
 MAX_STREAM_BYTES = 16 * 1024 * 1024
 MAX_OBSERVATION_BYTES = 1024 * 1024
 MONITOR_SECONDS = 0.1
+MONITOR_TOOL_TIMEOUT_SECONDS = 2.0
 TERM_GRACE_SECONDS = 2.0
 KILL_GRACE_SECONDS = 2.0
 
@@ -1203,13 +1205,28 @@ def _expand(value: str, substitutions: dict[str, str]) -> str:
 
 
 def _sanitized_declared_environment(environment: dict[str, str]) -> dict[str, str]:
-    result = {}
-    for key, value in sorted(environment.items()):
-        if SUBSTITUTION.search(value):
-            result[key] = value
-        else:
-            result[key] = f"redacted:sha256:{sha256_bytes(value.encode('utf-8'))}"
-    return result
+    return {
+        key: f"redacted:sha256:{sha256_bytes(value.encode('utf-8'))}"
+        for key, value in sorted(environment.items())
+    }
+
+
+def _environment_evidence(environment: dict[str, str]) -> dict[str, str]:
+    projection = {
+        "PATH": f"redacted:sha256:{sha256_bytes(environment['PATH'].encode('utf-8'))}",
+        "HOME": "${CHECK_HOME}",
+        "TMPDIR": "${CHECK_TMPDIR}",
+        "LC_ALL": environment["LC_ALL"],
+        "LANG": environment["LANG"],
+        "TZ": environment["TZ"],
+    }
+    declared = {
+        key: value
+        for key, value in environment.items()
+        if key not in {"PATH", "HOME", "TMPDIR", "LC_ALL", "LANG", "TZ"}
+    }
+    projection.update(_sanitized_declared_environment(declared))
+    return dict(sorted(projection.items()))
 
 
 def _git_state(repo_root: Path) -> dict[str, Any]:
@@ -1518,6 +1535,149 @@ def _terminate_owned_pids(records: dict[int, dict[str, Any]]) -> bool:
     return False
 
 
+def _resolve_lsof() -> Path:
+    for raw in ("/usr/sbin/lsof", "/usr/bin/lsof"):
+        candidate = Path(raw)
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return candidate.resolve(strict=True)
+    raise VerificationError(
+        "VERIFY_BACKGROUND_PROCESS", "canonical lsof is unavailable", 3
+    )
+
+
+def _process_start_identity(pid: int) -> tuple[int, str] | None:
+    if platform.system() == "Linux":
+        try:
+            proc_path = Path(f"/proc/{pid}")
+            raw = (proc_path / "stat").read_text(encoding="ascii")
+            fields = raw.rsplit(")", 1)[1].split()
+            return proc_path.stat().st_uid, fields[19]
+        except (FileNotFoundError, IndexError, OSError, UnicodeError):
+            return None
+    ps = Path("/bin/ps") if Path("/bin/ps").exists() else Path("/usr/bin/ps")
+    try:
+        result = subprocess.run(
+            [str(ps), "-p", str(pid), "-o", "uid=", "-o", "lstart="],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=False,
+            timeout=MONITOR_TOOL_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired as error:
+        raise VerificationError(
+            "VERIFY_BACKGROUND_PROCESS", "process holder identity timed out", 3
+        ) from error
+    if result.returncode != 0:
+        return None
+    parts = result.stdout.decode("utf-8", errors="strict").strip().split(None, 1)
+    if len(parts) != 2 or not parts[0].isdigit():
+        return None
+    return int(parts[0]), parts[1]
+
+
+def _ownership_holders(lsof: Path, lease_path: Path) -> dict[int, tuple[int, str]]:
+    try:
+        result = subprocess.run(
+            [str(lsof), "-nP", "-Fpn", "--", str(lease_path)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+            env={"PATH": "/usr/bin:/bin", "LC_ALL": "C", "LANG": "C"},
+            timeout=MONITOR_TOOL_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired as error:
+        raise VerificationError(
+            "VERIFY_BACKGROUND_PROCESS", "process ownership inventory timed out", 3
+        ) from error
+    if result.returncode != 0:
+        raise VerificationError(
+            "VERIFY_BACKGROUND_PROCESS", "process ownership inventory failed", 3
+        )
+    pids = set()
+    for line in result.stdout.decode("utf-8", errors="strict").splitlines():
+        if not line.startswith("p"):
+            continue
+        raw_pid = line[1:]
+        if not raw_pid.isdigit():
+            raise VerificationError(
+                "VERIFY_BACKGROUND_PROCESS",
+                "process ownership inventory is malformed",
+                3,
+            )
+        pids.add(int(raw_pid))
+    holders = {}
+    for pid in pids:
+        identity = _process_start_identity(pid)
+        if identity is None:
+            raise VerificationError(
+                "VERIFY_BACKGROUND_PROCESS",
+                "process holder identity is unavailable",
+                3,
+            )
+        holders[pid] = identity
+    if os.getpid() not in holders:
+        raise VerificationError(
+            "VERIFY_BACKGROUND_PROCESS", "runner ownership lease is unobservable", 3
+        )
+    return holders
+
+
+def _signal_verified_holder(
+    lsof: Path,
+    lease_path: Path,
+    pid: int,
+    identity: tuple[int, str],
+    sig: int,
+) -> bool:
+    if _ownership_holders(lsof, lease_path).get(pid) != identity:
+        return False
+    if (
+        platform.system() == "Linux"
+        and hasattr(os, "pidfd_open")
+        and hasattr(signal, "pidfd_send_signal")
+    ):
+        try:
+            descriptor = os.pidfd_open(pid)
+        except ProcessLookupError:
+            return False
+        try:
+            if _ownership_holders(lsof, lease_path).get(pid) != identity:
+                return False
+            signal.pidfd_send_signal(descriptor, sig)
+            return True
+        finally:
+            os.close(descriptor)
+    if _ownership_holders(lsof, lease_path).get(pid) != identity:
+        return False
+    try:
+        os.kill(pid, sig)
+    except ProcessLookupError:
+        return False
+    return True
+
+
+def _terminate_ownership_holders(lsof: Path, lease_path: Path) -> tuple[set[int], bool]:
+    observed = set(_ownership_holders(lsof, lease_path)) - {os.getpid()}
+    for sig, grace in (
+        (signal.SIGTERM, TERM_GRACE_SECONDS),
+        (signal.SIGKILL, KILL_GRACE_SECONDS),
+    ):
+        current = {
+            pid: identity
+            for pid, identity in _ownership_holders(lsof, lease_path).items()
+            if pid != os.getpid()
+        }
+        observed.update(current)
+        for pid, identity in sorted(current.items()):
+            _signal_verified_holder(lsof, lease_path, pid, identity, sig)
+        deadline = time.monotonic() + grace
+        while time.monotonic() < deadline:
+            if not (set(_ownership_holders(lsof, lease_path)) - {os.getpid()}):
+                return observed, True
+            time.sleep(0.05)
+    return observed, not (set(_ownership_holders(lsof, lease_path)) - {os.getpid()})
+
+
 def _make_runtime_tmp(repo_root: Path, check_id: str) -> tuple[Path, tuple[int, int]]:
     path = Path(tempfile.mkdtemp(prefix=f"sdlc-verification-{check_id}-")).resolve(
         strict=True
@@ -1568,6 +1728,7 @@ class ProcessOutcome:
     output_limited: bool
     background_process: bool
     escaped_descendants: list[int]
+    process_monitor: dict[str, Any]
     duration_ns: int
     started_utc: str
     ended_utc: str
@@ -1617,7 +1778,30 @@ def _run_process(
     seen_descendants = {}
     timed_out = False
     output_limited = False
+    monitor_root = None
+    monitor_identity = None
+    ownership_socket = None
+    ownership_path = None
     try:
+        lsof = _resolve_lsof()
+        lsof_metadata = lsof.stat()
+        monitor_tool = {
+            "resolved": f"system:{lsof.name}",
+            "sha256": sha256_file(lsof),
+            "size": lsof_metadata.st_size,
+        }
+        monitor_root = Path(tempfile.mkdtemp(prefix="svm-", dir="/tmp")).resolve(
+            strict=True
+        )
+        os.chmod(monitor_root, 0o700)
+        monitor_metadata = monitor_root.lstat()
+        monitor_identity = (monitor_metadata.st_dev, monitor_metadata.st_ino)
+        ownership_path = monitor_root / "owner.sock"
+        ownership_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        ownership_socket.bind(str(ownership_path))
+        ownership_socket.listen(1)
+        os.chmod(ownership_path, 0o600)
+        ownership_socket.set_inheritable(True)
         process = subprocess.Popen(
             argv,
             cwd=cwd,
@@ -1626,6 +1810,7 @@ def _run_process(
             stderr=subprocess.PIPE,
             start_new_session=True,
             close_fds=True,
+            pass_fds=(ownership_socket.fileno(),),
         )
         if process.stdout is None or process.stderr is None:
             raise EvidenceWriteError("subprocess streams were not created")
@@ -1685,7 +1870,17 @@ def _run_process(
             return_code = process.wait(timeout=KILL_GRACE_SECONDS)
         snapshot = _process_snapshot()
         group_members = _live_group_members(snapshot, process.pid) - {process.pid}
-        background = bool(group_members)
+        monitor_error = None
+        monitor_observation_failed = False
+        try:
+            ownership_before = set(_ownership_holders(lsof, ownership_path)) - {
+                os.getpid()
+            }
+        except VerificationError as error:
+            monitor_error = error
+            monitor_observation_failed = True
+            ownership_before = set()
+        background = bool(group_members or ownership_before or monitor_error)
         if background:
             _terminate_group(process.pid)
         escaped = {
@@ -1698,6 +1893,19 @@ def _run_process(
         }
         if escaped:
             _terminate_owned_pids(escaped)
+        try:
+            ownership_observed, ownership_clean = _terminate_ownership_holders(
+                lsof, ownership_path
+            )
+        except VerificationError as error:
+            monitor_error = error
+            monitor_observation_failed = True
+            ownership_observed = set()
+            ownership_clean = False
+        background = background or bool(escaped) or bool(ownership_observed)
+        if not ownership_clean:
+            background = True
+        monitor_tool["status"] = "FAILED" if monitor_observation_failed else "PASS"
         for _ in range(20):
             if not selector.get_map() or not drain(0.05):
                 break
@@ -1714,8 +1922,11 @@ def _run_process(
             timed_out=timed_out,
             interrupted=interrupt.signal_number is not None,
             output_limited=output_limited,
-            background_process=background or bool(escaped),
-            escaped_descendants=sorted(escaped),
+            background_process=background,
+            escaped_descendants=sorted(
+                set(escaped) | ownership_before | ownership_observed
+            ),
+            process_monitor=monitor_tool,
             duration_ns=max(0, ended - started),
             started_utc=started_utc,
             ended_utc=utc_now(),
@@ -1733,6 +1944,12 @@ def _run_process(
             selector.close()
         for stream in streams:
             stream.close()
+        if ownership_socket is not None:
+            ownership_socket.close()
+        if ownership_path is not None:
+            ownership_path.unlink(missing_ok=True)
+        if monitor_root is not None and monitor_identity is not None:
+            _cleanup_runtime_tmp(monitor_root, monitor_identity)
 
 
 def _stream_bytes(check_fd: int, name: str, limit: int = MAX_STREAM_BYTES) -> bytes:
@@ -2088,7 +2305,9 @@ def _execute_row(
         for key, value in row["environment"].items():
             effective_environment[key] = _expand(value, substitutions)
         environment_metadata = atomic_write_at(
-            check_fd, "environment.json", canonical_json_bytes(effective_environment)
+            check_fd,
+            "environment.json",
+            canonical_json_bytes(_environment_evidence(effective_environment)),
         )
 
         expanded_arguments = [
@@ -2253,6 +2472,7 @@ def _execute_row(
                     "interrupted": outcome.interrupted,
                     "background_process": outcome.background_process,
                     "escaped_descendants_observed": len(outcome.escaped_descendants),
+                    "process_monitor": outcome.process_monitor,
                 },
                 "streams": {
                     "stdout": _stream_metadata(check_fd, check_id, "stdout"),
@@ -2931,6 +3151,286 @@ def _review_validation(args) -> int:
     return 0
 
 
+def _validate_evidence_record(result_root: Path, record: Any, label: str):
+    value = _require_dict(record, label)
+    required = {"path", "mode", "bytes", "sha256"}
+    if not required.issubset(value):
+        raise VerificationError(
+            "VERIFY_ARTIFACT_INVALID", f"{label} lacks protected metadata"
+        )
+    path = _existing_beneath(result_root, value["path"], label)
+    metadata = path.stat()
+    if value["mode"] != f"{stat.S_IMODE(metadata.st_mode):04o}":
+        raise VerificationError(
+            "VERIFY_ARTIFACT_INVALID", f"{label} mode does not match"
+        )
+    if value["bytes"] != metadata.st_size:
+        raise VerificationError(
+            "VERIFY_ARTIFACT_INVALID", f"{label} size does not match"
+        )
+    if value["sha256"] != sha256_file(path):
+        raise VerificationError(
+            "VERIFY_ARTIFACT_INVALID", f"{label} hash does not match"
+        )
+
+
+def _run_result_validation(args) -> int:
+    if not args.candidate or not GIT_SHA.fullmatch(args.candidate):
+        raise VerificationError("CANDIDATE_MISMATCH", "candidate assertion is invalid")
+    if not args.run_sha256 or not SHA256.fullmatch(args.run_sha256):
+        raise VerificationError(
+            "VERIFY_ARTIFACT_INVALID", "run SHA-256 assertion is invalid"
+        )
+    repo_root = discover_repo_root(Path.cwd())
+    source = _git_state(repo_root)
+    if source["candidate_sha"] != args.candidate:
+        raise VerificationError(
+            "CANDIDATE_MISMATCH", "candidate assertion does not match repository HEAD"
+        )
+    if source["dirty"]:
+        raise VerificationError("CANDIDATE_MISMATCH", "candidate worktree is not clean")
+    _validate_committed_error_catalog(repo_root)
+    run_path = _existing_beneath(repo_root, args.validate_run_result, "run result")
+    if run_path.name != "run.json":
+        raise VerificationError(
+            "VERIFY_ARTIFACT_INVALID", "run result must be named run.json"
+        )
+    if stat.S_IMODE(run_path.stat().st_mode) != 0o600:
+        raise VerificationError("VERIFY_ARTIFACT_INVALID", "run result mode is invalid")
+    if sha256_file(run_path) != args.run_sha256:
+        raise VerificationError("VERIFY_ARTIFACT_INVALID", "run result hash mismatch")
+    result_root = run_path.parent.resolve(strict=True)
+    if stat.S_IMODE(result_root.stat().st_mode) != 0o700:
+        raise VerificationError(
+            "VERIFY_ARTIFACT_INVALID", "result root mode is invalid"
+        )
+
+    run = _require_dict(strict_json_load(run_path.read_bytes(), "run result"), "run")
+    run_keys = {
+        "schema_version",
+        "runner_version",
+        "run_id",
+        "stage",
+        "candidate_sha",
+        "manifest_sha256",
+        "requirement_catalog_sha256",
+        "runner_sha256",
+        "platform",
+        "aggregate_verdict",
+        "counts",
+        "checks",
+        "requirements",
+        "unmet_or_later_owned_requirements",
+        "generated_utc",
+    }
+    _exact_keys(run, run_keys, "run result")
+    if run["schema_version"] != RUN_SCHEMA:
+        raise VerificationError(
+            "VERIFY_MANIFEST_INVALID", "unsupported run result schema"
+        )
+    if run["candidate_sha"] != args.candidate:
+        raise VerificationError("CANDIDATE_MISMATCH", "run candidate does not match")
+
+    manifest_path = _existing_beneath(
+        repo_root, "verification/manifest.json", "verification manifest"
+    )
+    raw_manifest = manifest_path.read_bytes()
+    manifest = validate_manifest(
+        strict_json_load(raw_manifest, "verification manifest"), repo_root
+    )
+    expected_hashes = {
+        "manifest_sha256": sha256_bytes(raw_manifest),
+        "requirement_catalog_sha256": sha256_bytes(
+            canonical_json_bytes(manifest["requirement_catalog"])
+        ),
+        "runner_sha256": sha256_file(Path(__file__).resolve()),
+    }
+    for key, expected in expected_hashes.items():
+        if run[key] != expected:
+            raise VerificationError(
+                "VERIFY_ARTIFACT_INVALID", f"run {key} does not match authority"
+            )
+
+    checks = _require_list(run["checks"], "run checks")
+    if not checks:
+        raise VerificationError("VERIFY_ARTIFACT_INVALID", "run has zero checks")
+    if run["run_id"] != result_root.name:
+        raise VerificationError(
+            "VERIFY_ARTIFACT_INVALID", "run ID does not match result directory"
+        )
+    if not isinstance(run["stage"], str) or not run["stage"]:
+        raise VerificationError("VERIFY_ARTIFACT_INVALID", "run stage is invalid")
+    platform_record = _require_dict(run["platform"], "run platform")
+    _exact_keys(
+        platform_record, {"os", "architecture", "kernel_release"}, "run platform"
+    )
+    if platform_record["os"] not in {"macos", "linux"}:
+        raise VerificationError("VERIFY_ARTIFACT_INVALID", "run platform is invalid")
+    expected_rows = [row for row in manifest["checks"] if row["stage"] == run["stage"]]
+    expected_ids = [row["check_id"] for row in expected_rows]
+    observed_ids = [
+        _require_dict(check, "run check").get("check_id") for check in checks
+    ]
+    if observed_ids != expected_ids:
+        raise VerificationError(
+            "VERIFY_ARTIFACT_INVALID",
+            "run check universe/order does not match the manifest",
+        )
+    row_by_id = {row["check_id"]: row for row in expected_rows}
+    counts = {name: 0 for name in ("PASS", "FAIL", "INCONCLUSIVE", "NOT_APPLICABLE")}
+    for raw in checks:
+        check = _require_dict(raw, "run check")
+        _exact_keys(
+            check,
+            {
+                "check_id",
+                "execution_state",
+                "verdict",
+                "error_code",
+                "receipt_path",
+                "receipt_sha256",
+                "requirement_ids",
+            },
+            "run check",
+        )
+        row = row_by_id[check["check_id"]]
+        if check["requirement_ids"] != row["requirement_ids"]:
+            raise VerificationError(
+                "VERIFY_ARTIFACT_INVALID", "check requirements do not match manifest"
+            )
+        receipt_path = _existing_beneath(
+            result_root, check["receipt_path"], "check receipt"
+        )
+        if stat.S_IMODE(receipt_path.stat().st_mode) != 0o600:
+            raise VerificationError(
+                "VERIFY_ARTIFACT_INVALID", "check receipt mode is invalid"
+            )
+        if sha256_file(receipt_path) != check["receipt_sha256"]:
+            raise VerificationError(
+                "VERIFY_ARTIFACT_INVALID", "check receipt hash does not match"
+            )
+        receipt = _require_dict(
+            strict_json_load(receipt_path.read_bytes(), "check receipt"),
+            "check receipt",
+        )
+        for key, expected in {
+            "schema_version": RECEIPT_SCHEMA,
+            "check_id": check["check_id"],
+            "verdict": check["verdict"],
+            "execution_state": check["execution_state"],
+            "manifest_sha256": run["manifest_sha256"],
+            "requirement_catalog_sha256": run["requirement_catalog_sha256"],
+            "runner_sha256": run["runner_sha256"],
+            "manifest_row_sha256": sha256_bytes(canonical_json_bytes(row)),
+            "command": row["command"],
+            "working_directory": row["working_directory"],
+            "requirement_ids": row["requirement_ids"],
+            "platform": platform_record,
+        }.items():
+            if receipt.get(key) != expected:
+                raise VerificationError(
+                    "VERIFY_ARTIFACT_INVALID", f"receipt {key} does not match run"
+                )
+        if receipt.get("source", {}).get("candidate_sha") != args.candidate:
+            raise VerificationError(
+                "CANDIDATE_MISMATCH", "receipt candidate does not match"
+            )
+        expected_not_applicable = (
+            platform_record["os"] not in row["platforms"]
+            or row["applicability"]["state"] == "NOT_APPLICABLE"
+        )
+        if expected_not_applicable != (check["execution_state"] == "NOT_APPLICABLE"):
+            raise VerificationError(
+                "VERIFY_ARTIFACT_INVALID",
+                "check execution state does not match applicability",
+            )
+        streams = _require_dict(receipt.get("streams"), "receipt streams")
+        if check["execution_state"] == "RAN" and set(streams) != {
+            "stdout",
+            "stderr",
+        }:
+            raise VerificationError(
+                "VERIFY_ARTIFACT_INVALID", "executed check streams are incomplete"
+            )
+        if check["execution_state"] != "RAN" and streams:
+            raise VerificationError(
+                "VERIFY_ARTIFACT_INVALID", "unexecuted check has stream evidence"
+            )
+        for stream_name, record in streams.items():
+            _validate_evidence_record(
+                result_root, record, f"{check['check_id']} {stream_name}"
+            )
+        if check["execution_state"] == "RAN" and "environment_artifact" not in receipt:
+            raise VerificationError(
+                "VERIFY_ARTIFACT_INVALID",
+                "executed check lacks environment evidence",
+            )
+        if "environment_artifact" in receipt:
+            _validate_evidence_record(
+                result_root,
+                receipt["environment_artifact"],
+                f"{check['check_id']} environment",
+            )
+        artifact_records = _require_list(
+            receipt.get("required_artifacts"), "receipt required artifacts"
+        )
+        if check["verdict"] == "PASS" and len(artifact_records) != len(
+            row["required_artifacts"]
+        ):
+            raise VerificationError(
+                "VERIFY_ARTIFACT_INVALID", "required artifact universe is incomplete"
+            )
+        for index, record in enumerate(artifact_records):
+            if index >= len(row["required_artifacts"]):
+                raise VerificationError(
+                    "VERIFY_ARTIFACT_INVALID", "unexpected required artifact evidence"
+                )
+            if record.get("declared_path") != row["required_artifacts"][index]["path"]:
+                raise VerificationError(
+                    "VERIFY_ARTIFACT_INVALID", "required artifact path does not match"
+                )
+            artifact_record = dict(record)
+            artifact_record["path"] = f"{check['check_id']}/{artifact_record['path']}"
+            _validate_evidence_record(
+                result_root,
+                artifact_record,
+                f"{check['check_id']} artifact {index}",
+            )
+        if check["verdict"] not in counts:
+            raise VerificationError(
+                "VERIFY_ARTIFACT_INVALID", "check verdict is invalid"
+            )
+        counts[check["verdict"]] += 1
+    if run["counts"] != counts:
+        raise VerificationError("VERIFY_ARTIFACT_INVALID", "run counts do not match")
+    expected_aggregate, _ = _aggregate(
+        [
+            {
+                "verdict": check["verdict"],
+                "execution_state": check["execution_state"],
+            }
+            for check in checks
+        ]
+    )
+    if run["aggregate_verdict"] != expected_aggregate:
+        raise VerificationError(
+            "VERIFY_ARTIFACT_INVALID", "aggregate verdict does not match checks"
+        )
+    expected_requirements, expected_unmet = _requirement_projection(
+        manifest["requirement_catalog"], checks, run["stage"]
+    )
+    if run["requirements"] != expected_requirements:
+        raise VerificationError(
+            "VERIFY_ARTIFACT_INVALID", "requirement projection does not match checks"
+        )
+    if run["unmet_or_later_owned_requirements"] != expected_unmet:
+        raise VerificationError(
+            "VERIFY_ARTIFACT_INVALID", "unmet requirement projection does not match"
+        )
+    print("RUN_RESULT_VALID")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = VerificationArgumentParser(
         description="Run fail-closed SDLC-OS verification checks and write protected receipts."
@@ -2941,6 +3441,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--platform", choices=("macos", "linux"))
     parser.add_argument("--run-id")
     parser.add_argument("--validate-review-result")
+    parser.add_argument("--validate-run-result")
+    parser.add_argument("--run-sha256")
     parser.add_argument("--candidate")
     return parser
 
@@ -2950,6 +3452,22 @@ def main(argv: list[str] | None = None) -> int:
     args = None
     try:
         args = parser.parse_args(argv)
+        if args.validate_run_result:
+            if any(
+                (
+                    args.manifest,
+                    args.stage,
+                    args.results_dir,
+                    args.platform,
+                    args.run_id,
+                    args.validate_review_result,
+                )
+            ):
+                raise VerificationError(
+                    "VERIFY_MANIFEST_INVALID",
+                    "run validation and execution modes are exclusive",
+                )
+            return _run_result_validation(args)
         if args.validate_review_result:
             if any(
                 (
@@ -2958,6 +3476,7 @@ def main(argv: list[str] | None = None) -> int:
                     args.results_dir,
                     args.platform,
                     args.run_id,
+                    args.run_sha256,
                 )
             ):
                 raise VerificationError(
@@ -2979,6 +3498,10 @@ def main(argv: list[str] | None = None) -> int:
         if args.candidate:
             raise VerificationError(
                 "VERIFY_MANIFEST_INVALID", "--candidate requires review mode"
+            )
+        if args.run_sha256:
+            raise VerificationError(
+                "VERIFY_MANIFEST_INVALID", "--run-sha256 requires run validation mode"
             )
         return _normal_run(args)
     except EvidenceWriteError as error:

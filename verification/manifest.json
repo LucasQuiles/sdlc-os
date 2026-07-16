@@ -1510,7 +1510,7 @@
         "type": "test_count_regex",
         "stream": "stderr",
         "pattern": "(?m)^Ran ([0-9]+) tests? in [0-9.]+s$",
-        "min_count": 40
+        "min_count": 49
       },
       "negative_falsifier": "Any false pass, unsafe manifest, masked exit, missing artifact, durability fault, survivor, or authority drift fails.",
       "independence_requirement": "author-executable; non-author reproduction required at the release gate",

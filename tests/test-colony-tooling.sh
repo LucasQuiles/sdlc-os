@@ -140,6 +140,7 @@ from pathlib import Path
 
 root = Path(sys.argv[1])
 paths = [
+    root / "run-tsx.sh",
     root / "smoke-test.sh",
     root / "bridge.test.ts",
     root / "bridge-cli.ts",

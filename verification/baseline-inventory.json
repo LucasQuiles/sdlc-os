@@ -910,6 +910,66 @@
       "closure_proof": "Fresh macOS and Linux candidate manifests plus focused red/green receipts must pass before the finding is admitted as closed"
     },
     {
+      "stable_id": "P27-36",
+      "class": "candidate runbook reconstruction gap",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-07",
+        "AP-24"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before final candidate reviewer replay",
+      "evidence": "A fresh non-author replay of candidate 70b9a283c989742407e3242b02265b52ddca9b30 required invented bundle intake, expected digest, detached checkout, Node resolution, tool enumeration, and result validation commands",
+      "rationale": "A passing manifest is not independently reproducible when the committed operator contract omits its intake and admission boundaries",
+      "mitigation": "Provide and execute a copy-paste bundle-to-validated-result runbook with provider assertions and fail-closed result validation",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "OWNER_ACCEPTED_CORRECTION_2",
+      "review_date": "2026-07-15",
+      "closure_proof": "Fresh bundle replay follows only committed commands and validates the complete candidate-bound result tree"
+    },
+    {
+      "stable_id": "P27-37",
+      "class": "structured environment value disclosure",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-07",
+        "AP-11"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before final candidate freeze",
+      "evidence": "A benign BUILD_NOTE key carrying a synthetic secret-like canary returned PASS and appeared verbatim in environment.json",
+      "rationale": "Mode protection does not make raw declared secrets suitable for structured evidence or reviewer handling",
+      "mitigation": "Keep the real child environment only in memory and persist stable literals, substitution tokens, and hashes",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "OWNER_ACCEPTED_CORRECTION_2",
+      "review_date": "2026-07-15",
+      "closure_proof": "Canary-absence regression and full manifest receipts prove no raw declared value is serialized"
+    },
+    {
+      "stable_id": "P27-38",
+      "class": "reparented descendant false pass",
+      "severity": "MATERIAL",
+      "priority": 0,
+      "owner": "Codex root",
+      "affected_requirements": [
+        "S1-07",
+        "AP-11"
+      ],
+      "affected_stage_release": "1A",
+      "trigger_or_due": "Before final candidate freeze",
+      "evidence": "Five identical double-fork plus setsid probes returned PASS while a closed-stdio descendant remained alive after leader exit",
+      "rationale": "Parent and process-group snapshots alone cannot identify a daemonized descendant after reparenting",
+      "mitigation": "Pass a unique inherited Unix-socket ownership descriptor, enumerate exact holders with bounded canonical lsof, bind PID/start identity, use Linux pidfd when available, and terminate only freshly revalidated holders",
+      "current_verdict": "INCONCLUSIVE",
+      "disposition": "OWNER_ACCEPTED_CORRECTION_2",
+      "review_date": "2026-07-15",
+      "closure_proof": "Repeated orphan regression returns VERIFY_BACKGROUND_PROCESS, records the holder, and leaves no survivor on macOS and Linux"
+    },
+    {
       "stable_id": "BASE-1A-001",
       "class": "baseline_defect",
       "severity": "MATERIAL",

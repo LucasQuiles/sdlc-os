@@ -103,6 +103,23 @@ elif mode == "setsid-transient":
         os._exit(0)
     os.waitpid(child, 0)
     print("tests=1")
+elif mode == "setsid-orphan":
+    middle = os.fork()
+    if middle == 0:
+        orphan = os.fork()
+        if orphan == 0:
+            os.setsid()
+            for descriptor in (0, 1, 2):
+                try:
+                    os.close(descriptor)
+                except OSError:
+                    pass
+            time.sleep(60)
+            os._exit(0)
+        print(f"orphan_pid={orphan}", flush=True)
+        os._exit(0)
+    os.waitpid(middle, 0)
+    print("tests=1")
 elif mode == "signal":
     print("ready-for-signal", flush=True)
     time.sleep(60)
@@ -861,6 +878,12 @@ class ExecutionReceiptTests(VerificationRunnerCase):
         self.assertEqual(receipt["execution"]["exit_code"], 0)
         self.assertFalse(receipt["execution"]["timed_out"])
         self.assertGreaterEqual(receipt["execution"]["duration_monotonic_ns"], 0)
+        self.assertEqual(
+            receipt["execution"]["process_monitor"]["resolved"], "system:lsof"
+        )
+        self.assertTrue(
+            SHA256_RE.fullmatch(receipt["execution"]["process_monitor"]["sha256"])
+        )
         self.assertEqual(receipt["verdict"], "PASS")
         self.assertEqual(
             receipt["source"]["candidate_sha"],
@@ -902,6 +925,29 @@ class ExecutionReceiptTests(VerificationRunnerCase):
         self.assertNotIn(str(Path.home()), structured)
         self.assertEqual(summary["aggregate_verdict"], "PASS")
         self.assertEqual(summary["counts"]["PASS"], 1)
+
+    def test_structured_environment_tokenizes_declared_secret_like_values(self):
+        marker = "ghp_secret-like-canary-must-never-be-serialized"
+        row = self.repo.base_row(
+            environment={
+                "PROBE_MODE": "pass",
+                "BUILD_NOTE": f"{marker}-${{CHECK_HOME}}",
+            }
+        )
+        result = self.run_row(row)
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        check_dir = self.repo.last_results / "check-pass"
+        environment_bytes = (check_dir / "environment.json").read_bytes()
+        receipt = self.repo.receipt()
+        summary = self.repo.summary()
+        structured = environment_bytes + json.dumps(
+            {"receipt": receipt, "summary": summary}, sort_keys=True
+        ).encode("utf-8")
+        self.assertNotIn(marker.encode("utf-8"), structured)
+        environment = json.loads(environment_bytes)
+        self.assertRegex(environment["BUILD_NOTE"], r"\Aredacted:sha256:[0-9a-f]{64}\Z")
+        self.assertEqual(environment["HOME"], "${CHECK_HOME}")
+        self.assertEqual(environment["TMPDIR"], "${CHECK_TMPDIR}")
 
     def test_true_exit_inconclusive_and_fail_precedence(self):
         rows = [
@@ -1083,7 +1129,9 @@ class ProcessLifecycleTests(VerificationRunnerCase):
     def _owned_pid_from_stdout(self, key: str) -> int:
         receipt = self.repo.receipt()
         stdout_path = self.repo.last_results / receipt["streams"]["stdout"]["path"]
-        match = re.search(rb"(?:child_pid|escaped_pid)=(\d+)", stdout_path.read_bytes())
+        match = re.search(
+            re.escape(key).encode("ascii") + rb"=(\d+)", stdout_path.read_bytes()
+        )
         self.assertIsNotNone(match)
         return int(match.group(1))
 
@@ -1146,6 +1194,124 @@ class ProcessLifecycleTests(VerificationRunnerCase):
         result = self.run_row(row)
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
         self.assertEqual(self.repo.receipt()["verdict"], "PASS")
+
+    def test_reparented_setsid_descendant_is_detected_and_cleaned(self):
+        row = self.repo.base_row(
+            environment={"PROBE_MODE": "setsid-orphan"},
+            required_artifacts=[],
+            expected_observation={
+                "type": "contains",
+                "stream": "stdout",
+                "value": "orphan_pid=",
+            },
+        )
+        result = self.run_row(row)
+        orphan_pid = self._owned_pid_from_stdout("orphan_pid")
+        try:
+            self.assertEqual(
+                result.returncode, 3, result.stderr.decode(errors="replace")
+            )
+            receipt = self.repo.receipt()
+            self.assertEqual(receipt["error_code"], "VERIFY_BACKGROUND_PROCESS")
+            self.assertGreaterEqual(
+                receipt["execution"]["escaped_descendants_observed"], 1
+            )
+            self.assertTrue(wait_until(lambda: not pid_exists(orphan_pid)))
+        finally:
+            if pid_exists(orphan_pid):
+                os.kill(orphan_pid, signal.SIGKILL)
+
+    def test_orphan_cleanup_does_not_signal_unrelated_process(self):
+        unrelated = subprocess.Popen(["/bin/sleep", "30"])
+        orphan_pid = None
+        try:
+            row = self.repo.base_row(
+                environment={"PROBE_MODE": "setsid-orphan"},
+                required_artifacts=[],
+                expected_observation={
+                    "type": "contains",
+                    "stream": "stdout",
+                    "value": "orphan_pid=",
+                },
+            )
+            result = self.run_row(row)
+            orphan_pid = self._owned_pid_from_stdout("orphan_pid")
+            self.assertEqual(
+                result.returncode, 3, result.stderr.decode(errors="replace")
+            )
+            self.assertIsNone(unrelated.poll())
+            self.assertTrue(wait_until(lambda: not pid_exists(orphan_pid)))
+        finally:
+            if orphan_pid is not None and pid_exists(orphan_pid):
+                os.kill(orphan_pid, signal.SIGKILL)
+            unrelated.terminate()
+            unrelated.wait(timeout=5)
+
+    def test_holder_identity_drift_refuses_signal(self):
+        with mock.patch.object(
+            RUNNER,
+            "_ownership_holders",
+            return_value={12345: (os.getuid(), "replacement-start")},
+        ):
+            with mock.patch.object(RUNNER.os, "kill") as kill:
+                signaled = RUNNER._signal_verified_holder(
+                    Path("/usr/sbin/lsof"),
+                    Path("/tmp/owner.sock"),
+                    12345,
+                    (os.getuid(), "original-start"),
+                    signal.SIGTERM,
+                )
+        self.assertFalse(signaled)
+        kill.assert_not_called()
+
+    def test_process_monitor_timeout_fails_closed(self):
+        with mock.patch.object(
+            RUNNER.subprocess,
+            "run",
+            side_effect=subprocess.TimeoutExpired(["lsof"], 2),
+        ):
+            with self.assertRaises(RUNNER.VerificationError) as raised:
+                RUNNER._ownership_holders(
+                    Path("/usr/sbin/lsof"), Path("/tmp/owner.sock")
+                )
+        self.assertEqual(raised.exception.code, "VERIFY_BACKGROUND_PROCESS")
+
+    def test_process_holder_with_unreadable_identity_fails_closed(self):
+        runner_pid = os.getpid()
+        unreadable_pid = runner_pid + 10_000
+        lsof_result = subprocess.CompletedProcess(
+            ["lsof"],
+            0,
+            stdout=f"p{runner_pid}\np{unreadable_pid}\n".encode(),
+            stderr=b"",
+        )
+
+        def identity_for(pid):
+            if pid == runner_pid:
+                return os.getuid(), "runner-start"
+            return None
+
+        with mock.patch.object(RUNNER.subprocess, "run", return_value=lsof_result):
+            with mock.patch.object(
+                RUNNER, "_process_start_identity", side_effect=identity_for
+            ):
+                with self.assertRaises(RUNNER.VerificationError) as raised:
+                    RUNNER._ownership_holders(
+                        Path("/usr/sbin/lsof"), Path("/tmp/owner.sock")
+                    )
+        self.assertEqual(raised.exception.code, "VERIFY_BACKGROUND_PROCESS")
+        self.assertIn("identity is unavailable", str(raised.exception))
+
+    def test_darwin_process_identity_timeout_fails_closed(self):
+        with mock.patch.object(RUNNER.platform, "system", return_value="Darwin"):
+            with mock.patch.object(
+                RUNNER.subprocess,
+                "run",
+                side_effect=subprocess.TimeoutExpired(["/bin/ps"], 2),
+            ):
+                with self.assertRaises(RUNNER.VerificationError) as raised:
+                    RUNNER._process_start_identity(12345)
+        self.assertEqual(raised.exception.code, "VERIFY_BACKGROUND_PROCESS")
 
     def test_runner_sigint_terminates_group_and_writes_inconclusive_receipt(self):
         row = self.repo.base_row(
@@ -1528,6 +1694,27 @@ class CommittedAuthorityTests(VerificationRunnerCase):
         )
         self.assertIn("python3.12 scripts/run-verification.py", readme)
         self.assertIn("--validate-review-result", readme)
+        self.assertIn("--validate-run-result", readme)
+        self.assertIn("EXPECTED_BUNDLE_SHA256", readme)
+        self.assertIn("git bundle verify", readme)
+        self.assertIn("git switch --detach", readme)
+        self.assertIn("brew --prefix node@20", readme)
+        self.assertIn("command -v lsof", readme)
+        prepare_section = re.search(
+            r"## Prepare an Immutable Candidate\n.*?```bash\n(.*?)\n```",
+            readme,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(prepare_section)
+        self.assertIn("set -euo pipefail", prepare_section.group(1))
+        self.assertNotIn("npm ci", prepare_section.group(1))
+        self.assertIsNotNone(
+            re.search(
+                r'NODE20_BIN=.*?test .*?v20\.20\.2.*?PATH="\$NODE20_BIN:\$PATH" npm ci',
+                readme,
+                flags=re.DOTALL,
+            )
+        )
         self.assertIn("unmet_or_later_owned_requirements", readme)
         self.assertIn("VERIFY_SOURCE_MUTATION", readme)
 
@@ -1649,6 +1836,99 @@ class CommittedAuthorityTests(VerificationRunnerCase):
         )
         self.assertEqual(help_result.returncode, 0)
         self.assertIn(b"--validate-review-result", help_result.stdout)
+        self.assertIn(b"--validate-run-result", help_result.stdout)
+
+    def test_run_result_validation_is_candidate_and_content_bound(self):
+        result = self.run_row(self.repo.base_row())
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        match = re.fullmatch(rb"RUN_SHA256=([0-9a-f]{64})\n", result.stdout)
+        self.assertIsNotNone(match)
+        run_sha256 = match.group(1).decode("ascii")
+        candidate = self.repo.git("rev-parse", "HEAD").stdout.decode().strip()
+        run_path = self.repo.last_results / "run.json"
+        relative_run = run_path.relative_to(self.repo.root).as_posix()
+
+        def validate(expected_sha=run_sha256):
+            return subprocess.run(
+                [
+                    sys.executable,
+                    str(RUNNER_PATH),
+                    "--validate-run-result",
+                    relative_run,
+                    "--run-sha256",
+                    expected_sha,
+                    "--candidate",
+                    candidate,
+                ],
+                cwd=self.repo.root,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+
+        valid = validate()
+        self.assertEqual(valid.returncode, 0, valid.stderr.decode(errors="replace"))
+        self.assertEqual(valid.stdout, b"RUN_RESULT_VALID\n")
+        mismatch = validate("f" * 64)
+        self.assertEqual(mismatch.returncode, 64)
+        self.assertIn(b"VERIFY_ARTIFACT_INVALID", mismatch.stderr)
+
+        receipt_path = self.repo.last_results / "check-pass" / "receipt.json"
+        receipt_path.write_bytes(receipt_path.read_bytes() + b" ")
+        changed = validate()
+        self.assertEqual(changed.returncode, 64)
+        self.assertIn(b"VERIFY_ARTIFACT_INVALID", changed.stderr)
+
+    def test_run_result_validation_rejects_omitted_rows_and_evidence(self):
+        rows = [
+            self.repo.base_row("check-one"),
+            self.repo.base_row("check-two"),
+        ]
+        self.repo.write_manifest(self.repo.base_manifest(rows))
+        result = self.repo.run()
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        candidate = self.repo.git("rev-parse", "HEAD").stdout.decode().strip()
+        run_path = self.repo.last_results / "run.json"
+        relative_run = run_path.relative_to(self.repo.root).as_posix()
+        original_run = run_path.read_bytes()
+        original_receipt = (
+            self.repo.last_results / "check-one" / "receipt.json"
+        ).read_bytes()
+
+        def validate_current():
+            return subprocess.run(
+                [
+                    sys.executable,
+                    str(RUNNER_PATH),
+                    "--validate-run-result",
+                    relative_run,
+                    "--run-sha256",
+                    sha256_file(run_path),
+                    "--candidate",
+                    candidate,
+                ],
+                cwd=self.repo.root,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+
+        omitted = json.loads(original_run)
+        omitted["checks"] = omitted["checks"][1:]
+        omitted["counts"]["PASS"] = 1
+        run_path.write_bytes(RUNNER.canonical_json_bytes(omitted))
+        self.assertEqual(validate_current().returncode, 64)
+
+        run_path.write_bytes(original_run)
+        receipt_path = self.repo.last_results / "check-one" / "receipt.json"
+        receipt = json.loads(original_receipt)
+        receipt.pop("streams")
+        receipt.pop("environment_artifact")
+        receipt_path.write_bytes(RUNNER.canonical_json_bytes(receipt))
+        summary = json.loads(original_run)
+        summary["checks"][0]["receipt_sha256"] = sha256_file(receipt_path)
+        run_path.write_bytes(RUNNER.canonical_json_bytes(summary))
+        self.assertEqual(validate_current().returncode, 64)
 
     def test_review_result_validation_is_candidate_bound(self):
         self.repo.write_manifest(self.repo.base_manifest())
