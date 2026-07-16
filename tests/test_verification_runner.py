@@ -1522,21 +1522,28 @@ class CommittedAuthorityTests(VerificationRunnerCase):
                     "1",
                 )
 
-    def test_p27_35_cross_platform_finding_is_recorded_for_candidate_replay(self):
+    def test_final_correction_findings_are_accounted_without_hiding_residual(self):
         inventory = json.loads(
             (PROJECT_ROOT / "verification" / "baseline-inventory.json").read_text(
                 encoding="utf-8"
             )
         )
-        finding = next(
-            (item for item in inventory["items"] if item["stable_id"] == "P27-35"),
-            None,
-        )
-        self.assertIsNotNone(finding, "P27-35 is missing from the baseline inventory")
-        self.assertEqual(finding["affected_stage_release"], "1A")
-        self.assertEqual(finding["disposition"], "OWNER_ACCEPTED_CORRECTION_1")
-        self.assertEqual(finding["current_verdict"], "INCONCLUSIVE")
-        self.assertIn("macOS and Linux", finding["closure_proof"])
+        findings = {item["stable_id"]: item for item in inventory["items"]}
+        for stable_id in ("P27-35", "P27-36", "P27-37", "P27-38"):
+            with self.subTest(stable_id=stable_id):
+                finding = findings[stable_id]
+                self.assertEqual(finding["affected_stage_release"], "1A")
+                self.assertEqual(finding["disposition"], "RESOLVED_1A")
+                self.assertEqual(finding["current_verdict"], "PASS")
+                self.assertTrue(finding["evidence"].strip())
+                self.assertTrue(finding["closure_proof"].strip())
+
+        residual = findings["P27-39"]
+        self.assertEqual(residual["affected_stage_release"], "1C")
+        self.assertEqual(residual["current_verdict"], "INCONCLUSIVE")
+        self.assertEqual(residual["disposition"], "ACCEPTED_RESIDUAL_DEFERRED_TO_1C")
+        self.assertTrue(residual["trigger_or_due"].strip())
+        self.assertTrue(residual["closure_proof"].strip())
 
     def test_authority_files_validate_and_deferred_commands_stay_out(self):
         verification = PROJECT_ROOT / "verification"
