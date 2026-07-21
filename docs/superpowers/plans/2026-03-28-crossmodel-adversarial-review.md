@@ -1,5 +1,13 @@
 # Cross-Model Adversarial Review Implementation Plan
 
+> **Status: HISTORICAL / SUPERSEDED.** This plan records the original rollout
+> and must not be used as current execution policy. The active authorities are
+> `skills/sdlc-crossmodel/SKILL.md`, `agents/crossmodel-supervisor.md`,
+> `references/fft-decision-trees.md`, and `scripts/crossmodel-health.sh`.
+> Required review roles now fail closed on unavailable execution, missing
+> attempt/model receipts, or unaccepted artifacts; only an explicit current
+> FFT-14 `SKIP` decision is not applicable.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add cross-model adversarial review to the SDLC-OS pipeline using tmup/Codex workers, with FFT-14 routing, resilient session management, and advisory-only day-1 stance.

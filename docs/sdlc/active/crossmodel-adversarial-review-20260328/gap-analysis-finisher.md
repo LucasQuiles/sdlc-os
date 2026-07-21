@@ -1,5 +1,13 @@
 # Gap Analysis: Cross-Model Adversarial Review (v9.0.0) — Finisher Mode
 
+> **Status: SUPERSEDED EVIDENCE.** This snapshot evaluated the original
+> fail-open design and is retained only for audit history. Its completion
+> percentage, fallback conclusions, and advancement recommendations are not
+> current policy. Use `skills/sdlc-crossmodel/SKILL.md` and
+> `scripts/crossmodel-health.sh`; a required role needs a successful terminal
+> attempt receipt, accepted artifact evidence, and qualifying observed-model
+> receipt before the parent workflow may advance.
+
 **Date:** 2026-03-28
 **Task ID:** crossmodel-adversarial-review-20260328
 **Analyst:** Gap Analysis Tool (Finisher Mode)
