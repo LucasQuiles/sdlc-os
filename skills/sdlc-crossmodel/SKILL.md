@@ -18,7 +18,7 @@ Supplement to the same-model AQS pipeline. Uses tmup to dispatch Codex CLI worke
 - **Position in pipeline:** After AQS structured exit block is emitted, before bead status → `hardened`
 - **Conductor dispatches:** `crossmodel-supervisor` agent with bead context, FFT-14 outcome, AQS structured exit block
 
-If FFT-14 returns SKIP or SKIP_UNAVAILABLE, this skill does not run. Bead proceeds directly to `hardened` via normal AQS path.
+If FFT-14 returns SKIP, this skill does not run and the bead may proceed through the normal AQS path. If policy selects FULL or TARGETED but the runtime is unavailable, the outcome is `REQUIRED_UNAVAILABLE`: retain the bead at `proven`, record the failed requirement, and escalate to L3. Availability cannot rewrite a required review into SKIP.
 
 ---
 
@@ -33,6 +33,7 @@ FFT-14 consumes the AQS structured exit block (5 fields) plus deterministic bead
 | `residual_risk_per_domain` | AQS exit block | Cue 7: any domain >= MEDIUM → TARGETED |
 | `dominant_residual_risk_domain` | AQS exit block | TARGETED domain selector |
 | `turbulence_sum` | AQS exit block | Cue 6: > 3 → TARGETED |
+| `runtime_receipt.observed_model` + captured `source_artifact` | AQS exit block | Required cross-model reference; missing, unknown, or hash/content mismatch → REQUIRED_UNAVAILABLE |
 | `cynefin_domain` | Bead field | Cue 2: COMPLEX → FULL |
 | `security_sensitive` | Bead field | Cue 2: true → FULL |
 | Quality budget state | Conductor state | Cue 3: DEPLETED → FULL; Cue 4: WARNING → TARGETED |
@@ -63,36 +64,11 @@ Steps 2 and 3 are separate: `tmup_init` creates the SQLite session/DB; `crossmod
 
 ## tmup Runtime Contract
 
-Cross-model workers inherit tmup's current interactive Codex worker contract automatically:
+Treat tmup configuration as live runtime data, not documentation constants. Before dispatch, inspect the installed tmup runtime, live `tools/list` schema, and selected policy. Model-explicit lanes require a live-catalog validation receipt; the MCP cross-model path rejects explicit pins because it cannot carry that receipt. With `model: auto`, record catalog status as not applicable and require post-launch observed-model attestation. Requested and observed configuration remain separate; unknown cannot satisfy a required-model gate.
 
-- Root pane workers launch on `gpt-5.4`
-- `model_context_window=1050000`
-- `model_auto_compact_token_limit=750000`
-- `model_reasoning_effort=high`
-- `model_reasoning_summary=low`
-- `plan_mode_reasoning_effort=xhigh`
-- `model_verbosity=low`
-- `service_tier=fast`
-- `tool_output_token_limit=50000`
-- `web_search=live`
-- `history.persistence=save-all`
-- `features.undo=true`
-- `shell_environment_policy.inherit=all`
-- `features.shell_snapshot=true`
-- `features.enable_request_compression=true`
-- `tui.notifications=true`
-- `background_terminal_max_timeout=600000`
-- `agents.max_threads=6`
-- `agents.max_depth=2`
-- `agents.job_max_runtime_seconds=3600`
+Every required task is created with `role_required: true`, `evidence_required: true`, `model_requirement: cross_model`, and the same-model AQS runtime's **observed** model as `reference_model`. If the reference model was not observed, the cross-model requirement is inconclusive and escalates instead of inferring a model from an agent or role name.
 
-Tiered tmup subagents are available inside each pane:
-
-- `tmup-tier1` — `gpt-5.3-codex`
-- `tmup-tier2` — `gpt-5.2-codex`
-- `crossmodel-grid-up.sh` syncs these definitions into `~/.codex/agents/` before declaring the grid ready
-
-Resumed workers keep the same contract. `tmup_dispatch` with `resume_session_id` reapplies the configured model, context, compaction, approval, sandbox, and subagent-cap settings on resume.
+`tmup_dispatch` must return a launch receipt containing the task, agent, role, selector, requested model, observed model (initially `unknown` is allowed), observation source, fallback provenance, attempt ID, and launch status. Retain that receipt in the session journal. Attest the observed model only from a live runtime observation with `tmup_attempt_attest`; a selector label or configured default is not observation. The attestation source must persist into the terminal receipt and exactly match the journal's model-observation source. On resume, obtain and validate a new receipt rather than assuming the prior configuration was reapplied.
 
 ---
 
@@ -133,18 +109,18 @@ Each worker declares a unique `produces` artifact name at batch creation:
 | Stage A per domain | `{bead-id}-stage-a-{domain}-findings` | `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-a-{domain}-investigator.md` |
 | Stage B reviewer | `{bead-id}-stage-b-independent-review-findings` | `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-codex-b-independent-reviewer.md` |
 
-**Worker communication protocol:** tmup already injects the baseline worker contract: runtime settings, lane discipline, tmux input model, process context, quality posture, internal teams, and tmup-cli command reference. Cross-model dispatch prompts should add only the mission-specific delta (blindness constraints, artifact contract, checkpoint cadence, and domain focus). Workers are expected to:
+**Worker communication protocol:** tmup injects its installed worker baseline. Cross-model dispatch prompts add the mission-specific delta (blindness constraints, artifact contract, checkpoint cadence, and domain focus). Workers are expected to:
 1. Call `tmup-cli heartbeat` every 2-3 minutes
 2. Call `tmup-cli checkpoint` for progress updates (at least 1 within first 2 minutes)
 3. Call `tmup-cli message --to lead --type finding` for interim findings
 4. Write the findings file to the artifact path
-5. Call `tmup-cli complete "summary" --artifact {name}:{path}` to register the artifact and signal completion
+5. Send a checkpoint that the artifact is ready for supervisor review; do not represent the required task as complete before the evidence review is accepted
 
-**Internal teams:** Cross-model workers should use tmup's tiered internal teams when the work decomposes cleanly. Root workers may spawn `tmup-tier1`; tier-1 workers may spawn `tmup-tier2` for narrow leaf tasks. Do not spawn unnamed/raw agents.
+**Internal teams:** Use only roles present in the live catalog and only where delegation is permitted by the current runtime policy. Do not infer model, effort, or capability from a tier or role name. Leaf workers do not delegate.
 
 **Supervision pattern:** The supervisor manages these panes with the harvest → evaluate → reprompt loop. Keep live lane context warm and prefer reprompting the same pane over dispatching a replacement worker.
 
-The `tmup-cli complete --artifact` call is the **authoritative completion signal** — not file existence. It registers the artifact checksum in tmup's database. The supervisor uses `tmup_status` to detect completion, not filesystem polling.
+File existence and worker self-report are not completion. The supervisor verifies the artifact, adds the evidence packet with `tmup_evidence_add`, accepts it with `tmup_evidence_review`, and then calls `tmup_complete`. It subsequently reads `tmup_status` with `verbose: true` and persists the matching terminal receipt. A required role is complete only when the receipt has `terminal_status: succeeded`, the observed-model policy passes, and its accepted evidence and validated artifact match the registered task.
 
 `crossmodel-verify-artifact.sh` validates each artifact after collection. On re-verification after repair, use `--expected-checksum`. See spec Section 5.5 for the full artifact format and verification outcome table (VALID / MALFORMED / MISSING / NO_EVIDENCE).
 
@@ -154,25 +130,25 @@ The `tmup-cli complete --artifact` call is the **authoritative completion signal
 
 Reference `agents/crossmodel-supervisor.md` for full R&R protocol. Summary:
 
-**State machine:** `READY → RUNNING → COMPLETE`, with degraded paths to `DEGRADED` and `FALLBACK_CLAUDE_ONLY`.
+**State machine:** `READY → RUNNING → COMPLETE`, with non-success paths to `DEGRADED`, `BLOCKED`, and `REQUIRED_UNAVAILABLE`.
 
 **Retry budget:**
 
 | Operation | Budget | On exhaustion |
 |---|---|---|
-| Preflight | 1 retry (2 attempts) | DISABLED |
-| Fresh session (init + grid) | 1 retry | DISABLED for this bead |
-| Worker launch (in-place) | 0 | Skip worker, continue |
-| Replacement worker | 1 | Accept loss, continue |
+| Preflight | 1 retry (2 attempts) | REQUIRED_UNAVAILABLE; L3 escalation |
+| Fresh session (init + grid) | 1 retry | REQUIRED_UNAVAILABLE; L3 escalation |
+| Worker launch (in-place) | 0 | One replacement attempt; retain failed receipt |
+| Replacement worker | 1 | BLOCKED; L3 escalation |
 | Idle worker reprompt | 1 | Timeout worker |
-| Malformed artifact repair | 1 | NO_EVIDENCE |
+| Malformed artifact repair | 1 | NO_EVIDENCE; required task remains incomplete |
 
 **Fallback ladder:**
 ```
-FULL (5 workers) → TARGETED (2 workers) → REVIEWER_ONLY (1 worker) → CLAUDE_ONLY
+FULL (5 workers) → TARGETED (2 workers) → REVIEWER_ONLY (1 worker) → BLOCKED
 ```
 
-CLAUDE_ONLY is always valid — cross-model is an enhancer, not a prerequisite.
+Scope reduction is an explicit degraded policy decision, not successful execution of omitted roles. A same-model-only result cannot satisfy a cross-model-required gate.
 
 **Circuit breakers** — open on ANY of:
 1. 2 session-start failures
@@ -192,14 +168,14 @@ From spec Section 6.5:
 
 | Failure | Response |
 |---|---|
-| Preflight fails | Retry once. If still fails → DISABLED, log SKIP_UNAVAILABLE |
-| `tmup_init` fails | Log, DISABLED for this bead, Claude-only |
-| `crossmodel-grid-up.sh` fails | `crossmodel-grid-down.sh --force` (deregisters from tmup registry + kills tmux residue) → retry `tmup_init` with `xm-{bead-id}-r1`. If retry fails → DISABLED |
-| Worker launch fails | Mark unavailable, skip, continue surviving workers |
+| Preflight fails | Retry once. If still unavailable → REQUIRED_UNAVAILABLE, retain bead at `proven`, escalate L3 |
+| `tmup_init` fails | Retain receipt/error, retry once, then REQUIRED_UNAVAILABLE |
+| `crossmodel-grid-up.sh` fails | `crossmodel-grid-down.sh --force` (deregisters from tmup registry + kills tmux residue) → retry `tmup_init` with `xm-{bead-id}-r1`. If retry fails → REQUIRED_UNAVAILABLE |
+| Worker launch fails | Mark `unavailable`, retain the attempt receipt, use the one replacement budget; exhaustion blocks the parent gate |
 | Worker idle | `tmup_harvest` → evaluate lane state → `tmup_reprompt` once, then timeout |
-| Worker timeout (>10min) | `tmup_harvest` for supervision + forensics, mark TIMED_OUT, optional resume or one replacement |
-| Worker completes without artifact | NO_EVIDENCE (not clean) |
-| Artifact malformed | One repair request, then NO_EVIDENCE |
+| Worker timeout (>10min) | `tmup_harvest` for supervision + forensics, mark TIMED_OUT, optional resume or one replacement; exhaustion blocks |
+| Worker reports completion without accepted artifact | INCONCLUSIVE / NO_EVIDENCE; do not call `tmup_complete` |
+| Artifact malformed | One repair request, then NO_EVIDENCE; required task remains incomplete |
 | `crossmodel-grid-down.sh` fails | Warning only, note residue in session journal |
 | `tmup_status` shows stale agent | Logged — recovery runs as side effect of `tmup_status` |
 
@@ -209,13 +185,15 @@ From spec Section 6.5:
 
 From spec Section 6.6:
 
-- **Advisory only (day 1)** — findings do not independently block bead advancement
+- **Finding content is advisory; required execution is not** — the Conductor may rebut findings, but cannot mark a required review satisfied without accepted evidence and a successful terminal receipt
 - **Only the Conductor changes bead status** — never update bead status from within this skill
 - **Stage A workers never receive Claude AQS findings** — anti-anchoring is non-negotiable
 - **Stage B reviewer never receives any review artifacts** — full independence required
 - **Only normalized findings enter blue-team or triage flow** — raw Codex output is untrusted until verified
 - **Missing artifact = NO_EVIDENCE, never "clean"** — absence of artifact is not absence of findings
 - **All worker outputs must publish unique pre-registered artifacts** — required by tmup contract
+- **Unavailable, skipped, inconclusive, and completed are distinct states** — none of the first three satisfies a required role
+- **Requested and observed models remain separate** — a role name, selector, or configured default is not an observed-model receipt
 - **Cross-model never writes bead status directly**
 
 ---
@@ -225,9 +203,12 @@ From spec Section 6.6:
 | Tool | Purpose | Does NOT |
 |---|---|---|
 | `tmup_init` | Create SQLite session/DB | Create tmux grid — `crossmodel-grid-up.sh` does that |
-| `tmup_task_batch` | Register all worker tasks with unique `produces` names | Launch workers — `tmup_dispatch` does that |
-| `tmup_dispatch` | Launch or resume Codex workers to grid panes under the tmup runtime contract | Retry on failure — mark skipped and continue |
-| `tmup_status` | Primary heartbeat + stale-agent recovery trigger | Serve as sole monitoring signal |
+| `tmup_task_batch` | Register required role/model/evidence policy and unique `produces` names | Launch workers — `tmup_dispatch` does that |
+| `tmup_dispatch` | Launch or resume workers and atomically create an attempt receipt | Prove the observed model or terminal success |
+| `tmup_attempt_attest` | Record model observed from the live runtime | Infer a model from selector or role metadata |
+| `tmup_evidence_add` / `tmup_evidence_review` | Register and accept verified evidence for the matching attempt | Accept missing or malformed output |
+| `tmup_complete` | Complete a task after tmup enforces its declared receipt/evidence/model policy | Turn unavailable or inconclusive into success |
+| `tmup_status` with `verbose: true` | Return heartbeat state and running/terminal receipts | Let task status substitute for a matching receipt |
 | `tmup_inbox` | Check for blocker/finding messages from workers | Replace `tmup_status` in monitor loop |
 | `tmup_next_action` | Synthesized recommendation | Override human judgment — advisory only |
 | `tmup_reprompt` | Primary way to continue or redirect an existing live lane | Replace timeout for unresponsive workers |
@@ -240,7 +221,7 @@ Workers dispatched via `tmup_dispatch` are persistent interactive Codex sessions
 
 | Tool | Session role | What it is NOT |
 |---|---|---|
-| `tmup_dispatch` | Start or resume a persistent interactive session in a pane; resumes now reapply the same tmup runtime contract | Not a fire-and-forget exec call |
+| `tmup_dispatch` | Start or resume a persistent interactive session in a pane and return a new attempt receipt | Not a fire-and-forget exec call or proof that prior runtime settings were reapplied |
 | `tmup_reprompt` | Send follow-up text to an idle or queueable session via send-keys | Not a new command or process launch |
 | `tmup_harvest` | Read pane scrollback — observation only | Not a communication channel to the worker |
 
@@ -253,10 +234,10 @@ Do not run `codex exec`, Bash commands, or any direct shell interaction in worke
 | Script | Role |
 |---|---|
 | `crossmodel-preflight.sh` | Verify environment: tmup MCP reachable, codex in PATH, tmux available, artifact path writable, no conflicting session |
-| `crossmodel-grid-up.sh` | Create tmux panes for all workers; set `TMUP_NO_TERMINAL=1` to suppress GUI terminal launch in autonomous SDLC path; sync tmup tiered agents before declaring the grid ready |
+| `crossmodel-grid-up.sh` | Create tmux panes for workers; set `TMUP_NO_TERMINAL=1` to suppress GUI terminal launch; synchronize installed role definitions before declaring the grid ready (this does not authorize leaf delegation) |
 | `crossmodel-grid-down.sh` | Tear down tmux grid + clean residue. `--force`: also deregisters session from tmup registry (`registry.json`) to prevent reattachment on retry |
 | `crossmodel-verify-artifact.sh` | Validate artifact: existence, path, size, required headings, findings table, checksum. `--expected-checksum` flag on re-verification |
-| `crossmodel-health.sh` | Compute session health state from worker statuses for circuit breaker evaluation |
+| `crossmodel-health.sh` | Fail-closed parent gate over policy, required tasks, terminal receipts, observed models, accepted evidence, and validated artifacts |
 
 ---
 
@@ -268,17 +249,15 @@ Do not run `codex exec`, Bash commands, or any direct shell interaction in worke
 
 ---
 
-## Day-1 Stance
+## Advancement Stance
 
-Advisory only. Cross-model findings do not independently block bead advancement. The existing same-model AQS + blue team resolution is the gating mechanism. Cross-model is an enhancer layered on top.
-
-This stance is enforced structurally: the Conductor gates `hardened` transition — not the crossmodel-supervisor. Cross-model findings route through normal blue-team and triage channels before any resolution affects bead status.
+Finding content remains advisory and routes through normal blue-team and triage channels. Execution of a policy-required review is a hard gate: `crossmodel-health.sh` must return `gate_status: satisfied` and `advance_allowed: true` before the Conductor transitions the bead to `hardened`. Only an explicit FFT-14 `SKIP` decision produces `not_applicable`; infrastructure failure or worker loss does not.
 
 ---
 
 ## References
 
-- `docs/specs/2026-03-28-crossmodel-adversarial-review-design.md` — full design spec (sections 5, 6, 7)
+- `docs/specs/2026-03-28-crossmodel-adversarial-review-design.md` — historical design rationale only; its day-one fallback and advancement rules are non-normative
 - `agents/crossmodel-supervisor.md` — session controller: state machine, retry budget, circuit breakers, fallback ladder
 - `agents/crossmodel-triage.md` — Stage B finding deduplication and escalation
 - `references/fft-decision-trees.md` — FFT-14 definition

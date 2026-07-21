@@ -195,11 +195,25 @@ aqs_exit:
     resilience: {NONE | LOW | MEDIUM | HIGH}
   dominant_residual_risk_domain: {domain with highest risk, tie-break: security > functionality > resilience > usability}
   turbulence_sum: {integer from bead turbulence field}
+  runtime_receipt:
+    receipt_id: {runtime/session receipt identifier}
+    selector: {selector used for the AQS runtime}
+    requested_model: {requested model or auto}
+    observed_model: {model observed from live runtime metadata; unknown remains unknown}
+    observation_source: {machine-readable native dispatch or runtime-status source}
+    source_artifact:
+      path: {project-relative path to the captured source receipt JSON}
+      checksum: {SHA-256 of the captured source receipt JSON}
+    fallback_used: {true | false}
+    fallback_model: {observed fallback model or null}
+    fallback_reason: {reason or null}
 ```
 
-This block is consumed by FFT-14 (cross-model escalation). If cross-model review is active, the `hardened` transition is gated by FFT-14 — the Conductor evaluates FFT-14 using these fields, and the bead only transitions to `hardened` after any cross-model findings are resolved.
+Capture the native dispatch/result envelope or supported runtime-status JSON directly to `source_artifact.path`; do not reconstruct it from role, selector, configuration, or memory. The captured JSON must contain the same receipt, selector, requested/observed model, observation source, and fallback fields shown above. If the active runtime exposes no machine-readable identity receipt, retain `unknown` and treat a required cross-model gate as inconclusive. The gate verifies the source file's confinement, physical uniqueness, SHA-256, JSON contents, and equality to this block.
 
-When FFT-14 activates cross-model review, `crossmodel-supervisor` launches or resumes tmup-managed interactive Codex lanes under the current tmup runtime contract: root worker `gpt-5.4`, `model_context_window=1050000`, `model_auto_compact_token_limit=750000`, `model_reasoning_effort=high`, `model_reasoning_summary=low`, `plan_mode_reasoning_effort=xhigh`, `model_verbosity=low`, `service_tier=fast`, `web_search=live`, `features.undo=true`, and tiered internal teams (`tmup-tier1` on `gpt-5.3-codex`, `tmup-tier2` on `gpt-5.2-codex`). Supervise those lanes with `harvest -> evaluate -> reprompt`, and prefer reusing the live lane over replacing it when context is still trustworthy. Resume keeps the same contract.
+This block is consumed by FFT-14 (cross-model escalation). Emitting it does not change bead status. The bead remains `proven` until policy evaluation and, when required, `crossmodel-health.sh` returns a satisfied receipt/evidence gate. An absent or unobserved AQS runtime receipt makes required cross-model execution inconclusive.
+
+When FFT-14 activates cross-model review, `crossmodel-supervisor` launches or resumes tmup-managed interactive process lanes using the installed selector policy and live catalog. It records requested and observed models separately and obtains a new dispatch receipt for every launch or resume; role names and prior-session settings are not runtime evidence. Supervise those lanes with `harvest -> evaluate -> reprompt`, prefer reusing trustworthy live context, and require successful terminal receipts plus approved artifact evidence before hardening.
 
 See `references/artifact-templates.md` "AQS Structured Exit Block" for field definitions.
 
@@ -209,8 +223,9 @@ After all domains complete Phase 4 (and Phase 5 where needed):
 
 1. Apply all accepted/sustained code fixes to the bead
 2. Write the adversarial quality report (`{bead-id}-aqs.md`) in the required format
-3. Update the bead status to `hardened`
-4. Persist all adversarial artifacts to the `adversarial/` directory
+3. Persist all adversarial artifacts and the AQS runtime receipt to the `adversarial/` directory while the bead remains `proven`
+4. Evaluate FFT-14. For FULL/TARGETED, run the required cross-model workflow and require `crossmodel-health.sh` exit 0 with `gate_status: satisfied` and `advance_allowed: true`. For explicit SKIP, require `gate_status: not_applicable`.
+5. Only after step 4 succeeds, update the bead status once to `hardened`. Otherwise retain `proven` and escalate L3.
 
 ---
 

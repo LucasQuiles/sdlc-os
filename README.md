@@ -8,7 +8,7 @@ A Claude Code plugin that turns software delivery into a multi-agent workflow. O
 
 A structured software development lifecycle that runs inside Claude Code. Instead of one model doing everything and hoping for the best, SDLC-OS decomposes work across specialized agents with built-in adversarial review, drift detection, and continuous verification.
 
-The premise: an AI that reviews its own work finds nothing wrong with it. An AI that reviews *someone else's* work is considerably more honest. So every piece of work gets built by one agent and reviewed by a different one, with a third watching both of them.
+The premise: independent review can surface blind spots that self-review misses. Required cross-model lanes therefore preserve the requested selector separately from the model observed at runtime and do not count a role as complete without a matching terminal dispatch receipt and accepted artifact evidence.
 
 ## Installation
 
@@ -124,7 +124,12 @@ These live in `docs/sdlc/` in the target repo. The plugin manages them; you read
 ```bash
 cd ~/.claude/plugins/sdlc-os
 bash hooks/tests/test-hooks.sh    # 62 tests
+bash tests/test-crossmodel-health.sh
 ```
+
+The current required-role receipt flow, tmup compatibility boundary, and
+deployment evidence are mapped in
+`docs/orchestration-receipt-enforcement-2026-07-21.md`.
 
 ## Why
 

@@ -22,5 +22,6 @@ Run the Adversarial Quality System using the `sdlc-os:sdlc-adversarial` skill.
 **In all cases:**
 1. Assess complexity using scaling heuristics
 2. Run the full adversarial cycle (recon -> cross-reference -> strike -> defend -> arbitrate)
-3. Produce the Adversarial Quality Report
-4. Update bead status to `hardened`
+3. Produce the Adversarial Quality Report and structured AQS exit/runtime receipt while the bead remains `proven`
+4. Evaluate FFT-14. If FULL/TARGETED, require the cross-model health gate to return `satisfied`; if SKIP, require explicit `not_applicable`.
+5. Update bead status to `hardened` only after step 4 succeeds. Otherwise retain `proven` and report the blocking or inconclusive role evidence.

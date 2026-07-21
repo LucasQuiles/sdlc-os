@@ -529,6 +529,18 @@ aqs_exit:
     resilience: NONE | LOW | MEDIUM | HIGH
   dominant_residual_risk_domain: functionality | security | usability | resilience
   turbulence_sum: <integer>
+  runtime_receipt:
+    receipt_id: <runtime/session receipt identifier>
+    selector: <runtime selector>
+    requested_model: <requested model or auto>
+    observed_model: <model observed from live runtime metadata>
+    observation_source: <machine-readable native dispatch or runtime-status source>
+    source_artifact:
+      path: <project-relative path to captured source receipt JSON>
+      checksum: <SHA-256 of captured source receipt JSON>
+    fallback_used: true | false
+    fallback_model: <observed fallback model or null>
+    fallback_reason: <reason or null>
 ```
 
 **Field definitions:**
@@ -537,3 +549,4 @@ aqs_exit:
 - `residual_risk_per_domain`: Per-domain risk after blue team resolution. NONE = no findings or all resolved. LOW/MEDIUM/HIGH = accepted findings with documented residual risk.
 - `dominant_residual_risk_domain`: Domain with highest residual risk. Tie-break order: security > functionality > resilience > usability.
 - `turbulence_sum`: Sum of bead turbulence fields (L0 + L1 + L2 + L2.5 + L2.75).
+- `runtime_receipt`: Requested and observed runtime identity for the same-model AQS reference. Capture the machine-readable native dispatch/result envelope or supported runtime-status JSON without retyping it, retain it at `source_artifact.path`, and record its SHA-256. The captured JSON fields must equal the structured exit fields. Role names and configured defaults are not observations; a runtime without a machine-readable identity receipt makes a required cross-model gate inconclusive.

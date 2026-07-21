@@ -27,7 +27,7 @@
 ## The Adversarial Cycle
 
 ```
-Bead proven -> Parallel Launch -> Cross-Reference -> Directed Strike -> Blue Team Response -> Arbiter (disputes only) -> Bead hardened
+Bead proven -> Parallel Launch -> Cross-Reference -> Directed Strike -> Blue Team Response -> Arbiter -> AQS exit/runtime receipt -> FFT-14 -> required receipt/evidence gate -> Bead hardened
 ```
 
 ---
@@ -129,7 +129,7 @@ pending -> running -> submitted -> verified -> proven -> hardened -> merged
 
 - `verified` — Sentinel confirmed acceptance criteria are met
 - `proven` — Oracle confirmed claims are VORP-compliant
-- `hardened` — AQS confirmed code survives adversarial attack (or Clear bead skipped)
+- `hardened` — AQS completed and FFT-14 is either explicitly not applicable or every required cross-model role has a successful terminal receipt with approved evidence
 - `merged` — Bead output incorporated into delivery
 
 Clear beads skip AQS entirely: `proven -> merged`

@@ -42,8 +42,9 @@ Layer 10: Debt Combat System (v10.0.0)
   eslint-disable justification enforcement, canonical registry, debt backlog/ratchet
 
 Layer 9: Cross-Model Adversarial Review (v9.0.0)
-  FFT-14 escalation, tmup/Codex workers, crossmodel-supervisor, advisory day-1
-  Cross-model debate (Milvus 53%→80%), tmup DAG coordination, circuit breakers, fallback ladder
+  FFT-14 policy-first escalation, tmup process workers, crossmodel-supervisor
+  Required-role attempt receipts, observed-model attestation, accepted artifact evidence
+  Findings remain advisory; required execution blocks hardening when unavailable or inconclusive
 
 Layer 8: Standards Enforcement (v8.1.0)
   LLM self-security (OWASP LLM Top 10), standards curation from /Research/Standards

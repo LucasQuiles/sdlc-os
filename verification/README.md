@@ -150,6 +150,7 @@ bash tests/test-validator-shims.sh
 bash tests/test-portable-shell-helpers.sh
 bash colony/clone-manager.test.sh
 bash tests/test-crossmodel-preflight.sh
+bash tests/test-crossmodel-health.sh
 bash tests/test-colony-tooling.sh
 python3.12 scripts/check-plugin-metadata.py
 python3.12 scripts/check-repository-inventory.py

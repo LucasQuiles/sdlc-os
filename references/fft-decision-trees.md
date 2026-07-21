@@ -420,49 +420,51 @@ FFT-14: cross_model_escalation
   Evaluated: after same-model AQS completes, BEFORE bead status → hardened
   Input: AQS structured exit block (aqs_exit) from references/artifact-templates.md
 
-  Cue 0: Is tmup available and fully operational?
-    (crossmodel-preflight.sh: MCP reachable + codex in PATH + tmux
-     available + writable artifact path + no conflicting session)
-    → NO  → SKIP_UNAVAILABLE
-             Log: "tmup unavailable: {specific failure}, continuing Claude-only path"
-    → YES → continue
-
   Cue 1: Is aqs_exit.aqs_verdict == DEFERRED?
     → YES → ESCALATE_L3 (no cross-model — bead stays at proven,
              escalates to Conductor per AQS protocol)
     → NO  → continue
 
   Cue 2: Is the bead COMPLEX domain or security_sensitive?
-    → YES → FULL CROSS-MODEL (4 domain investigators + 1 reviewer)
+    → YES → Select FULL policy (4 domain investigators + 1 reviewer),
+             then evaluate the availability gate
     → NO  → continue
 
   Cue 3: Is the quality budget DEPLETED?
-    → YES → FULL CROSS-MODEL (4 domain investigators + 1 reviewer)
+    → YES → Select FULL policy, then evaluate the availability gate
     → NO  → continue
 
   Cue 4: Is the quality budget WARNING?
-    → YES → TARGETED CROSS-MODEL (1 domain investigator + 1 reviewer)
+    → YES → Select TARGETED policy (1 domain investigator + 1 reviewer),
+             then evaluate the availability gate
     → NO  → continue
 
   Cue 5: Is aqs_exit.arbiter_invoked == true?
-    → YES → TARGETED CROSS-MODEL (1 domain investigator + 1 reviewer)
+    → YES → Select TARGETED policy, then evaluate the availability gate
     → NO  → continue
 
   Cue 6: Is aqs_exit.turbulence_sum > 3?
-    → YES → TARGETED CROSS-MODEL (1 domain investigator + 1 reviewer)
+    → YES → Select TARGETED policy, then evaluate the availability gate
     → NO  → continue
 
   Cue 7: Is any aqs_exit.residual_risk_per_domain >= MEDIUM?
-    → YES → TARGETED CROSS-MODEL (1 domain investigator + 1 reviewer)
+    → YES → Select TARGETED policy, then evaluate the availability gate
     → NO  → continue
 
   Default → SKIP CROSS-MODEL
+
+  Availability gate (evaluate only after policy selects FULL or TARGETED):
+    Is tmup available and fully operational, is its receipt schema present,
+    is the live model catalog readable, and is the AQS reference model observed?
+    → NO  → REQUIRED_UNAVAILABLE
+             Log the specific failed probe; bead stays at proven; escalate L3
+    → YES → execute the selected FULL or TARGETED policy
 ```
 
 **Outcomes:**
 - **FULL:** 5 Codex workers (4 domain investigators + 1 independent reviewer). Grid: 2×3 layout.
 - **TARGETED:** 2 Codex workers (1 investigator for `aqs_exit.dominant_residual_risk_domain` + 1 independent reviewer). Grid: 1×2 layout.
-- **SKIP_UNAVAILABLE:** Log in decision trace, continue Claude-only. Not a failure.
+- **REQUIRED_UNAVAILABLE:** The policy requires cross-model review, but execution cannot be proven. Log the unavailable or inconclusive condition, retain the bead at `proven`, and escalate L3. This is not completion.
 - **SKIP:** No cross-model review needed. Bead proceeds directly to `hardened`.
 - **ESCALATE_L3:** AQS DEFERRED — no cross-model, standard L3 escalation.
 

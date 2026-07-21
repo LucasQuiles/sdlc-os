@@ -25,6 +25,14 @@ LOOP (budget: N attempts):
 
 **Evidence over argument.** Confidence upgrades require new evidence, not reasoning. "I believe this is correct" is not evidence. "The test passes" is.
 
+### Required-Role Dispatch Invariant
+
+Whenever a loop declares a role required, the parent loop owns an attempt-ledger row and a dispatch receipt for that role. The receipt records role, selector, requested model, observed model, fallback provenance, attempt ID, and terminal status. Requested and observed runtime fields are separate; no model or capability is inferred from the role name.
+
+A required attempt is successful only when its terminal status is `succeeded` and every declared evidence/artifact condition is accepted. `unavailable`, `skipped`, `inconclusive`, progress-only, stale, malformed, and masked results are not aliases for completed. Retry exhaustion propagates backpressure to the parent loop with the ledger and evidence trail; it cannot be converted into a PASS by continuing with surviving roles.
+
+Continuation dispatch is part of the attempt: await its acknowledgement, record rejection or timeout as inconclusive/failure, and persist success only after acknowledgement. On resume or reconciliation, an active or claimed task without a valid launch receipt is stale work, not evidence that the role ran.
+
 ### Level 0: Runner Loop (innermost — tightest)
 
 The runner loops internally on its own work. No external intervention needed.
@@ -35,7 +43,7 @@ LOOP (budget: 3 attempts):
   1. Read bead spec + any prior correction signals
   2. Implement / change
   3. Run bead metric command (tests, typecheck, lint — whatever the bead defines)
-  4. PASS → submit output. EXIT loop.
+  4. PASS + accepted evidence + required-role receipt satisfied → submit output. EXIT loop.
   5. FAIL → read error output. Self-correct. Try again.
   6. Budget exhausted → submit partial output with STUCK status + what was tried.
 ```
@@ -54,7 +62,7 @@ After a runner submits, the Sentinel loops on verification.
 Runner submits bead output.
 LOOP (budget: 2 cycles):
   1. Sentinel checks output against bead acceptance criteria
-  2. PASS → bead status = verified. EXIT loop.
+  2. PASS + all required sentinel receipts/evidence accepted → bead status = verified. EXIT loop.
   3. FAIL → Sentinel produces correction directive (specific findings, not vague "try again")
   4. Fresh runner dispatched with: original bead + sentinel correction + "address THESE issues"
   5. New runner runs its own Level 0 loop internally
@@ -92,7 +100,7 @@ After Sentinel passes, Oracle audits test integrity.
 Bead verified by Sentinel.
 LOOP (budget: 2 cycles):
   1. Oracle audits tests (Layer 1: static, Layer 2: runtime)
-  2. PASS (VORP satisfied) → bead status = proven. EXIT loop.
+  2. PASS (VORP satisfied) + required Oracle receipt/evidence accepted → bead status = proven. EXIT loop.
   3. FAIL → Oracle produces specific test deficiency report
   4. Fresh runner dispatched with: bead + oracle findings + "fix THESE test issues"
   5. New runner loops internally (Level 0), Sentinel re-checks (Level 1)
@@ -115,9 +123,10 @@ LOOP (budget: 2 cycles):
   2. Red team commanders dispatch guppy swarms at HIGH/MED/LOW domains
   3. Blue team triages findings: accept (fix), rebut (evidence), or dispute
   4. Disputed findings → Arbiter (Kahneman protocol, binding verdict)
-  5. CLEAN (no findings) → bead status = hardened. EXIT loop.
+  5. CLEAN (no findings) + every required same-model role has an accepted terminal receipt → emit AQS exit block; bead remains proven pending FFT-14.
   6. Cycle 1 produced fixes → Cycle 2: re-attack fixed code to verify hardening
-  7. Budget exhausted → bead status = hardened + residual risk documented. EXIT loop.
+  7. Budget exhausted → document residual risk and backpressure to L3; do not convert an unsatisfied required role into hardened.
+  8. FFT-14 SKIP, or FULL/TARGETED with a satisfied cross-model receipt gate → bead status = hardened. EXIT loop.
 ```
 
 **Metric:** Residual risk after adversarial engagement.
@@ -145,7 +154,7 @@ LOOP (budget: 1 full cycle — inner loops handle retries):
   2. Sentinel verifies (Level 1 loop: up to 2 correction cycles)
   3. Oracle audits (Level 2 loop: up to 2 correction cycles)
   4. AQS engages (Level 2.5 loop: up to 2 red/blue/arbiter cycles) — skipped for trivial beads
-  5. ALL PASS → bead = merged. EXIT.
+  5. ALL PASS and required-role ledgers satisfied → bead = merged. EXIT.
   6. ANY inner loop exhausted budget → bead = escalated to Conductor.
 ```
 
@@ -219,7 +228,7 @@ When an inner loop exhausts its budget, pressure flows outward — never inward.
 Runner stuck (L0 budget: 3) → Sentinel takes over correction (L1)
 Sentinel stuck (L1 budget: 2) → Conductor re-decomposes or re-designs (L3/L4)
 Oracle stuck (L2 budget: 2) → Conductor re-decomposes or re-designs (L3/L4)
-AQS stuck (L2.5 budget: 2) → Conductor reviews residual risk, decides accept or re-dispatch (L3)
+AQS stuck (L2.5 budget: 2) → Conductor re-dispatches, re-decomposes, or escalates (L3); required-role execution cannot be accepted without proof
 Phase stuck (L4) → Conductor re-enters earlier phase (L5)
 Task stuck (L5 budget: 3) → User gets explicit gap report
 ```

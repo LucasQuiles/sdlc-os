@@ -1,8 +1,10 @@
 # Cross-Model Adversarial Review — Design Spec
 
+> **Status: HISTORICAL / NON-NORMATIVE.** The original day-one fail-open fallback in this archived design is superseded by the active contracts in `skills/sdlc-crossmodel/SKILL.md`, `agents/crossmodel-supervisor.md`, `references/fft-decision-trees.md`, and `scripts/crossmodel-health.sh`. When FFT-14 selects FULL or TARGETED, every required role now needs a matching successful terminal receipt, an observed model distinct from the observed same-model reference, and approved artifact evidence. Unavailable, skipped, or inconclusive execution retains the bead at `proven`; same-model-only fallback does not satisfy the gate. Do not execute the fallback or advancement instructions later in this document.
+
 **Date:** 2026-03-28
 **Version:** 1.0
-**Status:** Approved
+**Status:** Historical / Superseded
 **Plugin:** sdlc-os v8.1.0 → v9.0.0
 **Dependency:** tmup plugin (transport/runtime infrastructure)
 

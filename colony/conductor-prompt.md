@@ -132,16 +132,17 @@ AQS runs INLINE in the EVALUATE Conductor session using the Agent tool (synchron
 
 **Rationale:** AQS requires the Conductor to hold red-team and blue-team findings simultaneously, make Arbiter decisions, and route disputed findings within a single judgment context. Dispatching AQS as separate tmup tasks would fragment this context across sessions.
 
-The `sdlc_loop_level` value `L2.5` in tmup tracks that a bead has REACHED the AQS stage, not that AQS agents are tmup tasks. The bead status advances from `proven` to `hardened` within a single Conductor session.
+The `sdlc_loop_level` value `L2.5` in tmup tracks that a bead has REACHED the AQS stage, not that AQS agents are tmup tasks. AQS emits its exit block and runtime receipt while the bead remains `proven`.
 
 Similarly, Phase 4.5 Harden (L2.75) runs inline in the Conductor.
 
-After AQS and Harden complete inline, call the bridge CLI to update the bead status to `hardened` then `reliability-proven`.
+After AQS and Harden complete inline, evaluate FFT-14 and the cross-model gate below. Only after that gate succeeds may the bridge update the bead to `hardened` and then `reliability-proven`. On required-role failure or inconclusive evidence, do not call the bridge transition.
 
 ### Cross-Model Review (FFT-14)
 After AQS completes for a bead, evaluate FFT-14 from `references/fft-decision-trees.md`:
-- If FFT-14 returns **FULL** or **TARGETED**: invoke `sdlc-os:sdlc-crossmodel` with the bead context and AQS structured exit block. Codex workers are dispatched via `tmup_dispatch` with `worker_type: codex`. The `crossmodel-triage` agent deduplicates findings against same-model AQS results. Net-new findings are HIGH priority corrections — route to blue team defenders before advancing bead to `hardened`.
-- If FFT-14 returns **SKIP** or **SKIP_UNAVAILABLE**: proceed directly to `hardened`. Log decision in bead decision trace.
+- Evaluate risk policy before runtime availability. If policy selects **FULL** or **TARGETED**, invoke `sdlc-os:sdlc-crossmodel` with the bead context, AQS structured exit block, and the AQS runtime's observed model. Register every worker as a required role with cross-model and evidence policy. Retain each dispatch receipt and require the matching successful terminal receipt, distinct observed model, approved evidence, and validated artifact.
+- Run `crossmodel-health.sh` before advancing. Only exit 0 with `gate_status: satisfied` and `advance_allowed: true` permits `hardened`. If a required role is unavailable, skipped, inconclusive, missing evidence, or lacks a receipt, retain the bead at `proven` and escalate L3.
+- If FFT-14 returns **SKIP**, record the explicit policy decision; `gate_status: not_applicable` may proceed. Runtime unavailability is not SKIP.
 
 ### SYNTHESIZE
 
