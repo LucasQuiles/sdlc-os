@@ -63,7 +63,7 @@ Conductor (Opus)
 - Disposable micro-agents. One question, one answer, one exit.
 - Dispatched in swarms by the Conductor or Sentinel to attack problems with breadth.
 - Use `sdlc-os:sdlc-swarm` skill to decompose → dispatch → harvest → synthesize → re-swarm.
-- Agent: `guppy` (model: haiku). Cheapest possible unit of work.
+- Agent: `guppy` (model: live-catalog selection). Workload sizing is a policy decision, not a capability or cost claim.
 - Patterns: codebase audit, claim verification, regression scan, evidence collection, progressive narrowing.
 - **Guppies for breadth, Runners for depth.** Swarm to find the problem, dispatch a Runner to fix it.
 
@@ -335,7 +335,7 @@ Each runner gets a precisely crafted context packet — never your full session 
 ```
 Agent tool:
   subagent_type: general-purpose
-  model: sonnet
+  model: <catalog-validated-model>
   mode: auto
   name: "runner-{bead-id}"
   description: "Bead {id}: {short description}"
@@ -367,7 +367,7 @@ For Sentinel dispatch:
 ```
 Agent tool:
   subagent_type: general-purpose
-  model: haiku
+  model: <catalog-validated-model>
   mode: auto
   name: "sentinel-{bead-id}"
   description: "Sentinel sweep: {what to check}"

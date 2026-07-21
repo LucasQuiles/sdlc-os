@@ -25,7 +25,7 @@ Before every implementation bead, dispatch `reuse-scout` (haiku):
 ```
 Agent tool:
   subagent_type: sdlc-os:reuse-scout
-  model: haiku
+  model: <catalog-validated-model>
   mode: auto
   name: "scout-{bead-id}"
   description: "Reuse scout for bead {id}"

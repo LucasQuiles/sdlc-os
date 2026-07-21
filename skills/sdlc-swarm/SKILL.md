@@ -31,7 +31,7 @@ Do NOT swarm when:
 
 ```
 1. DECOMPOSE: Break the problem into N independent micro-directives
-2. DISPATCH: Launch N guppies in parallel (Agent tool, model: haiku)
+2. DISPATCH: Launch N guppies in parallel (Agent tool, model: <catalog-validated-model>)
 3. HARVEST: Collect all guppy responses
 4. SYNTHESIZE: Merge findings into a coherent picture
 5. RE-SWARM: If gaps remain, decompose the gaps and dispatch again
@@ -64,7 +64,7 @@ Launch guppies in parallel using the Agent tool:
 ```
 Agent tool:
   subagent_type: general-purpose
-  model: haiku
+  model: <catalog-validated-model>
   mode: auto
   name: "guppy-{N}"
   description: "Guppy: {short directive summary}"

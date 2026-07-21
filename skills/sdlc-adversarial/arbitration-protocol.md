@@ -138,7 +138,7 @@ Design a test that both sides would agree is fair if asked beforehand. The test 
 Execute the designed test. Do not summarize or predict the result — run the test and capture raw output.
 
 Options for execution:
-- **Dispatch a guppy** — For code analysis, reproduction tracing, or impact mapping. Use `model: haiku`, one focused directive.
+- **Dispatch a guppy** — For code analysis, reproduction tracing, or impact mapping. Use `model: <catalog-validated-model>`, one focused directive.
 - **Run a command** — For checking file contents, running the test suite, or tracing call paths.
 - **Read files directly** — For verifying specific code properties, checking configuration, or confirming defense layers.
 

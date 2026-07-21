@@ -64,7 +64,7 @@ Two things fire simultaneously the moment a bead reaches `proven` status:
 1. **Conductor domain selection** — Conductor analyzes the bead content, applies domain heuristics, and designates preliminary priority per domain (HIGH / MED / LOW / SKIP).
 2. **Recon burst** — 8 guppies fire across all four domains, 2 per domain. Each recon guppy asks one lightweight signal-detection question. This is broad and cheap — not deep analysis.
 
-Dispatch all 8 recon guppies in parallel using the Agent tool with `model: haiku`. Recon guppies run regardless of Conductor's preliminary selections. Their purpose is to surface blind spots.
+Dispatch all 8 recon guppies in parallel using the Agent tool with `model: <catalog-validated-model>`. Recon guppies run regardless of Conductor's preliminary selections. Their purpose is to surface blind spots.
 
 ### Phase 2: Cross-Reference
 

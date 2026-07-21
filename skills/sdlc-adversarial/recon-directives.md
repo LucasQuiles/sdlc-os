@@ -15,7 +15,7 @@ Eight complete guppy prompt templates — two per domain — for the Phase 1 rec
 Dispatch all 8 recon guppies in parallel at the start of Phase 1. Use the Agent tool with:
 
 - `subagent_type: general-purpose`
-- `model: haiku`
+- `model: <catalog-validated-model>`
 - `mode: auto`
 - `name: recon-{domain}-{n}-{bead-id}` (e.g., `recon-functionality-1-bead-042`)
 

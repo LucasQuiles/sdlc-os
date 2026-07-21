@@ -20,8 +20,8 @@ Phases are orientation markers, not approval gates. The Conductor flows through 
 - Dispatch `haiku-evidence` to check for gaps in the framing
 - Write mission brief with objective, scope, constraints, success criteria
 
-**Runner:** `sonnet-investigator` (model: sonnet) — requirements analysis mode
-**Sentinel:** `haiku-evidence` (model: haiku) — checks for unstated assumptions, missing constraints
+**Runner:** `sonnet-investigator` (model: live-catalog selection) — requirements analysis mode
+**Sentinel:** `haiku-evidence` (model: live-catalog selection) — checks for unstated assumptions, missing constraints
 
 **Output:** `mission.md` — Objective, Scope (in/out), Constraints, Success Criteria (testable), Risks
 
@@ -43,8 +43,8 @@ Phases are orientation markers, not approval gates. The Conductor flows through 
 - Dispatch one or more `sonnet-investigator` runners (parallel if exploring different areas)
 - Dispatch `haiku-evidence` to validate findings independently
 
-**Runner:** `sonnet-investigator` (model: sonnet) — codebase investigation mode
-**Sentinel:** `haiku-evidence` (model: haiku) — fact-checks claims, captures evidence
+**Runner:** `sonnet-investigator` (model: live-catalog selection) — codebase investigation mode
+**Sentinel:** `haiku-evidence` (model: live-catalog selection) — fact-checks claims, captures evidence
 
 **Output:** `discovery.md` — Findings (labeled Verified/Likely/Assumed/Unknown), Evidence items, Impact areas, Open questions
 
@@ -69,8 +69,8 @@ Phases are orientation markers, not approval gates. The Conductor flows through 
 - Dispatch `haiku-verifier` to stress-test the tradeoff analysis
 - Create bead manifest (list of all work units with dependencies and scopes)
 
-**Runner:** `sonnet-designer` (model: sonnet)
-**Sentinel:** `haiku-verifier` (model: haiku) — checks tradeoff completeness, missed edge cases
+**Runner:** `sonnet-designer` (model: live-catalog selection)
+**Sentinel:** `haiku-verifier` (model: live-catalog selection) — checks tradeoff completeness, missed edge cases
 
 **Output:**
 - `design.md` — Options, Tradeoffs, Recommendation, Validation strategy
@@ -95,8 +95,8 @@ Phases are orientation markers, not approval gates. The Conductor flows through 
 - Sentinel watches continuously (not after completion)
 - Re-dispatch fresh runners when sentinel flags problems (max 3 cycles per bead)
 
-**Runner:** `sonnet-implementer` (model: sonnet) — one bead per runner, disposable
-**Sentinel:** `haiku-verifier` (model: haiku) — continuous patrol, checks each bead output as it arrives
+**Runner:** `sonnet-implementer` (model: live-catalog selection) — one bead per runner, disposable
+**Sentinel:** `haiku-verifier` (model: live-catalog selection) — continuous patrol, checks each bead output as it arrives
 
 **Adversarial Quality (after Oracle):** Red/blue team cycle via `sdlc-os:sdlc-adversarial` — recon burst, directed strike, blue team response, arbiter on disputes. Beads marked `hardened` after cycle completes. Skip for trivial beads.
 
@@ -128,8 +128,8 @@ Phases are orientation markers, not approval gates. The Conductor flows through 
 - Resolve any remaining conflicts
 - Write delivery summary
 
-**Runner:** `sonnet-reviewer` (model: sonnet) — reviews the integrated result, not individual beads
-**Sentinel:** `haiku-handoff` (model: haiku) — packages delivery, separates verified from uncertain
+**Runner:** `sonnet-reviewer` (model: live-catalog selection) — reviews the integrated result, not individual beads
+**Sentinel:** `haiku-handoff` (model: live-catalog selection) — packages delivery, separates verified from uncertain
 
 **Output:** `delivery.md` — What changed, How we know, What's uncertain, Next actions
 

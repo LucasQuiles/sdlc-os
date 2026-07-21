@@ -61,7 +61,7 @@ The Conductor dispatches the `reliability-conductor` agent:
 ```
 Agent tool:
   subagent_type: sdlc-os:reliability-conductor
-  model: sonnet
+  model: <catalog-validated-model>
   mode: auto
   prompt: |
     Phase 4.5 hardening for bead {bead-id}.

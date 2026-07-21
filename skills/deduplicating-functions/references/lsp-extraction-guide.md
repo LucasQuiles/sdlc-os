@@ -101,9 +101,9 @@ LSP data improves detection in several ways:
 Since LSP operations require Claude Code's built-in LSP tool (not a standalone script), use a subagent:
 
 ```
-Dispatch a subagent with model: haiku
-Task: "For each function in catalog.json, use the LSP tool to get the resolved type 
-signature and reference count. Enrich the catalog with lsp_signature and reference_count 
+Dispatch a subagent with model: <catalog-validated-model>
+Task: "For each function in catalog.json, use the LSP tool to get the resolved type
+signature and reference count. Enrich the catalog with lsp_signature and reference_count
 fields. Save to catalog-lsp-enriched.json."
 ```
 

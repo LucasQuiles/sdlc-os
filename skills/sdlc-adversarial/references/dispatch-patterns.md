@@ -16,7 +16,7 @@ Dispatch all 8 in parallel. Two per domain, each with a different signal-detecti
 ```
 Agent tool:
   subagent_type: general-purpose
-  model: haiku
+  model: <catalog-validated-model>
   mode: auto
   name: "recon-{domain}-{N}"
   description: "Recon probe: {domain} domain, signal {N}"
@@ -45,7 +45,7 @@ Red team commanders design the target list and dispatch these. Volume matches pr
 ```
 Agent tool:
   subagent_type: general-purpose
-  model: haiku
+  model: <catalog-validated-model>
   mode: auto
   name: "strike-{domain}-{N}"
   description: "Strike probe: {domain} — {short probe description}"
@@ -73,7 +73,7 @@ Agent tool:
 ```
 Agent tool:
   subagent_type: general-purpose
-  model: sonnet
+  model: <catalog-validated-model>
   mode: auto
   name: "red-{domain}-{bead-id}"
   description: "Red team {domain} commander: bead {bead-id}"
@@ -118,7 +118,7 @@ Agent tool:
 ```
 Agent tool:
   subagent_type: general-purpose
-  model: sonnet
+  model: <catalog-validated-model>
   mode: auto
   name: "blue-{domain}-{bead-id}"
   description: "Blue team {domain} defender: bead {bead-id}"
@@ -161,7 +161,7 @@ Agent tool:
 ```
 Agent tool:
   subagent_type: general-purpose
-  model: opus
+  model: <catalog-validated-model>
   mode: auto
   name: "arbiter-{bead-id}-{finding-id}"
   description: "Arbiter: disputed finding {finding-id} on bead {bead-id}"

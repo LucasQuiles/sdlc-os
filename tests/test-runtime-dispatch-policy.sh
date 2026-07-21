@@ -10,7 +10,7 @@ candidate_list="$TMPROOT/candidates"
 missing_list="$TMPROOT/missing"
 
 rg -l -i --glob '*.md' \
-  'model:[[:space:]]*(haiku|sonnet|opus)|\((haiku|sonnet|opus)\)|agent tool|haiku-|sonnet-|opus-' \
+  'model:[[:space:]]*(haiku|sonnet|opus|<catalog-validated-model>|live-catalog selection)|\((haiku|sonnet|opus)\)|agent tool|haiku-|sonnet-|opus-' \
   "$PLUGIN_ROOT/skills" | sort >"$candidate_list"
 
 : >"$missing_list"

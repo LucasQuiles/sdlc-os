@@ -29,7 +29,7 @@ Dispatch the normalizer agent at the start of every SDLC session, before any oth
 ```
 Agent tool:
   subagent_type: sdlc-os:normalizer
-  model: sonnet
+  model: <catalog-validated-model>
   mode: auto
   name: "normalizer-entry"
   description: "Phase 0: session entry normalization"
@@ -79,7 +79,7 @@ Uncommitted changes or unpushed commits detected without SDLC artifacts. The nor
      ```
      Agent tool:
        subagent_type: sdlc-os:convention-scanner
-       model: sonnet
+       model: <catalog-validated-model>
        mode: auto
        name: "convention-scanner-phase0"
        description: "Phase 0: scan codebase conventions before normalization"
@@ -112,7 +112,7 @@ After executing approved normalization directives, dispatch `gap-analyst` in Fin
 ```
 Agent tool:
   subagent_type: sdlc-os:gap-analyst
-  model: sonnet
+  model: <catalog-validated-model>
   mode: auto
   name: "gap-analyst-phase0"
   description: "Phase 0: feature gap baseline after normalization"
