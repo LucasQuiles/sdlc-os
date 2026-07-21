@@ -5,6 +5,12 @@ description: "Use when SDLC Conductor activates adversarial review, /adversarial
 
 # Adversarial Quality System (AQS)
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Red, blue, recon, and arbiter
+> names are semantic roles, not model selectors. Resolve every dispatch against
+> the live agent/model catalogs, explicitly request the selected model, and
+> retain launch and terminal receipts with observed-model provenance. A required
+> role that is unavailable, skipped, failed, or inconclusive cannot satisfy AQS.
+
 The AQS is a **complementary, separate review channel** from the Oracle Council. The two systems attack different failure modes and must not be confused:
 
 | System | What it audits | When it fires |

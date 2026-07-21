@@ -1,5 +1,11 @@
 # Recon Guppy Directives
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** These are prompt templates, not
+> runnable selector defaults. Before each dispatch, resolve and explicitly set
+> a live-catalog agent/model pair and retain the dispatch receipt. Missing,
+> skipped, unavailable, failed, or inconclusive required probes remain
+> unsatisfied and must be surfaced to the parent AQS workflow.
+
 Eight complete guppy prompt templates — two per domain — for the Phase 1 recon burst. Each template is copy-paste-ready. The only placeholder is `{bead file list}`.
 
 ---

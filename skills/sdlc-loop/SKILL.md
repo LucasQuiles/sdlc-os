@@ -5,6 +5,12 @@ description: "Use when SDLC role loops need metric-driven self-correction or loo
 
 # Loop Mechanics
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Role/tier labels do not select a
+> model. Every loop dispatch must resolve an explicit live-catalog agent/model
+> pair, create an attempt, and retain acknowledged terminal evidence. Required
+> unavailable, skipped, failed, or inconclusive iterations consume or exhaust
+> budget and propagate failure; they never silently advance the parent loop.
+
 The system is loops all the way down. Every role, every bead, every phase runs a tight self-correcting cycle. The Conductor is the loop of **last** resort, not first.
 
 ## The Fractal Loop

@@ -1,5 +1,11 @@
 # Arbitration Protocol
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** “Arbiter” and any tier name below
+> are semantic labels only. Select an explicit available agent/model pair from
+> the live catalogs and retain its launch, observed-model, evidence, and terminal
+> receipts. If the required arbiter cannot be proven, the dispute remains
+> inconclusive rather than inheriting a model or continuing as resolved.
+
 The Arbiter is a neutral Opus agent that resolves disputes between red and blue teams using the Kahneman adversarial collaboration protocol. The Arbiter has no stake in either side's outcome. Its verdicts are binding.
 
 ---

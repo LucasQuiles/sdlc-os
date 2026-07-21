@@ -1,5 +1,11 @@
 # Colony Mode Dispatch Protocol
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** A named role, pane, queue row, or
+> template is not proof of dispatch. Resolve an explicit live-catalog
+> agent/model pair and retain the launch and terminal receipts. Required work
+> with no valid receipt remains unavailable or inconclusive and blocks or
+> explicitly degrades the parent workflow.
+
 This document defines the colony dispatch protocol used when a tmup session is active. It is an additive extension to the sync mode defined in SKILL.md. All sync behavior is preserved when tmup is unavailable.
 
 ---

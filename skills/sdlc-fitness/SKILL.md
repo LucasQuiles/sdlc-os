@@ -5,6 +5,12 @@ description: "Use when running SDLC architectural fitness checks for DRY, SSOT, 
 
 # Architectural Fitness Functions
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Named agents and tier labels below
+> are semantic templates, not model selectors. Resolve an explicit available
+> agent/model pair from the live catalogs and retain its evidence-backed
+> terminal receipt. Missing or inconclusive required fitness work blocks the
+> architectural completion claim.
+
 Fitness functions are automated checks that validate architectural properties ([continuous-architecture.org](https://continuous-architecture.org/practices/fitness-functions/)). They run like tests but check structure, not behavior. When they fail, the architecture has drifted.
 
 ## Fitness Dimensions

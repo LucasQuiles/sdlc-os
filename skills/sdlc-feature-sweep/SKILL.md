@@ -5,6 +5,11 @@ description: "Use when running SDLC neglected-feature sweeps for incomplete, for
 
 # SDLC Feature Sweep
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Finder/Finisher and tier names are
+> semantic roles only. Resolve explicit live-catalog agent/model pairs and
+> retain per-attempt receipts. A required sweep without accepted evidence and a
+> successful terminal receipt remains incomplete.
+
 The feature sweep runs in two waves:
 
 - Finder wave (Scout): discover neglected feature work

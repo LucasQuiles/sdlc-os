@@ -5,6 +5,12 @@ description: "Use when running SDLC feature gap analysis before implementation o
 
 # Gap Analysis Waves
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Finder, Finisher, and tier names
+> are semantic roles, not selectors. Resolve an explicit live-catalog
+> agent/model pair for every dispatch and require launch, observed-model,
+> artifact, and terminal receipts. A missing or inconclusive required wave
+> blocks the dependent planning or completion claim.
+
 Gap analysis runs in two coordinated waves: the **Finder** wave runs before implementation to map what exists against what is needed, and the **Finisher** wave runs after implementation to verify delivery completeness. Together they close the loop between requirements and code.
 
 ---

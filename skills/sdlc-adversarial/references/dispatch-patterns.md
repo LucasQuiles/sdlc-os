@@ -1,5 +1,10 @@
 # AQS Dispatch Patterns
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Never copy a tier literal below as
+> a model selection. Inspect the live agent/model catalogs, explicitly select a
+> valid pair, and retain launch plus terminal receipts with observed-model
+> provenance. Required-role failure or missing evidence blocks AQS completion.
+
 Agent tool templates for dispatching all AQS roles. Copy and adapt these templates — fill in the `{placeholders}` with actual bead content.
 
 ---

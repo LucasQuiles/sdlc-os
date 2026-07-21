@@ -5,6 +5,11 @@ description: "Display current SDLC workflow state — active phase, bead progres
 
 # SDLC Status
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Displayed runner and tier names are
+> reported labels, not proof of runtime identity. Show requested and observed
+> model data separately from accepted receipts; unknown remains unknown. Never
+> render required work as completed from a role name, bead status, or file alone.
+
 Display the current state of active SDLC workflows.
 
 ## What to Show

@@ -5,6 +5,11 @@ description: "Use when SDLC work needs reuse-first discovery of existing solutio
 
 # Reuse-First Protocol
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Any named reviewer or tier below
+> is a semantic role only. Resolve an explicit available agent/model pair from
+> the live catalogs and retain its terminal receipt. Required discovery with no
+> accepted receipt remains unavailable or inconclusive and blocks dispatch.
+
 Before any implementation runner is dispatched, the Conductor MUST run this protocol. It prevents the most common failure mode: creating new code when existing solutions already exist.
 
 ## Why Agents Duplicate

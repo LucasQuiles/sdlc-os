@@ -47,6 +47,14 @@ crossmodel-health.sh validates the complete journal
 | Stale claimed work without launch receipt is not live proof | tmup reconciliation dependency | receipt-required task policy |
 | Static model claims replaced by live selector/observation data | active skills, supervisor, AQS artifact template | stale-claim scan and runtime-receipt fields |
 
+The broader skill tree is covered by `RUNTIME_DISPATCH_POLICY_V1`. Every
+dispatch-bearing markdown file detected by the static role/model scanner carries
+the same fail-closed rule: legacy role and tier names are semantic templates,
+not selectors; actual dispatch requires a live-catalog agent/model pair and an
+evidence-backed terminal receipt. `tests/test-runtime-dispatch-policy.sh`
+recursively enforces this coverage so a newly introduced static recipe cannot
+silently bypass the runtime policy.
+
 FULL requires four distinct Stage A workers for functionality, security,
 usability, and resilience plus one distinct Stage B independent reviewer.
 TARGETED requires the selected Stage A domain plus a distinct Stage B reviewer.

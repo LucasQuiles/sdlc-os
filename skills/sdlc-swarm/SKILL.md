@@ -5,6 +5,12 @@ description: "Use when decomposing a problem into small parallel micro-agent pro
 
 # Swarm Control
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** “Guppy,” “Runner,” and tier names
+> are semantic workload labels, not model selectors or cost claims. Resolve an
+> explicit agent/model pair from the live catalogs for every worker, retain a
+> receipt per attempt, and count only acknowledged terminal results. Missing,
+> unavailable, skipped, failed, or inconclusive required probes remain gaps.
+
 You are wielding guppies — cheap, disposable, laser-focused micro-agents. Each guppy answers ONE question, then dies. The power comes from directing many of them at a problem simultaneously, synthesizing their findings, and re-swarming on the gaps.
 
 ## When to Swarm

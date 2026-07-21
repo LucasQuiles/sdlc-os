@@ -5,6 +5,11 @@ description: "Use for SDLC mid-stream pickup, session entry normalization, inter
 
 # Normalization Protocol
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Any named role or model tier below
+> is a semantic template only. Resolve an explicit available agent/model pair
+> from the live catalogs and retain its dispatch receipt. Missing or
+> inconclusive required normalization work cannot be treated as completed.
+
 Every SDLC session begins with normalization. No exceptions.
 
 ## Why Normalization is Mandatory

@@ -1,5 +1,10 @@
 # Handoff Contract
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Named reviewers and tier labels in
+> this template are not selectors. Resolve and record an explicit live-catalog
+> agent/model pair and require its terminal receipt before accepting a handoff.
+> Missing or inconclusive review blocks the transition.
+
 Every wave transition in the SDLC OS pipeline must use this contract template. A handoff is not a status update — it is a structured transfer of accountability. The receiving wave must be able to begin work solely from the handoff document without asking follow-up questions. Vague, optimistic, or incomplete handoffs are rejected by Haiku before the next wave may begin.
 
 The handoff separates four categories of knowledge that must never be merged: what was verified (evidence exists), what was intended (implemented but not confirmed), what was assumed (carried forward without verification), and what remains uncertain (known unknowns). Conflating these categories is the most common source of downstream defects.

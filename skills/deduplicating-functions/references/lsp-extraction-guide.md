@@ -1,5 +1,10 @@
 # LSP-Based Symbol Extraction Guide
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Any role or tier example in this
+> guide is a semantic template only. If work is dispatched, resolve an explicit
+> live-catalog agent/model pair and retain its terminal receipt; unavailable or
+> inconclusive required work cannot be counted as completed.
+
 ## Overview
 
 Claude Code has a built-in LSP (Language Server Protocol) tool that provides rich type information, symbol hierarchies, and call graphs. This guide explains how to use it for duplicate detection enrichment.

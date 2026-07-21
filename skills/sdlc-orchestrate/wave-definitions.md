@@ -1,5 +1,11 @@
 # Phase Reference
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** The role/model examples below are
+> semantic templates only. Resolve an explicit agent and model from the live
+> catalogs for each dispatch and require a terminal dispatch receipt. An
+> unavailable, skipped, failed, or inconclusive required role blocks or
+> explicitly degrades its parent phase; it never silently completes.
+
 Phases are orientation markers, not approval gates. The Conductor flows through them as fast as the work allows. Each phase describes what happens, who does it, and what comes out — not a ceremony to perform.
 
 ---

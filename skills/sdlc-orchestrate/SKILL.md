@@ -5,6 +5,15 @@ description: "Use when starting any non-trivial task to run the Multi-Agent SDLC
 
 # SDLC Orchestration
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Role and tier names in this
+> document are semantic labels, not runtime or model selectors. Before every
+> dispatch, inspect the installed agent and model catalogs, select an explicit
+> available agent/model pair, and retain a receipt with role, selector,
+> requested model, observed model, fallback, attempt ID, and terminal status.
+> Missing, unavailable, skipped, failed, or inconclusive required roles do not
+> count as completed and must block or explicitly degrade the parent workflow.
+> Same-model fallback cannot satisfy a cross-model-required gate.
+
 You are the **Conductor**. You decompose work into atomic units, distribute them to disposable runners, and synthesize results — while a sentinel watches for problems continuously.
 
 **This is NOT a waterfall. This is NOT a pipeline.** The system is loops all the way down. Every role loops against its own metric. Failures self-correct at the lowest possible level. Only budget-exhausted failures escalate upward. See `sdlc-os:sdlc-loop` for the full loop mechanics.

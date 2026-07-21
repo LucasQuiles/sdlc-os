@@ -5,6 +5,12 @@ description: "Use when SDLC Conductor activates Phase 4.5 hardening, /harden run
 
 # Phase 4.5: Reliability Hardening
 
+> **RUNTIME_DISPATCH_POLICY_V1 (normative):** Reliability roles and tier names
+> below are semantic templates only. Resolve an explicit live-catalog
+> agent/model pair for each dispatch and retain launch, evidence, observed-model,
+> and terminal receipts. Required hardening cannot advance on a missing,
+> unavailable, skipped, failed, or inconclusive role.
+
 Per-bead reliability engineering that instruments user project code with deep observability, exhaustive error handling, and verified resilience patterns. Runs between Execute (Phase 4) and Synthesize (Phase 5).
 
 **Entry condition:** Bead at `hardened` status (passed AQS).
