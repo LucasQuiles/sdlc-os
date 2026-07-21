@@ -72,6 +72,25 @@ PATH="$NODE20_BIN:$PATH" \
     --results-dir ".verification-results/$RUN_ID"
 ```
 
+## Run Orchestration Receipt Enforcement
+
+This post-1A stage admits the live-schema preflight and required-role health
+gate without widening the frozen Release 1A range-scope authority:
+
+```bash
+set -euo pipefail
+RUN_ID="$(git rev-parse --short=12 HEAD)-orchestration-receipts-$(date -u +%Y%m%dT%H%M%SZ)-$$"
+python3.12 scripts/run-verification.py \
+  --manifest verification/manifest.json \
+  --stage orchestration-receipts \
+  --platform macos \
+  --run-id "$RUN_ID" \
+  --results-dir ".verification-results/$RUN_ID"
+```
+
+A full Release 1A replay remains bound to its original scope and is not a
+release verdict for later feature candidates.
+
 ## Run Release 1A on Linux
 
 Use the same committed candidate and manifest bytes on the authorized Linux x86_64 verification host. `/tmp` must be a readable, writable, and traversable directory for the verification user; the explicit temp base keeps descriptor-held F-01 evidence traversable independently of a login manager's private temp hierarchy.

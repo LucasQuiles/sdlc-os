@@ -1037,8 +1037,50 @@
       ]
     },
     {
-      "check_id": "s1a-crossmodel-receipt-gate",
-      "stage": "1A",
+      "check_id": "orchestration-receipt-preflight",
+      "stage": "orchestration-receipts",
+      "working_directory": ".",
+      "environment": {},
+      "platforms": [
+        "macos",
+        "linux"
+      ],
+      "applicability": {
+        "state": "REQUIRED",
+        "evidence": "The live dispatch surface must expose every schema field required by the receipt workflow."
+      },
+      "timeout_seconds": 60,
+      "max_output_bytes": 16777216,
+      "expected_exit": 0,
+      "inconclusive_exit_codes": [],
+      "expected_observation": {
+        "type": "test_count_regex",
+        "stream": "stdout",
+        "pattern": "(?m)^Results: ([0-9]+) passed, 0 failed$",
+        "min_count": 8
+      },
+      "negative_falsifier": "Any missing launch, attestation, provenance, evidence, completion, or status schema field must fail preflight.",
+      "independence_requirement": "author-executable; non-author reproduction required at the release gate",
+      "required_artifacts": [],
+      "clean_source": false,
+      "requirement_ids": [
+        "S1-03",
+        "AP-10",
+        "AP-16"
+      ],
+      "command": [
+        "bash",
+        "tests/test-crossmodel-preflight.sh"
+      ],
+      "required_tools": [
+        "bash",
+        "jq",
+        "python3.12"
+      ]
+    },
+    {
+      "check_id": "orchestration-receipt-gate",
+      "stage": "orchestration-receipts",
       "working_directory": ".",
       "environment": {},
       "platforms": [

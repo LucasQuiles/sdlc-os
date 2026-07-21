@@ -83,6 +83,12 @@ bash -n scripts/crossmodel-preflight.sh scripts/crossmodel-health.sh \
   tests/test-crossmodel-preflight.sh tests/test-crossmodel-health.sh
 bash tests/test-crossmodel-preflight.sh
 bash tests/test-crossmodel-health.sh
+python3.12 scripts/run-verification.py \
+  --manifest verification/manifest.json \
+  --stage orchestration-receipts \
+  --platform macos \
+  --run-id <unique-run-id> \
+  --results-dir .verification-results/<unique-run-id>
 python3.12 scripts/check-plugin-metadata.py --root .
 python3.12 scripts/check-repository-inventory.py --root .
 ```
