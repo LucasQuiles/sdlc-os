@@ -12,9 +12,8 @@ import os
 import sys
 from pathlib import Path
 
-import pytest
-
-hypothesis = pytest.importorskip("hypothesis")
+# Hypothesis is a REQUIRED test dependency (requirements.txt): the property
+# suite must run, not skip, so cap/ordering invariants are always exercised.
 from hypothesis import given, settings, assume, HealthCheck
 from hypothesis import strategies as st
 
