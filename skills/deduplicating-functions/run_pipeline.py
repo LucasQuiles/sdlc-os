@@ -78,6 +78,37 @@ def _resolve_jobs(cli_jobs: int | None) -> int:
     return _default_jobs()
 
 
+def _positive_int(value: str) -> int:
+    """argparse type for resource ceilings: finite positive integers only (I3)."""
+    try:
+        n = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            f"{value!r} is not an integer; ceilings must be finite positive integers") from None
+    if n <= 0:
+        raise argparse.ArgumentTypeError(
+            f"{value!r}: ceilings must be finite positive integers (no unbounded setting exists)")
+    return n
+
+
+def _load_resource_policy_module():
+    """Import scripts/lib/resource_policy.py by path (keeps run_pipeline.py's
+    only sibling import `safety`, which the shim-runner tests stub)."""
+    import importlib.util
+    lib_dir = os.path.join(SCRIPTS, "lib")
+    path = os.path.join(lib_dir, "resource_policy.py")
+    if not os.path.exists(path):
+        return None
+    if lib_dir not in sys.path:
+        sys.path.insert(0, lib_dir)
+    spec = importlib.util.spec_from_file_location("dedup_resource_policy", path)
+    mod = importlib.util.module_from_spec(spec)
+    # dataclasses (3.12) resolves cls.__module__ through sys.modules — register first.
+    sys.modules[spec.name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def parse_args():
     p = argparse.ArgumentParser(description="Run the full duplicate detection pipeline")
     p.add_argument("source", nargs="?", default=None,
@@ -118,10 +149,31 @@ def parse_args():
                    help="Noise suppression rules (default: selfcontained_wrappers storage_error_factories crud_boilerplate)")
     p.add_argument("--actionable-only", action="store_true",
                    help="Emit only Type 1/2 HIGH confidence pairs after suppression")
+    # ── Finite resource policy (2026-08-22 incident: unbounded merge/report) ──
+    rp = p.add_argument_group("resource policy (every ceiling is a finite positive integer)")
+    rp.add_argument("--resource-policy", choices=("refuse", "truncate"), default="refuse",
+                    help="On a ceiling breach: refuse (exit 3, nothing partial) or truncate "
+                         "(keep top-ranked rows, record the drop). Default: %(default)s")
+    rp.add_argument("--max-pairs", type=_positive_int, default=None,
+                    help="Max pairs emitted by merge (default: policy default 200000)")
+    rp.add_argument("--max-input-bytes", type=_positive_int, default=None,
+                    help="Max total detector-output bytes accepted by merge (default 1 GiB)")
+    rp.add_argument("--max-output-bytes", type=_positive_int, default=None,
+                    help="Max pairs.jsonl bytes (default 1 GiB)")
+    rp.add_argument("--max-legacy-json-bytes", type=_positive_int, default=None,
+                    help="Write merge/merged-results.json only under this size (default 200 MiB)")
+    rp.add_argument("--no-legacy-json", action="store_true",
+                    help="Never write the legacy merged-results.json")
+    rp.add_argument("--max-report-rows", type=_positive_int, default=None,
+                    help="Rows per report section; omissions are stated (default 500)")
+    rp.add_argument("--max-wall-seconds", type=_positive_int, default=None,
+                    help="Whole-pipeline wall clock ceiling (default 1800)")
+    rp.add_argument("--max-tree-rss-bytes", type=_positive_int, default=None,
+                    help="Runner + all descendants sampled RSS ceiling (default 6 GiB)")
     return p.parse_args()
 
 
-def main():
+def _main_impl():
     args = parse_args()
     if not args.source and not args.from_corpus:
         print("Error: either positional source directory or --from-corpus is required",
@@ -187,11 +239,34 @@ def main():
                 log(f"  Preflight OK: {reason}")
         else:
             log(f"ERROR: preflight refused launch: {reason}")
-            log(f"       Free memory before retrying, or pass --ignore-preflight "
-                f"to bypass (not recommended).")
+            log("       Free memory before retrying, or pass --ignore-preflight "
+                "to bypass (not recommended).")
             sys.exit(1)
     else:
         log("  Preflight: bypassed via --ignore-preflight")
+
+    # ── Resource policy, run record, process-tree watchdog ───────────
+    global _FINALIZE
+    rpmod = _load_resource_policy_module()
+    policy = None
+    if rpmod is None:
+        _strict_gate("resource policy",
+                     "resource policy module missing (scripts/lib/resource_policy.py): "
+                     "caps and the process-tree watchdog are unavailable", strict_mode)
+        log("  WARNING: continuing without resource caps/watchdog (permissive mode)")
+    else:
+        try:
+            policy = rpmod.ResourcePolicy.defaults().with_overrides(
+                mode=args.resource_policy, max_pairs=args.max_pairs,
+                max_input_bytes=args.max_input_bytes, max_output_bytes=args.max_output_bytes,
+                max_legacy_json_bytes=args.max_legacy_json_bytes,
+                max_report_rows=args.max_report_rows, max_wall_seconds=args.max_wall_seconds,
+                max_tree_rss_bytes=args.max_tree_rss_bytes)
+        except rpmod.PolicyError as exc:
+            log(f"ERROR: resource policy: {exc} (ceilings must be finite)")
+            sys.exit(2)
+        log(f"  Resource policy: mode={policy.mode} max_pairs={policy.max_pairs} "
+            f"max_tree_rss={policy.max_tree_rss_bytes} max_wall={policy.max_wall_seconds}s")
 
     # ── Setup ────────────────────────────────────────────────────────
     if os.path.exists(out):
@@ -199,6 +274,66 @@ def main():
     for d in [extract_dir, detect_dir, merge_dir]:
         os.makedirs(d, exist_ok=True)
     open(log_file, "w").close()
+
+    run_json = os.path.join(out, "run.json")
+    record = rpmod.RunRecord.start(policy=policy, base_dir=BASE,
+                                   extra={"tool": "run_pipeline", "output_dir": out,
+                                          "source": src, "from_corpus": args.from_corpus,
+                                          "strict": strict_mode}) if rpmod else None
+    abort_box: dict = {}
+    watchdog = None
+    if rpmod is not None:
+        watchdog = rpmod.TreeWatchdog(
+            root_pid=os.getpid(), max_tree_rss_bytes=policy.max_tree_rss_bytes,
+            max_wall_seconds=policy.max_wall_seconds, interval_s=1.0,
+            on_abort=lambda ev: abort_box.update(ev))
+        watchdog.start()
+
+    def _peak() -> dict | None:
+        if watchdog is None:
+            return None
+        if watchdog.samples == 0:
+            return rpmod.sample_tree(os.getpid())
+        return {"rss_bytes": watchdog.peak_tree_rss_bytes,
+                "process_count": watchdog.peak_process_count,
+                "samples": watchdog.samples, "footprint_bytes": None,
+                "footprint_status": "unavailable"}
+
+    def _artifacts() -> dict:
+        return {
+            "pipeline.log": log_file,
+            "pairs.jsonl": os.path.join(merge_dir, "pairs.jsonl"),
+            "summary.json": os.path.join(merge_dir, "summary.json"),
+            "merged-results.json": os.path.join(merge_dir, "merged-results.json"),
+            "duplicates-report.md": os.path.join(out, "duplicates-report.md"),
+        }
+
+    finalized: dict = {}
+
+    def _finalize(outcome: str, **extra) -> None:
+        """Write run.json exactly once; the first (most specific) outcome wins."""
+        if record is None or finalized:
+            return
+        finalized["outcome"] = outcome
+        if watchdog is not None:
+            watchdog.stop()
+        record.finish(outcome=outcome, artifacts=_artifacts(), peak=_peak(), **extra)
+        try:
+            record.write(run_json)
+        except OSError as exc:
+            log(f"  WARNING: could not write run.json: {exc}")
+
+    def _check_abort(where: str) -> None:
+        """Exit 3 with outcome resource_abort if the watchdog fired."""
+        if abort_box:
+            log(f"ERROR: RESOURCE_ABORT during {where}: {abort_box.get('reason')} "
+                f"(peak tree RSS {abort_box.get('peak_tree_rss_bytes')} bytes; "
+                f"signaled {abort_box.get('signaled_pids')})")
+            _finalize("resource_abort", extra={"abort": dict(abort_box)})
+            sys.exit(3)
+
+    _FINALIZE = _finalize
+    _check_abort("startup")
 
     # ── Phase 0: EXTRACT ─────────────────────────────────────────────
     log("=== Phase 0: EXTRACT ===")
@@ -323,6 +458,8 @@ def main():
             except json.JSONDecodeError as e:
                 log(f"  WARNING: unified catalog parse error: {e}")
     log(f"  Extracted {count} functions into unified catalog")
+    if record is not None:
+        record.note_phase("extract", {"functions": count, "failures": list(extract_failures)})
 
     if extract_failures:
         log(f"  Extraction issues ({len(extract_failures)}):")
@@ -330,7 +467,7 @@ def main():
             log(f"    - {msg}")
         if strict_mode:
             log(f"ERROR: strict mode: {len(extract_failures)} extraction step(s) failed or skipped.")
-            log(f"       Use --skip-ast or --skip-ts to intentionally omit extractors.")
+            log("       Use --skip-ast or --skip-ts to intentionally omit extractors.")
             sys.exit(2)
 
     # ── Phase 1: DETECT ──────────────────────────────────────────────
@@ -350,6 +487,7 @@ def main():
         ("detect-code-embedding.py",    "code-embedding-results.json",   "code-embedding"),
     ]
 
+    _check_abort("extract phase")
     max_jobs = _resolve_jobs(args.jobs)
     log(f"  Detector concurrency cap: {max_jobs} parallel jobs")
 
@@ -428,6 +566,9 @@ def main():
                 log(f"  {label_out}: {n} candidate pairs")
 
     log(f"  Detection complete ({failures} failures, {skipped} skipped)")
+    _check_abort("detect phase")
+    if record is not None:
+        record.note_phase("detect", {"failures": failures, "skipped": skipped, "jobs": max_jobs})
 
     if strict_mode and (failures > 0 or skipped > 0):
         log(f"ERROR: strict mode: {failures} detector(s) failed, {skipped} skipped. See {log_file}")
@@ -438,28 +579,71 @@ def main():
 
     merge_script = os.path.join(SCRIPTS, "merge-signals.py")
     merged_out = os.path.join(merge_dir, "merged-results.json")
+    pairs_out = os.path.join(merge_dir, "pairs.jsonl")
+    summary_out = os.path.join(merge_dir, "summary.json")
     merge_cmd = [PYTHON, merge_script, detect_dir, "-o", merged_out, "--include-summary"]
     if args.suppress:
         merge_cmd += ["--suppress"] + args.suppress
     if args.actionable_only:
         merge_cmd += ["--actionable-only"]
+    if policy is not None:
+        merge_cmd += ["--resource-policy", policy.mode,
+                      "--max-pairs", str(policy.max_pairs),
+                      "--max-input-bytes", str(policy.max_input_bytes),
+                      "--max-output-bytes", str(policy.max_output_bytes),
+                      "--max-legacy-json-bytes", str(policy.max_legacy_json_bytes)]
+    if args.no_legacy_json:
+        merge_cmd.append("--no-legacy-json")
     merge_result = run(
         merge_cmd,
         label="merge-signals", check=False, log_file=log_file
     )
+    _check_abort("merge phase")
+    if merge_result.returncode == 3:
+        detail = ""
+        try:
+            with open(os.path.join(merge_dir, "run.json")) as f:
+                ref = json.load(f).get("refusal", {})
+            detail = f"{ref.get('reason')}: {ref.get('detail')}"
+        except (OSError, ValueError):
+            detail = f"see {log_file}"
+        log(f"ERROR: REFUSED_RESOURCE: merge-signals refused the run ({detail})")
+        log("       Raise the ceiling explicitly or pass --resource-policy truncate.")
+        _finalize("refused_resource", extra={"refusal": detail})
+        sys.exit(3)
     if merge_result.returncode != 0:
         _strict_gate("merge phase", f"merge-signals exited {merge_result.returncode}", strict_mode, log_file)
-    elif not os.path.exists(merged_out):
-        _strict_gate("merge phase", "merge-signals produced no output", strict_mode)
+    elif not os.path.exists(pairs_out) or not os.path.exists(summary_out):
+        _strict_gate("merge phase", "merge-signals produced no pairs.jsonl/summary.json", strict_mode)
 
-    if os.path.exists(merged_out):
-        with open(merged_out) as f:
-            merged = json.load(f)
-        summary = merged.get("summary", {})
+    summary = {}
+    if os.path.exists(summary_out):
+        # Only the small sidecar is read here — never the merged document itself
+        # (a 2.05 GB json.load of it was half of the 2026-08-22 incident).
+        with open(summary_out) as f:
+            summary = json.load(f)
         total = summary.get("total_pairs", 0)
         by_conf = summary.get("by_confidence", {})
         log(f"  {total} pairs: {by_conf.get('HIGH', 0)} HIGH, "
             f"{by_conf.get('MEDIUM', 0)} MEDIUM, {by_conf.get('LOW', 0)} LOW")
+        if summary.get("complete") is False:
+            log(f"  TRUNCATED: {summary.get('truncation_reason')}; "
+                f"{summary.get('pairs_dropped', 0)} pair(s) dropped (of {summary.get('candidates_total')})")
+        if not os.path.exists(merged_out):
+            log("  Legacy merged-results.json not written (above size ceiling or disabled); "
+                "consumers must read pairs.jsonl")
+    if record is not None:
+        merge_counts = {}
+        try:
+            with open(os.path.join(merge_dir, "run.json")) as f:
+                merge_counts = json.load(f).get("counts", {})
+        except (OSError, ValueError):
+            pass
+        record.note_phase("merge", dict(merge_counts, exit_code=merge_result.returncode,
+                                        truncated=summary.get("complete") is False))
+        if summary.get("complete") is False:
+            record.data["truncated"] = True
+            record.data["truncation_reason"] = summary.get("truncation_reason")
 
     # ── Phase 3: REPORT ──────────────────────────────────────────────
     log("=== Phase 3: REPORT ===")
@@ -467,8 +651,13 @@ def main():
     report_script = os.path.join(SCRIPTS, "generate-report-enhanced.sh")
     report_out = os.path.join(out, "duplicates-report.md")
     if os.path.exists(report_script):
-        report_result = run(["bash", report_script, merged_out, report_out],
-                            label="generate-report", check=False, log_file=log_file)
+        report_cmd = ["bash", report_script, merge_dir, report_out]
+        if policy is not None:
+            report_cmd += ["--max-rows-per-section", str(policy.max_report_rows)]
+        report_result = run(report_cmd, label="generate-report", check=False, log_file=log_file)
+        _check_abort("report phase")
+        if record is not None:
+            record.note_phase("report", {"exit_code": report_result.returncode, "path": report_out})
         if report_result.returncode != 0:
             _strict_gate("report phase", f"generate-report exited {report_result.returncode}", strict_mode, log_file)
         elif not os.path.exists(report_out):
@@ -485,12 +674,12 @@ def main():
         eval_out = os.path.join(out, "evaluation.json")
         if not os.path.exists(eval_script):
             _strict_gate("evaluate phase", f"evaluate.py not found at {eval_script}", strict_mode)
-        elif not os.path.exists(merged_out):
-            _strict_gate("evaluate phase", f"merged results not found at {merged_out}", strict_mode)
+        elif not os.path.exists(pairs_out):
+            _strict_gate("evaluate phase", f"merged results not found at {pairs_out}", strict_mode)
         else:
             eval_result = run(
                 [PYTHON, eval_script,
-                 "--results", merged_out,
+                 "--results", merge_dir,
                  "--corpus", args.eval_corpus,
                  "-o", eval_out],
                 label="evaluate", check=False, log_file=log_file
@@ -509,7 +698,31 @@ def main():
                 _strict_gate("evaluate phase", "evaluation produced no output", strict_mode)
 
     log("=== COMPLETE ===")
-    log(f"Results: {merged_out}")
+    log(f"Results: {pairs_out} (+ {summary_out}"
+        f"{'; legacy ' + merged_out if os.path.exists(merged_out) else ''})")
+
+
+_FINALIZE = None  # set by _main_impl once the run record exists
+
+
+def main():
+    """Run the pipeline; every exit path leaves a run.json with its outcome."""
+    global _FINALIZE
+    _FINALIZE = None
+    try:
+        _main_impl()
+    except SystemExit as exc:
+        code = exc.code if isinstance(exc.code, int) else 1
+        if _FINALIZE is not None and code not in (0, None):
+            outcome = {2: "strict_failure", 3: "resource_limit"}.get(code, "error")
+            try:
+                _FINALIZE(outcome, extra={"exit_code": code})
+            except Exception:
+                pass
+        raise
+    else:
+        if _FINALIZE is not None:
+            _FINALIZE("complete")
 
 
 if __name__ == "__main__":

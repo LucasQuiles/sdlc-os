@@ -195,7 +195,9 @@ This keeps the automated pipeline deterministic while still supporting deeper se
 ### Phase 2: Merge and Score
 
 ```bash
-python3 ./scripts/merge-signals.py ./detect/ -o merged-results.json --include-summary
+python3 ./scripts/merge-signals.py ./detect/ -o ./merge/merged-results.json --include-summary
+# writes ./merge/pairs.jsonl + ./merge/summary.json + ./merge/run.json;
+# merged-results.json only when it stays under --max-legacy-json-bytes (default 200 MiB)
 ```
 
 Multi-signal confidence rules:
@@ -210,7 +212,7 @@ each should not produce HIGH confidence).
 ### Phase 3: Generate Report
 
 ```bash
-./scripts/generate-report-enhanced.sh merged-results.json duplicates-report.md
+./scripts/generate-report-enhanced.sh ./merge duplicates-report.md   # or a pairs.jsonl / legacy merged-results.json
 ```
 
 Report shows per-pair: clone type, triggering strategies with scores, composite confidence, and actionable recommendation.
@@ -235,6 +237,42 @@ Use `tests/fixtures/adversarial-corpus.json` for a small checked-in fixture, or 
 Detector and merge outputs are validated against JSON Schema:
 - `schemas/detector-output.schema.json` — per-detector pair format
 - `schemas/merge-output.schema.json` — merged pipeline output with summary
+
+## Resource policy and bounded outputs (2026-08 incident fix)
+
+On 2026-08-22 a `--permissive` run over a large TypeScript tree produced a
+2.05 GB `merged-results.json`; `run_pipeline.py` held it with `json.load`
+(5.25 GB) while the jq-based report generator re-parsed it six times
+(22.7 GB peak footprint), exhausting the host's VM compressor and swap.
+Every stage is now bounded by design:
+
+| Artifact | Contents | Bound |
+|---|---|---|
+| `merge/pairs.jsonl` | one merged pair per line, ordered by composite score, strategy count, first-seen | `--max-pairs`, `--max-output-bytes` |
+| `merge/summary.json` | counts plus `complete`, `pairs_dropped`, `candidates_total`, `truncation_reason` | small |
+| `merge/run.json`, `run.json` | policy, phases, counts, peak tree RSS, outcome, artifact hashes | small |
+| `merge/merged-results.json` | legacy `{"pairs": [...], "summary": {...}}` | written only under `--max-legacy-json-bytes` (default 200 MiB); absence is recorded in `run.json` |
+| `duplicates-report.md` | streamed markdown, `--max-report-rows` per section, omissions stated explicitly | rows |
+
+Ceilings (all finite positive integers; there is no unbounded setting):
+`--max-pairs` (200000), `--max-input-bytes` (1 GiB), `--max-output-bytes` (1 GiB),
+`--max-legacy-json-bytes` (200 MiB), `--max-report-rows` (500),
+`--max-wall-seconds` (1800), `--max-tree-rss-bytes` (6 GiB).
+
+`--resource-policy refuse` (default) exits **3** with `REFUSED_RESOURCE` and writes
+nothing partial; `--resource-policy truncate` keeps the top-ranked rows and records
+the drop in `summary.json`/`run.json`. `--permissive` still governs detector/phase
+tolerance only and never implies truncation. A process-tree watchdog samples the
+runner and all descendants every second and aborts the owned tree (exit 3,
+`outcome: resource_abort`) when the RSS or wall-clock ceiling is crossed — it
+signals only pids proven to be descendants at signal time.
+
+Exit codes: 0 ok · 1 input/IO error · 2 usage or strict-phase failure · 3 resource limit.
+
+All readers (`merge-signals.py`, `generate_report.py`, `evaluate.py`) stream their
+inputs with `scripts/lib/jsonstream.py` (standard library, bounded buffer); the merge
+uses a scratch SQLite database with a 64 MiB page cache instead of an in-memory index.
+
 
 ## Common Mistakes
 
