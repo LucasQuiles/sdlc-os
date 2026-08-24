@@ -58,6 +58,29 @@ def load_ground_truth(corpus_path: str) -> dict[str, dict]:
     return index
 
 
+def _iter_result_pairs(results_path: str):
+    """Stream pair records from any supported results form without loading it:
+    a merge directory (pairs.jsonl), a pairs.jsonl file, a legacy
+    {"pairs": [...]} document, or a bare JSON array."""
+    import os as _os
+    import sys as _sys
+    _lib = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "lib")
+    if _lib not in _sys.path:
+        _sys.path.insert(0, _lib)
+    import jsonstream  # noqa: E402
+
+    if _os.path.isdir(results_path):
+        results_path = _os.path.join(results_path, "pairs.jsonl")
+    fmt = jsonstream.detect_format(results_path)
+    if fmt == "jsonl":
+        return jsonstream.iter_jsonl(results_path)
+    if fmt == "array":
+        return jsonstream.iter_json_array(results_path)
+    if fmt == "object":
+        return jsonstream.iter_object_member_array(results_path, "pairs")
+    return iter(())
+
+
 def load_detected_pairs(
     results_path: str,
     min_confidence: str = "LOW",
@@ -72,15 +95,7 @@ def load_detected_pairs(
       - A list of pair dicts (bare array format)
       - An object with a "pairs" key (include-summary format)
     """
-    with open(results_path) as f:
-        data = json.load(f)
-
-    if isinstance(data, dict) and "pairs" in data:
-        pairs = data["pairs"]
-    elif isinstance(data, list):
-        pairs = data
-    else:
-        return set()
+    pairs = _iter_result_pairs(results_path)
 
     min_level = CONFIDENCE_ORDER.get(min_confidence, 1)
     detected: set[str] = set()
@@ -239,7 +254,7 @@ def main() -> None:
 
     result = evaluate(detected, ground_truth)
 
-    print(f"Evaluation complete:", file=sys.stderr)
+    print("Evaluation complete:", file=sys.stderr)
     print(f"  Ground truth pairs: {len(ground_truth)}", file=sys.stderr)
     actual_count = sum(1 for e in ground_truth.values() if e["is_clone"])
     print(f"  Actual clones: {actual_count}", file=sys.stderr)

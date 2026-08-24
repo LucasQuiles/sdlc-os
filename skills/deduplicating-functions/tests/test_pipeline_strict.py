@@ -96,10 +96,18 @@ def _strip_nondeterministic(out_dir: str) -> None:
     - duplicates-report.md embeds "Generated: YYYY-MM-DD HH:MM" from
       generate-report-enhanced.sh, which can cross a minute boundary
       between two runs in the same test.
+    - run.json / merge/run.json carry timestamps, pid and peak-RSS provenance.
     """
     log = os.path.join(out_dir, "pipeline.log")
     if os.path.exists(log):
         os.unlink(log)
+
+    # run.json (pipeline and merge) record start/end timestamps, pid, durations
+    # and peak RSS by contract — they are provenance, not output.
+    for rel in ("run.json", os.path.join("merge", "run.json")):
+        rj = os.path.join(out_dir, rel)
+        if os.path.exists(rj):
+            os.unlink(rj)
 
     report = os.path.join(out_dir, "duplicates-report.md")
     if os.path.exists(report):

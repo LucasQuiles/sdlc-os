@@ -422,13 +422,23 @@ phase_merge() {
         --include-summary \
         --high-threshold "$THRESHOLD"
 
-    local total high medium low
-    total=$(jq '.summary.total_pairs' "$OUTPUT_DIR/merge/merged-results.json" 2>/dev/null || echo 0)
-    high=$(jq '.summary.by_confidence.HIGH // 0' "$OUTPUT_DIR/merge/merged-results.json" 2>/dev/null || echo 0)
-    medium=$(jq '.summary.by_confidence.MEDIUM // 0' "$OUTPUT_DIR/merge/merged-results.json" 2>/dev/null || echo 0)
-    low=$(jq '.summary.by_confidence.LOW // 0' "$OUTPUT_DIR/merge/merged-results.json" 2>/dev/null || echo 0)
-
-    log "  $total pairs: $high HIGH, $medium MEDIUM, $low LOW"
+    # Counts come from the small summary.json sidecar — never from re-parsing
+    # the (possibly multi-GB) merged document.
+    local summary="$OUTPUT_DIR/merge/summary.json"
+    if [[ ! -f "$summary" ]]; then
+        log "  ERROR: merge produced no summary.json"
+        return 1
+    fi
+    local counts
+    counts=$("$PYTHON" - "$summary" <<'PYSUM'
+import json, sys
+s = json.load(open(sys.argv[1]))
+bc = s.get("by_confidence", {})
+extra = "" if s.get("complete", True) else f" (TRUNCATED: {s.get('pairs_dropped', 0)} dropped)"
+print(f"{s.get('total_pairs', 0)} pairs: {bc.get('HIGH', 0)} HIGH, {bc.get('MEDIUM', 0)} MEDIUM, {bc.get('LOW', 0)} LOW{extra}")
+PYSUM
+)
+    log "  $counts"
 }
 
 # ═══════════════════════════════════════════════════════════════════
@@ -438,7 +448,7 @@ phase_merge() {
 phase_report() {
     log "═══ Phase 3: REPORT ═══"
 
-    local merged="$OUTPUT_DIR/merge/merged-results.json"
+    local merged="$OUTPUT_DIR/merge"   # new layout: pairs.jsonl + summary.json
     local report="$OUTPUT_DIR/duplicates-report.md"
 
     if [[ -x "$SCRIPT_DIR/generate-report-enhanced.sh" ]]; then
@@ -478,7 +488,7 @@ main() {
 
     log ""
     log "═══ COMPLETE ═══"
-    log "Results: $OUTPUT_DIR/merge/merged-results.json"
+    log "Results: $OUTPUT_DIR/merge/pairs.jsonl (+ summary.json; legacy merged-results.json only under the size ceiling)"
     log "Report:  $OUTPUT_DIR/duplicates-report.md"
     log "Catalog: $OUTPUT_DIR/extract/catalog-unified.json"
 }
