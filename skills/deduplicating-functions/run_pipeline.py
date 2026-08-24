@@ -9,9 +9,31 @@ import json
 import shutil
 import subprocess
 import time
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 
-from safety import acquire_pipeline_lock, check_preflight, DEFAULT_LOCK_PATH
+from safety import (
+    DEFAULT_LOCK_PATH,
+    acquire_pipeline_lock,
+    check_output_capacity,
+    check_preflight,
+)
+from pipeline_runtime import (
+    AbortInProgress,
+    CensusOutcome,
+    ManagedRunPublisher,
+    ProcessIdentity,
+    SpawnCoordinator,
+)
+
+__all__ = [
+    "AbortInProgress",
+    "CensusOutcome",
+    "ManagedRunPublisher",
+    "ProcessIdentity",
+    "SpawnCoordinator",
+    "main",
+]
 
 PYTHON = sys.executable  # Use the same interpreter that launched this script
 
@@ -26,17 +48,23 @@ def log(msg):
 
 def run(cmd, label="", check=True, log_file=None):
     log(f"  Running: {label or ' '.join(str(c) for c in cmd[:3])}")
+    if _COORDINATOR is None:
+        raise RuntimeError("spawn coordinator is not initialized")
     if log_file:
         with open(log_file, "a") as lf:
-            result = subprocess.run(cmd, stderr=lf, stdout=subprocess.PIPE, text=True)
+            result = _COORDINATOR.run(
+                cmd, stderr=lf, stdout=subprocess.PIPE, text=True,
+                timeout=_COMMAND_TIMEOUT_S)
     else:
-        result = subprocess.run(cmd, stderr=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True)
+        result = _COORDINATOR.run(
+            cmd, stderr=subprocess.DEVNULL, stdout=subprocess.PIPE, text=True,
+            timeout=_COMMAND_TIMEOUT_S)
     if check and result.returncode != 0:
         log(f"  WARNING: {label} exited {result.returncode}")
     return result
 
 
-def _strict_gate(phase: str, message: str, strict: bool, log_file: str = "") -> None:
+def _strict_gate(phase: str, message: str, strict: bool, log_file: str = "") -> bool:
     """Log an error and exit 2 if strict mode is active.
 
     Strict mode is the default; callers pass ``strict=False`` to opt into
@@ -47,6 +75,7 @@ def _strict_gate(phase: str, message: str, strict: bool, log_file: str = "") -> 
         suffix = f" See {log_file}" if log_file else ""
         log(f"ERROR: strict mode: {phase} failed.{suffix}")
         sys.exit(2)
+    return True
 
 
 # Maximum detector parallelism regardless of CPU count. Each detector can
@@ -54,57 +83,24 @@ def _strict_gate(phase: str, message: str, strict: bool, log_file: str = "") -> 
 # Adjust here (one place) if per-detector RSS drops in Phase 2/3 of the
 # OOM safety work.
 MAX_DETECTOR_JOBS = 4
-DETECTOR_TIMEOUT_S = int(os.environ.get("DEDUP_DETECTOR_TIMEOUT_S", "300"))
+MAX_DETECTOR_TIMEOUT_S = 300
 
 
-# Pipeline-output markers: a directory is deletable as "ours" only when it is
-# empty or contains at least one of these and nothing that contradicts prior
-# pipeline ownership. Kept intentionally simple and auditable.
-_PIPELINE_MARKERS = frozenset({"run.json", "pipeline.log", "extract", "detect", "merge"})
-
-# Paths whose deletion can never be a duplicate-detection output directory.
-_FORBIDDEN_OUTPUT_ROOTS = frozenset({
-    "/", "/home", "/Users", "/System", "/Library", "/usr", "/opt", "/etc",
-    "/var", "/private", "/private/var", "/tmp", "/private/tmp", "/bin", "/sbin",
-})
-
-
-def _output_dir_refusal(out: str) -> str | None:
-    """Return a refusal reason if deleting `out` would be unsafe, else None.
-
-    Rules (2026-08-24 red-team finding — `-o /` previously requested rmtree of
-    the filesystem root):
-      - resolved path may not be a filesystem root, a forbidden system prefix,
-        or the caller's home directory itself;
-      - a symlink is never followed for deletion;
-      - an existing NON-empty directory is deletable only when it carries a
-        pipeline marker (run.json / pipeline.log / extract / detect / merge)
-        proving a previous run owns it;
-      - an existing non-directory (file) is refused.
-    A missing path is always fine (nothing to delete).
-    """
-    if not os.path.exists(out) and not os.path.islink(out):
-        return None
-    if os.path.islink(out):
-        return "path is a symlink; refusing to delete through it"
-    real = os.path.realpath(out)
-    home = os.path.realpath(os.path.expanduser("~"))
-    if real in _FORBIDDEN_OUTPUT_ROOTS:
-        return f"resolved path {real} is a protected system location"
-    if real == home:
-        return "resolved path is the caller's home directory"
-    if os.path.ismount(real):
-        return f"resolved path {real} is a filesystem mount root"
-    if not os.path.isdir(real):
-        return "existing path is not a directory"
-    entries = set(os.listdir(real))
-    if not entries:
-        return None
-    if entries & _PIPELINE_MARKERS:
-        return None
-    return ("existing non-empty directory carries no pipeline marker "
-            f"({', '.join(sorted(_PIPELINE_MARKERS))}); it does not look like "
-            "previous pipeline output. Choose an empty or new --output-dir.")
+def _resolve_detector_timeout() -> int:
+    """Allow tests/operators to lower, but never raise, the detector wall cap."""
+    raw = os.environ.get("DEDUP_DETECTOR_TIMEOUT_S", "").strip()
+    if not raw:
+        return MAX_DETECTOR_TIMEOUT_S
+    try:
+        value = int(raw)
+    except ValueError:
+        raise ValueError(
+            "DEDUP_DETECTOR_TIMEOUT_S must be a finite positive integer") from None
+    if value <= 0 or value > MAX_DETECTOR_TIMEOUT_S:
+        raise ValueError(
+            "DEDUP_DETECTOR_TIMEOUT_S must be between 1 and the immutable "
+            f"hard cap {MAX_DETECTOR_TIMEOUT_S}")
+    return value
 
 
 def _default_jobs() -> int:
@@ -121,9 +117,15 @@ def _default_jobs() -> int:
 def _resolve_jobs(cli_jobs: int | None) -> int:
     """Resolve the effective jobs cap. CLI > env > default."""
     if cli_jobs and cli_jobs > 0:
+        if cli_jobs > MAX_DETECTOR_JOBS:
+            raise ValueError(
+                f"jobs={cli_jobs} exceeds immutable hard cap {MAX_DETECTOR_JOBS}")
         return cli_jobs
     env = os.environ.get("SDLC_OS_DETECTOR_JOBS", "").strip()
     if env.isdigit() and int(env) > 0:
+        if int(env) > MAX_DETECTOR_JOBS:
+            raise ValueError(
+                f"SDLC_OS_DETECTOR_JOBS exceeds immutable hard cap {MAX_DETECTOR_JOBS}")
         return int(env)
     return _default_jobs()
 
@@ -182,18 +184,13 @@ def parse_args():
                         "failures (extract, detect, merge, report, evaluate) and exit 0 "
                         "anyway. Use only for scripted sweeps over many trees where "
                         "one broken tree should not halt the batch.")
-    p.add_argument("--lock-file", default=DEFAULT_LOCK_PATH,
-                   help=f"Path to the cross-process lock file (default: {DEFAULT_LOCK_PATH}). "
-                        "Two run_pipeline.py invocations sharing this path are mutually exclusive.")
     p.add_argument("--wait", action="store_true",
-                   help="Block waiting for the lock instead of failing fast on conflict.")
+                   help=f"Block waiting for the canonical lock ({DEFAULT_LOCK_PATH}) "
+                        "instead of failing fast on conflict.")
     p.add_argument("--jobs", type=int, default=None,
                    help="Maximum concurrent detector processes. "
                         "Default: min(4, cpu_count//2). Override via "
                         "SDLC_OS_DETECTOR_JOBS env var.")
-    p.add_argument("--ignore-preflight", action="store_true",
-                   help="Bypass the memory pressure preflight check. "
-                        "Use only when you know the system has headroom.")
     p.add_argument("--suppress", nargs="*",
                    default=["selfcontained_wrappers", "storage_error_factories", "crud_boilerplate"],
                    help="Noise suppression rules (default: selfcontained_wrappers storage_error_factories crud_boilerplate)")
@@ -238,12 +235,24 @@ def _main_impl():
         log("  WARNING: --strict is a no-op (strict is the default); "
             "--permissive takes effect. Drop --strict to silence this.")
     strict_mode = not args.permissive
+    semantic_failures: list[str] = []
+    try:
+        detector_timeout_s = _resolve_detector_timeout()
+    except ValueError as exc:
+        log(f"ERROR: {exc}")
+        sys.exit(2)
     src = os.path.abspath(args.source) if args.source else None
-    out = os.path.abspath(args.output_dir)
-    extract_dir = os.path.join(out, "extract")
-    detect_dir = os.path.join(out, "detect")
-    merge_dir = os.path.join(out, "merge")
-    log_file = os.path.join(out, "pipeline.log")
+    if ".." in os.path.expanduser(args.output_dir).split(os.sep):
+        log("ERROR: managed output root contains a parent traversal")
+        sys.exit(2)
+    output_root = os.path.abspath(args.output_dir)
+    if src is not None:
+        source_identity = os.path.realpath(src)
+        output_identity = os.path.realpath(output_root)
+        common = os.path.commonpath((source_identity, output_identity))
+        if common in {source_identity, output_identity}:
+            log("ERROR: source and managed output root must not overlap")
+            sys.exit(2)
 
     if args.from_corpus:
         if not os.path.isfile(args.from_corpus):
@@ -258,52 +267,37 @@ def _main_impl():
     # it — process exit releases the flock automatically. A refactor that
     # removes "unused" local variables will drop the lock.
     try:
-        lock_fd = acquire_pipeline_lock(args.lock_file, wait=args.wait)
+        _lock_fd = acquire_pipeline_lock(DEFAULT_LOCK_PATH, wait=args.wait)
     except BlockingIOError:
         # Best-effort holder-pid diagnostic. The read can race with the
         # holder's own ftruncate+write, yielding an empty string; that is
         # cosmetic — the lock-conflict error still fires below.
         holder = ""
         try:
-            with open(args.lock_file) as f:
+            with open(DEFAULT_LOCK_PATH) as f:
                 holder = f" (held by pid {f.read().strip()})"
         except OSError:
             pass
         log(f"ERROR: another run_pipeline.py is already running{holder}. "
-            f"Use --wait to block, or pick a different --lock-file.")
+            "Use --wait to block; the canonical global lock is not overridable.")
         sys.exit(1)
 
     # ── Memory preflight check ───────────────────────────────────────
-    if not args.ignore_preflight:
-        ok, reason = check_preflight()
-        if ok:
-            # Distinguish a real healthy probe from a fail-open "skipped:"
-            # result. A skipped probe means the safeguard is absent — the
-            # pipeline still proceeds, but the log line must make that
-            # visible so it doesn't look like a normal healthy run.
-            if reason.startswith("skipped:"):
-                log(f"  WARNING Preflight SKIPPED: {reason}")
-                log("           Memory pressure probe did not run; "
-                    "safeguard is absent. Proceed with care.")
-            else:
-                log(f"  Preflight OK: {reason}")
-        else:
-            log(f"ERROR: preflight refused launch: {reason}")
-            log("       Free memory before retrying, or pass --ignore-preflight "
-                "to bypass (not recommended).")
-            sys.exit(1)
-    else:
-        log("  Preflight: bypassed via --ignore-preflight")
+    ok, reason = check_preflight()
+    if not ok:
+        log(f"ERROR: preflight refused launch: {reason}")
+        sys.exit(1)
+    log(f"  Preflight OK: {reason}")
 
     # ── Resource policy, run record, process-tree watchdog ───────────
     global _FINALIZE
+    global _COMMAND_TIMEOUT_S
     rpmod = _load_resource_policy_module()
     policy = None
     if rpmod is None:
-        _strict_gate("resource policy",
-                     "resource policy module missing (scripts/lib/resource_policy.py): "
-                     "caps and the process-tree watchdog are unavailable", strict_mode)
-        log("  WARNING: continuing without resource caps/watchdog (permissive mode)")
+        log("ERROR: resource policy module missing (scripts/lib/resource_policy.py): "
+            "caps and the process-tree watchdog are unavailable")
+        sys.exit(2)
     else:
         try:
             policy = rpmod.ResourcePolicy.defaults().with_overrides(
@@ -317,36 +311,50 @@ def _main_impl():
             sys.exit(2)
         log(f"  Resource policy: mode={policy.mode} max_pairs={policy.max_pairs} "
             f"max_tree_rss={policy.max_tree_rss_bytes} max_wall={policy.max_wall_seconds}s")
+        _COMMAND_TIMEOUT_S = policy.max_wall_seconds
 
     # ── Setup ────────────────────────────────────────────────────────
-    # Output containment (2026-08-24 red-team finding): `shutil.rmtree(out)` was
-    # unconditional, so `-o /` requested deletion of the filesystem root and
-    # `-o ~` requested deletion of the caller's home. Deletion is now allowed
-    # only for (a) an empty directory, or (b) a directory that carries pipeline
-    # markers proving a previous run owns it. Everything else refuses (exit 2)
-    # rather than guessing — the caller can point at a fresh path instead.
-    refusal = _output_dir_refusal(out)
-    if refusal:
-        log(f"ERROR: refusing to delete --output-dir {out}: {refusal}")
+    capacity_ok, capacity_reason = check_output_capacity(output_root)
+    if not capacity_ok:
+        log(f"ERROR: output admission refused: {capacity_reason}")
+        sys.exit(1)
+    log(f"  Output admission OK: {capacity_reason}")
+    run_id = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()) + "-" + uuid.uuid4().hex
+    publisher = ManagedRunPublisher(output_root, run_id=run_id)
+    try:
+        out = str(publisher.begin())
+    except (OSError, ValueError) as exc:
+        log(f"ERROR: managed output admission failed: {exc}")
         sys.exit(2)
-    if os.path.exists(out):
-        shutil.rmtree(out)
+    extract_dir = os.path.join(out, "extract")
+    detect_dir = os.path.join(out, "detect")
+    merge_dir = os.path.join(out, "merge")
+    log_file = os.path.join(out, "pipeline.log")
     for d in [extract_dir, detect_dir, merge_dir]:
         os.makedirs(d, exist_ok=True)
     open(log_file, "w").close()
 
     run_json = os.path.join(out, "run.json")
     record = rpmod.RunRecord.start(policy=policy, base_dir=BASE,
-                                   extra={"tool": "run_pipeline", "output_dir": out,
+                                   extra={"tool": "run_pipeline",
+                                          "managed_output_root": output_root,
+                                          "managed_run_id": run_id,
+                                          "published_relative_path": f"runs/{run_id}",
                                           "source": src, "from_corpus": args.from_corpus,
                                           "strict": strict_mode}) if rpmod else None
     abort_box: dict = {}
+    global _COORDINATOR
+    _COORDINATOR = SpawnCoordinator()
     watchdog = None
     if rpmod is not None:
         watchdog = rpmod.TreeWatchdog(
             root_pid=os.getpid(), max_tree_rss_bytes=policy.max_tree_rss_bytes,
             max_wall_seconds=policy.max_wall_seconds, interval_s=1.0,
-            on_abort=lambda ev: abort_box.update(ev))
+            on_abort=lambda ev: abort_box.update(ev),
+            cleanup_handler=lambda reason: _COORDINATOR.abort(reason),
+            output_root=out,
+            max_run_output_bytes=policy.max_run_output_bytes,
+            max_tree_processes=policy.max_tree_processes)
         watchdog.start()
 
     def _peak() -> dict | None:
@@ -378,18 +386,49 @@ def _main_impl():
         if watchdog is not None:
             watchdog.stop()
         record.finish(outcome=outcome, artifacts=_artifacts(), peak=_peak(), **extra)
+        for metadata in record.data.get("artifacts", {}).values():
+            path = metadata.get("path") if isinstance(metadata, dict) else None
+            if path and os.path.commonpath((out, path)) == out:
+                metadata["path"] = os.path.relpath(path, out)
         try:
             record.write(run_json)
         except OSError as exc:
             log(f"  WARNING: could not write run.json: {exc}")
+            try:
+                publisher.mark_incomplete("run-record-write-failed")
+            except OSError:
+                pass
+            raise
+        if outcome == "complete":
+            hashes = {
+                name: data["sha256"]
+                for name, data in record.data.get("artifacts", {}).items()
+                if isinstance(data, dict) and data.get("sha256")
+            }
+            try:
+                publisher.publish_complete(hashes)
+            except Exception as exc:
+                record.data["outcome"] = "publication_failed"
+                record.note_error(f"latest pointer publication failed: {type(exc).__name__}")
+                if publisher.work_path.is_dir():
+                    record.write(run_json)
+                raise
+        else:
+            publisher.mark_incomplete(outcome)
 
     def _check_abort(where: str) -> None:
         """Exit 3 with outcome resource_abort if the watchdog fired."""
-        if abort_box:
-            log(f"ERROR: RESOURCE_ABORT during {where}: {abort_box.get('reason')} "
-                f"(peak tree RSS {abort_box.get('peak_tree_rss_bytes')} bytes; "
-                f"signaled {abort_box.get('signaled_pids')})")
-            _finalize("resource_abort", extra={"abort": dict(abort_box)})
+        active_abort = (
+            watchdog.aborted if watchdog is not None and watchdog.aborted is not None
+            else abort_box
+        )
+        if active_abort:
+            if watchdog is not None:
+                active_abort = watchdog.wait_abort(5.0) or active_abort
+            log(f"ERROR: RESOURCE_ABORT during {where}: {active_abort.get('reason')} "
+                f"(peak tree RSS {active_abort.get('peak_tree_rss_bytes')} bytes; "
+                f"signaled {active_abort.get('signaled_pids')})")
+            _finalize("resource_abort", extra={"abort": dict(active_abort)})
             sys.exit(3)
 
     _FINALIZE = _finalize
@@ -529,6 +568,7 @@ def _main_impl():
             log(f"ERROR: strict mode: {len(extract_failures)} extraction step(s) failed or skipped.")
             log("       Use --skip-ast or --skip-ts to intentionally omit extractors.")
             sys.exit(2)
+        semantic_failures.append("extract")
 
     # ── Phase 1: DETECT ──────────────────────────────────────────────
     log("=== Phase 1: DETECT ===")
@@ -548,7 +588,11 @@ def _main_impl():
     ]
 
     _check_abort("extract phase")
-    max_jobs = _resolve_jobs(args.jobs)
+    try:
+        max_jobs = _resolve_jobs(args.jobs)
+    except ValueError as exc:
+        log(f"ERROR: {exc}")
+        sys.exit(2)
     log(f"  Detector concurrency cap: {max_jobs} parallel jobs")
 
     def _run_one_detector(script_path: str, out_file: str, label: str) -> tuple[str, str, int]:
@@ -568,15 +612,15 @@ def _main_impl():
             return label, out_file, -1
         with open(log_file, "a") as lf:
             try:
-                cp = subprocess.run(
+                cp = _COORDINATOR.run(
                     [PYTHON, script_path, catalog_unified, "-o", out_file],
                     stderr=lf, stdout=subprocess.PIPE,
-                    timeout=DETECTOR_TIMEOUT_S,
+                    timeout=detector_timeout_s,
                 )
                 rc = cp.returncode
             except subprocess.TimeoutExpired:
                 lf.write(
-                    f"\n[{label}] TIMEOUT after {DETECTOR_TIMEOUT_S}s - counted as failure\n"
+                    f"\n[{label}] TIMEOUT after {detector_timeout_s}s - counted as failure\n"
                 )
                 rc = 124
         return label, out_file, rc
@@ -648,6 +692,8 @@ def _main_impl():
                         except json.JSONDecodeError as e:
                             log(f"  WARNING: {label_out} output parse error: {e}")
                 log(f"  {label_out}: {n} candidate pairs")
+        if abort_box:
+            ex.shutdown(wait=True, cancel_futures=True)
 
     log(f"  Detection complete ({failures} failures, {skipped} skipped)")
     _check_abort("detect phase")
@@ -657,6 +703,8 @@ def _main_impl():
     if strict_mode and (failures > 0 or skipped > 0):
         log(f"ERROR: strict mode: {failures} detector(s) failed, {skipped} skipped. See {log_file}")
         sys.exit(2)
+    if not strict_mode and (failures > 0 or skipped > 0):
+        semantic_failures.append("detect")
 
     # ── Phase 2: MERGE ───────────────────────────────────────────────
     log("=== Phase 2: MERGE ===")
@@ -696,9 +744,11 @@ def _main_impl():
         _finalize("refused_resource", extra={"refusal": detail})
         sys.exit(3)
     if merge_result.returncode != 0:
-        _strict_gate("merge phase", f"merge-signals exited {merge_result.returncode}", strict_mode, log_file)
+        if _strict_gate("merge phase", f"merge-signals exited {merge_result.returncode}", strict_mode, log_file):
+            semantic_failures.append("merge")
     elif not os.path.exists(pairs_out) or not os.path.exists(summary_out):
-        _strict_gate("merge phase", "merge-signals produced no pairs.jsonl/summary.json", strict_mode)
+        if _strict_gate("merge phase", "merge-signals produced no pairs.jsonl/summary.json", strict_mode):
+            semantic_failures.append("merge")
 
     summary = {}
     if os.path.exists(summary_out):
@@ -743,13 +793,16 @@ def _main_impl():
         if record is not None:
             record.note_phase("report", {"exit_code": report_result.returncode, "path": report_out})
         if report_result.returncode != 0:
-            _strict_gate("report phase", f"generate-report exited {report_result.returncode}", strict_mode, log_file)
+            if _strict_gate("report phase", f"generate-report exited {report_result.returncode}", strict_mode, log_file):
+                semantic_failures.append("report")
         elif not os.path.exists(report_out):
-            _strict_gate("report phase", "generate-report produced no output", strict_mode)
+            if _strict_gate("report phase", "generate-report produced no output", strict_mode):
+                semantic_failures.append("report")
         else:
             log(f"  Report: {report_out}")
     else:
-        _strict_gate("report phase", f"report generator missing at {report_script}", strict_mode)
+        if _strict_gate("report phase", f"report generator missing at {report_script}", strict_mode):
+            semantic_failures.append("report")
 
     # ── Phase 4: EVALUATE (optional) ─────────────────────────────────
     if args.eval_corpus:
@@ -757,9 +810,11 @@ def _main_impl():
         eval_script = os.path.join(SCRIPTS, "evaluate.py")
         eval_out = os.path.join(out, "evaluation.json")
         if not os.path.exists(eval_script):
-            _strict_gate("evaluate phase", f"evaluate.py not found at {eval_script}", strict_mode)
+            if _strict_gate("evaluate phase", f"evaluate.py not found at {eval_script}", strict_mode):
+                semantic_failures.append("evaluate")
         elif not os.path.exists(pairs_out):
-            _strict_gate("evaluate phase", f"merged results not found at {pairs_out}", strict_mode)
+            if _strict_gate("evaluate phase", f"merged results not found at {pairs_out}", strict_mode):
+                semantic_failures.append("evaluate")
         else:
             eval_result = run(
                 [PYTHON, eval_script,
@@ -769,7 +824,8 @@ def _main_impl():
                 label="evaluate", check=False, log_file=log_file
             )
             if eval_result.returncode != 0:
-                _strict_gate("evaluate phase", f"evaluate exited {eval_result.returncode}", strict_mode)
+                if _strict_gate("evaluate phase", f"evaluate exited {eval_result.returncode}", strict_mode):
+                    semantic_failures.append("evaluate")
             if os.path.exists(eval_out):
                 with open(eval_out) as f:
                     ev = json.load(f)
@@ -779,14 +835,23 @@ def _main_impl():
                 f1 = overall.get("f1", 0)
                 log(f"  Precision: {p:.3f}  Recall: {r:.3f}  F1: {f1:.3f}")
             else:
-                _strict_gate("evaluate phase", "evaluation produced no output", strict_mode)
+                if _strict_gate("evaluate phase", "evaluation produced no output", strict_mode):
+                    semantic_failures.append("evaluate")
 
     log("=== COMPLETE ===")
     log(f"Results: {pairs_out} (+ {summary_out}"
         f"{'; legacy ' + merged_out if os.path.exists(merged_out) else ''})")
+    if semantic_failures:
+        failures_seen = sorted(set(semantic_failures))
+        log("  Permissive semantic failures retained as an incomplete run: "
+            + ", ".join(failures_seen))
+        _FINALIZE("semantic_incomplete", extra={"semantic_failures": failures_seen})
+        _FINALIZE = None
 
 
 _FINALIZE = None  # set by _main_impl once the run record exists
+_COORDINATOR = None
+_COMMAND_TIMEOUT_S = 1800
 
 
 def main():
@@ -801,8 +866,26 @@ def main():
             outcome = {2: "strict_failure", 3: "resource_limit"}.get(code, "error")
             try:
                 _FINALIZE(outcome, extra={"exit_code": code})
-            except Exception:
-                pass
+            except Exception as exc:
+                log(f"ERROR: failed to publish terminal run evidence: {exc}")
+                raise SystemExit(125) from exc
+        raise
+    except BaseException as exc:
+        if _FINALIZE is not None:
+            try:
+                outcome = (
+                    "resource_limit"
+                    if isinstance(exc, subprocess.TimeoutExpired)
+                    else "internal_error"
+                )
+                _FINALIZE(
+                    outcome,
+                    extra={"error_type": type(exc).__name__,
+                           "cleanup": "uncertain"},
+                )
+            except Exception as final_exc:
+                log(f"ERROR: failed to publish internal-error evidence: {final_exc}")
+                raise SystemExit(125) from final_exc
         raise
     else:
         if _FINALIZE is not None:

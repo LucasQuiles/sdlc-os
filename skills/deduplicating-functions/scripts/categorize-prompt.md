@@ -55,7 +55,8 @@ Do NOT truncate or summarize - write ALL entries.
 
 1. Generate or locate a function catalog:
    - Standalone extraction: `python3 ./scripts/extract-functions-regex.py src/ -o catalog.json`
-   - Full pipeline output: reuse `output/extract/catalog-unified.json`
+   - Full pipeline output: resolve `latest-complete.json`, then use the declared
+     `runs/<RUN_ID>/extract/catalog-unified.json` path.
 2. Dispatch haiku subagent with the prompt above, replacing:
    - `<CATALOG_PATH>` with path to catalog.json
    - `<OUTPUT_PATH>` with desired output path (e.g., `categorized.json`)

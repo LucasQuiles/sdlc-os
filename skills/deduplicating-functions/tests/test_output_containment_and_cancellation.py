@@ -1,122 +1,379 @@
-"""Red-team regression tests (2026-08-24 assurance findings).
+"""Behavioral falsifiers for managed publication and abort-safe spawning."""
+from __future__ import annotations
 
-Finding A: run_pipeline.py unconditionally called shutil.rmtree(--output-dir),
-so `-o /` requested deletion of the filesystem root.
-Finding B: after a watchdog abort, futures still queued in the detector
-executor started fresh subprocesses.
-"""
+import json
 import os
-import subprocess
+import signal
+import stat
 import sys
+import threading
+from dataclasses import replace
 
 import pytest
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE)
-
-import run_pipeline as rp  # noqa: E402
-
-
-# ── Finding A: output containment ───────────────────────────────────
-
-def test_refuses_filesystem_root():
-    assert rp._output_dir_refusal("/") is not None
+import run_pipeline as runtime  # noqa: E402
 
 
-@pytest.mark.parametrize("path", ["/tmp", "/private/tmp", "/var", "/Users", "/etc"])
-def test_refuses_protected_system_roots(path):
-    if not os.path.exists(path):
-        pytest.skip(f"{path} absent on this platform")
-    assert rp._output_dir_refusal(path) is not None
+def _api(name):
+    value = getattr(runtime, name, None)
+    assert value is not None, f"run_pipeline must expose behavioral API {name}"
+    return value
 
 
-def test_refuses_home_directory():
-    assert rp._output_dir_refusal(os.path.expanduser("~")) is not None
+def test_managed_run_never_deletes_existing_caller_content(tmp_path):
+    root = tmp_path / "managed"
+    root.mkdir()
+    precious = root / "caller-owned.txt"
+    precious.write_text("keep")
+
+    publisher = _api("ManagedRunPublisher")(root, run_id="run-a")
+    work = publisher.begin()
+
+    assert precious.read_text() == "keep"
+    assert work == root / ".inflight" / "run-a"
+    assert work.is_dir()
 
 
-def test_refuses_nonempty_unmarked_directory(tmp_path):
-    victim = tmp_path / "documents"
-    victim.mkdir()
-    (victim / "thesis.txt").write_text("irreplaceable")
-    reason = rp._output_dir_refusal(str(victim))
-    assert reason is not None and "pipeline marker" in reason
-    assert (victim / "thesis.txt").exists()
+def test_complete_run_is_atomically_published_without_touching_prior_run(tmp_path):
+    root = tmp_path / "managed"
+    publisher_type = _api("ManagedRunPublisher")
+    first = publisher_type(root, run_id="run-a")
+    first_work = first.begin()
+    (first_work / "artifact.txt").write_text("one")
+    first_path = first.publish_complete({"artifact.txt": "1" * 64})
+
+    second = publisher_type(root, run_id="run-b")
+    second_work = second.begin()
+    (second_work / "artifact.txt").write_text("two")
+    second_path = second.publish_complete({"artifact.txt": "2" * 64})
+
+    pointer = json.loads((root / "latest-complete.json").read_text())
+    assert first_path == root / "runs" / "run-a"
+    assert second_path == root / "runs" / "run-b"
+    assert (first_path / "artifact.txt").read_text() == "one"
+    assert pointer["schema_version"] == 1
+    assert pointer["run_id"] == "run-b"
+    assert pointer["relative_path"] == "runs/run-b"
+    assert pointer["outcome"] == "complete"
+    assert stat.S_IMODE((root / "latest-complete.json").stat().st_mode) == 0o600
+    assert stat.S_IMODE(second_path.stat().st_mode) == 0o700
 
 
-def test_refuses_symlink(tmp_path):
-    target = tmp_path / "real"
+def test_incomplete_run_never_replaces_latest_pointer(tmp_path):
+    root = tmp_path / "managed"
+    publisher_type = _api("ManagedRunPublisher")
+    complete = publisher_type(root, run_id="good")
+    complete.begin()
+    complete.publish_complete({})
+    before = (root / "latest-complete.json").read_bytes()
+
+    failed = publisher_type(root, run_id="failed")
+    failed.begin()
+    failed.mark_incomplete("synthetic-failure")
+
+    assert (root / "latest-complete.json").read_bytes() == before
+    assert (root / ".inflight" / "failed" / "incomplete.json").is_file()
+
+
+def test_managed_root_refuses_symlink_and_run_id_collision(tmp_path):
+    target = tmp_path / "target"
     target.mkdir()
     link = tmp_path / "link"
-    link.symlink_to(target)
-    assert rp._output_dir_refusal(str(link)) is not None
+    link.symlink_to(target, target_is_directory=True)
+    with pytest.raises(ValueError, match="symlink"):
+        _api("ManagedRunPublisher")(link, run_id="run-a").begin()
+
+    root = tmp_path / "managed"
+    publisher_type = _api("ManagedRunPublisher")
+    first = publisher_type(root, run_id="same")
+    first.begin()
+    first.mark_incomplete("fixture")
+    with pytest.raises(FileExistsError):
+        publisher_type(root, run_id="same").begin()
 
 
-def test_refuses_regular_file(tmp_path):
-    f = tmp_path / "afile"
-    f.write_text("x")
-    assert rp._output_dir_refusal(str(f)) is not None
+@pytest.mark.parametrize("broad_root", ["/", os.path.expanduser("~"), "/tmp"])
+def test_managed_root_refuses_broad_system_or_home_roots(broad_root):
+    with pytest.raises(ValueError, match="too broad"):
+        _api("ManagedRunPublisher")(broad_root, run_id="must-not-create").begin()
 
 
-def test_allows_missing_path(tmp_path):
-    assert rp._output_dir_refusal(str(tmp_path / "new-out")) is None
+def test_managed_root_refuses_symlink_ancestor(tmp_path):
+    target = tmp_path / "real"
+    target.mkdir()
+    link = tmp_path / "alias"
+    link.symlink_to(target, target_is_directory=True)
+    with pytest.raises(ValueError, match="symlink ancestor"):
+        _api("ManagedRunPublisher")(link / "nested", run_id="run-a").begin()
 
 
-def test_allows_empty_directory(tmp_path):
-    d = tmp_path / "empty"
-    d.mkdir()
-    assert rp._output_dir_refusal(str(d)) is None
+def test_pointer_replace_failure_never_changes_previous_latest(tmp_path, monkeypatch):
+    publisher_type = _api("ManagedRunPublisher")
+    root = tmp_path / "managed"
+    first = publisher_type(root, run_id="good")
+    first.begin()
+    first.publish_complete({})
+    before = (root / "latest-complete.json").read_bytes()
+
+    second = publisher_type(root, run_id="new")
+    second.begin()
+    real_replace = runtime.os.replace
+
+    def fail_pointer(source, destination):
+        if os.fspath(destination).endswith("latest-complete.json"):
+            raise OSError("synthetic pointer failure")
+        return real_replace(source, destination)
+
+    monkeypatch.setattr(runtime.os, "replace", fail_pointer)
+    with pytest.raises(OSError, match="synthetic pointer failure"):
+        second.publish_complete({})
+    assert (root / "latest-complete.json").read_bytes() == before
+    assert not (root / "runs" / "new").exists()
+    assert (root / ".inflight" / "new" / "incomplete.json").is_file()
 
 
-def test_allows_previous_pipeline_output(tmp_path):
-    d = tmp_path / "out"
-    (d / "merge").mkdir(parents=True)
-    (d / "run.json").write_text("{}")
-    assert rp._output_dir_refusal(str(d)) is None
+def test_pointer_manifest_rejects_unbounded_or_unsafe_artifact_metadata(tmp_path):
+    publisher_type = _api("ManagedRunPublisher")
+    root = tmp_path / "managed"
+    bad_hash = publisher_type(root, run_id="bad-hash")
+    bad_hash.begin()
+    with pytest.raises(ValueError, match="invalid SHA-256"):
+        bad_hash.publish_complete({"artifact.txt": "not-a-digest"})
+    bad_hash.mark_incomplete("invalid-artifact-manifest")
+
+    bad_path = publisher_type(root, run_id="bad-path")
+    bad_path.begin()
+    with pytest.raises(ValueError, match="unsafe artifact"):
+        bad_path.publish_complete({"../escape": "0" * 64})
+    bad_path.mark_incomplete("invalid-artifact-manifest")
+    assert not (root / "latest-complete.json").exists()
 
 
-def test_cli_refuses_root_end_to_end(tmp_path):
-    """Integration: `-o <nonempty unmarked dir>` must exit 2 before deletion.
+def test_preexisting_caller_pointer_is_refused_not_overwritten(tmp_path):
+    root = tmp_path / "managed"
+    root.mkdir()
+    pointer = root / "latest-complete.json"
+    pointer.write_text("caller content")
+    before = pointer.read_bytes()
+    publisher = _api("ManagedRunPublisher")(root, run_id="run-a")
+    publisher.begin()
+    with pytest.raises(ValueError, match="not tool-owned"):
+        publisher.publish_complete({})
+    assert pointer.read_bytes() == before
+    publisher.mark_incomplete("caller-pointer-refused")
 
-    (Refusing `/` itself is covered by the unit tests; running the CLI against
-    a throwaway victim dir proves the wiring without pointing rmtree anywhere
-    dangerous even if the guard regressed.)
-    """
-    victim = tmp_path / "victim"
-    victim.mkdir()
-    (victim / "keep.txt").write_text("keep me")
-    r = subprocess.run(
-        [sys.executable, os.path.join(BASE, "run_pipeline.py"),
-         str(BASE), "-o", str(victim), "--skip-ts", "--ignore-preflight"],
-        capture_output=True, text=True, timeout=60,
+
+class _FakeProcess:
+    def __init__(self, pid: int):
+        self.pid = pid
+        self.returncode = None
+
+    def poll(self):
+        return self.returncode
+
+    def wait(self, timeout=None):
+        self.returncode = 0
+        return 0
+
+    def communicate(self, timeout=None):
+        self.returncode = 0
+        return b"", b""
+
+
+class _FakeBackend:
+    def __init__(self, identity):
+        self.current = identity
+        self.outcome = _api("CensusOutcome").ok({identity.pid: identity})
+        self.signals: list[tuple[int, int]] = []
+
+    def census(self, timeout_s: float):
+        return self.outcome
+
+    def signal(self, pid: int, sig: int) -> None:
+        self.signals.append((pid, sig))
+        self.outcome = _api("CensusOutcome").ok(
+            {key: value for key, value in self.outcome.table.items() if key != pid})
+
+
+def _identity(pid: int = 4242):
+    return _api("ProcessIdentity")(
+        pid=pid, ppid=os.getpid(), uid=os.getuid(), pgid=pid,
+        start_token="start-a", ancestor_pid=os.getpid())
+
+
+def test_abort_latch_and_spawn_share_one_admission_lock():
+    identity = _identity()
+    backend = _FakeBackend(identity)
+    entered = threading.Event()
+    release = threading.Event()
+
+    def factory(*args, **kwargs):
+        entered.set()
+        assert release.wait(2)
+        return _FakeProcess(identity.pid)
+
+    coordinator = _api("SpawnCoordinator")(backend=backend, popen_factory=factory)
+    spawn_result: list[object] = []
+    abort_result: list[object] = []
+    spawn_thread = threading.Thread(
+        target=lambda: spawn_result.append(coordinator.popen(["fake-detector"])))
+    spawn_thread.start()
+    assert entered.wait(1)
+
+    abort_thread = threading.Thread(target=lambda: abort_result.append(coordinator.abort()))
+    abort_thread.start()
+    assert abort_thread.is_alive(), "abort must wait for the in-lock Popen admission"
+    release.set()
+    spawn_thread.join(2)
+    abort_thread.join(2)
+
+    assert len(spawn_result) == 1
+    assert abort_result[0].cleanup == "complete"
+    assert backend.signals == [(identity.pid, signal.SIGTERM)]
+
+
+def test_spawn_after_abort_is_rejected_without_invoking_popen():
+    identity = _identity()
+    backend = _FakeBackend(identity)
+    calls = []
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend,
+        popen_factory=lambda *a, **k: calls.append((a, k)),
     )
-    assert r.returncode == 2, r.stdout[-400:]
-    assert "refusing to delete" in r.stdout
-    assert (victim / "keep.txt").exists()
+    coordinator.abort()
+    with pytest.raises(_api("AbortInProgress")):
+        coordinator.popen(["must-not-spawn"])
+    assert calls == []
 
 
-# ── Finding B: post-abort detector starts ───────────────────────────
+def test_communication_failure_freezes_admission_and_runs_cleanup():
+    identity = _identity()
+    backend = _FakeBackend(identity)
 
-def test_worker_guard_refuses_spawn_after_abort(tmp_path, monkeypatch):
-    """A queued worker that begins after the abort latch must not spawn.
+    class BrokenCommunication(_FakeProcess):
+        def communicate(self, timeout=None):
+            raise OSError("synthetic pipe failure")
 
-    Drives the guard through the real detect-phase closure shape: abort_box
-    set -> worker returns the -1 sentinel without invoking subprocess.run.
-    """
-    spawned = []
-    monkeypatch.setattr(rp.subprocess, "run",
-                        lambda *a, **k: spawned.append(a) or (_ for _ in ()).throw(
-                            AssertionError("subprocess.run called after abort")))
-    # Recreate the closure contract minimally: the in-tree worker checks
-    # `abort_box` before opening the log file or spawning.
-    src = open(os.path.join(BASE, "run_pipeline.py")).read()
-    assert "if abort_box:" in src.split("def _run_one_detector", 1)[1].split("with open", 1)[0], (
-        "worker-start abort guard missing from _run_one_detector")
-    assert "return label, out_file, -1" in src
-    assert spawned == []
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend,
+        popen_factory=lambda *a, **k: BrokenCommunication(identity.pid),
+    )
+    with pytest.raises(OSError, match="synthetic pipe failure"):
+        coordinator.run(["fake"])
+    assert coordinator.state == "CLOSED"
+    assert backend.signals == [(identity.pid, signal.SIGTERM)]
 
 
-def test_submit_loop_stops_after_abort():
-    src = open(os.path.join(BASE, "run_pipeline.py")).read()
-    submit_region = src.split("Submitting {label}", 1)[0]
-    assert "not submitting remaining detectors" in src
-    assert "f.cancel()" in src
+def test_pid_reuse_before_term_suppresses_signal_and_is_uncertain():
+    identity = _identity()
+    backend = _FakeBackend(identity)
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend, popen_factory=lambda *a, **k: _FakeProcess(identity.pid))
+    coordinator.popen(["fake"])
+    backend.outcome = _api("CensusOutcome").ok(
+        {identity.pid: replace(identity, start_token="reused")})
+
+    result = coordinator.abort()
+
+    assert result.cleanup == "uncertain"
+    assert result.reason == "identity-mismatch"
+    assert backend.signals == []
+
+
+def test_reparenting_before_term_suppresses_signal_and_is_uncertain():
+    identity = _identity()
+    backend = _FakeBackend(identity)
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend, popen_factory=lambda *a, **k: _FakeProcess(identity.pid))
+    coordinator.popen(["fake"])
+    backend.outcome = _api("CensusOutcome").ok(
+        {identity.pid: replace(identity, ppid=1)})
+
+    result = coordinator.abort()
+
+    assert result.cleanup == "uncertain"
+    assert result.reason == "identity-mismatch"
+    assert backend.signals == []
+
+
+def test_unknown_census_is_never_treated_as_zero_survivors():
+    identity = _identity()
+    backend = _FakeBackend(identity)
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend, popen_factory=lambda *a, **k: _FakeProcess(identity.pid))
+    coordinator.popen(["fake"])
+    backend.outcome = _api("CensusOutcome").unknown("backend-failed")
+
+    result = coordinator.abort()
+
+    assert result.cleanup == "uncertain"
+    assert result.reason == "backend-failed"
+    assert backend.signals == []
+
+
+def test_new_descendant_discovered_during_grace_is_not_called_clean():
+    root = _identity()
+    child = replace(_identity(4343), ppid=root.pid, pgid=root.pgid)
+
+    class BirthBackend(_FakeBackend):
+        def signal(self, pid, sig):
+            self.signals.append((pid, sig))
+            if sig == signal.SIGTERM:
+                self.outcome = _api("CensusOutcome").ok({child.pid: child})
+            else:
+                self.outcome = _api("CensusOutcome").ok({})
+
+    backend = BirthBackend(root)
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend,
+        popen_factory=lambda *a, **k: _FakeProcess(root.pid),
+        term_grace_s=0.02,
+        poll_s=0.005,
+    )
+    coordinator.popen(["fake"])
+
+    result = coordinator.abort()
+
+    assert result.cleanup == "complete"
+    assert (root.pid, signal.SIGTERM) in backend.signals
+    assert (child.pid, signal.SIGKILL) in backend.signals
+
+
+def test_pid_reuse_immediately_before_kill_suppresses_kill():
+    identity = _identity()
+
+    class KillReuseBackend(_FakeBackend):
+        def __init__(self, original):
+            super().__init__(original)
+            self.after_term_censuses = 0
+            self.term_seen = False
+
+        def census(self, timeout_s):
+            if self.term_seen:
+                self.after_term_censuses += 1
+                if self.after_term_censuses >= 2:
+                    return _api("CensusOutcome").ok(
+                        {identity.pid: replace(identity, start_token="reused-before-kill")})
+            return self.outcome
+
+        def signal(self, pid, sig):
+            self.signals.append((pid, sig))
+            if sig == signal.SIGTERM:
+                self.term_seen = True
+
+    backend = KillReuseBackend(identity)
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend,
+        popen_factory=lambda *a, **k: _FakeProcess(identity.pid),
+        term_grace_s=0.001,
+        poll_s=0.01,
+    )
+    coordinator.popen(["fake"])
+
+    result = coordinator.abort()
+
+    assert result.cleanup == "uncertain"
+    assert result.reason == "identity-mismatch"
+    assert backend.signals == [(identity.pid, signal.SIGTERM)]

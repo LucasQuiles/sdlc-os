@@ -1,0 +1,4 @@
+[
+  {"name": "alpha", "file": "fixture.py", "line": 1, "qualified_name": "alpha"},
+  {"name": "beta", "file": "fixture.py", "line": 5, "qualified_name": "beta"}
+]

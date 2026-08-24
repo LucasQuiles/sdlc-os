@@ -196,7 +196,9 @@ def test_tokenize_produces_lowercase(name):
 @settings(max_examples=100)
 def test_tokenize_is_deterministic(name):
     """tokenize() must produce the same result on repeated calls."""
-    assert tokenize(name) == tokenize(name)
+    first = tokenize(name)
+    second = tokenize("".join(name))
+    assert first == second
 
 
 # ── should_compare invariants ────────────────────────────────────────

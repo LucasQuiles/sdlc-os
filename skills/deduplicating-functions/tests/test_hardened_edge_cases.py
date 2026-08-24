@@ -166,6 +166,8 @@ class TestHardTruePositives:
         # The PDG fingerprints will differ (different control flow)
         # but there should be SOME overlap from shared data-flow patterns
         # This is the hardest case — we accept that classical methods struggle here
+        assert fp_imp and fp_fun
+        assert fp_imp != fp_fun, "distinct control-flow forms must not collapse to one fingerprint"
 
     def test_different_variable_names_same_logic(self):
         """Type 2 clone — identical logic, all variables renamed.
