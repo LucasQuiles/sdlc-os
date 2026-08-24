@@ -208,7 +208,7 @@
     "func_b": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "scores": {
       "levenshtein": 1.0,
@@ -268,7 +268,7 @@
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -307,8 +307,8 @@
     },
     "func_b": {
       "name": "main",
-      "file": "merge-signals.py",
-      "line": 382
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -508,7 +508,7 @@
     "func_b": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "scores": {
       "levenshtein": 1.0,
@@ -568,7 +568,7 @@
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -607,8 +607,8 @@
     },
     "func_b": {
       "name": "main",
-      "file": "merge-signals.py",
-      "line": 382
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -788,7 +788,7 @@
     "func_b": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "scores": {
       "levenshtein": 1.0,
@@ -848,7 +848,7 @@
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -887,8 +887,8 @@
     },
     "func_b": {
       "name": "main",
-      "file": "merge-signals.py",
-      "line": 382
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1068,7 +1068,7 @@
     "func_b": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1128,7 +1128,7 @@
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1167,8 +1167,8 @@
     },
     "func_b": {
       "name": "main",
-      "file": "merge-signals.py",
-      "line": 382
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1308,7 +1308,7 @@
     "func_b": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1368,7 +1368,7 @@
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1407,8 +1407,8 @@
     },
     "func_b": {
       "name": "main",
-      "file": "merge-signals.py",
-      "line": 382
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1548,7 +1548,7 @@
     "func_b": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1608,7 +1608,7 @@
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1647,8 +1647,8 @@
     },
     "func_b": {
       "name": "main",
-      "file": "merge-signals.py",
-      "line": 382
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1748,7 +1748,7 @@
     "func_b": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1808,7 +1808,7 @@
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1847,8 +1847,8 @@
     },
     "func_b": {
       "name": "main",
-      "file": "merge-signals.py",
-      "line": 382
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1928,7 +1928,7 @@
     "func_b": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "scores": {
       "levenshtein": 1.0,
@@ -1988,7 +1988,7 @@
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2027,8 +2027,8 @@
     },
     "func_b": {
       "name": "main",
-      "file": "merge-signals.py",
-      "line": 382
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2088,7 +2088,7 @@
     "func_b": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2148,7 +2148,7 @@
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2169,6 +2169,26 @@
       "name": "main",
       "file": "generate-corpus.py",
       "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "detect-tfidf-index.py",
+      "line": 185
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2208,7 +2228,7 @@
     "func_b": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2268,7 +2288,7 @@
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2307,8 +2327,8 @@
     },
     "func_b": {
       "name": "main",
-      "file": "merge-signals.py",
-      "line": 382
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2328,7 +2348,7 @@
     "func_b": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2388,7 +2408,7 @@
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2427,8 +2447,8 @@
     },
     "func_b": {
       "name": "main",
-      "file": "merge-signals.py",
-      "line": 382
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2448,7 +2468,7 @@
     "func_b": {
       "name": "make_pair_key",
       "file": "merge-signals.py",
-      "line": 120
+      "line": 160
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2463,7 +2483,7 @@
     "func_a": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "func_b": {
       "name": "main",
@@ -2483,7 +2503,7 @@
     "func_a": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "func_b": {
       "name": "main",
@@ -2503,12 +2523,12 @@
     "func_a": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
     },
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2523,7 +2543,247 @@
     "func_a": {
       "name": "main",
       "file": "evaluate.py",
-      "line": 183
+      "line": 198
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "evaluate.py",
+      "line": 198
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate_report.py",
+      "line": 296
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "lib/jsonstream.py",
+      "line": 61
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "lib/resource_policy.py",
+      "line": 339
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "merge-signals.py",
+      "line": 486
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 43
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "merge-signals.py",
+      "line": 696
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 354
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "lib/jsonstream.py",
+      "line": 61
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 354
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "lib/resource_policy.py",
+      "line": 339
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 354
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "merge-signals.py",
+      "line": 486
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "extract-functions-ast-py.py",
+      "line": 354
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "merge-signals.py",
+      "line": 696
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
+    },
+    "func_b": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 328
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-ast-py.py",
+      "line": 537
     },
     "func_b": {
       "name": "main",
@@ -2547,8 +2807,8 @@
     },
     "func_b": {
       "name": "main",
-      "file": "extract-functions-ast-ts.mjs",
-      "line": 480
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2562,13 +2822,13 @@
   {
     "func_a": {
       "name": "main",
-      "file": "extract-functions-ast-py.py",
-      "line": 537
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
     },
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2582,8 +2842,8 @@
   {
     "func_a": {
       "name": "main",
-      "file": "extract-functions-ast-py.py",
-      "line": 537
+      "file": "extract-functions-ast-ts.mjs",
+      "line": 480
     },
     "func_b": {
       "name": "main",
@@ -2607,28 +2867,8 @@
     },
     "func_b": {
       "name": "main",
-      "file": "extract-functions-regex.py",
-      "line": 327
-    },
-    "scores": {
-      "levenshtein": 1.0,
-      "token_jaccard": 1.0,
-      "synonym_boost": 0.0,
-      "abbreviation_boost": 0.0
-    },
-    "final_score": 0.7,
-    "strategy": "fuzzy_name"
-  },
-  {
-    "func_a": {
-      "name": "main",
-      "file": "extract-functions-ast-ts.mjs",
-      "line": 480
-    },
-    "func_b": {
-      "name": "main",
-      "file": "generate-corpus.py",
-      "line": 351
+      "file": "generate_report.py",
+      "line": 296
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2648,7 +2888,7 @@
     "func_b": {
       "name": "main",
       "file": "merge-signals.py",
-      "line": 382
+      "line": 813
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2663,12 +2903,172 @@
     "func_a": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "func_b": {
       "name": "main",
       "file": "generate-corpus.py",
       "line": 351
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "extract-functions-regex.py",
+      "line": 328
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate_report.py",
+      "line": 296
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "main",
+      "file": "generate-corpus.py",
+      "line": 351
+    },
+    "func_b": {
+      "name": "main",
+      "file": "generate_report.py",
+      "line": 296
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "lib/jsonstream.py",
+      "line": 61
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "lib/resource_policy.py",
+      "line": 180
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "lib/jsonstream.py",
+      "line": 61
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "lib/resource_policy.py",
+      "line": 339
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "lib/jsonstream.py",
+      "line": 61
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "merge-signals.py",
+      "line": 486
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "lib/jsonstream.py",
+      "line": 61
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "merge-signals.py",
+      "line": 696
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "lib/resource_policy.py",
+      "line": 339
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "merge-signals.py",
+      "line": 486
+    },
+    "scores": {
+      "levenshtein": 1.0,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.7,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "__init__",
+      "file": "lib/resource_policy.py",
+      "line": 339
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "merge-signals.py",
+      "line": 696
     },
     "scores": {
       "levenshtein": 1.0,
@@ -2697,6 +3097,46 @@
       "abbreviation_boost": 0.0
     },
     "final_score": 0.6927,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "build_parser",
+      "file": "detect-metric-similarity.py",
+      "line": 290
+    },
+    "func_b": {
+      "name": "_build_parser",
+      "file": "merge-signals.py",
+      "line": 762
+    },
+    "scores": {
+      "levenshtein": 0.96,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.688,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "build_parser",
+      "file": "extract-functions-ast-py.py",
+      "line": 505
+    },
+    "func_b": {
+      "name": "_build_parser",
+      "file": "merge-signals.py",
+      "line": 762
+    },
+    "scores": {
+      "levenshtein": 0.96,
+      "token_jaccard": 1.0,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.688,
     "strategy": "fuzzy_name"
   },
   {
@@ -2917,6 +3357,26 @@
       "abbreviation_boost": 0.0
     },
     "final_score": 0.5217,
+    "strategy": "fuzzy_name"
+  },
+  {
+    "func_a": {
+      "name": "iter_array",
+      "file": "lib/jsonstream.py",
+      "line": 144
+    },
+    "func_b": {
+      "name": "iter_json_array",
+      "file": "lib/jsonstream.py",
+      "line": 222
+    },
+    "scores": {
+      "levenshtein": 0.8,
+      "token_jaccard": 0.6667,
+      "synonym_boost": 0.0,
+      "abbreviation_boost": 0.0
+    },
+    "final_score": 0.5067,
     "strategy": "fuzzy_name"
   },
   {

@@ -45,11 +45,14 @@ def _inject_isolated_lock(out_dir: str, extra_args: tuple) -> tuple:
     run_pipeline.py running on the same machine — including an ambient
     dedup scan — will make all tests in this module false-fail with
     "another run_pipeline.py is already running". The lock file lives
-    under out_dir (a per-test tempdir), which is fresh on every call.
+    BESIDE out_dir (sibling path): the pipeline deletes out_dir at startup,
+    so a lock inside it would (a) trip the 2026-08-24 output-containment
+    guard (non-empty dir without pipeline markers) and (b) delete the very
+    lock file the run holds.
     """
     if any(arg == "--lock-file" for arg in extra_args):
         return extra_args
-    lock_path = os.path.join(out_dir, ".run_pipeline.lock")
+    lock_path = os.path.normpath(out_dir).rstrip(os.sep) + ".run_pipeline.lock"
     return ("--lock-file", lock_path) + tuple(extra_args)
 
 
@@ -142,6 +145,14 @@ def isolated_repo(tmp_path):
     # Copy run_pipeline.py and its safety dependency
     shutil.copy(RUNNER, str(repo_root / "run_pipeline.py"))
     shutil.copy(os.path.join(BASE, "safety.py"), str(repo_root / "safety.py"))
+
+    # The TS extractor resolves ts-morph by walking UP from its own location,
+    # so a copied tree needs node_modules reachable at its root. Link the real
+    # one when present (fresh checkouts without `npm ci` skip TS the same way
+    # run_pipeline itself reports it).
+    node_modules = os.path.join(BASE, "node_modules")
+    if os.path.isdir(node_modules):
+        os.symlink(node_modules, str(repo_root / "node_modules"))
 
     # Copy test fixtures for --eval-corpus tests
     src_fixtures = os.path.join(BASE, "tests", "fixtures")

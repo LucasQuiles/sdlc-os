@@ -57,6 +57,56 @@ MAX_DETECTOR_JOBS = 4
 DETECTOR_TIMEOUT_S = int(os.environ.get("DEDUP_DETECTOR_TIMEOUT_S", "300"))
 
 
+# Pipeline-output markers: a directory is deletable as "ours" only when it is
+# empty or contains at least one of these and nothing that contradicts prior
+# pipeline ownership. Kept intentionally simple and auditable.
+_PIPELINE_MARKERS = frozenset({"run.json", "pipeline.log", "extract", "detect", "merge"})
+
+# Paths whose deletion can never be a duplicate-detection output directory.
+_FORBIDDEN_OUTPUT_ROOTS = frozenset({
+    "/", "/home", "/Users", "/System", "/Library", "/usr", "/opt", "/etc",
+    "/var", "/private", "/private/var", "/tmp", "/private/tmp", "/bin", "/sbin",
+})
+
+
+def _output_dir_refusal(out: str) -> str | None:
+    """Return a refusal reason if deleting `out` would be unsafe, else None.
+
+    Rules (2026-08-24 red-team finding — `-o /` previously requested rmtree of
+    the filesystem root):
+      - resolved path may not be a filesystem root, a forbidden system prefix,
+        or the caller's home directory itself;
+      - a symlink is never followed for deletion;
+      - an existing NON-empty directory is deletable only when it carries a
+        pipeline marker (run.json / pipeline.log / extract / detect / merge)
+        proving a previous run owns it;
+      - an existing non-directory (file) is refused.
+    A missing path is always fine (nothing to delete).
+    """
+    if not os.path.exists(out) and not os.path.islink(out):
+        return None
+    if os.path.islink(out):
+        return "path is a symlink; refusing to delete through it"
+    real = os.path.realpath(out)
+    home = os.path.realpath(os.path.expanduser("~"))
+    if real in _FORBIDDEN_OUTPUT_ROOTS:
+        return f"resolved path {real} is a protected system location"
+    if real == home:
+        return "resolved path is the caller's home directory"
+    if os.path.ismount(real):
+        return f"resolved path {real} is a filesystem mount root"
+    if not os.path.isdir(real):
+        return "existing path is not a directory"
+    entries = set(os.listdir(real))
+    if not entries:
+        return None
+    if entries & _PIPELINE_MARKERS:
+        return None
+    return ("existing non-empty directory carries no pipeline marker "
+            f"({', '.join(sorted(_PIPELINE_MARKERS))}); it does not look like "
+            "previous pipeline output. Choose an empty or new --output-dir.")
+
+
 def _default_jobs() -> int:
     """Conservative default: half the CPU count, capped at MAX_DETECTOR_JOBS.
 
@@ -269,6 +319,16 @@ def _main_impl():
             f"max_tree_rss={policy.max_tree_rss_bytes} max_wall={policy.max_wall_seconds}s")
 
     # ── Setup ────────────────────────────────────────────────────────
+    # Output containment (2026-08-24 red-team finding): `shutil.rmtree(out)` was
+    # unconditional, so `-o /` requested deletion of the filesystem root and
+    # `-o ~` requested deletion of the caller's home. Deletion is now allowed
+    # only for (a) an empty directory, or (b) a directory that carries pipeline
+    # markers proving a previous run owns it. Everything else refuses (exit 2)
+    # rather than guessing — the caller can point at a fresh path instead.
+    refusal = _output_dir_refusal(out)
+    if refusal:
+        log(f"ERROR: refusing to delete --output-dir {out}: {refusal}")
+        sys.exit(2)
     if os.path.exists(out):
         shutil.rmtree(out)
     for d in [extract_dir, detect_dir, merge_dir]:
@@ -500,6 +560,12 @@ def _main_impl():
         # log() on the main thread, not this fd. If readable per-detector
         # stderr matters, future work should write to temp files and
         # concatenate in collect-order.
+        if abort_box:
+            # 2026-08-24 red-team finding: the watchdog killed the first
+            # detector wave, but futures still queued in the executor then
+            # started fresh subprocesses. A worker that begins after the
+            # abort latch is set must not spawn anything.
+            return label, out_file, -1
         with open(log_file, "a") as lf:
             try:
                 cp = subprocess.run(
@@ -522,6 +588,9 @@ def _main_impl():
     futures_by_label: dict[str, object] = {}
     with ThreadPoolExecutor(max_workers=max_jobs) as ex:
         for script_name, out_name, label in detectors:
+            if abort_box:
+                log("  ABORT: watchdog fired; not submitting remaining detectors")
+                break
             script = os.path.join(SCRIPTS, script_name)
             out_file = os.path.join(detect_dir, out_name)
             if not os.path.exists(script):
@@ -540,8 +609,20 @@ def _main_impl():
         # Collect in detector-list order to preserve deterministic log lines
         failures = 0
         for _, _, label in detectors:
+            if abort_box:
+                # Cancel queued futures outright; already-running workers see
+                # the abort latch at their next spawn point (guard above).
+                cancelled = sum(
+                    1 for f in futures_by_label.values() if f.cancel()
+                )
+                if cancelled:
+                    log(f"  ABORT: cancelled {cancelled} queued detector(s)")
             fut = futures_by_label.get(label)
             if fut is None:
+                continue
+            if fut.cancelled():
+                failures += 1
+                log(f"  ABORTED: {label} cancelled before start (resource abort)")
                 continue
             try:
                 label_out, out_file, rc = fut.result()
@@ -552,7 +633,10 @@ def _main_impl():
                 failures += 1
                 log(f"  ERROR: {label} raised {type(exc).__name__}: {exc}")
                 continue
-            if rc != 0:
+            if rc == -1:
+                failures += 1
+                log(f"  ABORTED: {label_out} not started (resource abort)")
+            elif rc != 0:
                 failures += 1
                 log(f"  WARNING: {label_out} failed (exit {rc})")
             else:

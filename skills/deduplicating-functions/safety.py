@@ -23,6 +23,11 @@ DEFAULT_LOCK_PATH = os.path.expanduser("~/.cache/sdlc-os/run_pipeline.lock")
 # 35 swapfiles) would have been refused before any detector launched.
 DEFAULT_MIN_FREE_RAM_GB = 4.0
 DEFAULT_MAX_SWAPFILES = 5
+# 2026-08-22 incident: the pipeline launched with 12.67 GB swap already used
+# (645 MB headroom) and drove the box to a 2h18m crisis. The swapfile-count
+# probe reads /private/var/vm, which exposes ZERO swapfile* entries on modern
+# macOS, so it can never trip there — swap BYTES are the effective gate.
+DEFAULT_MAX_SWAP_USED_MB = 12288.0
 
 
 # ── Preflight memory probes ─────────────────────────────────────────
@@ -129,12 +134,17 @@ def _collect_status() -> dict | None:
 def check_preflight(
     min_free_gb: float = DEFAULT_MIN_FREE_RAM_GB,
     max_swapfiles: int = DEFAULT_MAX_SWAPFILES,
+    max_swap_used_mb: float = DEFAULT_MAX_SWAP_USED_MB,
 ) -> tuple[bool, str]:
     """Check if it is safe to launch the detector pipeline.
 
     Returns (ok, reason). On unsupported platforms, returns
-    (True, "skipped: <platform>") so the runner does not block.
-    On any probe error, returns (True, "skipped: <reason>") — fail-open.
+    (True, "skipped: <platform>") so the runner does not block in CI.
+    On a SUPPORTED platform whose probe errors, returns
+    (False, "refused: probe failed ...") — FAIL-CLOSED (2026-08-24: a probe
+    that cannot measure pressure is most likely to fail on a box that is
+    already under the pressure this gate exists to detect; the 2026-08-22
+    incident launched through exactly such an unmeasured state).
     """
     # NB: the reason strings below are part of an implicit contract with
     # the test suite (test_safety.py asserts substrings like "insufficient
@@ -143,7 +153,11 @@ def check_preflight(
     try:
         status = _collect_status()
     except (subprocess.CalledProcessError, FileNotFoundError, OSError, ValueError) as e:
-        return True, f"skipped: probe failed ({e})"
+        return False, (
+            f"refused: probe failed ({e}); cannot verify memory pressure — "
+            "fail-closed. Use --ignore-preflight only with independent evidence "
+            "the system is healthy."
+        )
 
     if status is None:
         return True, f"skipped: unsupported platform {platform.system()}"
@@ -158,6 +172,13 @@ def check_preflight(
             f"too many swapfiles: {status['swapfile_count']} "
             f"> {max_swapfiles} threshold "
             f"(system already under heavy memory pressure)"
+        )
+    if status["swap_used_mb"] > max_swap_used_mb:
+        return False, (
+            f"swap already heavily used: {status['swap_used_mb']:.0f}MB "
+            f"> {max_swap_used_mb:.0f}MB threshold (the 2026-08-22 incident "
+            "launched at 12.67GB swap used; refusing to add multi-GB detector "
+            "load to a box already deep in swap)"
         )
     return True, (
         f"ok: {status['free_gb']:.1f}GB free, "

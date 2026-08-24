@@ -248,6 +248,25 @@
   },
   {
     "func_a": {
+      "name": "lcs_similarity",
+      "file": "detect-ast-similarity.py",
+      "line": 100
+    },
+    "func_b": {
+      "name": "_git_head",
+      "file": "lib/resource_policy.py",
+      "line": 325
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 58
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
       "name": "main",
       "file": "detect-ast-similarity.py",
       "line": 246
@@ -419,6 +438,25 @@
   },
   {
     "func_a": {
+      "name": "abbreviation_boost",
+      "file": "detect-fuzzy-names.py",
+      "line": 238
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "merge-signals.py",
+      "line": 696
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 96
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
       "name": "compute_final_score",
       "file": "detect-fuzzy-names.py",
       "line": 261
@@ -432,6 +470,44 @@
       "token_hash_match": true,
       "clone_type": 2,
       "sequence_length": 56
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "compute_final_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 261
+    },
+    "func_b": {
+      "name": "expect",
+      "file": "lib/jsonstream.py",
+      "line": 109
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 56
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "get_token_set",
+      "file": "detect-lsh-ast.py",
+      "line": 38
+    },
+    "func_b": {
+      "name": "with_overrides",
+      "file": "lib/resource_policy.py",
+      "line": 81
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 139
     },
     "final_score": 0.9,
     "strategy": "token_clone"
@@ -476,6 +552,25 @@
   },
   {
     "func_a": {
+      "name": "_compute_pair_similarity",
+      "file": "detect-metric-similarity.py",
+      "line": 184
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "lib/resource_policy.py",
+      "line": 180
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 213
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
       "name": "detect_metric_clones",
       "file": "detect-metric-similarity.py",
       "line": 221
@@ -483,12 +578,50 @@
     "func_b": {
       "name": "evaluate",
       "file": "evaluate.py",
-      "line": 124
+      "line": 139
     },
     "scores": {
       "token_hash_match": true,
       "clone_type": 2,
       "sequence_length": 328
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "segment_into_blocks",
+      "file": "detect-pdg-semantic.py",
+      "line": 52
+    },
+    "func_b": {
+      "name": "add",
+      "file": "merge-signals.py",
+      "line": 705
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 107
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "extract_params",
+      "file": "detect-signature-match.py",
+      "line": 105
+    },
+    "func_b": {
+      "name": "_open_scratch_db",
+      "file": "merge-signals.py",
+      "line": 554
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 141
     },
     "final_score": 0.9,
     "strategy": "token_clone"
@@ -503,6 +636,25 @@
       "name": "func_ref",
       "file": "lib/common.py",
       "line": 270
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 51
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "get_return_type",
+      "file": "detect-signature-match.py",
+      "line": 147
+    },
+    "func_b": {
+      "name": "_positive_int",
+      "file": "merge-signals.py",
+      "line": 752
     },
     "scores": {
       "token_hash_match": true,
@@ -533,6 +685,25 @@
   },
   {
     "func_a": {
+      "name": "compute_idf",
+      "file": "detect-tfidf-index.py",
+      "line": 62
+    },
+    "func_b": {
+      "name": "load_object_member",
+      "file": "lib/jsonstream.py",
+      "line": 278
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 133
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
       "name": "retrieve_candidates",
       "file": "detect-tfidf-index.py",
       "line": 79
@@ -540,7 +711,7 @@
     "func_b": {
       "name": "main",
       "file": "extract-functions-regex.py",
-      "line": 327
+      "line": 328
     },
     "scores": {
       "token_hash_match": true,
@@ -552,19 +723,95 @@
   },
   {
     "func_a": {
-      "name": "main",
-      "file": "detect-tfidf-index.py",
-      "line": 185
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
     },
     "func_b": {
-      "name": "_build_signature",
-      "file": "extract-functions-ast-py.py",
-      "line": 246
+      "name": "start",
+      "file": "lib/resource_policy.py",
+      "line": 207
     },
     "scores": {
       "token_hash_match": true,
       "clone_type": 2,
-      "sequence_length": 160
+      "sequence_length": 22
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "_utc_now",
+      "file": "lib/resource_policy.py",
+      "line": 313
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 22
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "hash_sequence",
+      "file": "detect-token-clones.py",
+      "line": 25
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "lib/resource_policy.py",
+      "line": 339
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 22
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "normalize_ast_tokens",
+      "file": "detect-token-clones.py",
+      "line": 30
+    },
+    "func_b": {
+      "name": "iter_array",
+      "file": "lib/jsonstream.py",
+      "line": 144
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 176
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "add_pairs",
+      "file": "detect-token-clones.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "iter_object_members",
+      "file": "lib/jsonstream.py",
+      "line": 187
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 210
     },
     "final_score": 0.9,
     "strategy": "token_clone"
@@ -578,7 +825,7 @@
     "func_b": {
       "name": "convert_llm_results",
       "file": "merge-signals.py",
-      "line": 511
+      "line": 1050
     },
     "scores": {
       "token_hash_match": true,
@@ -609,6 +856,25 @@
   },
   {
     "func_a": {
+      "name": "_get_token_strings",
+      "file": "detect-winnowing.py",
+      "line": 114
+    },
+    "func_b": {
+      "name": "_summary_block",
+      "file": "generate_report.py",
+      "line": 71
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 116
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
       "name": "make_pair_key",
       "file": "evaluate.py",
       "line": 26
@@ -616,7 +882,26 @@
     "func_b": {
       "name": "_safe_divide",
       "file": "evaluate.py",
-      "line": 104
+      "line": 119
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 26
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "note_error",
+      "file": "lib/resource_policy.py",
+      "line": 367
     },
     "scores": {
       "token_hash_match": true,
@@ -685,6 +970,82 @@
   },
   {
     "func_a": {
+      "name": "_func_to_spec",
+      "file": "evaluate.py",
+      "line": 31
+    },
+    "func_b": {
+      "name": "note_phase",
+      "file": "lib/resource_policy.py",
+      "line": 364
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 37
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "load_detected_pairs",
+      "file": "evaluate.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "iter_object_member_array",
+      "file": "lib/jsonstream.py",
+      "line": 246
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 180
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_safe_divide",
+      "file": "evaluate.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "note_error",
+      "file": "lib/resource_policy.py",
+      "line": 367
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 26
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_compute_metrics",
+      "file": "evaluate.py",
+      "line": 124
+    },
+    "func_b": {
+      "name": "_actionable_row",
+      "file": "generate_report.py",
+      "line": 98
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 104
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
       "name": "__init__",
       "file": "extract-functions-ast-py.py",
       "line": 43
@@ -704,6 +1065,25 @@
   },
   {
     "func_a": {
+      "name": "_placeholder",
+      "file": "extract-functions-ast-py.py",
+      "line": 48
+    },
+    "func_b": {
+      "name": "assert_only_trailing_ws",
+      "file": "lib/jsonstream.py",
+      "line": 180
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 49
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
       "name": "visit_Name",
       "file": "extract-functions-ast-py.py",
       "line": 54
@@ -712,6 +1092,25 @@
       "name": "_is_nested",
       "file": "extract-functions-ast-py.py",
       "line": 370
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 37
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_Name",
+      "file": "extract-functions-ast-py.py",
+      "line": 54
+    },
+    "func_b": {
+      "name": "note_phase",
+      "file": "lib/resource_policy.py",
+      "line": 364
     },
     "scores": {
       "token_hash_match": true,
@@ -761,6 +1160,101 @@
   },
   {
     "func_a": {
+      "name": "visit_Attribute",
+      "file": "extract-functions-ast-py.py",
+      "line": 81
+    },
+    "func_b": {
+      "name": "note_phase",
+      "file": "lib/resource_policy.py",
+      "line": 364
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 37
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_alias",
+      "file": "extract-functions-ast-py.py",
+      "line": 86
+    },
+    "func_b": {
+      "name": "expect",
+      "file": "lib/jsonstream.py",
+      "line": 109
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 56
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_compute_ast_fingerprint",
+      "file": "extract-functions-ast-py.py",
+      "line": 94
+    },
+    "func_b": {
+      "name": "tree_rss_bytes_from_table",
+      "file": "lib/resource_policy.py",
+      "line": 144
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 72
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_unparse_annotation",
+      "file": "extract-functions-ast-py.py",
+      "line": 168
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "merge-signals.py",
+      "line": 486
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 39
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_unparse_default",
+      "file": "extract-functions-ast-py.py",
+      "line": 178
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "merge-signals.py",
+      "line": 486
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 39
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
       "name": "_build_params",
       "file": "extract-functions-ast-py.py",
       "line": 188
@@ -774,6 +1268,481 @@
       "token_hash_match": true,
       "clone_type": 2,
       "sequence_length": 309
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_first_line_docstring",
+      "file": "extract-functions-ast-py.py",
+      "line": 333
+    },
+    "func_b": {
+      "name": "_summary_block",
+      "file": "generate_report.py",
+      "line": 71
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 116
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_is_nested",
+      "file": "extract-functions-ast-py.py",
+      "line": 370
+    },
+    "func_b": {
+      "name": "note_phase",
+      "file": "lib/resource_policy.py",
+      "line": 364
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 37
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "func_b": {
+      "name": "skip_value",
+      "file": "lib/jsonstream.py",
+      "line": 171
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 45
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_FunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 410
+    },
+    "func_b": {
+      "name": "stop",
+      "file": "lib/resource_policy.py",
+      "line": 211
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 45
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "func_b": {
+      "name": "skip_value",
+      "file": "lib/jsonstream.py",
+      "line": 171
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 45
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_AsyncFunctionDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 417
+    },
+    "func_b": {
+      "name": "stop",
+      "file": "lib/resource_policy.py",
+      "line": 211
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 45
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "visit_ClassDef",
+      "file": "extract-functions-ast-py.py",
+      "line": 423
+    },
+    "func_b": {
+      "name": "_get",
+      "file": "generate_report.py",
+      "line": 50
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 40
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_num_or_zero",
+      "file": "generate_report.py",
+      "line": 58
+    },
+    "func_b": {
+      "name": "_decode_next",
+      "file": "lib/jsonstream.py",
+      "line": 49
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 20
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "tokenize",
+      "file": "lib/common.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "fill",
+      "file": "lib/jsonstream.py",
+      "line": 73
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 62
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "tokenize",
+      "file": "lib/common.py",
+      "line": 84
+    },
+    "func_b": {
+      "name": "legacy",
+      "file": "merge-signals.py",
+      "line": 716
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 62
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "tokenize_to_strings",
+      "file": "lib/common.py",
+      "line": 125
+    },
+    "func_b": {
+      "name": "to_dict",
+      "file": "lib/resource_policy.py",
+      "line": 101
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 21
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "overlap_coefficient",
+      "file": "lib/common.py",
+      "line": 214
+    },
+    "func_b": {
+      "name": "_git_head",
+      "file": "lib/resource_policy.py",
+      "line": 325
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 58
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "func_ref",
+      "file": "lib/common.py",
+      "line": 270
+    },
+    "func_b": {
+      "name": "_positive_int",
+      "file": "merge-signals.py",
+      "line": 752
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 51
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "fill",
+      "file": "lib/jsonstream.py",
+      "line": 73
+    },
+    "func_b": {
+      "name": "_iter_scored",
+      "file": "merge-signals.py",
+      "line": 681
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 62
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "fill",
+      "file": "lib/jsonstream.py",
+      "line": 73
+    },
+    "func_b": {
+      "name": "legacy",
+      "file": "merge-signals.py",
+      "line": 716
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 62
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "skip_value",
+      "file": "lib/jsonstream.py",
+      "line": 171
+    },
+    "func_b": {
+      "name": "stop",
+      "file": "lib/resource_policy.py",
+      "line": 211
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 45
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "iter_object_members",
+      "file": "lib/jsonstream.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "convert_llm_results",
+      "file": "merge-signals.py",
+      "line": 1050
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 210
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_open_cursor",
+      "file": "lib/jsonstream.py",
+      "line": 217
+    },
+    "func_b": {
+      "name": "_is_crud_name",
+      "file": "merge-signals.py",
+      "line": 44
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 38
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "start",
+      "file": "lib/resource_policy.py",
+      "line": 207
+    },
+    "func_b": {
+      "name": "_utc_now",
+      "file": "lib/resource_policy.py",
+      "line": 313
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 22
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "start",
+      "file": "lib/resource_policy.py",
+      "line": 207
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "lib/resource_policy.py",
+      "line": 339
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 22
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_utc_now",
+      "file": "lib/resource_policy.py",
+      "line": 313
+    },
+    "func_b": {
+      "name": "__init__",
+      "file": "lib/resource_policy.py",
+      "line": 339
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 22
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_body_lines",
+      "file": "merge-signals.py",
+      "line": 49
+    },
+    "func_b": {
+      "name": "_strategy_name_from_path",
+      "file": "merge-signals.py",
+      "line": 492
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 53
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "load_strategy_results",
+      "file": "merge-signals.py",
+      "line": 171
+    },
+    "func_b": {
+      "name": "_refusal",
+      "file": "merge-signals.py",
+      "line": 804
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 97
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "classify_clone_type",
+      "file": "merge-signals.py",
+      "line": 380
+    },
+    "func_b": {
+      "name": "_write_pairs",
+      "file": "merge-signals.py",
+      "line": 962
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 110
+    },
+    "final_score": 0.9,
+    "strategy": "token_clone"
+  },
+  {
+    "func_a": {
+      "name": "_iter_scored",
+      "file": "merge-signals.py",
+      "line": 681
+    },
+    "func_b": {
+      "name": "legacy",
+      "file": "merge-signals.py",
+      "line": 716
+    },
+    "scores": {
+      "token_hash_match": true,
+      "clone_type": 2,
+      "sequence_length": 62
     },
     "final_score": 0.9,
     "strategy": "token_clone"

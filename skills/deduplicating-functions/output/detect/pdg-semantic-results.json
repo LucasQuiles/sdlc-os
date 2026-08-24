@@ -681,6 +681,23 @@
   },
   {
     "func_a": {
+      "name": "_high_entry",
+      "file": "generate_report.py",
+      "line": 112
+    },
+    "func_b": {
+      "name": "_medium_entry",
+      "file": "generate_report.py",
+      "line": 132
+    },
+    "scores": {
+      "pdg_jaccard": 0.6
+    },
+    "final_score": 0.6,
+    "strategy": "pdg_semantic"
+  },
+  {
+    "func_a": {
       "name": "get_tokens",
       "file": "detect-tfidf-index.py",
       "line": 34
@@ -892,7 +909,24 @@
     "func_b": {
       "name": "_safe_divide",
       "file": "evaluate.py",
-      "line": 104
+      "line": 119
+    },
+    "scores": {
+      "pdg_jaccard": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "pdg_semantic"
+  },
+  {
+    "func_a": {
+      "name": "levenshtein_score",
+      "file": "detect-fuzzy-names.py",
+      "line": 187
+    },
+    "func_b": {
+      "name": "_decode_next",
+      "file": "lib/jsonstream.py",
+      "line": 49
     },
     "scores": {
       "pdg_jaccard": 0.5
@@ -960,7 +994,24 @@
     "func_b": {
       "name": "_safe_divide",
       "file": "evaluate.py",
-      "line": 104
+      "line": 119
+    },
+    "scores": {
+      "pdg_jaccard": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "pdg_semantic"
+  },
+  {
+    "func_a": {
+      "name": "_normalized_distance",
+      "file": "detect-metric-similarity.py",
+      "line": 179
+    },
+    "func_b": {
+      "name": "_decode_next",
+      "file": "lib/jsonstream.py",
+      "line": 49
     },
     "scores": {
       "pdg_jaccard": 0.5
@@ -977,7 +1028,24 @@
     "func_b": {
       "name": "_safe_divide",
       "file": "evaluate.py",
-      "line": 104
+      "line": 119
+    },
+    "scores": {
+      "pdg_jaccard": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "pdg_semantic"
+  },
+  {
+    "func_a": {
+      "name": "make_pair_key",
+      "file": "evaluate.py",
+      "line": 26
+    },
+    "func_b": {
+      "name": "_decode_next",
+      "file": "lib/jsonstream.py",
+      "line": 49
     },
     "scores": {
       "pdg_jaccard": 0.5
@@ -1012,6 +1080,23 @@
       "name": "tokenize_to_strings",
       "file": "lib/common.py",
       "line": 125
+    },
+    "scores": {
+      "pdg_jaccard": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "pdg_semantic"
+  },
+  {
+    "func_a": {
+      "name": "_safe_divide",
+      "file": "evaluate.py",
+      "line": 119
+    },
+    "func_b": {
+      "name": "_decode_next",
+      "file": "lib/jsonstream.py",
+      "line": 49
     },
     "scores": {
       "pdg_jaccard": 0.5
@@ -1097,6 +1182,23 @@
       "name": "func_ref",
       "file": "lib/common.py",
       "line": 270
+    },
+    "scores": {
+      "pdg_jaccard": 0.5
+    },
+    "final_score": 0.5,
+    "strategy": "pdg_semantic"
+  },
+  {
+    "func_a": {
+      "name": "skip_ws",
+      "file": "lib/jsonstream.py",
+      "line": 83
+    },
+    "func_b": {
+      "name": "peek_ws_or_eof",
+      "file": "lib/jsonstream.py",
+      "line": 96
     },
     "scores": {
       "pdg_jaccard": 0.5
