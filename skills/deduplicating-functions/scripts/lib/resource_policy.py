@@ -194,6 +194,8 @@ def _output_tree_bytes(root: str) -> int:
         try:
             entries = os.scandir(current)
         except FileNotFoundError:
+            if current == root:
+                raise PolicyError(f"output root missing: {root}") from None
             continue
         with entries:
             for entry in entries:

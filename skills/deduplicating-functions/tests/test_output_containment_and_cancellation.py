@@ -482,3 +482,109 @@ def test_nonpositive_timing_construction_is_rejected(kwargs):
     crash inside cleanup with an unbound survivor set."""
     with pytest.raises(ValueError, match="positive"):
         _api("SpawnCoordinator")(backend=_FakeBackend(_identity()), **kwargs)
+
+
+# ── 2026-08-25 preliminary-verification gap closures ──────────────────────
+
+
+class _UnkillableProcess(_ReapableProcess):
+    """Fake child that survives TERM and KILL (wait always times out)."""
+
+    def terminate(self):
+        self.terminated = True
+
+    def kill(self):
+        self.killed = True
+
+    def wait(self, timeout=None):
+        import subprocess as sp
+        raise sp.TimeoutExpired(cmd="unkillable", timeout=timeout or 0)
+
+
+def test_unproven_unkillable_child_is_reported_cleanup_uncertain():
+    """Silent return while the child may live is not allowed: the raised
+    admission error must disclose the uncertain handle cleanup."""
+    identity = _identity()
+    child = _UnkillableProcess(identity.pid)
+    backend = _FakeBackend(identity)
+    backend.outcome = _api("CensusOutcome").unknown("census-timeout")
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend, popen_factory=lambda *a, **k: child,
+        term_grace_s=0.02, poll_s=0.01)
+
+    with pytest.raises(_api("IdentityUnproven"),
+                       match="direct-child-cleanup-uncertain"):
+        coordinator.popen(["fake-detector"])
+
+    assert child.terminated and child.killed
+
+
+def test_uncertain_timeout_cleanup_freezes_admission():
+    """An uncertain per-child cleanup must escalate to a coordinator abort
+    instead of leaving admission open over an uncleaned tree."""
+    import subprocess as sp
+    identity = _identity(7070)
+
+    class UnkillableTimeout(_UnkillableProcess):
+        def communicate(self, timeout=None):
+            raise sp.TimeoutExpired(cmd="slow-detector", timeout=1)
+
+    backend = _FakeBackend(identity)
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend,
+        popen_factory=lambda *a, **k: UnkillableTimeout(identity.pid),
+        term_grace_s=0.02, poll_s=0.005)
+
+    with pytest.raises(sp.TimeoutExpired):
+        coordinator.run(["slow-detector"])
+
+    assert coordinator.state in ("ABORTING", "CLOSED")
+    with pytest.raises(_api("AbortInProgress")):
+        coordinator.popen(["must-not-spawn"])
+
+
+def test_detector_timeout_leaves_concurrent_child_untouched():
+    """The scoped cleanup must not signal or unregister an unrelated
+    concurrently running child."""
+    import subprocess as sp
+    slow = _identity(6060)
+    steady = _identity(6061)
+
+    class TimeoutProcess(_ReapableProcess):
+        def communicate(self, timeout=None):
+            raise sp.TimeoutExpired(cmd="slow-detector", timeout=1)
+
+    backend = _FakeBackend(slow)
+    backend.outcome = _api("CensusOutcome").ok({slow.pid: slow, steady.pid: steady})
+    procs: list[object] = [_FakeProcess(steady.pid), TimeoutProcess(slow.pid)]
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend, popen_factory=lambda *a, **k: procs.pop(0),
+        term_grace_s=0.05, poll_s=0.01)
+
+    coordinator.popen(["steady-detector"])
+    with pytest.raises(sp.TimeoutExpired):
+        coordinator.run(["slow-detector"])
+
+    assert coordinator.state == "RUNNING"
+    assert steady.pid in coordinator.registered_pids()
+    assert (steady.pid, signal.SIGTERM) not in backend.signals
+    assert (steady.pid, signal.SIGKILL) not in backend.signals
+    assert (slow.pid, signal.SIGTERM) in backend.signals
+
+
+def test_dead_child_with_census_row_is_returned_unregistered():
+    """A child that already exited is never registered, even when a census
+    row for its pid exists (zombie or reused pid)."""
+    identity = _identity()
+    dead = _FakeProcess(identity.pid)
+    dead.returncode = 0
+    backend = _FakeBackend(identity)
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend, popen_factory=lambda *a, **k: dead,
+        term_grace_s=0.05, poll_s=0.01)
+
+    result = coordinator.popen(["fast-exit"])
+
+    assert result is dead
+    assert coordinator.registered_pids() == ()
+    assert coordinator.state == "RUNNING"

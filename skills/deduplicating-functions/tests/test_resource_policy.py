@@ -274,3 +274,10 @@ def test_output_sampler_still_refuses_symlinks(tmp_path):
     (tmp_path / "link").symlink_to(real)
     with pytest.raises(rp.PolicyError, match="symlink"):
         rp._output_tree_bytes(str(tmp_path))
+
+
+def test_output_sampler_fails_when_root_itself_vanishes(tmp_path):
+    """ENOENT tolerance covers listed entries only; a missing output root is
+    a probe failure, never zero bytes."""
+    with pytest.raises(rp.PolicyError, match="output root missing"):
+        rp._output_tree_bytes(str(tmp_path / "never-existed"))

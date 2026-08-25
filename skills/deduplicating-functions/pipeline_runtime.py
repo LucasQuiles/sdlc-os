@@ -184,10 +184,17 @@ class SpawnCoordinator:
             if current is None:
                 if process.poll() is not None:
                     return process
-                self._reap_direct_child(process)
+                reaped = self._reap_direct_child(process)
                 self._state = "ABORTING"
                 self.abort_event.set()
-                raise IdentityUnproven(unproven_reason or "spawned-child-missing")
+                reason = unproven_reason or "spawned-child-missing"
+                if not reaped:
+                    reason += "; direct-child-cleanup-uncertain"
+                raise IdentityUnproven(reason)
+            if process.poll() is not None:
+                # Already exited: the census row may describe a zombie or a
+                # reused pid — never register a dead child for later signaling.
+                return process
             self._registered[process.pid] = dataclasses.replace(
                 current, ancestor_pid=os.getpid())
             return process
@@ -243,20 +250,22 @@ class SpawnCoordinator:
         outcome = self._backend.census(self._census_timeout_s)
         return self._fresh_targets(expected, outcome)
 
-    def _reap_direct_child(self, process: Any) -> None:
+    def _reap_direct_child(self, process: Any) -> bool:
         """Terminate an unproven direct child through its Popen handle.
 
         The handle names the exact process we spawned, so no census identity
-        is required before signaling it; ``wait`` also reaps the zombie."""
+        is required before signaling it; ``wait`` also reaps the zombie.
+        Returns True when the child is confirmed exited, False when it may
+        still be alive after TERM+KILL and both grace waits."""
         if process.poll() is not None:
-            return
+            return True
         try:
             process.terminate()
         except OSError:
             pass
         try:
             process.wait(timeout=self._term_grace_s)
-            return
+            return True
         except subprocess.TimeoutExpired:
             pass
         try:
@@ -265,24 +274,37 @@ class SpawnCoordinator:
             pass
         try:
             process.wait(timeout=self._term_grace_s)
+            return True
         except subprocess.TimeoutExpired:
-            pass
+            return False
 
     def terminate_child(self, process: Any) -> CleanupResult:
         """Clean up one owned child and its descendants without freezing admission.
 
         The identity-proven sweep runs first, while the direct child is still
         alive, so its descendants remain chained to it in the process table;
-        the handle-based reap then guarantees the direct child is gone."""
+        the handle-based reap then confirms the direct child is gone. Any
+        uncertainty (sweep or reap) escalates to a full coordinator abort —
+        admission must not stay open over an uncleaned tree."""
         with self._cleanup_lock:
             with self._lock:
                 identity = self._registered.pop(process.pid, None)
             if identity is None:
-                self._reap_direct_child(process)
-                return CleanupResult("complete", "child-timeout")
-            result = self._sweep({process.pid: identity}, "child-timeout")
-            self._reap_direct_child(process)
-            return result
+                if self._reap_direct_child(process):
+                    return CleanupResult("complete", "child-timeout")
+                result = CleanupResult("uncertain", "direct-child-cleanup-uncertain",
+                                       survivors=(process.pid,))
+            else:
+                result = self._sweep({process.pid: identity}, "child-timeout")
+                if not self._reap_direct_child(process):
+                    result = CleanupResult(
+                        "uncertain", "direct-child-cleanup-uncertain",
+                        result.term_pids, result.kill_pids,
+                        tuple(sorted(set(result.survivors) | {process.pid})))
+        if result.cleanup != "complete":
+            # Escalate outside _cleanup_lock (abort re-acquires it).
+            self.abort(reason=f"child-timeout-{result.reason}")
+        return result
 
     def abort(self, reason: str = "abort-requested") -> CleanupResult:
         """Freeze admission and serialize the one cleanup owner."""
