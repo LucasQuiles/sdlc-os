@@ -21,6 +21,7 @@ from safety import (
 from pipeline_runtime import (
     AbortInProgress,
     CensusOutcome,
+    IdentityUnproven,
     ManagedRunPublisher,
     ProcessIdentity,
     SpawnCoordinator,
@@ -29,6 +30,7 @@ from pipeline_runtime import (
 __all__ = [
     "AbortInProgress",
     "CensusOutcome",
+    "IdentityUnproven",
     "ManagedRunPublisher",
     "ProcessIdentity",
     "SpawnCoordinator",

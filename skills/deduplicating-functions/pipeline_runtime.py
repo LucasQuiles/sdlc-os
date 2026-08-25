@@ -144,6 +144,9 @@ class SpawnCoordinator:
         term_grace_s: float = 1.0,
         poll_s: float = 0.05,
     ) -> None:
+        if census_timeout_s <= 0 or term_grace_s <= 0 or poll_s <= 0:
+            raise ValueError(
+                "census_timeout_s, term_grace_s, and poll_s must all be positive")
         self._backend = backend or PsProcessBackend()
         self._popen_factory = popen_factory
         self._census_timeout_s = census_timeout_s
@@ -171,12 +174,20 @@ class SpawnCoordinator:
             process = self._popen_factory(argv, **kwargs)
             outcome = self._backend.census(self._census_timeout_s)
             current = outcome.table.get(process.pid) if outcome.status == "ok" else None
+            unproven_reason = outcome.reason
+            if current is not None and current.ppid != os.getpid():
+                # The census row for this pid is not our direct child (pid reuse
+                # after a fast exit, or a raced table): registering that identity
+                # would let a later cleanup signal a foreign process.
+                current = None
+                unproven_reason = unproven_reason or "ppid-mismatch"
             if current is None:
                 if process.poll() is not None:
                     return process
+                self._reap_direct_child(process)
                 self._state = "ABORTING"
                 self.abort_event.set()
-                raise IdentityUnproven(outcome.reason or "spawned-child-missing")
+                raise IdentityUnproven(unproven_reason or "spawned-child-missing")
             self._registered[process.pid] = dataclasses.replace(
                 current, ancestor_pid=os.getpid())
             return process
@@ -193,7 +204,10 @@ class SpawnCoordinator:
         try:
             stdout, stderr = process.communicate(timeout=timeout)
         except subprocess.TimeoutExpired:
-            self.abort(reason="child-timeout")
+            # One slow child is a per-child failure, not a coordinator-wide
+            # event: clean up that child and its descendants only, leaving
+            # admission open for the remaining phases (--permissive contract).
+            self.terminate_child(process)
             raise
         except BaseException:
             self.abort(reason="child-communication-failed")
@@ -229,6 +243,47 @@ class SpawnCoordinator:
         outcome = self._backend.census(self._census_timeout_s)
         return self._fresh_targets(expected, outcome)
 
+    def _reap_direct_child(self, process: Any) -> None:
+        """Terminate an unproven direct child through its Popen handle.
+
+        The handle names the exact process we spawned, so no census identity
+        is required before signaling it; ``wait`` also reaps the zombie."""
+        if process.poll() is not None:
+            return
+        try:
+            process.terminate()
+        except OSError:
+            pass
+        try:
+            process.wait(timeout=self._term_grace_s)
+            return
+        except subprocess.TimeoutExpired:
+            pass
+        try:
+            process.kill()
+        except OSError:
+            pass
+        try:
+            process.wait(timeout=self._term_grace_s)
+        except subprocess.TimeoutExpired:
+            pass
+
+    def terminate_child(self, process: Any) -> CleanupResult:
+        """Clean up one owned child and its descendants without freezing admission.
+
+        The identity-proven sweep runs first, while the direct child is still
+        alive, so its descendants remain chained to it in the process table;
+        the handle-based reap then guarantees the direct child is gone."""
+        with self._cleanup_lock:
+            with self._lock:
+                identity = self._registered.pop(process.pid, None)
+            if identity is None:
+                self._reap_direct_child(process)
+                return CleanupResult("complete", "child-timeout")
+            result = self._sweep({process.pid: identity}, "child-timeout")
+            self._reap_direct_child(process)
+            return result
+
     def abort(self, reason: str = "abort-requested") -> CleanupResult:
         """Freeze admission and serialize the one cleanup owner."""
         with self._cleanup_lock:
@@ -243,9 +298,17 @@ class SpawnCoordinator:
             with self._lock:
                 self._state = "CLOSED"
             return CleanupResult("complete", reason)
+        result = self._sweep(expected, reason)
+        if result.cleanup == "complete":
+            with self._lock:
+                self._registered.clear()
+                self._state = "CLOSED"
+        return result
 
+    def _sweep(self, expected: Mapping[int, ProcessIdentity], reason: str) -> CleanupResult:
+        """TERM/grace/KILL the given identity-proven pids and their descendants."""
         targets, error = self._fresh_targets(
-            expected, self._backend.census(self._census_timeout_s))
+            dict(expected), self._backend.census(self._census_timeout_s))
         if error:
             return CleanupResult("uncertain", error, survivors=tuple(sorted(expected)))
 
@@ -278,9 +341,6 @@ class SpawnCoordinator:
             if not survivors:
                 zero_count += 1
                 if zero_count >= 2:
-                    with self._lock:
-                        self._registered.clear()
-                        self._state = "CLOSED"
                     return CleanupResult("complete", reason, tuple(term_pids))
             else:
                 zero_count = 0
@@ -303,6 +363,7 @@ class SpawnCoordinator:
                 return CleanupResult("uncertain", "kill-failed", tuple(term_pids),
                                      tuple(kill_pids), (pid,))
 
+        final: dict[int, ProcessIdentity] = dict(survivors)
         zero_count = 0
         deadline = time.monotonic() + self._term_grace_s
         while time.monotonic() < deadline:
@@ -314,9 +375,6 @@ class SpawnCoordinator:
             if not final:
                 zero_count += 1
                 if zero_count >= 2:
-                    with self._lock:
-                        self._registered.clear()
-                        self._state = "CLOSED"
                     return CleanupResult("complete", reason, tuple(term_pids),
                                          tuple(kill_pids))
             else:

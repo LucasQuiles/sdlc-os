@@ -180,21 +180,35 @@ def sample_tree(root: int) -> dict[str, Any]:
 
 
 def _output_tree_bytes(root: str) -> int:
-    """Return allocated logical bytes without following links or hiding probe errors."""
+    """Return allocated logical bytes without following links or hiding probe errors.
+
+    A listed entry that vanishes before it is classified or measured is normal
+    here — the atomic-replacement pattern (write temp, ``os.replace``) deletes
+    temp files while this sampler walks the tree — so ENOENT on one entry
+    counts as zero bytes for this sample instead of failing the probe.
+    Symlinks and non-regular entries remain fatal."""
     total = 0
     stack = [root]
     while stack:
         current = stack.pop()
-        with os.scandir(current) as entries:
+        try:
+            entries = os.scandir(current)
+        except FileNotFoundError:
+            continue
+        with entries:
             for entry in entries:
-                if entry.is_symlink():
-                    raise PolicyError(f"output tree contains symlink: {entry.path}")
-                if entry.is_dir(follow_symlinks=False):
-                    stack.append(entry.path)
-                elif entry.is_file(follow_symlinks=False):
-                    total += entry.stat(follow_symlinks=False).st_size
-                else:
-                    raise PolicyError(f"output tree contains nonregular entry: {entry.path}")
+                try:
+                    if entry.is_symlink():
+                        raise PolicyError(f"output tree contains symlink: {entry.path}")
+                    if entry.is_dir(follow_symlinks=False):
+                        stack.append(entry.path)
+                    elif entry.is_file(follow_symlinks=False):
+                        total += entry.stat(follow_symlinks=False).st_size
+                    else:
+                        raise PolicyError(
+                            f"output tree contains nonregular entry: {entry.path}")
+                except FileNotFoundError:
+                    continue
     return total
 
 

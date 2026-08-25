@@ -192,3 +192,85 @@ def test_run_record_roundtrip(tmp_path):
     assert d["phases"]["merge"]["candidates_seen"] == 3
     assert d["artifacts"]["pairs.jsonl"]["sha256"]
     assert d["started_utc"].endswith("Z") and d["ended_utc"].endswith("Z")
+
+
+# ── 2026-08-25 round-9 regression tests (finding 3) ───────────────────────
+
+
+def test_output_sampler_tolerates_entry_vanishing_mid_scan(tmp_path, monkeypatch):
+    """Round-9 finding 3: the atomic-replacement pattern (write temp,
+    os.replace) deletes listed entries between scandir and stat; one ENOENT
+    must count as zero bytes for the sample, not become a resource abort."""
+    (tmp_path / "merge.tmp").write_bytes(b"x" * 128)
+    (tmp_path / "kept.bin").write_bytes(b"y" * 64)
+    real_scandir = os.scandir
+
+    class _Proxy:
+        def __init__(self, entry, vanished):
+            self._entry = entry
+            self._vanished = vanished
+
+        @property
+        def path(self):
+            return self._entry.path
+
+        def is_symlink(self):
+            return self._entry.is_symlink()
+
+        def is_dir(self, follow_symlinks=True):
+            return False if self._vanished else self._entry.is_dir(
+                follow_symlinks=follow_symlinks)
+
+        def is_file(self, follow_symlinks=True):
+            return True if self._vanished else self._entry.is_file(
+                follow_symlinks=follow_symlinks)
+
+        def stat(self, follow_symlinks=True):
+            if self._vanished:
+                raise FileNotFoundError(self.path)
+            return self._entry.stat(follow_symlinks=follow_symlinks)
+
+    class _Scan:
+        def __init__(self, path):
+            self._inner = real_scandir(path)
+
+        def __iter__(self):
+            return (_Proxy(e, e.name == "merge.tmp") for e in self._inner)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            self._inner.close()
+            return False
+
+    monkeypatch.setattr(rp.os, "scandir", _Scan)
+    assert rp._output_tree_bytes(str(tmp_path)) == 64
+
+
+def test_output_sampler_tolerates_directory_vanishing_mid_scan(tmp_path):
+    """A queued subdirectory that disappears before its own scandir is a
+    vanished entry, not a probe failure."""
+    survivor = tmp_path / "kept.bin"
+    survivor.write_bytes(b"y" * 32)
+    ghost = tmp_path / "ghost-dir"
+    ghost.mkdir()
+    real_scandir = os.scandir
+
+    def racing_scandir(path):
+        if os.path.abspath(str(path)) == str(ghost):
+            raise FileNotFoundError(str(path))
+        return real_scandir(path)
+
+    import unittest.mock as mock
+    with mock.patch.object(rp.os, "scandir", racing_scandir):
+        assert rp._output_tree_bytes(str(tmp_path)) == 32
+
+
+def test_output_sampler_still_refuses_symlinks(tmp_path):
+    """ENOENT tolerance must not weaken the symlink refusal."""
+    real = tmp_path / "real.bin"
+    real.write_bytes(b"z")
+    (tmp_path / "link").symlink_to(real)
+    with pytest.raises(rp.PolicyError, match="symlink"):
+        rp._output_tree_bytes(str(tmp_path))

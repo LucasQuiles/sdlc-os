@@ -377,3 +377,108 @@ def test_pid_reuse_immediately_before_kill_suppresses_kill():
     assert result.cleanup == "uncertain"
     assert result.reason == "identity-mismatch"
     assert backend.signals == [(identity.pid, signal.SIGTERM)]
+
+
+# ── 2026-08-25 round-9 regression tests (findings 1, 2, 4, 5) ─────────────
+
+
+class _ReapableProcess(_FakeProcess):
+    """Fake child that mirrors Popen handle semantics for terminate/kill."""
+
+    def __init__(self, pid: int):
+        super().__init__(pid)
+        self.terminated = False
+        self.killed = False
+
+    def terminate(self):
+        self.terminated = True
+        self.returncode = -signal.SIGTERM
+
+    def kill(self):
+        self.killed = True
+        self.returncode = -signal.SIGKILL
+
+    def wait(self, timeout=None):
+        if self.returncode is None:
+            self.returncode = 0
+        return self.returncode
+
+
+def test_unproven_identity_admission_reaps_the_live_child():
+    """Round-9 finding 1: a census that cannot prove the child must not
+    abandon it — the direct child is terminated through its own handle."""
+    identity = _identity()
+    child = _ReapableProcess(identity.pid)
+    backend = _FakeBackend(identity)
+    backend.outcome = _api("CensusOutcome").unknown("census-timeout")
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend, popen_factory=lambda *a, **k: child,
+        term_grace_s=0.05, poll_s=0.01)
+
+    with pytest.raises(_api("IdentityUnproven")):
+        coordinator.popen(["fake-detector"])
+
+    assert child.terminated or child.killed, "unproven live child must be signaled"
+    assert child.poll() is not None, "unproven child must be reaped, not abandoned"
+    assert coordinator.registered_pids() == ()
+    assert coordinator.state == "ABORTING"
+
+
+def test_foreign_ppid_census_row_is_refused_and_child_reaped():
+    """Round-9 finding 4: a census row whose ppid is not this process is a
+    reused or raced pid — never register it for later signaling."""
+    identity = replace(_identity(), ppid=1)
+    child = _ReapableProcess(identity.pid)
+    backend = _FakeBackend(identity)
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend, popen_factory=lambda *a, **k: child,
+        term_grace_s=0.05, poll_s=0.01)
+
+    with pytest.raises(_api("IdentityUnproven"), match="ppid-mismatch"):
+        coordinator.popen(["fake-detector"])
+
+    assert coordinator.registered_pids() == ()
+    assert child.poll() is not None
+    assert backend.signals == [], "the foreign census pid must never be signaled"
+
+
+def test_detector_timeout_cleans_one_child_and_keeps_admission_open():
+    """Round-9 finding 2: one slow detector is a per-child failure; the
+    coordinator must stay open for later spawns (--permissive contract)."""
+    import subprocess as sp
+
+    first = _identity(5050)
+    second = _identity(5051)
+
+    class TimeoutProcess(_ReapableProcess):
+        def communicate(self, timeout=None):
+            raise sp.TimeoutExpired(cmd="slow-detector", timeout=1)
+
+    procs: list[object] = [TimeoutProcess(first.pid)]
+    backend = _FakeBackend(first)
+    coordinator = _api("SpawnCoordinator")(
+        backend=backend, popen_factory=lambda *a, **k: procs.pop(0),
+        term_grace_s=0.05, poll_s=0.01)
+
+    with pytest.raises(sp.TimeoutExpired):
+        coordinator.run(["slow-detector"])
+
+    assert coordinator.state == "RUNNING", "one timeout must not freeze admission"
+    assert (first.pid, signal.SIGTERM) in backend.signals
+    assert coordinator.registered_pids() == ()
+
+    backend.outcome = _api("CensusOutcome").ok({second.pid: second})
+    procs.append(_FakeProcess(second.pid))
+    admitted = coordinator.popen(["next-phase"])
+    assert admitted.pid == second.pid, "later phases must still be admitted"
+
+
+@pytest.mark.parametrize("kwargs", [
+    {"term_grace_s": 0}, {"poll_s": 0}, {"census_timeout_s": 0},
+    {"term_grace_s": -1.0},
+])
+def test_nonpositive_timing_construction_is_rejected(kwargs):
+    """Round-9 finding 5: zero/negative grace must fail at construction, not
+    crash inside cleanup with an unbound survivor set."""
+    with pytest.raises(ValueError, match="positive"):
+        _api("SpawnCoordinator")(backend=_FakeBackend(_identity()), **kwargs)
