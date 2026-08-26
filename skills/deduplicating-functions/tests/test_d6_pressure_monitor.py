@@ -392,6 +392,21 @@ def test_breach_and_probe_uncertainty_signal_only_owned_pgid(
     assert read_receipt(receipt)["code"] == expected_code
 
 
+def test_initial_cleanup_census_uncertainty_sends_no_signal(tmp_path: Path):
+    receipt = tmp_path / "initial-census-uncertain" / "result.json"
+    signals: list[tuple[int, int]] = []
+    deps = lifecycle_deps(
+        tmp_path,
+        probes=[sample(load1=8.0)],
+        censuses=[MonitorError("D6_MONITOR_UNAVAILABLE: initial census failed")],
+        signals=signals,
+    )
+
+    assert run_fake(["cmd"], receipt, deps) == 3
+    assert signals == []
+    assert read_receipt(receipt)["cleanup"] == "unavailable"
+
+
 def test_term_resistant_group_receives_kill_for_same_pgid(tmp_path: Path):
     receipt = tmp_path / "resistant" / "result.json"
     live = monitor.ProcessCensus(group_rss_mb=1.0, member_pids=(4100, 4101))
@@ -405,6 +420,25 @@ def test_term_resistant_group_receives_kill_for_same_pgid(tmp_path: Path):
     assert run_fake(["cmd"], receipt, deps) == 3
     assert signals == [(4100, signal.SIGTERM), (4100, signal.SIGKILL)]
     assert read_receipt(receipt)["cleanup"] == "complete"
+
+
+def test_post_term_wait_census_uncertainty_never_escalates_to_kill(tmp_path: Path):
+    receipt = tmp_path / "post-term-wait-uncertain" / "result.json"
+    live = monitor.ProcessCensus(group_rss_mb=1.0, member_pids=(4100,))
+    signals: list[tuple[int, int]] = []
+    deps = lifecycle_deps(
+        tmp_path,
+        probes=[sample(load1=8.0)],
+        censuses=[
+            live,
+            MonitorError("D6_MONITOR_UNAVAILABLE: TERM wait census failed"),
+        ],
+        signals=signals,
+    )
+
+    assert run_fake(["cmd"], receipt, deps) == 3
+    assert signals == [(4100, signal.SIGTERM)]
+    assert read_receipt(receipt)["cleanup"] == "unavailable"
 
 
 @pytest.mark.parametrize(

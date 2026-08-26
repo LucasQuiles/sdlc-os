@@ -346,8 +346,8 @@ def _cleanup_group(
     try:
         initial = deps.census(owned_pgid, tracked_pids)
     except Exception:
-        initial = None
-    if initial is not None and not initial.member_pids:
+        return "unavailable"
+    if not initial.member_pids:
         return _reap_and_confirm_empty(
             child,
             owned_pgid,
@@ -375,8 +375,8 @@ def _cleanup_group(
             thresholds.term_grace_s,
             deps,
         )
-        if status != "survivors":
-            return status
+    if status != "survivors":
+        return status
 
     try:
         deps.killpg(owned_pgid, signal.SIGKILL)
