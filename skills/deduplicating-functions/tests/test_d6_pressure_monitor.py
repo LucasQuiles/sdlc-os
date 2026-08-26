@@ -407,6 +407,42 @@ def test_initial_cleanup_census_uncertainty_sends_no_signal(tmp_path: Path):
     assert read_receipt(receipt)["cleanup"] == "unavailable"
 
 
+def test_cleanup_retains_late_member_ownership_across_censuses(tmp_path: Path):
+    receipt = tmp_path / "late-member-escape" / "result.json"
+    signals: list[tuple[int, int]] = []
+    tracked_snapshots: list[frozenset[int]] = []
+    deps = lifecycle_deps(
+        tmp_path,
+        probes=[sample(load1=8.0, member_pids=(4100,))],
+        signals=signals,
+    )
+
+    def census(owned_pgid: int, tracked_pids: frozenset[int]):
+        tracked_snapshots.append(tracked_pids)
+        if len(tracked_snapshots) == 1:
+            return monitor.ProcessCensus(
+                group_rss_mb=2.0,
+                member_pids=(4100, 4101),
+            )
+        return parse_process_census(
+            "4101 9000 2048 S\n",
+            owned_pgid=owned_pgid,
+            leader_expected_alive=False,
+            tracked_pids=tracked_pids,
+        )
+
+    deps = monitor.RunnerDependencies(**{**deps.__dict__, "census": census})
+
+    assert run_fake(["cmd"], receipt, deps) == 3
+    assert tracked_snapshots[0] == frozenset({4100})
+    assert all(
+        snapshot == frozenset({4100, 4101}) for snapshot in tracked_snapshots[1:]
+    )
+    assert signals == [(4100, signal.SIGTERM)]
+    assert all(pgid != 9000 for pgid, _ in signals)
+    assert read_receipt(receipt)["cleanup"] == "unavailable"
+
+
 def test_term_resistant_group_receives_kill_for_same_pgid(tmp_path: Path):
     receipt = tmp_path / "resistant" / "result.json"
     live = monitor.ProcessCensus(group_rss_mb=1.0, member_pids=(4100, 4101))
@@ -567,6 +603,21 @@ def test_receipt_is_closed_bounded_private_and_contains_only_command_digest(
     assert stat.S_IMODE(receipt.stat().st_mode) == 0o600
     assert stat.S_IMODE(receipt.parent.stat().st_mode) == 0o700
     assert secret not in receipt.read_text(encoding="utf-8")
+
+
+def test_receipt_publication_refuses_existing_nonprivate_parent_without_mutation(
+    tmp_path: Path,
+):
+    parent = tmp_path / "shared-parent"
+    parent.mkdir(mode=0o755)
+    parent.chmod(0o755)
+    receipt = parent / "result.json"
+
+    with pytest.raises(OSError, match="0700"):
+        monitor._publish_receipt(receipt, {"outcome": "Inconclusive"})
+
+    assert stat.S_IMODE(parent.stat().st_mode) == 0o755
+    assert not receipt.exists()
 
 
 def test_cli_requires_separator_and_preserves_exact_command_argv(

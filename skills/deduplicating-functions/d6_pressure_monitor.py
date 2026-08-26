@@ -9,10 +9,11 @@ import json
 import math
 import os
 import re
+import secrets
 import signal
+import stat
 import subprocess
 import sys
-import tempfile
 import time
 from collections import deque
 from collections.abc import Callable
@@ -264,36 +265,84 @@ def _launch(argv: list[str]) -> ChildProcess:
     return subprocess.Popen(argv, start_new_session=True)
 
 
+def _open_private_receipt_parent(parent: Path) -> int:
+    try:
+        parent_status = parent.lstat()
+    except FileNotFoundError:
+        try:
+            parent.mkdir(mode=0o700)
+        except FileExistsError:
+            pass
+        parent_status = parent.lstat()
+
+    expected_mode = stat.S_IMODE(parent_status.st_mode)
+    if (
+        not stat.S_ISDIR(parent_status.st_mode)
+        or parent_status.st_uid != os.geteuid()
+        or expected_mode != 0o700
+    ):
+        raise PermissionError(
+            f"receipt parent must be an owned non-symlink directory with exact mode 0700: {parent}"
+        )
+
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    directory_fd = os.open(parent, flags)
+    opened_status = os.fstat(directory_fd)
+    if (
+        (opened_status.st_dev, opened_status.st_ino)
+        != (parent_status.st_dev, parent_status.st_ino)
+        or not stat.S_ISDIR(opened_status.st_mode)
+        or opened_status.st_uid != os.geteuid()
+        or stat.S_IMODE(opened_status.st_mode) != 0o700
+    ):
+        os.close(directory_fd)
+        raise PermissionError(f"receipt parent changed during validation: {parent}")
+    return directory_fd
+
+
 def _publish_receipt(receipt_path: Path, payload: dict[str, Any]) -> None:
-    parent = receipt_path.parent
-    parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    os.chmod(parent, 0o700)
+    parent_fd = _open_private_receipt_parent(receipt_path.parent)
     encoded = (json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n").encode()
     temp_fd = -1
     temp_name = ""
     try:
-        temp_fd, temp_name = tempfile.mkstemp(prefix=f".{receipt_path.name}.", dir=parent)
+        for _ in range(100):
+            temp_name = f".{receipt_path.name}.{secrets.token_hex(8)}"
+            try:
+                temp_fd = os.open(
+                    temp_name,
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
+                    0o600,
+                    dir_fd=parent_fd,
+                )
+            except FileExistsError:
+                continue
+            break
+        else:
+            raise FileExistsError("could not allocate private receipt temporary file")
         os.fchmod(temp_fd, 0o600)
         with os.fdopen(temp_fd, "wb") as handle:
             temp_fd = -1
             handle.write(encoded)
             handle.flush()
             os.fsync(handle.fileno())
-        os.replace(temp_name, receipt_path)
+        os.replace(
+            temp_name,
+            receipt_path.name,
+            src_dir_fd=parent_fd,
+            dst_dir_fd=parent_fd,
+        )
         temp_name = ""
-        directory_fd = os.open(parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
-        try:
-            os.fsync(directory_fd)
-        finally:
-            os.close(directory_fd)
+        os.fsync(parent_fd)
     finally:
         if temp_fd >= 0:
             os.close(temp_fd)
         if temp_name:
             try:
-                os.unlink(temp_name)
+                os.unlink(temp_name, dir_fd=parent_fd)
             except FileNotFoundError:
                 pass
+        os.close(parent_fd)
 
 
 def _iso_utc(value: datetime) -> str:
@@ -314,7 +363,7 @@ def _sample_record(sample: PressureSample) -> dict[str, Any]:
 
 def _wait_for_empty_group(
     owned_pgid: int,
-    tracked_pids: frozenset[int],
+    known_pids: set[int],
     grace_s: float,
     interval_s: float,
     deps: RunnerDependencies,
@@ -323,11 +372,12 @@ def _wait_for_empty_group(
     last_census: ProcessCensus | None = None
     while True:
         try:
-            last_census = deps.census(owned_pgid, tracked_pids)
+            last_census = deps.census(owned_pgid, frozenset(known_pids))
         except Exception:
             if deps.monotonic() >= deadline:
                 return "unavailable", None
         else:
+            known_pids.update(last_census.member_pids)
             if not last_census.member_pids:
                 return "complete", last_census
         remaining = deadline - deps.monotonic()
@@ -343,15 +393,17 @@ def _cleanup_group(
     thresholds: MonitorThresholds,
     deps: RunnerDependencies,
 ) -> str:
+    known_pids = set(tracked_pids)
     try:
-        initial = deps.census(owned_pgid, tracked_pids)
+        initial = deps.census(owned_pgid, frozenset(known_pids))
     except Exception:
         return "unavailable"
+    known_pids.update(initial.member_pids)
     if not initial.member_pids:
         return _reap_and_confirm_empty(
             child,
             owned_pgid,
-            tracked_pids,
+            known_pids,
             thresholds.term_grace_s,
             deps,
         )
@@ -362,7 +414,7 @@ def _cleanup_group(
         pass
     status, _ = _wait_for_empty_group(
         owned_pgid,
-        tracked_pids,
+        known_pids,
         thresholds.term_grace_s,
         thresholds.sample_interval_s,
         deps,
@@ -371,7 +423,7 @@ def _cleanup_group(
         status = _reap_and_confirm_empty(
             child,
             owned_pgid,
-            tracked_pids,
+            known_pids,
             thresholds.term_grace_s,
             deps,
         )
@@ -384,7 +436,7 @@ def _cleanup_group(
         pass
     status, _ = _wait_for_empty_group(
         owned_pgid,
-        tracked_pids,
+        known_pids,
         thresholds.kill_grace_s,
         thresholds.sample_interval_s,
         deps,
@@ -393,7 +445,7 @@ def _cleanup_group(
         return _reap_and_confirm_empty(
             child,
             owned_pgid,
-            tracked_pids,
+            known_pids,
             thresholds.kill_grace_s,
             deps,
         )
@@ -403,15 +455,16 @@ def _cleanup_group(
 def _reap_and_confirm_empty(
     child: ChildProcess,
     owned_pgid: int,
-    tracked_pids: frozenset[int],
+    known_pids: set[int],
     grace_s: float,
     deps: RunnerDependencies,
 ) -> str:
     try:
         child.wait(timeout=grace_s)
-        final = deps.census(owned_pgid, tracked_pids)
+        final = deps.census(owned_pgid, frozenset(known_pids))
     except Exception:
         return "unavailable"
+    known_pids.update(final.member_pids)
     if final.member_pids:
         return "survivors"
     return "complete"
