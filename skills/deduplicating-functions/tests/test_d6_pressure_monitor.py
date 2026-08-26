@@ -431,6 +431,27 @@ def test_cleanup_wait_uncertainty_cannot_report_complete(
     assert child.wait_timeouts
 
 
+def test_post_term_reap_census_uncertainty_never_escalates_to_kill(tmp_path: Path):
+    receipt = tmp_path / "post-term-reap-uncertain" / "result.json"
+    live = monitor.ProcessCensus(group_rss_mb=1.0, member_pids=(4100,))
+    empty = monitor.ProcessCensus(group_rss_mb=0.0, member_pids=())
+    signals: list[tuple[int, int]] = []
+    deps = lifecycle_deps(
+        tmp_path,
+        probes=[sample(load1=8.0)],
+        censuses=[
+            live,
+            empty,
+            MonitorError("D6_MONITOR_UNAVAILABLE: post-reap census failed"),
+        ],
+        signals=signals,
+    )
+
+    assert run_fake(["cmd"], receipt, deps) == 3
+    assert signals == [(4100, signal.SIGTERM)]
+    assert read_receipt(receipt)["cleanup"] == "unavailable"
+
+
 @pytest.mark.parametrize(
     "final_census,cleanup",
     [

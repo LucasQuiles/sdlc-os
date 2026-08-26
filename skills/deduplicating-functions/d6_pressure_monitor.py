@@ -375,7 +375,7 @@ def _cleanup_group(
             thresholds.term_grace_s,
             deps,
         )
-        if status == "complete":
+        if status != "survivors":
             return status
 
     try:
