@@ -34,6 +34,7 @@ def sample(**overrides: object) -> PressureSample:
         "group_rss_mb": 3.0,
         "member_pids": (101,),
         "observed_at_utc": datetime(2026, 8, 26, tzinfo=UTC),
+        "leader_exited": False,
     }
     values.update(overrides)
     return PressureSample(**values)
@@ -139,7 +140,7 @@ def test_linux_swap_probe_returns_used_mebibytes():
 )
 def test_process_census_rejects_empty_or_malformed_owned_rows(text: str):
     with pytest.raises(MonitorError, match="D6_MONITOR_UNAVAILABLE"):
-        parse_process_census(text, owned_pgid=101, leader_expected_alive=True)
+        parse_process_census(text, owned_pgid=101, leader_identity_pinned=True)
 
 
 def test_process_census_counts_only_live_owned_members():
@@ -152,7 +153,7 @@ def test_process_census_counts_only_live_owned_members():
             "202 201 malformed S",
         )
     )
-    census = parse_process_census(text, owned_pgid=101, leader_expected_alive=True)
+    census = parse_process_census(text, owned_pgid=101, leader_identity_pinned=True)
     assert census.member_pids == (101, 102)
     assert census.group_rss_mb == 3.0
 
@@ -161,19 +162,29 @@ def test_process_census_accepts_owned_darwin_uninterruptible_state():
     census = parse_process_census(
         "101 101 2048 U\n",
         owned_pgid=101,
-        leader_expected_alive=True,
+        leader_identity_pinned=True,
     )
 
     assert census.member_pids == (101,)
     assert census.group_rss_mb == 2.0
 
 
-def test_process_census_rejects_no_live_members_while_leader_is_expected():
-    with pytest.raises(MonitorError, match="D6_MONITOR_UNAVAILABLE"):
+def test_process_census_observes_zombie_leader_without_releasing_identity():
+    census = parse_process_census(
+        "101 101 1024 Z\n201 201 2048 S\n",
+        owned_pgid=101,
+        leader_identity_pinned=True,
+    )
+    assert census.member_pids == ()
+    assert census.leader_exited is True
+
+
+def test_process_census_requires_pinned_leader_identity():
+    with pytest.raises(MonitorError, match="leader identity is absent"):
         parse_process_census(
-            "101 101 1024 Z\n201 201 2048 S\n",
+            "201 201 2048 S\n",
             owned_pgid=101,
-            leader_expected_alive=True,
+            leader_identity_pinned=True,
         )
 
 
@@ -181,7 +192,7 @@ def test_process_census_allows_empty_owned_group_after_cleanup():
     census = parse_process_census(
         "201 201 2048 S\n",
         owned_pgid=101,
-        leader_expected_alive=False,
+        leader_identity_pinned=False,
     )
     assert census.member_pids == ()
     assert census.group_rss_mb == 0.0
@@ -191,24 +202,21 @@ class FakeChild:
     def __init__(
         self,
         pid: int = 4100,
-        polls: list[int | None] | None = None,
+        exit_code: int = 0,
         wait_error: Exception | None = None,
     ):
         self.pid = pid
-        self._polls = list(polls or [None, 0])
+        self._exit_code = exit_code
         self._wait_error = wait_error
         self.wait_timeouts: list[float] = []
-
-    def poll(self) -> int | None:
-        if len(self._polls) > 1:
-            return self._polls.pop(0)
-        return self._polls[0]
+        self.reaped = False
 
     def wait(self, timeout: float) -> int:
         self.wait_timeouts.append(timeout)
         if self._wait_error is not None:
             raise self._wait_error
-        return self._polls[-1] or 0
+        self.reaped = True
+        return self._exit_code
 
 
 class FakeClock:
@@ -235,7 +243,10 @@ def lifecycle_deps(
     assert hasattr(monitor, "RunnerDependencies"), "lifecycle implementation is missing"
     clock = FakeClock()
     child = child or FakeChild()
-    probe_values = list(probes or [sample()])
+    probe_values = list(
+        probes
+        or [sample(), sample(group_rss_mb=0.0, member_pids=(), leader_exited=True)]
+    )
     census_values = list(
         censuses or [monitor.ProcessCensus(group_rss_mb=0.0, member_pids=())]
     )
@@ -250,10 +261,7 @@ def lifecycle_deps(
     return monitor.RunnerDependencies(
         launch=lambda argv: child,
         getpgid=lambda pid: pgid,
-        probe=lambda owned_pgid, leader_expected_alive, tracked_pids: (
-            leader_expected_alive(),
-            next_value(probe_values),
-        )[1],
+        probe=lambda owned_pgid, tracked_pids: next_value(probe_values),
         census=lambda owned_pgid, tracked_pids: next_value(census_values),
         killpg=lambda owned_pgid, sig: signals.append((owned_pgid, sig)),
         monotonic=clock.monotonic,
@@ -290,21 +298,16 @@ def test_healthy_child_exit_zero_sends_no_signal_and_publishes_pass(tmp_path: Pa
 
 def test_immediate_exit_cannot_bypass_initial_pressure_sample(tmp_path: Path):
     receipt = tmp_path / "immediate-exit" / "result.json"
-    leader_expected_alive: list[bool] = []
     deps = lifecycle_deps(
         tmp_path,
-        child=FakeChild(polls=[0]),
-        probes=[sample(load1=8.0, group_rss_mb=0.0, member_pids=())],
-    )
-    original_probe = deps.probe
-    deps = monitor.RunnerDependencies(
-        **{
-            **deps.__dict__,
-            "probe": lambda pgid, alive, tracked: (
-                leader_expected_alive.append(alive()),
-                original_probe(pgid, alive, tracked),
-            )[1],
-        }
+        probes=[
+            sample(
+                load1=8.0,
+                group_rss_mb=0.0,
+                member_pids=(),
+                leader_exited=True,
+            )
+        ],
     )
 
     assert run_fake(["true"], receipt, deps) == 3
@@ -312,7 +315,49 @@ def test_immediate_exit_cannot_bypass_initial_pressure_sample(tmp_path: Path):
     assert body["outcome"] == "Inconclusive"
     assert body["code"] == "D6_LOAD_BREACH"
     assert len(body["samples"]) == 1
-    assert leader_expected_alive == [False]
+
+
+def test_fast_exit_never_censuses_or_signals_a_pgid_after_reaping(tmp_path: Path):
+    receipt = tmp_path / "fast-exit-pgid-reuse" / "result.json"
+    child = FakeChild()
+    signals: list[tuple[int, int]] = []
+    census_after_reap: list[int] = []
+    deps = lifecycle_deps(
+        tmp_path,
+        child=child,
+        probes=[sample(group_rss_mb=0.0, member_pids=(), leader_exited=True)],
+        signals=signals,
+    )
+
+    def recycled_pgid_census(owned_pgid: int, tracked_pids: frozenset[int]):
+        census_after_reap.append(owned_pgid)
+        assert not child.reaped, "numeric PGID inspected after leader reap"
+        return monitor.ProcessCensus(group_rss_mb=1.0, member_pids=(owned_pgid,))
+
+    deps = monitor.RunnerDependencies(**{**deps.__dict__, "census": recycled_pgid_census})
+
+    assert run_fake(["true"], receipt, deps) == 0
+    assert census_after_reap == []
+    assert signals == []
+
+
+def test_census_exit_observation_leaves_real_child_reapable_and_pinned():
+    child = subprocess.Popen(["/usr/bin/true"], start_new_session=True)
+    try:
+        deadline = __import__("time").monotonic() + 5.0
+        while True:
+            census = monitor._read_census(child.pid, frozenset({child.pid}))
+            if census.leader_exited:
+                break
+            assert __import__("time").monotonic() < deadline
+            __import__("time").sleep(0.01)
+
+        pinned_again = monitor._read_census(child.pid, frozenset({child.pid}))
+        assert pinned_again.leader_exited is True
+        assert child.wait(timeout=5) == 0
+    finally:
+        if child.returncode is None:
+            child.wait(timeout=5)
 
 
 @pytest.mark.parametrize(
@@ -342,7 +387,11 @@ def test_real_immediate_exit_gets_host_sample_and_command_outcome(
 
 def test_ordinary_nonzero_is_fail_not_inconclusive(tmp_path: Path):
     receipt = tmp_path / "failure" / "result.json"
-    deps = lifecycle_deps(tmp_path, child=FakeChild(polls=[None, 7]))
+    deps = lifecycle_deps(
+        tmp_path,
+        child=FakeChild(exit_code=7),
+        probes=[sample(), sample(group_rss_mb=0.0, member_pids=(), leader_exited=True)],
+    )
     assert run_fake(["false"], receipt, deps) == 1
     body = read_receipt(receipt)
     assert (body["outcome"], body["command_exit_code"]) == ("Fail", 7)
@@ -427,7 +476,7 @@ def test_cleanup_retains_late_member_ownership_across_censuses(tmp_path: Path):
         return parse_process_census(
             "4101 9000 2048 S\n",
             owned_pgid=owned_pgid,
-            leader_expected_alive=False,
+            leader_identity_pinned=True,
             tracked_pids=tracked_pids,
         )
 
@@ -536,25 +585,57 @@ def test_cleanup_wait_uncertainty_cannot_report_complete(
     assert child.wait_timeouts
 
 
-def test_post_term_reap_census_uncertainty_never_escalates_to_kill(tmp_path: Path):
-    receipt = tmp_path / "post-term-reap-uncertain" / "result.json"
+def test_cleanup_never_censuses_after_wait_reaps_the_leader(tmp_path: Path):
+    receipt = tmp_path / "no-post-reap-census" / "result.json"
+    child = FakeChild()
+    census_calls = 0
+    deps = lifecycle_deps(
+        tmp_path,
+        child=child,
+        probes=[sample(load1=8.0)],
+    )
+
+    def census(owned_pgid: int, tracked_pids: frozenset[int]):
+        nonlocal census_calls
+        assert not child.wait_timeouts, "numeric PGID inspected after leader reap"
+        census_calls += 1
+        return monitor.ProcessCensus(group_rss_mb=0.0, member_pids=())
+
+    deps = monitor.RunnerDependencies(**{**deps.__dict__, "census": census})
+
+    assert run_fake(["cmd"], receipt, deps) == 3
+    assert read_receipt(receipt)["cleanup"] == "complete"
+    assert census_calls == 1
+
+
+def test_post_term_empty_proof_reaps_without_consuming_later_census(tmp_path: Path):
+    receipt = tmp_path / "post-term-no-post-reap-census" / "result.json"
     live = monitor.ProcessCensus(group_rss_mb=1.0, member_pids=(4100,))
     empty = monitor.ProcessCensus(group_rss_mb=0.0, member_pids=())
+    values: list[monitor.ProcessCensus | Exception] = [
+        live,
+        empty,
+        MonitorError("D6_MONITOR_UNAVAILABLE: forbidden post-reap census"),
+    ]
     signals: list[tuple[int, int]] = []
     deps = lifecycle_deps(
         tmp_path,
         probes=[sample(load1=8.0)],
-        censuses=[
-            live,
-            empty,
-            MonitorError("D6_MONITOR_UNAVAILABLE: post-reap census failed"),
-        ],
         signals=signals,
     )
 
+    def census(owned_pgid: int, tracked_pids: frozenset[int]):
+        value = values.pop(0)
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+    deps = monitor.RunnerDependencies(**{**deps.__dict__, "census": census})
+
     assert run_fake(["cmd"], receipt, deps) == 3
     assert signals == [(4100, signal.SIGTERM)]
-    assert read_receipt(receipt)["cleanup"] == "unavailable"
+    assert read_receipt(receipt)["cleanup"] == "complete"
+    assert len(values) == 1
 
 
 @pytest.mark.parametrize(
@@ -615,7 +696,8 @@ def test_receipt_is_closed_bounded_private_and_contains_only_command_digest(
     receipt = tmp_path / "private" / "result.json"
     argv = [sys.executable, "-c", "pass", "--label", "safe"]
     probes = [sample(load1=float(index % 7)) for index in range(100)]
-    child = FakeChild(polls=[None] * 100 + [0])
+    child = FakeChild()
+    probes[-1] = sample(load1=float(99 % 7), member_pids=(), leader_exited=True)
     deps = lifecycle_deps(tmp_path, child=child, probes=probes)
     assert run_fake(argv, receipt, deps) == 0
     body = read_receipt(receipt)

@@ -56,6 +56,7 @@ class PressureSample:
     group_rss_mb: float
     member_pids: tuple[int, ...]
     observed_at_utc: datetime
+    leader_exited: bool = False
 
 
 @dataclass(frozen=True)
@@ -68,12 +69,11 @@ class PressureDecision:
 class ProcessCensus:
     group_rss_mb: float
     member_pids: tuple[int, ...]
+    leader_exited: bool = False
 
 
 class ChildProcess(Protocol):
     pid: int
-
-    def poll(self) -> int | None: ...
 
     def wait(self, timeout: float) -> int: ...
 
@@ -82,7 +82,7 @@ class ChildProcess(Protocol):
 class RunnerDependencies:
     launch: Callable[[list[str]], ChildProcess]
     getpgid: Callable[[int], int]
-    probe: Callable[[int, Callable[[], bool], frozenset[int]], PressureSample]
+    probe: Callable[[int, frozenset[int]], PressureSample]
     census: Callable[[int, frozenset[int]], ProcessCensus]
     killpg: Callable[[int, int], None]
     monotonic: Callable[[], float]
@@ -163,16 +163,18 @@ def parse_process_census(
     text: str,
     *,
     owned_pgid: int,
-    leader_expected_alive: bool,
+    leader_identity_pinned: bool,
     tracked_pids: frozenset[int] = frozenset(),
 ) -> ProcessCensus:
     if not text.strip():
-        if leader_expected_alive:
+        if leader_identity_pinned:
             raise _unavailable("empty process census")
-        return ProcessCensus(group_rss_mb=0.0, member_pids=())
+        return ProcessCensus(group_rss_mb=0.0, member_pids=(), leader_exited=False)
 
     members: list[int] = []
     rss_kb = 0.0
+    leader_seen = False
+    leader_exited = False
     for raw_line in text.splitlines():
         parts = raw_line.split()
         if len(parts) != 4:
@@ -191,15 +193,22 @@ def parse_process_census(
             if pid in tracked_pids and not state.startswith("Z"):
                 raise OwnershipLost(f"pid {pid} moved to pgid {pgid}")
             continue
+        if pid == owned_pgid:
+            leader_seen = True
+            leader_exited = state.startswith("Z")
         rss = _finite_nonnegative(parts[2], "owned RSS")
         if state.startswith("Z"):
             continue
         members.append(pid)
         rss_kb += rss
 
-    if leader_expected_alive and not members:
-        raise _unavailable("owned process group has no live members")
-    return ProcessCensus(group_rss_mb=rss_kb / 1024.0, member_pids=tuple(sorted(members)))
+    if leader_identity_pinned and not leader_seen:
+        raise _unavailable("owned process-group leader identity is absent")
+    return ProcessCensus(
+        group_rss_mb=rss_kb / 1024.0,
+        member_pids=tuple(sorted(members)),
+        leader_exited=leader_exited,
+    )
 
 
 def _run_checked(argv: list[str]) -> str:
@@ -229,21 +238,19 @@ def _read_swap_used_mb() -> float:
 
 def _read_census(
     owned_pgid: int,
-    leader_expected_alive: bool,
     tracked_pids: frozenset[int],
 ) -> ProcessCensus:
     output = _run_checked(["ps", "-axo", "pid=,pgid=,rss=,state="])
     return parse_process_census(
         output,
         owned_pgid=owned_pgid,
-        leader_expected_alive=leader_expected_alive,
+        leader_identity_pinned=True,
         tracked_pids=tracked_pids,
     )
 
 
 def _probe_pressure(
     owned_pgid: int,
-    leader_expected_alive: Callable[[], bool],
     tracked_pids: frozenset[int],
 ) -> PressureSample:
     try:
@@ -251,13 +258,14 @@ def _probe_pressure(
     except OSError as exc:
         raise _unavailable("load average failed") from exc
     swap_used_mb = _read_swap_used_mb()
-    census = _read_census(owned_pgid, leader_expected_alive(), tracked_pids)
+    census = _read_census(owned_pgid, tracked_pids)
     return PressureSample(
         load1=load1,
         swap_used_mb=swap_used_mb,
         group_rss_mb=census.group_rss_mb,
         member_pids=census.member_pids,
         observed_at_utc=datetime.now(UTC),
+        leader_exited=census.leader_exited,
     )
 
 
@@ -402,13 +410,7 @@ def _cleanup_group(
         return "unavailable"
     known_pids.update(initial.member_pids)
     if not initial.member_pids:
-        return _reap_and_confirm_empty(
-            child,
-            owned_pgid,
-            known_pids,
-            thresholds.term_grace_s,
-            deps,
-        )
+        return _reap_and_confirm_empty(child, thresholds.term_grace_s)
 
     try:
         deps.killpg(owned_pgid, signal.SIGTERM)
@@ -422,13 +424,7 @@ def _cleanup_group(
         deps,
     )
     if status == "complete":
-        status = _reap_and_confirm_empty(
-            child,
-            owned_pgid,
-            known_pids,
-            thresholds.term_grace_s,
-            deps,
-        )
+        status = _reap_and_confirm_empty(child, thresholds.term_grace_s)
     if status != "survivors":
         return status
 
@@ -444,31 +440,18 @@ def _cleanup_group(
         deps,
     )
     if status == "complete":
-        return _reap_and_confirm_empty(
-            child,
-            owned_pgid,
-            known_pids,
-            thresholds.kill_grace_s,
-            deps,
-        )
+        return _reap_and_confirm_empty(child, thresholds.kill_grace_s)
     return status
 
 
 def _reap_and_confirm_empty(
     child: ChildProcess,
-    owned_pgid: int,
-    known_pids: set[int],
     grace_s: float,
-    deps: RunnerDependencies,
 ) -> str:
     try:
         child.wait(timeout=grace_s)
-        final = deps.census(owned_pgid, frozenset(known_pids))
     except Exception:
         return "unavailable"
-    known_pids.update(final.member_pids)
-    if final.member_pids:
-        return "survivors"
     return "complete"
 
 
@@ -536,18 +519,9 @@ def _run_monitored(
             owned_pgid = child.pid
             next_sample_at = deps.monotonic()
 
-            def leader_is_alive() -> bool:
-                nonlocal command_exit_code
-                command_exit_code = child.poll()
-                return command_exit_code is None
-
             while True:
                 try:
-                    pressure = deps.probe(
-                        owned_pgid,
-                        leader_is_alive,
-                        tracked_pids,
-                    )
+                    pressure = deps.probe(owned_pgid, tracked_pids)
                     decision = evaluate_sample(pressure, thresholds)
                 except MonitorError as error:
                     code = _code_from_error(error)
@@ -566,20 +540,20 @@ def _run_monitored(
                         child, owned_pgid, tracked_pids, thresholds, deps
                     )
                     break
-                if command_exit_code is not None:
-                    try:
-                        final = deps.census(owned_pgid, tracked_pids)
-                    except MonitorError as error:
-                        code = _code_from_error(error)
+                if pressure.leader_exited:
+                    if pressure.member_pids:
+                        code = "D6_OWNERSHIP_LOSS"
                         cleanup = _cleanup_group(
                             child, owned_pgid, tracked_pids, thresholds, deps
                         )
                     else:
-                        if final.member_pids:
-                            code = "D6_OWNERSHIP_LOSS"
-                            cleanup = _cleanup_group(
-                                child, owned_pgid, tracked_pids, thresholds, deps
+                        try:
+                            command_exit_code = child.wait(
+                                timeout=thresholds.term_grace_s
                             )
+                        except Exception:
+                            code = "D6_MONITOR_UNAVAILABLE"
+                            cleanup = "unavailable"
                         else:
                             outcome = "Pass" if command_exit_code == 0 else "Fail"
                             code = None if command_exit_code == 0 else "D6_COMMAND_FAIL"
@@ -625,7 +599,7 @@ def _default_dependencies() -> RunnerDependencies:
         launch=_launch,
         getpgid=os.getpgid,
         probe=_probe_pressure,
-        census=lambda pgid, tracked: _read_census(pgid, False, tracked),
+        census=_read_census,
         killpg=os.killpg,
         monotonic=time.monotonic,
         sleep=time.sleep,
