@@ -484,6 +484,14 @@ def test_nonpositive_timing_construction_is_rejected(kwargs):
         _api("SpawnCoordinator")(backend=_FakeBackend(_identity()), **kwargs)
 
 
+@pytest.mark.parametrize("name", ["census_timeout_s", "term_grace_s", "poll_s"])
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_nonfinite_timing_construction_is_rejected(name, value):
+    with pytest.raises(ValueError, match="finite positive"):
+        _api("SpawnCoordinator")(
+            backend=_FakeBackend(_identity()), **{name: value})
+
+
 # ── 2026-08-25 preliminary-verification gap closures ──────────────────────
 
 

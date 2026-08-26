@@ -10,6 +10,7 @@ import dataclasses
 import datetime as dt
 import fcntl
 import json
+import math
 import os
 import re
 import signal
@@ -144,9 +145,10 @@ class SpawnCoordinator:
         term_grace_s: float = 1.0,
         poll_s: float = 0.05,
     ) -> None:
-        if census_timeout_s <= 0 or term_grace_s <= 0 or poll_s <= 0:
+        timing_values = (census_timeout_s, term_grace_s, poll_s)
+        if not all(math.isfinite(value) and value > 0 for value in timing_values):
             raise ValueError(
-                "census_timeout_s, term_grace_s, and poll_s must all be positive")
+                "census_timeout_s, term_grace_s, and poll_s must all be finite positive values")
         self._backend = backend or PsProcessBackend()
         self._popen_factory = popen_factory
         self._census_timeout_s = census_timeout_s
