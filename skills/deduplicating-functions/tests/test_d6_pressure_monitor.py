@@ -188,14 +188,27 @@ def test_process_census_allows_empty_owned_group_after_cleanup():
 
 
 class FakeChild:
-    def __init__(self, pid: int = 4100, polls: list[int | None] | None = None):
+    def __init__(
+        self,
+        pid: int = 4100,
+        polls: list[int | None] | None = None,
+        wait_error: Exception | None = None,
+    ):
         self.pid = pid
         self._polls = list(polls or [None, 0])
+        self._wait_error = wait_error
+        self.wait_timeouts: list[float] = []
 
     def poll(self) -> int | None:
         if len(self._polls) > 1:
             return self._polls.pop(0)
         return self._polls[0]
+
+    def wait(self, timeout: float) -> int:
+        self.wait_timeouts.append(timeout)
+        if self._wait_error is not None:
+            raise self._wait_error
+        return self._polls[-1] or 0
 
 
 class FakeClock:
@@ -237,9 +250,10 @@ def lifecycle_deps(
     return monitor.RunnerDependencies(
         launch=lambda argv: child,
         getpgid=lambda pid: pgid,
-        probe=lambda owned_pgid, leader_expected_alive, tracked_pids: next_value(
-            probe_values
-        ),
+        probe=lambda owned_pgid, leader_expected_alive, tracked_pids: (
+            leader_expected_alive(),
+            next_value(probe_values),
+        )[1],
         census=lambda owned_pgid, tracked_pids: next_value(census_values),
         killpg=lambda owned_pgid, sig: signals.append((owned_pgid, sig)),
         monotonic=clock.monotonic,
@@ -276,10 +290,21 @@ def test_healthy_child_exit_zero_sends_no_signal_and_publishes_pass(tmp_path: Pa
 
 def test_immediate_exit_cannot_bypass_initial_pressure_sample(tmp_path: Path):
     receipt = tmp_path / "immediate-exit" / "result.json"
+    leader_expected_alive: list[bool] = []
     deps = lifecycle_deps(
         tmp_path,
         child=FakeChild(polls=[0]),
-        probes=[sample(load1=8.0)],
+        probes=[sample(load1=8.0, group_rss_mb=0.0, member_pids=())],
+    )
+    original_probe = deps.probe
+    deps = monitor.RunnerDependencies(
+        **{
+            **deps.__dict__,
+            "probe": lambda pgid, alive, tracked: (
+                leader_expected_alive.append(alive()),
+                original_probe(pgid, alive, tracked),
+            )[1],
+        }
     )
 
     assert run_fake(["true"], receipt, deps) == 3
@@ -287,6 +312,32 @@ def test_immediate_exit_cannot_bypass_initial_pressure_sample(tmp_path: Path):
     assert body["outcome"] == "Inconclusive"
     assert body["code"] == "D6_LOAD_BREACH"
     assert len(body["samples"]) == 1
+    assert leader_expected_alive == [False]
+
+
+@pytest.mark.parametrize(
+    ("command", "expected_result", "expected_outcome", "expected_code"),
+    [
+        (["/usr/bin/true"], 0, "Pass", None),
+        (["/usr/bin/false"], 1, "Fail", "D6_COMMAND_FAIL"),
+    ],
+)
+def test_real_immediate_exit_gets_host_sample_and_command_outcome(
+    tmp_path: Path,
+    command: list[str],
+    expected_result: int,
+    expected_outcome: str,
+    expected_code: str | None,
+):
+    receipt = tmp_path / f"immediate-{expected_outcome.lower()}.json"
+    thresholds = MonitorThresholds(max_load1=1_000_000.0)
+
+    assert monitor.run_monitored(command, receipt, thresholds) == expected_result
+    body = read_receipt(receipt)
+    assert body["outcome"] == expected_outcome
+    assert body["code"] == expected_code
+    assert len(body["samples"]) == 1
+    assert body["samples"][0]["group_rss_mb"] == 0.0
 
 
 def test_ordinary_nonzero_is_fail_not_inconclusive(tmp_path: Path):
@@ -354,6 +405,30 @@ def test_term_resistant_group_receives_kill_for_same_pgid(tmp_path: Path):
     assert run_fake(["cmd"], receipt, deps) == 3
     assert signals == [(4100, signal.SIGTERM), (4100, signal.SIGKILL)]
     assert read_receipt(receipt)["cleanup"] == "complete"
+
+
+@pytest.mark.parametrize(
+    "wait_error",
+    [subprocess.TimeoutExpired("cmd", 2.0), RuntimeError("wait failed")],
+)
+def test_cleanup_wait_uncertainty_cannot_report_complete(
+    tmp_path: Path,
+    wait_error: Exception,
+):
+    receipt = tmp_path / "wait-uncertain" / "result.json"
+    child = FakeChild(wait_error=wait_error)
+    live = monitor.ProcessCensus(group_rss_mb=1.0, member_pids=(child.pid,))
+    empty = monitor.ProcessCensus(group_rss_mb=0.0, member_pids=())
+    deps = lifecycle_deps(
+        tmp_path,
+        child=child,
+        probes=[sample(group_rss_mb=6144.01)],
+        censuses=[live, empty],
+    )
+
+    assert run_fake(["cmd"], receipt, deps) == 3
+    assert read_receipt(receipt)["cleanup"] != "complete"
+    assert child.wait_timeouts
 
 
 @pytest.mark.parametrize(
@@ -457,17 +532,29 @@ def test_cli_requires_separator_and_preserves_exact_command_argv(
     assert calls == [(["python3", "-V"], receipt)]
 
 
-def test_real_isolated_cleanup_leaves_foreign_helper_alive(tmp_path: Path):
+def test_real_isolated_cleanup_reaps_leader_and_leaves_foreign_helper_alive(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+):
     foreign = subprocess.Popen(
         [sys.executable, "-c", "import time; time.sleep(30)"],
         start_new_session=True,
     )
+    launched: list[subprocess.Popen[bytes]] = []
+    original_launch = monitor._launch
+
+    def capture_launch(argv: list[str]) -> subprocess.Popen[bytes]:
+        child = original_launch(argv)
+        launched.append(child)
+        return child
+
+    monkeypatch.setattr(monitor, "_launch", capture_launch)
     try:
         receipt = tmp_path / "integration" / "result.json"
         thresholds = MonitorThresholds(
-            max_load1=1e-12,
+            max_load1=1_000_000.0,
             max_swap_used_mb=12288.0,
-            max_group_rss_mb=6144.0,
+            max_group_rss_mb=1e-12,
             sample_interval_s=0.01,
             term_grace_s=0.2,
             kill_grace_s=0.2,
@@ -478,7 +565,13 @@ def test_real_isolated_cleanup_leaves_foreign_helper_alive(tmp_path: Path):
             thresholds,
         )
         assert result == 3
-        assert read_receipt(receipt)["outcome"] == "Inconclusive"
+        body = read_receipt(receipt)
+        assert body["outcome"] == "Inconclusive"
+        assert body["code"] == "D6_RSS_BREACH"
+        assert body["cleanup"] == "complete"
+        assert len(launched) == 1
+        with pytest.raises(ChildProcessError):
+            os.waitpid(launched[0].pid, os.WNOHANG)
         assert foreign.poll() is None
     finally:
         if foreign.poll() is None:

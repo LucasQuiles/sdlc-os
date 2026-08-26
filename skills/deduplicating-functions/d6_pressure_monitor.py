@@ -74,12 +74,14 @@ class ChildProcess(Protocol):
 
     def poll(self) -> int | None: ...
 
+    def wait(self, timeout: float) -> int: ...
+
 
 @dataclass(frozen=True)
 class RunnerDependencies:
     launch: Callable[[list[str]], ChildProcess]
     getpgid: Callable[[int], int]
-    probe: Callable[[int, bool, frozenset[int]], PressureSample]
+    probe: Callable[[int, Callable[[], bool], frozenset[int]], PressureSample]
     census: Callable[[int, frozenset[int]], ProcessCensus]
     killpg: Callable[[int, int], None]
     monotonic: Callable[[], float]
@@ -240,7 +242,7 @@ def _read_census(
 
 def _probe_pressure(
     owned_pgid: int,
-    leader_expected_alive: bool,
+    leader_expected_alive: Callable[[], bool],
     tracked_pids: frozenset[int],
 ) -> PressureSample:
     try:
@@ -248,7 +250,7 @@ def _probe_pressure(
     except OSError as exc:
         raise _unavailable("load average failed") from exc
     swap_used_mb = _read_swap_used_mb()
-    census = _read_census(owned_pgid, leader_expected_alive, tracked_pids)
+    census = _read_census(owned_pgid, leader_expected_alive(), tracked_pids)
     return PressureSample(
         load1=load1,
         swap_used_mb=swap_used_mb,
@@ -335,6 +337,7 @@ def _wait_for_empty_group(
 
 
 def _cleanup_group(
+    child: ChildProcess,
     owned_pgid: int,
     tracked_pids: frozenset[int],
     thresholds: MonitorThresholds,
@@ -345,7 +348,13 @@ def _cleanup_group(
     except Exception:
         initial = None
     if initial is not None and not initial.member_pids:
-        return "complete"
+        return _reap_and_confirm_empty(
+            child,
+            owned_pgid,
+            tracked_pids,
+            thresholds.term_grace_s,
+            deps,
+        )
 
     try:
         deps.killpg(owned_pgid, signal.SIGTERM)
@@ -359,7 +368,15 @@ def _cleanup_group(
         deps,
     )
     if status == "complete":
-        return status
+        status = _reap_and_confirm_empty(
+            child,
+            owned_pgid,
+            tracked_pids,
+            thresholds.term_grace_s,
+            deps,
+        )
+        if status == "complete":
+            return status
 
     try:
         deps.killpg(owned_pgid, signal.SIGKILL)
@@ -372,7 +389,32 @@ def _cleanup_group(
         thresholds.sample_interval_s,
         deps,
     )
+    if status == "complete":
+        return _reap_and_confirm_empty(
+            child,
+            owned_pgid,
+            tracked_pids,
+            thresholds.kill_grace_s,
+            deps,
+        )
     return status
+
+
+def _reap_and_confirm_empty(
+    child: ChildProcess,
+    owned_pgid: int,
+    tracked_pids: frozenset[int],
+    grace_s: float,
+    deps: RunnerDependencies,
+) -> str:
+    try:
+        child.wait(timeout=grace_s)
+        final = deps.census(owned_pgid, tracked_pids)
+    except Exception:
+        return "unavailable"
+    if final.member_pids:
+        return "survivors"
+    return "complete"
 
 
 def _receipt(
@@ -438,13 +480,25 @@ def _run_monitored(
         else:
             owned_pgid = child.pid
             next_sample_at = deps.monotonic()
+
+            def leader_is_alive() -> bool:
+                nonlocal command_exit_code
+                command_exit_code = child.poll()
+                return command_exit_code is None
+
             while True:
                 try:
-                    pressure = deps.probe(owned_pgid, True, tracked_pids)
+                    pressure = deps.probe(
+                        owned_pgid,
+                        leader_is_alive,
+                        tracked_pids,
+                    )
                     decision = evaluate_sample(pressure, thresholds)
                 except MonitorError as error:
                     code = _code_from_error(error)
-                    cleanup = _cleanup_group(owned_pgid, tracked_pids, thresholds, deps)
+                    cleanup = _cleanup_group(
+                        child, owned_pgid, tracked_pids, thresholds, deps
+                    )
                     break
                 tracked_pids = tracked_pids.union(pressure.member_pids)
                 retained.append(_sample_record(pressure))
@@ -453,19 +507,24 @@ def _run_monitored(
                 peaks["group_rss_mb"] = max(peaks["group_rss_mb"], pressure.group_rss_mb)
                 if decision.breach:
                     code = decision.code
-                    cleanup = _cleanup_group(owned_pgid, tracked_pids, thresholds, deps)
+                    cleanup = _cleanup_group(
+                        child, owned_pgid, tracked_pids, thresholds, deps
+                    )
                     break
-                command_exit_code = child.poll()
                 if command_exit_code is not None:
                     try:
                         final = deps.census(owned_pgid, tracked_pids)
                     except MonitorError as error:
                         code = _code_from_error(error)
-                        cleanup = _cleanup_group(owned_pgid, tracked_pids, thresholds, deps)
+                        cleanup = _cleanup_group(
+                            child, owned_pgid, tracked_pids, thresholds, deps
+                        )
                     else:
                         if final.member_pids:
                             code = "D6_OWNERSHIP_LOSS"
-                            cleanup = _cleanup_group(owned_pgid, tracked_pids, thresholds, deps)
+                            cleanup = _cleanup_group(
+                                child, owned_pgid, tracked_pids, thresholds, deps
+                            )
                         else:
                             outcome = "Pass" if command_exit_code == 0 else "Fail"
                             code = None if command_exit_code == 0 else "D6_COMMAND_FAIL"
@@ -477,11 +536,11 @@ def _run_monitored(
     except (KeyboardInterrupt, SystemExit):
         code = "D6_INTERRUPTED"
         if owned_pgid is not None:
-            cleanup = _cleanup_group(owned_pgid, tracked_pids, thresholds, deps)
+            cleanup = _cleanup_group(child, owned_pgid, tracked_pids, thresholds, deps)
     except Exception:
         code = "D6_MONITOR_UNAVAILABLE"
         if owned_pgid is not None:
-            cleanup = _cleanup_group(owned_pgid, tracked_pids, thresholds, deps)
+            cleanup = _cleanup_group(child, owned_pgid, tracked_pids, thresholds, deps)
 
     payload = _receipt(
         argv=argv,
