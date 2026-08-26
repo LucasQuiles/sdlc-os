@@ -157,6 +157,17 @@ def test_process_census_counts_only_live_owned_members():
     assert census.group_rss_mb == 3.0
 
 
+def test_process_census_accepts_owned_darwin_uninterruptible_state():
+    census = parse_process_census(
+        "101 101 2048 U\n",
+        owned_pgid=101,
+        leader_expected_alive=True,
+    )
+
+    assert census.member_pids == (101,)
+    assert census.group_rss_mb == 2.0
+
+
 def test_process_census_rejects_no_live_members_while_leader_is_expected():
     with pytest.raises(MonitorError, match="D6_MONITOR_UNAVAILABLE"):
         parse_process_census(
@@ -261,6 +272,21 @@ def test_healthy_child_exit_zero_sends_no_signal_and_publishes_pass(tmp_path: Pa
     assert run_fake(["python3", "-c", "pass"], receipt, deps) == 0
     assert signals == []
     assert read_receipt(receipt)["outcome"] == "Pass"
+
+
+def test_immediate_exit_cannot_bypass_initial_pressure_sample(tmp_path: Path):
+    receipt = tmp_path / "immediate-exit" / "result.json"
+    deps = lifecycle_deps(
+        tmp_path,
+        child=FakeChild(polls=[0]),
+        probes=[sample(load1=8.0)],
+    )
+
+    assert run_fake(["true"], receipt, deps) == 3
+    body = read_receipt(receipt)
+    assert body["outcome"] == "Inconclusive"
+    assert body["code"] == "D6_LOAD_BREACH"
+    assert len(body["samples"]) == 1
 
 
 def test_ordinary_nonzero_is_fail_not_inconclusive(tmp_path: Path):

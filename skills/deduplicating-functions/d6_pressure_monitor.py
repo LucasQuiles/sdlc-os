@@ -180,7 +180,7 @@ def parse_process_census(
         except ValueError as exc:
             raise _unavailable("malformed process identity") from exc
         state = parts[3].upper()
-        if not state or state[0] not in "RSDITTWXZ":
+        if not state or state[0] not in "RSDITTUWXZ":
             if pgid == owned_pgid or pid in tracked_pids:
                 raise _unavailable("malformed owned process state")
             continue
@@ -439,22 +439,6 @@ def _run_monitored(
             owned_pgid = child.pid
             next_sample_at = deps.monotonic()
             while True:
-                command_exit_code = child.poll()
-                if command_exit_code is not None:
-                    try:
-                        final = deps.census(owned_pgid, tracked_pids)
-                    except MonitorError as error:
-                        code = _code_from_error(error)
-                        cleanup = _cleanup_group(owned_pgid, tracked_pids, thresholds, deps)
-                    else:
-                        if final.member_pids:
-                            code = "D6_OWNERSHIP_LOSS"
-                            cleanup = _cleanup_group(owned_pgid, tracked_pids, thresholds, deps)
-                        else:
-                            outcome = "Pass" if command_exit_code == 0 else "Fail"
-                            code = None if command_exit_code == 0 else "D6_COMMAND_FAIL"
-                    break
-
                 try:
                     pressure = deps.probe(owned_pgid, True, tracked_pids)
                     decision = evaluate_sample(pressure, thresholds)
@@ -470,6 +454,21 @@ def _run_monitored(
                 if decision.breach:
                     code = decision.code
                     cleanup = _cleanup_group(owned_pgid, tracked_pids, thresholds, deps)
+                    break
+                command_exit_code = child.poll()
+                if command_exit_code is not None:
+                    try:
+                        final = deps.census(owned_pgid, tracked_pids)
+                    except MonitorError as error:
+                        code = _code_from_error(error)
+                        cleanup = _cleanup_group(owned_pgid, tracked_pids, thresholds, deps)
+                    else:
+                        if final.member_pids:
+                            code = "D6_OWNERSHIP_LOSS"
+                            cleanup = _cleanup_group(owned_pgid, tracked_pids, thresholds, deps)
+                        else:
+                            outcome = "Pass" if command_exit_code == 0 else "Fail"
+                            code = None if command_exit_code == 0 else "D6_COMMAND_FAIL"
                     break
                 next_sample_at += thresholds.sample_interval_s
                 delay = next_sample_at - deps.monotonic()
