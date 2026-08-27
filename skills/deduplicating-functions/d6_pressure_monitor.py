@@ -226,7 +226,7 @@ def parse_process_census(
     )
 
 
-def _run_checked(argv: list[str], timeout_s: float = 5.0) -> str:
+def _run_checked(argv: list[str], timeout_s: float) -> str:
     last_timeout: Exception | None = None
     for _attempt in (1, 2):
         try:
@@ -248,7 +248,7 @@ def _run_checked(argv: list[str], timeout_s: float = 5.0) -> str:
     raise _unavailable(f"probe timed out twice: {argv[0]}") from last_timeout
 
 
-def _read_swap_used_mb(timeout_s: float = 5.0) -> float:
+def _read_swap_used_mb(timeout_s: float) -> float:
     if sys.platform == "darwin":
         return parse_darwin_swapusage(
             _run_checked(["/usr/sbin/sysctl", "-n", "vm.swapusage"], timeout_s)
@@ -264,7 +264,7 @@ def _read_swap_used_mb(timeout_s: float = 5.0) -> float:
 def _read_census(
     owned_pgid: int,
     tracked_pids: frozenset[int],
-    timeout_s: float = 5.0,
+    timeout_s: float,
 ) -> ProcessCensus:
     output = _run_checked(["ps", "-axo", "pid=,pgid=,rss=,state="], timeout_s)
     return parse_process_census(
@@ -278,7 +278,7 @@ def _read_census(
 def _probe_pressure(
     owned_pgid: int,
     tracked_pids: frozenset[int],
-    timeout_s: float = 5.0,
+    timeout_s: float,
 ) -> PressureSample:
     try:
         load1 = parse_loadavg(os.getloadavg())
@@ -489,15 +489,26 @@ def _terminate_child_directly(
     """Contain a child this wrapper launched but was refused ownership of.
 
     Signals only the child itself — never a pgid, which on the refusal path
-    may belong to a foreign process group (review finding 4).
+    may belong to a foreign process group (review finding 4). An interrupt is
+    never silently consumed: after a best-effort kill it re-raises so the
+    caller reports D6_INTERRUPTED (round-2 finding 8).
     """
     try:
         child.terminate()
         try:
             child.wait(timeout=thresholds.term_grace_s)
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             child.kill()
             child.wait(timeout=thresholds.kill_grace_s)
+    except (KeyboardInterrupt, SystemExit):
+        try:
+            child.kill()
+            child.wait(timeout=thresholds.kill_grace_s)
+        except BaseException:
+            pass
+        raise
     except BaseException:
         return "unavailable"
     return "complete"
@@ -561,6 +572,7 @@ def _run_monitored(
 
     try:
         child = deps.launch(argv)
+        observed_pgid: int | None
         try:
             observed_pgid = deps.getpgid(child.pid)
         except ProcessLookupError:
@@ -569,7 +581,19 @@ def _run_monitored(
             # identity pinned and let the normal leader-exited path score and
             # reap it (review finding 1).
             observed_pgid = child.pid
-        if observed_pgid != child.pid:
+        except BaseException as error:
+            # An interrupt or probe failure between launch and ownership proof
+            # must not abandon the just-launched child (round-2 finding 4).
+            code = (
+                "D6_INTERRUPTED"
+                if isinstance(error, (KeyboardInterrupt, SystemExit))
+                else "D6_MONITOR_UNAVAILABLE"
+            )
+            cleanup = _terminate_child_directly(child, thresholds)
+            observed_pgid = None
+        if observed_pgid is None:
+            pass
+        elif observed_pgid != child.pid:
             code = "D6_OWNERSHIP_REFUSED"
             cleanup = _terminate_child_directly(child, thresholds)
         else:
@@ -584,11 +608,18 @@ def _run_monitored(
                     code = _code_from_error(error)
                     if isinstance(error, MissingLeaderIdentity):
                         cleanup = "unavailable"
+                    elif isinstance(error, OwnershipLost):
+                        # The owned pgid identity is still proven, so contain
+                        # the remaining owned group; the escaped process's
+                        # group is never signalled. Hand cleanup an EMPTY
+                        # tracked set: the escaped pid must not make the
+                        # cleanup census re-raise OwnershipLost, or the owned
+                        # group is abandoned unenforced (review finding 5 and
+                        # round-2 finding 1).
+                        cleanup = _cleanup_group(
+                            child, owned_pgid, frozenset(), thresholds, deps
+                        )
                     else:
-                        # OwnershipLost included: the owned pgid identity is
-                        # still proven, so contain the remaining owned group;
-                        # the escaped process's group is never signalled
-                        # (review finding 5).
                         cleanup = _cleanup_group(
                             child, owned_pgid, tracked_pids, thresholds, deps
                         )
@@ -657,23 +688,25 @@ def _run_monitored(
             except BaseException:
                 cleanup = "unavailable"
 
-    payload = _receipt(
-        argv=argv,
-        thresholds=thresholds,
-        outcome=outcome,
-        code=code,
-        command_exit_code=command_exit_code,
-        started_at=started_at,
-        completed_at=deps.utcnow(),
-        samples=retained,
-        peaks=peaks,
-        cleanup=cleanup,
-    )
     try:
+        payload = _receipt(
+            argv=argv,
+            thresholds=thresholds,
+            outcome=outcome,
+            code=code,
+            command_exit_code=command_exit_code,
+            started_at=started_at,
+            completed_at=deps.utcnow(),
+            samples=retained,
+            peaks=peaks,
+            cleanup=cleanup,
+        )
         deps.publish(receipt_path, payload)
     except BaseException:
-        # Publication failure — interrupt included — is Inconclusive (3); the
-        # exit-code contract must survive a second Ctrl+C (review finding 2).
+        # Receipt construction or publication failure — interrupt included —
+        # is Inconclusive (3); the exit-code contract must survive a second
+        # Ctrl+C anywhere in the receipt path (review finding 2 + round-2
+        # finding 2).
         return 3
     if outcome == "Pass":
         return 0

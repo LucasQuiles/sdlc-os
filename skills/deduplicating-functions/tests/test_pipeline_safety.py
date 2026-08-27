@@ -226,12 +226,16 @@ def _make_shim_runner(tmp_path):
     # Isolate the shim's lock inside the test tree: the runner's canonical
     # lock path comes from safety.DEFAULT_LOCK_PATH (the shim), and the CLI
     # deliberately has no override flag.
-    (runner_dir / "safety.py").write_text(
-        SHIM_SAFETY_PY.replace(
-            "os.path.expanduser('~/.cache/sdlc-os/run_pipeline.lock')",
-            repr(str(runner_dir / "shim.lock")),
-        )
+    shim_source = SHIM_SAFETY_PY.replace(
+        "os.path.expanduser('~/.cache/sdlc-os/run_pipeline.lock')",
+        repr(str(runner_dir / "shim.lock")),
     )
+    # The isolation is load-bearing (run_pipeline flocks safety.DEFAULT_LOCK_PATH
+    # before preflight); a silent no-op replace would flock the user's REAL lock.
+    assert shim_source != SHIM_SAFETY_PY, (
+        "DEFAULT_LOCK_PATH literal drifted; shim lock isolation did not apply"
+    )
+    (runner_dir / "safety.py").write_text(shim_source)
     _shutil.copy(os.path.join(BASE, "pipeline_runtime.py"), runner_dir / "pipeline_runtime.py")
     return shim_runner
 

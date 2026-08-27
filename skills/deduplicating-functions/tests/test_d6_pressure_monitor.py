@@ -363,24 +363,39 @@ def test_census_exit_observation_leaves_real_child_reapable_and_pinned():
     child = subprocess.Popen(["/usr/bin/true"], start_new_session=True)
     try:
         # Block until the child has exited WITHOUT reaping it, so the zombie
-        # stays census-visible — a true kernel condition wait (kqueue
-        # NOTE_EXIT), no polling. Darwin's python does not expose os.waitid.
-        import select as _select
+        # stays census-visible — a true kernel condition wait, no polling.
+        if sys.platform == "darwin":
+            # Darwin's python does not expose os.waitid; use kqueue NOTE_EXIT.
+            import errno as _errno
+            import select as _select
 
-        kq = _select.kqueue()
-        try:
-            event = _select.kevent(
-                child.pid,
-                filter=_select.KQ_FILTER_PROC,
-                flags=_select.KQ_EV_ADD | _select.KQ_EV_ONESHOT,
-                fflags=_select.KQ_NOTE_EXIT,
-            )
-            fired = kq.control([event], 1, 5.0)
-            assert fired, "child did not exit within the 5s deadline"
-        finally:
-            kq.close()
+            kq = _select.kqueue()
+            try:
+                event = _select.kevent(
+                    child.pid,
+                    filter=_select.KQ_FILTER_PROC,
+                    flags=_select.KQ_EV_ADD | _select.KQ_EV_ONESHOT,
+                    fflags=_select.KQ_NOTE_EXIT,
+                )
+                fired = kq.control([event], 1, 5.0)
+                assert fired, "child did not exit within the 5s deadline"
+                # An EV_ERROR event is a registration failure, not an exit
+                # notification; only ESRCH (child already exited, hence
+                # unregisterable) proves the awaited condition.
+                for ev in fired:
+                    if ev.flags & _select.KQ_EV_ERROR:
+                        assert ev.data == _errno.ESRCH, (
+                            f"kevent registration failed: errno {ev.data}"
+                        )
+            finally:
+                kq.close()
+        else:
+            # POSIX platforms with os.waitid: exited-but-unreaped condition.
+            os.waitid(os.P_PID, child.pid, os.WEXITED | os.WNOWAIT)
 
-        pinned_again = monitor._read_census(child.pid, frozenset({child.pid}))
+        pinned_again = monitor._read_census(
+            child.pid, frozenset({child.pid}), MonitorThresholds().probe_timeout_s
+        )
         assert pinned_again.leader_exited is True
         assert child.wait(timeout=5) == 0
     finally:

@@ -191,3 +191,119 @@ def test_slow_probe_resyncs_schedule_without_burst(tmp_path: Path) -> None:
     assert run_fake(["cmd"], receipt, deps) == 0
     assert sleeps == [1.0, 1.0]
     assert probe_count["n"] == 3
+
+
+# --- round-2 re-review findings (2026-08-27, review of 5a48b103..c8d9799) ---
+
+
+def test_ownership_loss_containment_survives_real_census_contract(
+    tmp_path: Path,
+) -> None:
+    """Round-2 finding 1: the cleanup census receives escape-tracking state and
+    (like the real parse_process_census) re-raises OwnershipLost for the
+    escaped pid; containment of the owned group must still proceed.
+    """
+    receipt = tmp_path / "real-escape" / "result.json"
+    live = monitor.ProcessCensus(group_rss_mb=1.0, member_pids=(4100,))
+    empty = monitor.ProcessCensus(group_rss_mb=0.0, member_pids=())
+    census_stream = [live, empty]
+    signals: list[tuple[int, int]] = []
+
+    def probe(owned_pgid: int, tracked: frozenset[int]) -> Any:
+        if not tracked:
+            return sample(member_pids=(4100, 4200))
+        raise monitor.OwnershipLost("pid 4200 moved to pgid 9000")
+
+    def census(owned_pgid: int, tracked: frozenset[int]) -> Any:
+        # Real-contract fake: an escaped-but-alive tracked pid re-raises.
+        if 4200 in tracked:
+            raise monitor.OwnershipLost("pid 4200 moved to pgid 9000")
+        return census_stream.pop(0)
+
+    deps = lifecycle_deps(tmp_path, signals=signals)
+    deps = replace_deps(deps, probe=probe, census=census)
+
+    assert run_fake(["cmd"], receipt, deps) == 3
+    body = read_receipt(receipt)
+    assert body["code"] == "D6_OWNERSHIP_LOSS"
+    assert signals == [(4100, __import__("signal").SIGTERM)]
+    assert body["cleanup"] == "complete"
+
+
+def test_interrupt_during_getpgid_terminates_child_and_publishes(
+    tmp_path: Path,
+) -> None:
+    """Round-2 finding 4: an interrupt between launch and ownership proof must
+    not abandon the just-launched child, and must still publish.
+    """
+    receipt = tmp_path / "getpgid-interrupt" / "result.json"
+    child = FakeChild()
+
+    def getpgid_interrupt(pid: int) -> int:
+        raise KeyboardInterrupt
+
+    deps = lifecycle_deps(tmp_path, child=child)
+    deps = replace_deps(deps, getpgid=getpgid_interrupt)
+
+    assert run_fake(["cmd"], receipt, deps) == 3
+    body = read_receipt(receipt)
+    assert body["code"] == "D6_INTERRUPTED"
+    assert child.terminated is True
+    assert child.reaped is True
+
+
+def test_interrupt_during_receipt_construction_keeps_exit_contract(
+    tmp_path: Path,
+) -> None:
+    """Round-2 finding 2 residual: an interrupt during receipt construction
+    (utcnow for completed_at) must not escape past the exit-code contract.
+    """
+    receipt = tmp_path / "construct-interrupt" / "result.json"
+    calls = {"n": 0}
+
+    def utcnow_second_call_interrupts() -> Any:
+        calls["n"] += 1
+        if calls["n"] >= 2:
+            raise KeyboardInterrupt
+        from datetime import UTC as _UTC, datetime as _dt
+
+        return _dt(2026, 8, 27, 1, 0, tzinfo=_UTC)
+
+    deps = lifecycle_deps(tmp_path)
+    deps = replace_deps(deps, utcnow=utcnow_second_call_interrupts)
+
+    assert run_fake(["true"], receipt, deps) == 3
+
+
+def test_default_dependencies_wire_probe_timeout_from_thresholds(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Round-2 finding 7: the thresholds value must actually reach the probe
+    layer; per-signature defaults must not shadow it.
+    """
+    seen: list[float] = []
+
+    def capture_run_checked(argv: list[str], timeout_s: float) -> str:
+        seen.append(timeout_s)
+        return ""
+
+    monkeypatch.setattr(monitor, "_run_checked", capture_run_checked)
+    deps = monitor._default_dependencies(MonitorThresholds(probe_timeout_s=2.25))
+    with pytest.raises(monitor.MonitorError):
+        deps.census(1, frozenset())  # empty pinned census raises; timeout captured
+    assert seen == [2.25]
+
+
+def test_refusal_path_interrupt_is_reported_not_swallowed(tmp_path: Path) -> None:
+    """Round-2 finding 8: a Ctrl+C during refusal-path termination must surface
+    as D6_INTERRUPTED (after a best-effort kill), never be silently consumed.
+    """
+    receipt = tmp_path / "refusal-interrupt" / "result.json"
+    child = FakeChild(wait_error=KeyboardInterrupt())
+    deps = lifecycle_deps(tmp_path, child=child, pgid=9999)
+
+    assert run_fake(["cmd"], receipt, deps) == 3
+    body = read_receipt(receipt)
+    assert body["code"] == "D6_INTERRUPTED"
+    assert child.terminated is True
+    assert child.killed is True
