@@ -220,6 +220,8 @@ class FakeChild:
         self._wait_error = wait_error
         self.wait_timeouts: list[float] = []
         self.reaped = False
+        self.terminated = False
+        self.killed = False
 
     def wait(self, timeout: float) -> int:
         self.wait_timeouts.append(timeout)
@@ -227,6 +229,12 @@ class FakeChild:
             raise self._wait_error
         self.reaped = True
         return self._exit_code
+
+    def terminate(self) -> None:
+        self.terminated = True
+
+    def kill(self) -> None:
+        self.killed = True
 
 
 class FakeClock:
@@ -354,13 +362,23 @@ def test_fast_exit_never_censuses_or_signals_a_pgid_after_reaping(tmp_path: Path
 def test_census_exit_observation_leaves_real_child_reapable_and_pinned():
     child = subprocess.Popen(["/usr/bin/true"], start_new_session=True)
     try:
-        deadline = __import__("time").monotonic() + 5.0
-        while True:
-            census = monitor._read_census(child.pid, frozenset({child.pid}))
-            if census.leader_exited:
-                break
-            assert __import__("time").monotonic() < deadline
-            __import__("time").sleep(0.01)
+        # Block until the child has exited WITHOUT reaping it, so the zombie
+        # stays census-visible — a true kernel condition wait (kqueue
+        # NOTE_EXIT), no polling. Darwin's python does not expose os.waitid.
+        import select as _select
+
+        kq = _select.kqueue()
+        try:
+            event = _select.kevent(
+                child.pid,
+                filter=_select.KQ_FILTER_PROC,
+                flags=_select.KQ_EV_ADD | _select.KQ_EV_ONESHOT,
+                fflags=_select.KQ_NOTE_EXIT,
+            )
+            fired = kq.control([event], 1, 5.0)
+            assert fired, "child did not exit within the 5s deadline"
+        finally:
+            kq.close()
 
         pinned_again = monitor._read_census(child.pid, frozenset({child.pid}))
         assert pinned_again.leader_exited is True
@@ -385,7 +403,12 @@ def test_real_immediate_exit_gets_host_sample_and_command_outcome(
     expected_code: str | None,
 ):
     receipt = tmp_path / f"immediate-{expected_outcome.lower()}.json"
-    thresholds = MonitorThresholds(max_load1=1_000_000.0)
+    # Review finding 7: host swap state is uncontrolled in real-process tests;
+    # raise the swap ceiling with the load ceiling so a degraded host cannot
+    # flip this test's expected outcome via D6_SWAP_BREACH.
+    thresholds = MonitorThresholds(
+        max_load1=1_000_000.0, max_swap_used_mb=1_000_000_000.0
+    )
 
     assert monitor.run_monitored(command, receipt, thresholds) == expected_result
     body = read_receipt(receipt)
@@ -746,8 +769,9 @@ def test_escaped_descendant_is_ownership_loss_without_signalling_escaped_group(
     tmp_path: Path,
 ):
     receipt = tmp_path / "escaped" / "result.json"
+    live = monitor.ProcessCensus(group_rss_mb=1.0, member_pids=(4100,))
     later_empty = monitor.ProcessCensus(group_rss_mb=0.0, member_pids=())
-    census_values = [later_empty]
+    census_values = [live, later_empty]
     census_calls: list[int] = []
     signals: list[tuple[int, int]] = []
     deps = lifecycle_deps(
@@ -762,13 +786,17 @@ def test_escaped_descendant_is_ownership_loss_without_signalling_escaped_group(
 
     deps = monitor.RunnerDependencies(**{**deps.__dict__, "census": census})
 
+    # Review finding 5 (2026-08-27): an escape must still contain the remaining
+    # OWNED group (its pgid identity stays proven) while never signalling the
+    # escaped process's group. Abandoning the live owned group with no ceiling
+    # was the one non-fail-closed direction in the original behavior.
     assert run_fake(["cmd"], receipt, deps) == 3
-    assert census_calls == []
-    assert census_values == [later_empty]
-    assert signals == []
+    assert census_calls == [4100, 4100]
+    assert census_values == []
+    assert signals == [(4100, signal.SIGTERM)]
     body = read_receipt(receipt)
     assert body["code"] == "D6_OWNERSHIP_LOSS"
-    assert body["cleanup"] == "unavailable"
+    assert body["cleanup"] == "complete"
 
 
 @pytest.mark.parametrize("failure", [OSError("disk unavailable"), RuntimeError("encoder failed")])
@@ -870,7 +898,9 @@ def test_real_isolated_cleanup_reaps_leader_and_leaves_foreign_helper_alive(
         receipt = tmp_path / "integration" / "result.json"
         thresholds = MonitorThresholds(
             max_load1=1_000_000.0,
-            max_swap_used_mb=12288.0,
+            # Review finding 7: keep swap unbreachable so the intended
+            # D6_RSS_BREACH cannot be preempted on a swap-degraded host.
+            max_swap_used_mb=1_000_000_000.0,
             max_group_rss_mb=1e-12,
             sample_interval_s=0.01,
             term_grace_s=0.2,

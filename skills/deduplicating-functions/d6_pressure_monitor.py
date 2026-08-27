@@ -45,6 +45,7 @@ class MonitorThresholds:
     sample_interval_s: float = 1.0
     term_grace_s: float = 2.0
     kill_grace_s: float = 2.0
+    probe_timeout_s: float = 5.0
 
     def __post_init__(self) -> None:
         for field in fields(self):
@@ -80,6 +81,10 @@ class ChildProcess(Protocol):
     pid: int
 
     def wait(self, timeout: float) -> int: ...
+
+    def terminate(self) -> None: ...
+
+    def kill(self) -> None: ...
 
 
 @dataclass(frozen=True)
@@ -221,23 +226,33 @@ def parse_process_census(
     )
 
 
-def _run_checked(argv: list[str]) -> str:
-    try:
-        completed = subprocess.run(
-            argv,
-            check=True,
-            capture_output=True,
-            text=True,
-            timeout=1.0,
-        )
-    except (OSError, subprocess.SubprocessError) as exc:
-        raise _unavailable(f"probe failed: {argv[0]}") from exc
-    return completed.stdout
+def _run_checked(argv: list[str], timeout_s: float = 5.0) -> str:
+    last_timeout: Exception | None = None
+    for _attempt in (1, 2):
+        try:
+            completed = subprocess.run(
+                argv,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=timeout_s,
+            )
+        except subprocess.TimeoutExpired as exc:
+            # One bounded retry: a single stalled fork/exec under host load
+            # must not abort a healthy monitored run (review finding 3).
+            last_timeout = exc
+            continue
+        except (OSError, subprocess.SubprocessError) as exc:
+            raise _unavailable(f"probe failed: {argv[0]}") from exc
+        return completed.stdout
+    raise _unavailable(f"probe timed out twice: {argv[0]}") from last_timeout
 
 
-def _read_swap_used_mb() -> float:
+def _read_swap_used_mb(timeout_s: float = 5.0) -> float:
     if sys.platform == "darwin":
-        return parse_darwin_swapusage(_run_checked(["/usr/sbin/sysctl", "-n", "vm.swapusage"]))
+        return parse_darwin_swapusage(
+            _run_checked(["/usr/sbin/sysctl", "-n", "vm.swapusage"], timeout_s)
+        )
     if sys.platform.startswith("linux"):
         try:
             return parse_linux_meminfo(Path("/proc/meminfo").read_text(encoding="utf-8"))
@@ -249,8 +264,9 @@ def _read_swap_used_mb() -> float:
 def _read_census(
     owned_pgid: int,
     tracked_pids: frozenset[int],
+    timeout_s: float = 5.0,
 ) -> ProcessCensus:
-    output = _run_checked(["ps", "-axo", "pid=,pgid=,rss=,state="])
+    output = _run_checked(["ps", "-axo", "pid=,pgid=,rss=,state="], timeout_s)
     return parse_process_census(
         output,
         owned_pgid=owned_pgid,
@@ -262,13 +278,14 @@ def _read_census(
 def _probe_pressure(
     owned_pgid: int,
     tracked_pids: frozenset[int],
+    timeout_s: float = 5.0,
 ) -> PressureSample:
     try:
         load1 = parse_loadavg(os.getloadavg())
     except OSError as exc:
         raise _unavailable("load average failed") from exc
-    swap_used_mb = _read_swap_used_mb()
-    census = _read_census(owned_pgid, tracked_pids)
+    swap_used_mb = _read_swap_used_mb(timeout_s)
+    census = _read_census(owned_pgid, tracked_pids, timeout_s)
     return PressureSample(
         load1=load1,
         swap_used_mb=swap_used_mb,
@@ -465,6 +482,27 @@ def _reap_and_confirm_empty(
     return "complete"
 
 
+def _terminate_child_directly(
+    child: ChildProcess,
+    thresholds: MonitorThresholds,
+) -> str:
+    """Contain a child this wrapper launched but was refused ownership of.
+
+    Signals only the child itself — never a pgid, which on the refusal path
+    may belong to a foreign process group (review finding 4).
+    """
+    try:
+        child.terminate()
+        try:
+            child.wait(timeout=thresholds.term_grace_s)
+        except Exception:
+            child.kill()
+            child.wait(timeout=thresholds.kill_grace_s)
+    except BaseException:
+        return "unavailable"
+    return "complete"
+
+
 def _receipt(
     *,
     argv: list[str],
@@ -523,10 +561,17 @@ def _run_monitored(
 
     try:
         child = deps.launch(argv)
-        observed_pgid = deps.getpgid(child.pid)
+        try:
+            observed_pgid = deps.getpgid(child.pid)
+        except ProcessLookupError:
+            # The leader already exited (ESRCH on the unreaped zombie). launch()
+            # started a new session, so pgid == pid held from birth; keep the
+            # identity pinned and let the normal leader-exited path score and
+            # reap it (review finding 1).
+            observed_pgid = child.pid
         if observed_pgid != child.pid:
             code = "D6_OWNERSHIP_REFUSED"
-            cleanup = "not_admitted"
+            cleanup = _terminate_child_directly(child, thresholds)
         else:
             owned_pgid = child.pid
             next_sample_at = deps.monotonic()
@@ -537,14 +582,22 @@ def _run_monitored(
                     decision = evaluate_sample(pressure, thresholds)
                 except MonitorError as error:
                     code = _code_from_error(error)
-                    if isinstance(error, (MissingLeaderIdentity, OwnershipLost)):
+                    if isinstance(error, MissingLeaderIdentity):
                         cleanup = "unavailable"
                     else:
+                        # OwnershipLost included: the owned pgid identity is
+                        # still proven, so contain the remaining owned group;
+                        # the escaped process's group is never signalled
+                        # (review finding 5).
                         cleanup = _cleanup_group(
                             child, owned_pgid, tracked_pids, thresholds, deps
                         )
                     break
-                tracked_pids = tracked_pids.union(pressure.member_pids)
+                # Prune to current membership: the escape check for the next
+                # sample uses this sample's members, so a pid recycled from an
+                # older sample cannot raise a false OwnershipLost
+                # (review finding 5).
+                tracked_pids = frozenset(pressure.member_pids)
                 retained.append(_sample_record(pressure))
                 peaks["load1"] = max(peaks["load1"], pressure.load1)
                 peaks["swap_used_mb"] = max(peaks["swap_used_mb"], pressure.swap_used_mb)
@@ -575,16 +628,34 @@ def _run_monitored(
                     break
                 next_sample_at += thresholds.sample_interval_s
                 delay = next_sample_at - deps.monotonic()
-                if delay > 0:
-                    deps.sleep(delay)
+                if delay <= 0:
+                    # Overran the schedule: resynchronize and take one full
+                    # interval breather instead of busy-probing to catch up,
+                    # which would amplify the pressure being policed
+                    # (review finding 6).
+                    next_sample_at = deps.monotonic() + thresholds.sample_interval_s
+                    delay = thresholds.sample_interval_s
+                deps.sleep(delay)
     except (KeyboardInterrupt, SystemExit):
         code = "D6_INTERRUPTED"
         if owned_pgid is not None:
-            cleanup = _cleanup_group(child, owned_pgid, tracked_pids, thresholds, deps)
+            try:
+                cleanup = _cleanup_group(
+                    child, owned_pgid, tracked_pids, thresholds, deps
+                )
+            except BaseException:
+                # A second interrupt during cleanup must not escape without a
+                # receipt (review finding 2).
+                cleanup = "unavailable"
     except Exception:
         code = "D6_MONITOR_UNAVAILABLE"
         if owned_pgid is not None:
-            cleanup = _cleanup_group(child, owned_pgid, tracked_pids, thresholds, deps)
+            try:
+                cleanup = _cleanup_group(
+                    child, owned_pgid, tracked_pids, thresholds, deps
+                )
+            except BaseException:
+                cleanup = "unavailable"
 
     payload = _receipt(
         argv=argv,
@@ -600,7 +671,9 @@ def _run_monitored(
     )
     try:
         deps.publish(receipt_path, payload)
-    except Exception:
+    except BaseException:
+        # Publication failure — interrupt included — is Inconclusive (3); the
+        # exit-code contract must survive a second Ctrl+C (review finding 2).
         return 3
     if outcome == "Pass":
         return 0
@@ -609,12 +682,19 @@ def _run_monitored(
     return 3
 
 
-def _default_dependencies() -> RunnerDependencies:
+def _default_dependencies(
+    thresholds: MonitorThresholds = MonitorThresholds(),
+) -> RunnerDependencies:
+    timeout_s = thresholds.probe_timeout_s
     return RunnerDependencies(
         launch=_launch,
         getpgid=os.getpgid,
-        probe=_probe_pressure,
-        census=_read_census,
+        probe=lambda owned_pgid, tracked: _probe_pressure(
+            owned_pgid, tracked, timeout_s
+        ),
+        census=lambda owned_pgid, tracked: _read_census(
+            owned_pgid, tracked, timeout_s
+        ),
         killpg=os.killpg,
         monotonic=time.monotonic,
         sleep=time.sleep,
@@ -629,7 +709,9 @@ def run_monitored(
     thresholds: MonitorThresholds = MonitorThresholds(),
 ) -> int:
     """Run ``argv`` in a new session and publish a private pressure receipt."""
-    return _run_monitored(argv, receipt_path, thresholds, _default_dependencies())
+    return _run_monitored(
+        argv, receipt_path, thresholds, _default_dependencies(thresholds)
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
