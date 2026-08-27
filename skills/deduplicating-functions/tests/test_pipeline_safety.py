@@ -223,7 +223,15 @@ def _make_shim_runner(tmp_path):
     runner_dir.mkdir()
     shim_runner = str(runner_dir / "run_pipeline.py")
     _shutil.copy(RUNNER, shim_runner)
-    (runner_dir / "safety.py").write_text(SHIM_SAFETY_PY)
+    # Isolate the shim's lock inside the test tree: the runner's canonical
+    # lock path comes from safety.DEFAULT_LOCK_PATH (the shim), and the CLI
+    # deliberately has no override flag.
+    (runner_dir / "safety.py").write_text(
+        SHIM_SAFETY_PY.replace(
+            "os.path.expanduser('~/.cache/sdlc-os/run_pipeline.lock')",
+            repr(str(runner_dir / "shim.lock")),
+        )
+    )
     _shutil.copy(os.path.join(BASE, "pipeline_runtime.py"), runner_dir / "pipeline_runtime.py")
     return shim_runner
 
@@ -232,9 +240,13 @@ def test_preflight_refusal_blocks_pipeline_launch(clean_tmpdir, tmp_path):
     """When preflight reports unsafe, the pipeline must exit 1 before launching detectors."""
     shim_runner = _make_shim_runner(tmp_path)
 
+    # Born-stale repair (2026-08-27): this direct shim invocation passed
+    # --test-lock-file, an adapter-only flag run_pipeline.py never accepted,
+    # so since 8dac624 it asserted on an argparse usage error (exit 2)
+    # instead of the preflight refusal it names. The shim's own
+    # DEFAULT_LOCK_PATH (isolated above) is the lock mechanism here.
     result = subprocess.run(
-        [PYTHON, shim_runner, SCRIPTS_DIR, "-o", clean_tmpdir,
-         "--skip-ts", "--test-lock-file", str(tmp_path / "lock")],
+        [PYTHON, shim_runner, SCRIPTS_DIR, "-o", clean_tmpdir, "--skip-ts"],
         capture_output=True, text=True, timeout=30,
     )
     assert result.returncode == 1, (
