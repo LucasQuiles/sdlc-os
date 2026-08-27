@@ -132,15 +132,22 @@ def test_linux_swap_probe_returns_used_mebibytes():
 @pytest.mark.parametrize(
     "text",
     [
-        "",
         "not a process row",
         "101 101 nope S",
         "101 101 1 nan",
     ],
 )
-def test_process_census_rejects_empty_or_malformed_owned_rows(text: str):
+def test_process_census_rejects_malformed_owned_rows(text: str):
     with pytest.raises(MonitorError, match="D6_MONITOR_UNAVAILABLE"):
         parse_process_census(text, owned_pgid=101, leader_identity_pinned=True)
+
+
+def test_process_census_reports_empty_pinned_census_as_missing_leader_identity():
+    with pytest.raises(
+        monitor.MissingLeaderIdentity,
+        match="D6_LEADER_IDENTITY_MISSING",
+    ):
+        parse_process_census("", owned_pgid=101, leader_identity_pinned=True)
 
 
 def test_process_census_counts_only_live_owned_members():
@@ -180,7 +187,10 @@ def test_process_census_observes_zombie_leader_without_releasing_identity():
 
 
 def test_process_census_requires_pinned_leader_identity():
-    with pytest.raises(MonitorError, match="leader identity is absent"):
+    with pytest.raises(
+        monitor.MissingLeaderIdentity,
+        match="D6_LEADER_IDENTITY_MISSING",
+    ):
         parse_process_census(
             "201 201 2048 S\n",
             owned_pgid=101,
@@ -456,6 +466,40 @@ def test_initial_cleanup_census_uncertainty_sends_no_signal(tmp_path: Path):
     assert read_receipt(receipt)["cleanup"] == "unavailable"
 
 
+def test_missing_leader_identity_is_terminal_without_cleanup_census_or_signal(
+    tmp_path: Path,
+):
+    receipt = tmp_path / "missing-leader-identity" / "result.json"
+    later_live = monitor.ProcessCensus(group_rss_mb=1.0, member_pids=(4100,))
+    census_values = [later_live]
+    census_calls: list[int] = []
+    signals: list[tuple[int, int]] = []
+    deps = lifecycle_deps(
+        tmp_path,
+        probes=[
+            monitor.MissingLeaderIdentity(
+                "D6_LEADER_IDENTITY_MISSING: owned process-group leader identity is absent"
+            )
+        ],
+        signals=signals,
+    )
+
+    def census(owned_pgid: int, tracked_pids: frozenset[int]):
+        census_calls.append(owned_pgid)
+        return census_values.pop(0)
+
+    deps = monitor.RunnerDependencies(**{**deps.__dict__, "census": census})
+
+    assert run_fake(["cmd"], receipt, deps) == 3
+    assert census_calls == []
+    assert census_values == [later_live]
+    assert signals == []
+    body = read_receipt(receipt)
+    assert body["outcome"] == "Inconclusive"
+    assert body["code"] == "D6_LEADER_IDENTITY_MISSING"
+    assert body["cleanup"] == "unavailable"
+
+
 def test_cleanup_retains_late_member_ownership_across_censuses(tmp_path: Path):
     receipt = tmp_path / "late-member-escape" / "result.json"
     signals: list[tuple[int, int]] = []
@@ -665,16 +709,29 @@ def test_escaped_descendant_is_ownership_loss_without_signalling_escaped_group(
     tmp_path: Path,
 ):
     receipt = tmp_path / "escaped" / "result.json"
+    later_empty = monitor.ProcessCensus(group_rss_mb=0.0, member_pids=())
+    census_values = [later_empty]
+    census_calls: list[int] = []
     signals: list[tuple[int, int]] = []
     deps = lifecycle_deps(
         tmp_path,
         probes=[monitor.OwnershipLost("pid 4101 moved to pgid 9000")],
-        censuses=[monitor.ProcessCensus(group_rss_mb=0.0, member_pids=())],
         signals=signals,
     )
+
+    def census(owned_pgid: int, tracked_pids: frozenset[int]):
+        census_calls.append(owned_pgid)
+        return census_values.pop(0)
+
+    deps = monitor.RunnerDependencies(**{**deps.__dict__, "census": census})
+
     assert run_fake(["cmd"], receipt, deps) == 3
+    assert census_calls == []
+    assert census_values == [later_empty]
     assert signals == []
-    assert read_receipt(receipt)["code"] == "D6_OWNERSHIP_LOSS"
+    body = read_receipt(receipt)
+    assert body["code"] == "D6_OWNERSHIP_LOSS"
+    assert body["cleanup"] == "unavailable"
 
 
 @pytest.mark.parametrize("failure", [OSError("disk unavailable"), RuntimeError("encoder failed")])

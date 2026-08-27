@@ -33,6 +33,10 @@ class OwnershipLost(MonitorError):
     """A previously owned process escaped to another process group."""
 
 
+class MissingLeaderIdentity(MonitorError):
+    """The pinned process-group leader is absent from a canonical census."""
+
+
 @dataclass(frozen=True)
 class MonitorThresholds:
     max_load1: float = 8.0
@@ -93,6 +97,10 @@ class RunnerDependencies:
 
 def _unavailable(detail: str) -> MonitorError:
     return MonitorError(f"D6_MONITOR_UNAVAILABLE: {detail}")
+
+
+def _missing_leader_identity(detail: str) -> MissingLeaderIdentity:
+    return MissingLeaderIdentity(f"D6_LEADER_IDENTITY_MISSING: {detail}")
 
 
 def _finite_nonnegative(value: object, label: str) -> float:
@@ -168,7 +176,7 @@ def parse_process_census(
 ) -> ProcessCensus:
     if not text.strip():
         if leader_identity_pinned:
-            raise _unavailable("empty process census")
+            raise _missing_leader_identity("empty process census")
         return ProcessCensus(group_rss_mb=0.0, member_pids=(), leader_exited=False)
 
     members: list[int] = []
@@ -203,7 +211,9 @@ def parse_process_census(
         rss_kb += rss
 
     if leader_identity_pinned and not leader_seen:
-        raise _unavailable("owned process-group leader identity is absent")
+        raise _missing_leader_identity(
+            "owned process-group leader identity is absent"
+        )
     return ProcessCensus(
         group_rss_mb=rss_kb / 1024.0,
         member_pids=tuple(sorted(members)),
@@ -487,6 +497,8 @@ def _receipt(
 def _code_from_error(error: MonitorError) -> str:
     if isinstance(error, OwnershipLost):
         return "D6_OWNERSHIP_LOSS"
+    if isinstance(error, MissingLeaderIdentity):
+        return "D6_LEADER_IDENTITY_MISSING"
     return "D6_MONITOR_UNAVAILABLE"
 
 
@@ -525,9 +537,12 @@ def _run_monitored(
                     decision = evaluate_sample(pressure, thresholds)
                 except MonitorError as error:
                     code = _code_from_error(error)
-                    cleanup = _cleanup_group(
-                        child, owned_pgid, tracked_pids, thresholds, deps
-                    )
+                    if isinstance(error, (MissingLeaderIdentity, OwnershipLost)):
+                        cleanup = "unavailable"
+                    else:
+                        cleanup = _cleanup_group(
+                            child, owned_pgid, tracked_pids, thresholds, deps
+                        )
                     break
                 tracked_pids = tracked_pids.union(pressure.member_pids)
                 retained.append(_sample_record(pressure))
