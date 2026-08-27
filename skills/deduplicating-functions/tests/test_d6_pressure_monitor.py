@@ -605,6 +605,43 @@ def test_post_term_ownership_loss_is_sticky_without_later_census_or_kill(
     assert read_receipt(receipt)["cleanup"] == "unavailable"
 
 
+def test_post_term_missing_leader_identity_is_sticky_without_later_census_or_kill(
+    tmp_path: Path,
+):
+    receipt = tmp_path / "post-term-missing-leader" / "result.json"
+    live = monitor.ProcessCensus(group_rss_mb=1.0, member_pids=(4100,))
+    later_empty = monitor.ProcessCensus(group_rss_mb=0.0, member_pids=())
+    census_values: list[monitor.ProcessCensus | Exception] = [
+        live,
+        monitor.MissingLeaderIdentity(
+            "D6_LEADER_IDENTITY_MISSING: process-group leader disappeared"
+        ),
+        later_empty,
+    ]
+    census_calls: list[int] = []
+    signals: list[tuple[int, int]] = []
+    deps = lifecycle_deps(
+        tmp_path,
+        probes=[sample(load1=8.0)],
+        signals=signals,
+    )
+
+    def census(owned_pgid: int, tracked_pids: frozenset[int]):
+        census_calls.append(owned_pgid)
+        value = census_values.pop(0) if len(census_values) > 1 else census_values[0]
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+    deps = monitor.RunnerDependencies(**{**deps.__dict__, "census": census})
+
+    assert run_fake(["cmd"], receipt, deps) == 3
+    assert census_calls == [4100, 4100]
+    assert census_values == [later_empty]
+    assert signals == [(4100, signal.SIGTERM)]
+    assert read_receipt(receipt)["cleanup"] == "unavailable"
+
+
 @pytest.mark.parametrize(
     "wait_error",
     [subprocess.TimeoutExpired("cmd", 2.0), RuntimeError("wait failed")],

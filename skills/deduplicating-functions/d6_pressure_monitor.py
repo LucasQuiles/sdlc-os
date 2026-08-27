@@ -391,7 +391,7 @@ def _wait_for_empty_group(
     while True:
         try:
             last_census = deps.census(owned_pgid, frozenset(known_pids))
-        except OwnershipLost:
+        except (MissingLeaderIdentity, OwnershipLost):
             return "unavailable", None
         except Exception:
             if deps.monotonic() >= deadline:
