@@ -58,7 +58,8 @@
 - `scripts/evaluate.py`: already computes evaluation metrics and JSON output.
 - `scripts/generate-report-enhanced.sh`: current behavior source for Phase 3 output.
 - `tests/test_pipeline_strict.py`: existing end-to-end runner contract tests.
-- `output/README.md` and checked-in baseline: current reproducibility anchor.
+- `tests/fixtures/baseline-corpus/`: bounded current reproducibility anchor; runtime
+  `output/` is not source evidence.
 
 ### Constraints
 

@@ -249,7 +249,8 @@ Renumber the LLM step from `[1g]` to `[1j]`.
 - [ ] **Step 3: Run full pipeline**
 
 ```bash
-rm -rf /tmp/sp2-verify && bash scripts/orchestrate.sh /home/q/LAB/bricklab/hooks -o /tmp/sp2-verify --skip-llm 2>&1 | tail -20
+sp2_verify=$(mktemp -d /tmp/sp2-verify.XXXXXX)
+bash scripts/orchestrate.sh /home/q/LAB/bricklab/hooks -o "$sp2_verify" --skip-llm 2>&1 | tail -20
 ```
 
 Verify all 9 strategies appear in merge output.
@@ -267,13 +268,14 @@ python3 -m pytest tests/ -v
 - [ ] **Step 1: Run full pipeline on bricklab/hooks**
 
 ```bash
-rm -rf /tmp/sp2-final && bash scripts/orchestrate.sh /home/q/LAB/bricklab/hooks -o /tmp/sp2-final --skip-llm 2>&1
+sp2_final=$(mktemp -d /tmp/sp2-final.XXXXXX)
+bash scripts/orchestrate.sh /home/q/LAB/bricklab/hooks -o "$sp2_final" --skip-llm 2>&1
 ```
 
 - [ ] **Step 2: Verify merge summary**
 
 ```bash
-jq '.summary' /tmp/sp2-final/merge/merged-results.json
+jq '.summary' "$sp2_final/merge/merged-results.json"
 ```
 
 Check:

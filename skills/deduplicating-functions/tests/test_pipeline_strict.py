@@ -28,29 +28,36 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 import pytest
+
+from pipeline_test_support import latest_run
 
 PYTHON = sys.executable
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RUNNER = os.path.join(BASE, "run_pipeline.py")
 SCRIPTS_DIR = os.path.join(BASE, "scripts")
+ADAPTER = os.path.join(BASE, "tests", "fixtures", "run_pipeline_test_adapter.py")
 
 
 def _inject_isolated_lock(out_dir: str, extra_args: tuple) -> tuple:
-    """Return extra_args with a per-test --lock-file injected if not already set.
+    """Return extra_args with a test-adapter-only lock injected if absent.
 
     Without this injection, every test subprocess competes for the shared
     default lock at ~/.cache/sdlc-os/run_pipeline.lock. An unrelated
     run_pipeline.py running on the same machine — including an ambient
     dedup scan — will make all tests in this module false-fail with
     "another run_pipeline.py is already running". The lock file lives
-    under out_dir (a per-test tempdir), which is fresh on every call.
+    BESIDE out_dir (sibling path): the pipeline deletes out_dir at startup,
+    so a lock inside it would (a) trip the 2026-08-24 output-containment
+    guard (non-empty dir without pipeline markers) and (b) delete the very
+    lock file the run holds.
     """
-    if any(arg == "--lock-file" for arg in extra_args):
+    if any(arg == "--test-lock-file" for arg in extra_args):
         return extra_args
-    lock_path = os.path.join(out_dir, ".run_pipeline.lock")
-    return ("--lock-file", lock_path) + tuple(extra_args)
+    lock_path = os.path.normpath(out_dir).rstrip(os.sep) + ".run_pipeline.lock"
+    return ("--test-lock-file", lock_path) + tuple(extra_args)
 
 
 def _run_pipeline(
@@ -65,13 +72,14 @@ def _run_pipeline(
     `runner` and `source` default to the live repo paths. Pass explicit
     paths (e.g. from the isolated_repo fixture) to run against a snapshot.
 
-    Auto-injects a per-test --lock-file under out_dir so ambient
+    Auto-injects a test-adapter-only lock under out_dir so ambient
     run_pipeline.py invocations elsewhere on the system cannot poison
     the test run.
     """
     args = _inject_isolated_lock(out_dir, extra_args)
     cmd = [
         PYTHON,
+        ADAPTER,
         runner or RUNNER,
         source or SCRIPTS_DIR,
         "-o", out_dir,
@@ -98,6 +106,7 @@ def _strip_nondeterministic(out_dir: str) -> None:
       between two runs in the same test.
     - run.json / merge/run.json carry timestamps, pid and peak-RSS provenance.
     """
+    out_dir = str(latest_run(out_dir))
     log = os.path.join(out_dir, "pipeline.log")
     if os.path.exists(log):
         os.unlink(log)
@@ -120,7 +129,7 @@ def _strip_nondeterministic(out_dir: str) -> None:
 
 @pytest.fixture
 def clean_tmpdir():
-    d = tempfile.mkdtemp(prefix="dupdetect-strict-")
+    d = os.path.realpath(tempfile.mkdtemp(prefix="dupdetect-strict-"))
     yield d
     shutil.rmtree(d, ignore_errors=True)
 
@@ -142,6 +151,16 @@ def isolated_repo(tmp_path):
     # Copy run_pipeline.py and its safety dependency
     shutil.copy(RUNNER, str(repo_root / "run_pipeline.py"))
     shutil.copy(os.path.join(BASE, "safety.py"), str(repo_root / "safety.py"))
+    shutil.copy(os.path.join(BASE, "pipeline_runtime.py"),
+                str(repo_root / "pipeline_runtime.py"))
+
+    # The TS extractor resolves ts-morph by walking UP from its own location,
+    # so a copied tree needs node_modules reachable at its root. Link the real
+    # one when present (fresh checkouts without `npm ci` skip TS the same way
+    # run_pipeline itself reports it).
+    node_modules = os.path.join(BASE, "node_modules")
+    if os.path.isdir(node_modules):
+        os.symlink(node_modules, str(repo_root / "node_modules"))
 
     # Copy test fixtures for --eval-corpus tests
     src_fixtures = os.path.join(BASE, "tests", "fixtures")
@@ -164,8 +183,9 @@ def test_strict_success_with_full_environment(clean_tmpdir):
         f"--strict failed with full environment: {result.stdout[-500:]}"
     )
     # Verify key outputs exist
-    assert os.path.exists(os.path.join(clean_tmpdir, "merge", "merged-results.json"))
-    assert os.path.exists(os.path.join(clean_tmpdir, "duplicates-report.md"))
+    run_dir = latest_run(clean_tmpdir)
+    assert (run_dir / "merge" / "merged-results.json").exists()
+    assert (run_dir / "duplicates-report.md").exists()
 
 
 def test_strict_fails_on_missing_merge_script(clean_tmpdir, isolated_repo):
@@ -222,8 +242,8 @@ def test_strict_fails_when_node_missing(clean_tmpdir, tmp_path):
     env["PATH"] = f"{shim_dir}:/usr/bin:/bin"
 
     # Sanity: node must NOT be resolvable from this PATH
-    if shutil.which("node", path=env["PATH"]):
-        pytest.skip("node still on PATH after shim construction")
+    assert shutil.which("node", path=env["PATH"]) is None, (
+        "node unexpectedly remains on the deliberately restricted fixture PATH")
     # Sanity: python3 must still be resolvable (the shim provides it)
     assert shutil.which("python3", path=env["PATH"]), \
         "shim PATH should expose python3"
@@ -262,8 +282,8 @@ def test_strict_succeeds_on_python_only_repo_without_node(clean_tmpdir, tmp_path
     env = os.environ.copy()
     env["PATH"] = f"{shim_dir}:/usr/bin:/bin"
 
-    if shutil.which("node", path=env["PATH"]):
-        pytest.skip("node still on PATH")
+    assert shutil.which("node", path=env["PATH"]) is None, (
+        "node unexpectedly remains on the deliberately restricted fixture PATH")
 
     result = _run_pipeline(
         clean_tmpdir, "--strict",
@@ -288,8 +308,8 @@ def test_skip_ts_allows_strict_without_node(clean_tmpdir, tmp_path):
     env["PATH"] = f"{shim_dir}:/usr/bin:/bin"
 
     # Sanity: node must NOT be resolvable from this PATH
-    if shutil.which("node", path=env["PATH"]):
-        pytest.skip("node still on PATH after shim construction")
+    assert shutil.which("node", path=env["PATH"]) is None, (
+        "node unexpectedly remains on the deliberately restricted fixture PATH")
 
     result = _run_pipeline(clean_tmpdir, "--strict", "--skip-ts", env=env)
     assert result.returncode == 0, (
@@ -349,12 +369,19 @@ def test_permissive_mode_tolerates_failures(clean_tmpdir, isolated_repo):
     assert result.returncode == 0, (
         f"--permissive should tolerate failures, got exit {result.returncode}"
     )
+    assert not (Path(clean_tmpdir) / "latest-complete.json").exists()
+    attempts = list((Path(clean_tmpdir) / ".inflight").iterdir())
+    assert len(attempts) == 1
+    run = json.loads((attempts[0] / "run.json").read_text())
+    assert run["outcome"] == "semantic_incomplete"
 
 
 def test_pipeline_is_byte_deterministic():
     """Two successive runs must produce byte-identical output (excluding log)."""
     with tempfile.TemporaryDirectory(prefix="dupdet-det1-") as d1, \
          tempfile.TemporaryDirectory(prefix="dupdet-det2-") as d2:
+        d1 = os.path.realpath(d1)
+        d2 = os.path.realpath(d2)
         r1 = _run_pipeline(d1, "--strict")
         r2 = _run_pipeline(d2, "--strict")
         assert r1.returncode == 0, f"Run 1 failed: {r1.stdout[-500:]}"
@@ -364,7 +391,7 @@ def test_pipeline_is_byte_deterministic():
         _strip_nondeterministic(d2)
 
         # Compare all files recursively
-        diff = filecmp.dircmp(d1, d2)
+        diff = filecmp.dircmp(latest_run(d1), latest_run(d2))
         assert not diff.diff_files, (
             f"Non-deterministic output: {diff.diff_files}"
         )
@@ -383,69 +410,30 @@ def test_pipeline_is_byte_deterministic():
 
 
 def test_pipeline_matches_checked_in_baseline(clean_tmpdir):
-    """Strict run against scripts/ must byte-match the checked-in merge baseline.
-
-    Any drift in pair contents, ordering, scoring, or strategy attribution
-    is a regression, not just a count mismatch.
-    """
-    checked_in = os.path.join(BASE, "output", "merge", "merged-results.json")
-    if not os.path.exists(checked_in):
-        pytest.skip("No checked-in baseline to compare against")
-
-    result = _run_pipeline(clean_tmpdir, "--strict")
-    assert result.returncode == 0, f"Strict run failed: {result.stdout[-500:]}"
-
-    fresh = os.path.join(clean_tmpdir, "merge", "merged-results.json")
-    assert os.path.exists(fresh), "Fresh run produced no merge output"
-
-    # Full deep equality — catches drift in pair contents, ordering, scores
-    with open(checked_in) as f:
-        baseline = json.load(f)
-    with open(fresh) as f:
-        current = json.load(f)
-
-    # Start with summary for clear error messages on common drift cases
-    baseline_summary = baseline.get("summary", {})
-    current_summary = current.get("summary", {})
-    assert baseline_summary == current_summary, (
-        f"Summary drift:\n"
-        f"  baseline: {baseline_summary}\n"
-        f"  current:  {current_summary}"
+    """The merge pipeline byte-matches the small checked-in fixture corpus."""
+    fixture = os.path.join(BASE, "tests", "fixtures", "baseline-corpus")
+    detect = os.path.join(clean_tmpdir, "detect")
+    merge = os.path.join(clean_tmpdir, "merge")
+    os.makedirs(detect)
+    os.makedirs(merge)
+    shutil.copy(
+        os.path.join(fixture, "detector-output.json"),
+        os.path.join(detect, "fuzzy-name-results.json"),
     )
-
-    # Then full pair list — catches reordering, score drift, content changes
-    baseline_pairs = baseline.get("pairs", [])
-    current_pairs = current.get("pairs", [])
-    assert len(baseline_pairs) == len(current_pairs), (
-        f"Pair count drift: baseline {len(baseline_pairs)} vs current {len(current_pairs)}"
+    fresh = os.path.join(merge, "merged-results.json")
+    result = subprocess.run(
+        [PYTHON, os.path.join(SCRIPTS_DIR, "merge-signals.py"), detect,
+         "-o", fresh, "--include-summary", "--max-pairs", "100",
+         "--max-input-bytes", "1048576", "--max-output-bytes", "1048576",
+         "--max-legacy-json-bytes", "1048576"],
+        capture_output=True, text=True, timeout=30,
     )
-
-    # Per-pair comparison to pinpoint first drift on failure
-    for i, (b, c) in enumerate(zip(baseline_pairs, current_pairs)):
-        assert b == c, (
-            f"Pair {i} drift:\n"
-            f"  baseline: {json.dumps(b, sort_keys=True)[:300]}\n"
-            f"  current:  {json.dumps(c, sort_keys=True)[:300]}"
-        )
-
-    # Final byte-level check on the merged JSON structure
-    assert baseline == current, "Baseline drift in non-pair merge fields"
-
-    # Also verify all per-detector output files match
-    for detector_file in os.listdir(os.path.join(BASE, "output", "detect")):
-        if not detector_file.endswith("-results.json"):
-            continue
-        baseline_det = os.path.join(BASE, "output", "detect", detector_file)
-        current_det = os.path.join(clean_tmpdir, "detect", detector_file)
-        assert os.path.exists(current_det), f"Missing {detector_file} in fresh run"
-        with open(baseline_det) as f:
-            b_data = json.load(f)
-        with open(current_det) as f:
-            c_data = json.load(f)
-        assert b_data == c_data, (
-            f"{detector_file} drift: "
-            f"baseline has {len(b_data)} pairs, current has {len(c_data)}"
-        )
+    assert result.returncode == 0, result.stderr
+    with open(os.path.join(fixture, "merge-output.json")) as stream:
+        baseline = json.load(stream)
+    with open(fresh) as stream:
+        current = json.load(stream)
+    assert current == baseline
 
 
 # ─── Phase 4 (evaluate) strict coverage ────────────────────────────
@@ -455,8 +443,7 @@ ADVERSARIAL_CORPUS = os.path.join(BASE, "tests", "fixtures", "adversarial-corpus
 
 def test_strict_eval_success_with_valid_corpus(clean_tmpdir):
     """--strict --eval-corpus should exit 0 when evaluation runs cleanly."""
-    if not os.path.exists(ADVERSARIAL_CORPUS):
-        pytest.skip("adversarial-corpus.json fixture missing")
+    assert os.path.exists(ADVERSARIAL_CORPUS), "required adversarial corpus fixture missing"
 
     result = _run_pipeline(
         clean_tmpdir, "--strict", "--eval-corpus", ADVERSARIAL_CORPUS
@@ -464,7 +451,7 @@ def test_strict_eval_success_with_valid_corpus(clean_tmpdir):
     assert result.returncode == 0, (
         f"--strict --eval-corpus failed: {result.stdout[-500:]}"
     )
-    eval_out = os.path.join(clean_tmpdir, "evaluation.json")
+    eval_out = str(latest_run(clean_tmpdir) / "evaluation.json")
     assert os.path.exists(eval_out), "Evaluation phase produced no output"
 
     # Verify evaluation.json has the expected shape
@@ -524,6 +511,11 @@ def test_permissive_mode_tolerates_eval_failure(clean_tmpdir, tmp_path):
     assert result.returncode == 0, (
         f"--permissive should tolerate eval failures, got exit {result.returncode}"
     )
+    assert not (Path(clean_tmpdir) / "latest-complete.json").exists()
+    attempts = list((Path(clean_tmpdir) / ".inflight").iterdir())
+    assert len(attempts) == 1
+    run = json.loads((attempts[0] / "run.json").read_text())
+    assert run["outcome"] == "semantic_incomplete"
 
 
 # ─── --from-corpus regression tests ────────────────────────────────
@@ -531,14 +523,14 @@ def test_permissive_mode_tolerates_eval_failure(clean_tmpdir, tmp_path):
 def _run_from_corpus(out_dir: str, corpus: str, *extra_args: str):
     """Invoke run_pipeline.py in corpus mode (no source positional arg).
 
-    Auto-injects a per-test --lock-file under out_dir via
+    Auto-injects a test-adapter-only lock under out_dir via
     _inject_isolated_lock, matching _run_pipeline. This prevents an
     ambient run_pipeline.py on the same machine from poisoning the
     corpus-mode tests via shared lock contention.
     """
     args = _inject_isolated_lock(out_dir, extra_args)
     cmd = [
-        PYTHON, RUNNER,
+        PYTHON, ADAPTER, RUNNER,
         "--from-corpus", corpus,
         "-o", out_dir,
         *args,
@@ -548,8 +540,7 @@ def _run_from_corpus(out_dir: str, corpus: str, *extra_args: str):
 
 def test_from_corpus_mode_runs_without_source(clean_tmpdir):
     """--from-corpus should work without a source positional argument."""
-    if not os.path.exists(ADVERSARIAL_CORPUS):
-        pytest.skip("adversarial-corpus.json fixture missing")
+    assert os.path.exists(ADVERSARIAL_CORPUS), "required adversarial corpus fixture missing"
     result = _run_from_corpus(clean_tmpdir, ADVERSARIAL_CORPUS, "--strict")
     assert result.returncode == 0, (
         f"--from-corpus failed: {result.stdout[-500:]}"
@@ -564,8 +555,7 @@ def test_from_corpus_produces_real_eval_metrics(clean_tmpdir):
     The adversarial corpus has 4 true clones. A pipeline that actually
     runs detectors on corpus functions should catch at least one.
     """
-    if not os.path.exists(ADVERSARIAL_CORPUS):
-        pytest.skip("adversarial-corpus.json fixture missing")
+    assert os.path.exists(ADVERSARIAL_CORPUS), "required adversarial corpus fixture missing"
 
     result = _run_from_corpus(
         clean_tmpdir,
@@ -577,7 +567,7 @@ def test_from_corpus_produces_real_eval_metrics(clean_tmpdir):
         f"--from-corpus --eval-corpus failed: {result.stdout[-500:]}"
     )
 
-    eval_out = os.path.join(clean_tmpdir, "evaluation.json")
+    eval_out = str(latest_run(clean_tmpdir) / "evaluation.json")
     assert os.path.exists(eval_out), "Evaluation phase produced no output"
     with open(eval_out) as f:
         ev = json.load(f)
@@ -601,13 +591,12 @@ def test_from_corpus_mode_skips_extraction_phase(clean_tmpdir):
     The catalog should come from the corpus file, not from extraction.
     Verify by checking that no per-extractor catalog files are produced.
     """
-    if not os.path.exists(ADVERSARIAL_CORPUS):
-        pytest.skip("adversarial-corpus.json fixture missing")
+    assert os.path.exists(ADVERSARIAL_CORPUS), "required adversarial corpus fixture missing"
 
     result = _run_from_corpus(clean_tmpdir, ADVERSARIAL_CORPUS, "--strict")
     assert result.returncode == 0
 
-    extract_dir = os.path.join(clean_tmpdir, "extract")
+    extract_dir = str(latest_run(clean_tmpdir) / "extract")
     # Only catalog-corpus.json and catalog-unified.json should exist
     files = sorted(os.listdir(extract_dir))
     assert "catalog-corpus.json" in files, f"Missing catalog-corpus.json: {files}"
@@ -687,7 +676,7 @@ def test_pipeline_handles_500_function_corpus(clean_tmpdir, tmp_path):
         f"stderr: {result.stderr[-500:]}"
     )
     # Sanity check: merged output exists and is non-empty
-    merged = os.path.join(clean_tmpdir, "merge", "merged-results.json")
+    merged = str(latest_run(clean_tmpdir) / "merge" / "merged-results.json")
     assert os.path.exists(merged)
     with open(merged) as f:
         data = json.load(f)

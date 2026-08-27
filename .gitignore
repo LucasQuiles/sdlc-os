@@ -25,3 +25,6 @@ __pycache__/
 /.verification-results/
 /artifacts/
 /.superpowers/
+
+# Deduplication pipeline runs are immutable runtime artifacts, never baselines.
+/skills/deduplicating-functions/output/

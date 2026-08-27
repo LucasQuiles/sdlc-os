@@ -10,7 +10,6 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 
 import pytest
 
@@ -72,11 +71,13 @@ ALL_DETECTORS = list(DETECTOR_OUTPUT_MAP.keys())
 def test_detector_schema_is_valid_jsonschema(detector_schema):
     """The detector schema itself must be a valid JSON Schema document."""
     jsonschema.Draft202012Validator.check_schema(detector_schema)
+    assert detector_schema["type"] == "array"
 
 
 def test_merge_schema_is_valid_jsonschema(merge_schema):
     """The merge schema itself must be a valid JSON Schema document."""
     jsonschema.Draft202012Validator.check_schema(merge_schema)
+    assert merge_schema["required"] == ["pairs", "summary"]
 
 
 @pytest.mark.parametrize("detector", ALL_DETECTORS)
@@ -85,8 +86,7 @@ def test_detector_output_validates_against_schema(
 ):
     """Each detector's output must conform to the detector schema."""
     script = os.path.join(SCRIPTS, detector)
-    if not os.path.exists(script):
-        pytest.skip(f"{detector} not found")
+    assert os.path.exists(script), f"required detector absent: {detector}"
 
     out_path = tmp_path / f"{detector}.json"
     result = subprocess.run(
@@ -111,6 +111,7 @@ def test_detector_output_validates_against_schema(
             f"  message: {e.message}\n"
             f"  instance: {str(e.instance)[:200]}"
         )
+    assert jsonschema.Draft202012Validator(detector_schema).is_valid(data)
 
 
 def test_merge_output_validates_against_schema(
@@ -124,10 +125,11 @@ def test_merge_output_validates_against_schema(
         script = os.path.join(SCRIPTS, detector)
         if not os.path.exists(script):
             continue
-        subprocess.run(
+        detector_result = subprocess.run(
             [PYTHON, script, adversarial_catalog, "-o", str(detect_dir / out_name)],
             capture_output=True, text=True, timeout=30,
         )
+        assert detector_result.returncode == 0, detector_result.stderr[-500:]
 
     # Run merge-signals
     merge_script = os.path.join(SCRIPTS, "merge-signals.py")
@@ -150,32 +152,28 @@ def test_merge_output_validates_against_schema(
             f"  message: {e.message}\n"
             f"  instance: {str(e.instance)[:200]}"
         )
+    assert jsonschema.Draft202012Validator(merge_schema).is_valid(data)
 
 
-def test_checked_in_baseline_validates_against_schema(merge_schema):
-    """The committed output/merge baseline must conform to the schema.
-
-    Catches silent schema drift in the checked-in sample.
-    """
-    baseline = os.path.join(BASE, "output", "merge", "merged-results.json")
-    if not os.path.exists(baseline):
-        pytest.skip("no checked-in baseline")
+def test_small_checked_in_baseline_validates_against_schema(merge_schema):
+    """The bounded fixture, not runtime output, pins the merge contract."""
+    baseline = os.path.join(
+        BASE, "tests", "fixtures", "baseline-corpus", "merge-output.json")
 
     with open(baseline) as f:
         data = json.load(f)
 
     jsonschema.validate(instance=data, schema=merge_schema)
+    assert data["summary"]["total_pairs"] == len(data["pairs"])
 
 
-@pytest.mark.parametrize("detector", ALL_DETECTORS)
-def test_checked_in_detector_outputs_validate(detector, detector_schema):
-    """Every committed per-detector output must conform to the detector schema."""
-    name = DETECTOR_OUTPUT_MAP[detector]
-    path = os.path.join(BASE, "output", "detect", name)
-    if not os.path.exists(path):
-        pytest.skip(f"no checked-in {name}")
+def test_small_checked_in_detector_fixture_validates(detector_schema):
+    """One shared detector schema is pinned by a small deterministic fixture."""
+    path = os.path.join(
+        BASE, "tests", "fixtures", "baseline-corpus", "detector-output.json")
 
     with open(path) as f:
         data = json.load(f)
 
     jsonschema.validate(instance=data, schema=detector_schema)
+    assert all("strategy" in row for row in data)

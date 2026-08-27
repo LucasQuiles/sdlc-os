@@ -21,11 +21,10 @@ import datetime as _dt
 import hashlib
 import json
 import os
-import signal
 import subprocess
 import threading
 import time
-from typing import Any, Callable, Iterable
+from typing import Any, Callable
 
 try:  # same directory (scripts/lib) — sibling import works both as package and path import
     from . import jsonstream as _jsonstream  # type: ignore
@@ -67,11 +66,15 @@ class ResourcePolicy:
     max_wall_seconds: int = 1800            # whole pipeline
     max_tree_rss_bytes: int = 6 * GiB       # runner + all descendants, sampled RSS
     max_legacy_json_bytes: int = 200 * MiB  # merged-results.json compatibility export
+    max_run_output_bytes: int = 3 * GiB     # all files in one immutable run directory
+    max_tree_processes: int = 64            # runner plus all descendants
     mode: str = "refuse"                    # refuse | truncate
 
     _INT_FIELDS = (
         "max_input_bytes", "max_pairs", "max_report_rows", "max_output_bytes",
         "max_wall_seconds", "max_tree_rss_bytes", "max_legacy_json_bytes",
+        "max_run_output_bytes",
+        "max_tree_processes",
     )
 
     @classmethod
@@ -95,6 +98,12 @@ class ResourcePolicy:
                     f"{key} must be a finite positive integer (got {val!r}); "
                     "unbounded ceilings are not supported"
                 )
+            hard_cap = getattr(ResourcePolicy(), key)
+            if val > hard_cap:
+                raise PolicyError(
+                    f"{key}={val} exceeds immutable hard cap {hard_cap}; "
+                    "CLI and environment may only lower ceilings"
+                )
             values[key] = val
         return ResourcePolicy(**values)
 
@@ -111,15 +120,23 @@ def _sample_table() -> dict[int, tuple[int, int]]:
     out = subprocess.run(
         ["ps", "-axo", "pid=,ppid=,rss="], capture_output=True, text=True, timeout=20,
     )
+    if out.returncode != 0:
+        raise PolicyError(f"process-table probe exited {out.returncode}")
     table: dict[int, tuple[int, int]] = {}
+    malformed = 0
     for line in out.stdout.splitlines():
         parts = line.split()
         if len(parts) != 3:
+            if line.strip():
+                malformed += 1
             continue
         try:
             table[int(parts[0])] = (int(parts[1]), int(parts[2]))
         except ValueError:
-            continue
+            malformed += 1
+    if malformed or not table:
+        raise PolicyError(
+            f"process-table probe incomplete: malformed={malformed}, rows={len(table)}")
     return table
 
 
@@ -162,6 +179,41 @@ def sample_tree(root: int) -> dict[str, Any]:
     }
 
 
+def _output_tree_bytes(root: str) -> int:
+    """Return allocated logical bytes without following links or hiding probe errors.
+
+    A listed entry that vanishes before it is classified or measured is normal
+    here — the atomic-replacement pattern (write temp, ``os.replace``) deletes
+    temp files while this sampler walks the tree — so ENOENT on one entry
+    counts as zero bytes for this sample instead of failing the probe.
+    Symlinks and non-regular entries remain fatal."""
+    total = 0
+    stack = [root]
+    while stack:
+        current = stack.pop()
+        try:
+            entries = os.scandir(current)
+        except FileNotFoundError:
+            if current == root:
+                raise PolicyError(f"output root missing: {root}") from None
+            continue
+        with entries:
+            for entry in entries:
+                try:
+                    if entry.is_symlink():
+                        raise PolicyError(f"output tree contains symlink: {entry.path}")
+                    if entry.is_dir(follow_symlinks=False):
+                        stack.append(entry.path)
+                    elif entry.is_file(follow_symlinks=False):
+                        total += entry.stat(follow_symlinks=False).st_size
+                    else:
+                        raise PolicyError(
+                            f"output tree contains nonregular entry: {entry.path}")
+                except FileNotFoundError:
+                    continue
+    return total
+
+
 # ---------------------------------------------------------------------------
 # Watchdog
 # ---------------------------------------------------------------------------
@@ -169,10 +221,9 @@ def sample_tree(root: int) -> dict[str, Any]:
 class TreeWatchdog:
     """Background sampler that aborts the owned process tree on a ceiling breach.
 
-    ``owned_pids`` returns pids the runner spawned itself (e.g. Popen children
-    started in their own session). They are signaled only if the fresh process
-    table still shows them as descendants of ``root_pid`` — ownership is
-    re-proven at signal time, never assumed from the earlier spawn.
+    This object only measures and trips the abort latch.  Process actuation is
+    delegated to the runner's synchronized spawn coordinator, which owns the
+    registered identities and performs fresh per-PID reproof.
     """
 
     GRACE_SECONDS = 3.0
@@ -185,22 +236,34 @@ class TreeWatchdog:
         max_wall_seconds: int,
         interval_s: float = 2.0,
         on_abort: Callable[[dict[str, Any]], None] | None = None,
-        owned_pids: Callable[[], Iterable[int]] | None = None,
+        cleanup_handler: Callable[[str], Any] | None = None,
+        output_root: str | None = None,
+        max_run_output_bytes: int | None = None,
+        max_tree_processes: int = 64,
     ) -> None:
-        if max_tree_rss_bytes <= 0 or max_wall_seconds <= 0 or interval_s <= 0:
+        if (max_tree_rss_bytes <= 0 or max_wall_seconds <= 0
+                or interval_s <= 0 or max_tree_processes <= 0):
             raise PolicyError("watchdog ceilings must be positive")
+        if (output_root is None) != (max_run_output_bytes is None):
+            raise PolicyError("output_root and max_run_output_bytes must be set together")
+        if max_run_output_bytes is not None and max_run_output_bytes <= 0:
+            raise PolicyError("run output ceiling must be positive")
         self.root_pid = root_pid
         self.max_tree_rss_bytes = max_tree_rss_bytes
         self.max_wall_seconds = max_wall_seconds
         self.interval_s = interval_s
         self.on_abort = on_abort or (lambda e: None)
-        self.owned_pids = owned_pids or (lambda: [])
+        self.cleanup_handler = cleanup_handler or (lambda reason: None)
+        self.output_root = output_root
+        self.max_run_output_bytes = max_run_output_bytes
+        self.max_tree_processes = max_tree_processes
         self.peak_tree_rss_bytes = 0
         self.peak_process_count = 0
         self.samples = 0
         self.aborted: dict[str, Any] | None = None
         self._started = time.monotonic()
         self._stop = threading.Event()
+        self._abort_complete = threading.Event()
         self._thread = threading.Thread(target=self._loop, name="dedup-tree-watchdog", daemon=True)
 
     # -- lifecycle -----------------------------------------------------------
@@ -216,45 +279,53 @@ class TreeWatchdog:
     def elapsed(self) -> float:
         return time.monotonic() - self._started
 
+    def wait_abort(self, timeout_s: float) -> dict[str, Any] | None:
+        """Return the settled abort event, or explicit uncertainty at the deadline."""
+        if self.aborted is None:
+            return None
+        if self._abort_complete.wait(timeout_s):
+            return dict(self.aborted)
+        unsettled = dict(self.aborted)
+        unsettled["cleanup"] = "uncertain"
+        unsettled["cleanup_reason"] = "cleanup-result-timeout"
+        return unsettled
+
     # -- sampling --------------------------------------------------------------
     def _loop(self) -> None:
         while not self._stop.is_set():
             try:
                 table = _sample_table()
-            except Exception:  # sampler failure must not kill the pipeline; it is reported below
-                table = None
-            if table is not None:
-                self.samples += 1
-                rss = tree_rss_bytes_from_table(self.root_pid, table)
-                count = 1 + len(descendants_from_table(self.root_pid, table))
-                self.peak_tree_rss_bytes = max(self.peak_tree_rss_bytes, rss)
-                self.peak_process_count = max(self.peak_process_count, count)
-                if rss > self.max_tree_rss_bytes:
-                    self._abort("max_tree_rss_bytes", table)
+            except Exception:
+                self._abort("sampler-unavailable", {})
+                return
+            self.samples += 1
+            rss = tree_rss_bytes_from_table(self.root_pid, table)
+            count = 1 + len(descendants_from_table(self.root_pid, table))
+            self.peak_tree_rss_bytes = max(self.peak_tree_rss_bytes, rss)
+            self.peak_process_count = max(self.peak_process_count, count)
+            if count > self.max_tree_processes:
+                self._abort("max_tree_processes", table)
+                return
+            if rss > self.max_tree_rss_bytes:
+                self._abort("max_tree_rss_bytes", table)
+                return
+            if self.output_root is not None:
+                try:
+                    output_bytes = _output_tree_bytes(self.output_root)
+                except Exception:
+                    self._abort("output-sampler-unavailable", table)
+                    return
+                if output_bytes > self.max_run_output_bytes:
+                    self._abort("max_run_output_bytes", table)
                     return
             if self.elapsed() > self.max_wall_seconds:
-                self._abort("max_wall_seconds", table if table is not None else _sample_table())
+                self._abort("max_wall_seconds", table)
                 return
             self._stop.wait(self.interval_s)
 
     # -- abort -----------------------------------------------------------------
     def _abort(self, reason: str, table: dict[int, tuple[int, int]]) -> dict[str, Any]:
-        """Terminate the owned tree. The event is published (on_abort + self.aborted)
-        immediately after SIGTERM so observers never see a dead child without an
-        event; the same dict is then updated in place after the grace/KILL phase."""
-        owned = set(int(p) for p in self.owned_pids())
-        descendants = descendants_from_table(self.root_pid, table)
-        desc_set = set(descendants)
-        # Signal deepest-first so parents do not respawn children mid-abort.
-        targets = list(reversed(descendants))
-        skipped_unowned = sorted(p for p in owned if p not in desc_set)
-        signaled: list[int] = []
-        for pid in targets:
-            try:
-                os.kill(pid, signal.SIGTERM)
-                signaled.append(pid)
-            except (ProcessLookupError, PermissionError):
-                continue
+        """Freeze admission and delegate cleanup to the identity coordinator."""
         event: dict[str, Any] = {
             "event": "resource_abort",
             "reason": reason,
@@ -263,9 +334,6 @@ class TreeWatchdog:
             "peak_tree_rss_bytes": self.peak_tree_rss_bytes,
             "limit_tree_rss_bytes": self.max_tree_rss_bytes,
             "limit_wall_seconds": self.max_wall_seconds,
-            "signaled_pids": signaled,
-            "sigkilled_pids": [],
-            "skipped_unowned_pids": skipped_unowned,
             "cleanup": "in_progress",
         }
         self.aborted = event
@@ -273,36 +341,18 @@ class TreeWatchdog:
             self.on_abort(event)
         except Exception:
             pass
-        # Grace period, then SIGKILL survivors whose ownership is re-proven.
-        deadline = time.monotonic() + self.GRACE_SECONDS
-        survivors = list(signaled)
-        while survivors and time.monotonic() < deadline:
-            time.sleep(0.1)
-            still = []
-            for pid in survivors:
-                try:
-                    os.kill(pid, 0)
-                    still.append(pid)
-                except ProcessLookupError:
-                    continue
-                except PermissionError:
-                    still.append(pid)
-            survivors = still
-        killed: list[int] = []
-        if survivors:
-            fresh = _sample_table()
-            fresh_desc = set(descendants_from_table(self.root_pid, fresh))
-            for pid in survivors:
-                if pid not in fresh_desc:
-                    continue
-                try:
-                    os.kill(pid, signal.SIGKILL)
-                    killed.append(pid)
-                except (ProcessLookupError, PermissionError):
-                    continue
-        event["sigkilled_pids"] = killed
-        event["cleanup"] = "complete" if not survivors or killed or not signaled else "uncertain"
+        try:
+            cleanup = self.cleanup_handler(reason)
+            event["cleanup"] = getattr(cleanup, "cleanup", "uncertain")
+            event["cleanup_reason"] = getattr(cleanup, "reason", "missing-result")
+            event["signaled_pids"] = list(getattr(cleanup, "term_pids", ()))
+            event["sigkilled_pids"] = list(getattr(cleanup, "kill_pids", ()))
+            event["survivors"] = list(getattr(cleanup, "survivors", ()))
+        except Exception as exc:
+            event["cleanup"] = "uncertain"
+            event["cleanup_reason"] = f"handler-failed:{type(exc).__name__}"
         event["cleanup_utc"] = _utc_now()
+        self._abort_complete.set()
         return event
 
 

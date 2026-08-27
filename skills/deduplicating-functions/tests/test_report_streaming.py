@@ -14,8 +14,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 BASE = Path(__file__).parent.parent
 SCRIPTS = BASE / "scripts"
 SHIM = SCRIPTS / "generate-report-enhanced.sh"
@@ -82,8 +80,7 @@ def _legacy_script(tmp_path) -> Path:
          f"{LEGACY_REF}:skills/deduplicating-functions/scripts/generate-report-enhanced.sh"],
         capture_output=True, text=True, timeout=30,
     )
-    if r.returncode != 0:
-        pytest.skip(f"legacy script unavailable from git: {r.stderr[:200]}")
+    assert r.returncode == 0, f"legacy script unavailable from git: {r.stderr[:200]}"
     out.write_text(r.stdout)
     return out
 
@@ -96,13 +93,16 @@ def test_generator_exists_and_shim_execs_it():
     assert GEN.exists(), "scripts/generate_report.py missing"
     text = SHIM.read_text()
     assert "generate_report.py" in text
-    invocations = [l for l in text.splitlines() if re.search(r"(^|[\s;|&(])jq(\s|$)", l.split("#", 1)[0])]
+    invocations = [
+        line for line in text.splitlines()
+        if re.search(r"(^|[\s;|&(])jq(\s|$)", line.split("#", 1)[0])
+    ]
     assert invocations == [], f"shim must not invoke jq: {invocations}"
 
 
 def test_golden_parity_with_legacy_jq_script_on_legacy_input(tmp_path):
-    if not subprocess.run(["which", "jq"], capture_output=True).returncode == 0:
-        pytest.skip("jq not available for legacy reference")
+    jq_probe = subprocess.run(["which", "jq"], capture_output=True, text=True)
+    assert jq_probe.returncode == 0, "jq is required for the legacy parity reference"
     legacy_script = _legacy_script(tmp_path)
     merged = _write_legacy(tmp_path, _mixed_pairs())
     ref_out = tmp_path / "ref.md"
