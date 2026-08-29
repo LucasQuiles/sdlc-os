@@ -364,26 +364,33 @@ def check_preflight(
         # line so the incident gate stays binding.
         growth_mb = status["swap_growth_headroom_mb"]
         if not isinstance(growth_mb, (int, float)) or isinstance(growth_mb, bool) \
-                or math.isnan(growth_mb) or growth_mb < 0:
+                or not math.isfinite(growth_mb) or growth_mb < 0:
             return False, (
                 f"refused: invalid swap growth headroom ({growth_mb!r})")
         head_mb = status["swap_headroom_mb"]
         if not isinstance(head_mb, (int, float)) or isinstance(head_mb, bool) \
-                or math.isnan(head_mb) or head_mb < 0:
-            # NaN in either operand of headroom + credit poisons the
-            # comparison below into a silent pass; negative means the
-            # collector's used<=total invariant was violated upstream.
+                or not math.isfinite(head_mb) or head_mb < 0:
+            # A non-finite operand poisons the comparison below into a
+            # silent pass; negative means the collector's used<=total
+            # invariant was violated upstream.
             return False, f"refused: invalid swap headroom ({head_mb!r})"
-        growth_credit = min(
-            float(growth_mb),
-            max(0.0, max_swap_used_mb - status["swap_used_mb"]))
-        effective_headroom = head_mb + growth_credit
+        # Room before trouble is the SMALLER of what the OS can physically
+        # provide (pool free + disk-backed growth) and what policy allows
+        # before the absolute line. Pool free space is itself part of the
+        # room to the line — consuming it advances used — so it must never
+        # be counted ON TOP of the allowance: the additive form
+        # head + min(growth, allowance) double-counted it and admitted at
+        # 188 MiB below the incident line (2026-08-29 falsifier).
+        usable_capacity_mb = head_mb + float(growth_mb)
+        allowance_mb = max(0.0, max_swap_used_mb - status["swap_used_mb"])
+        effective_headroom = min(usable_capacity_mb, allowance_mb)
         if effective_headroom < DEFAULT_MIN_SWAP_HEADROOM_MB:
             return False, (
                 f"swap effective headroom {effective_headroom:.0f}MB "
-                f"(pool {status['swap_headroom_mb']:.0f}MB + growth credit "
-                f"{growth_credit:.0f}MB, capped at the {max_swap_used_mb:.0f}MB "
-                f"absolute line) < {DEFAULT_MIN_SWAP_HEADROOM_MB:.0f}MB threshold")
+                f"(min of pool {head_mb:.0f}MB + growth {float(growth_mb):.0f}MB "
+                f"capacity and the {allowance_mb:.0f}MB allowance capped at the "
+                f"{max_swap_used_mb:.0f}MB absolute line) < "
+                f"{DEFAULT_MIN_SWAP_HEADROOM_MB:.0f}MB threshold")
     else:
         if status["swap_used_pct"] >= DEFAULT_MAX_SWAP_USED_PCT:
             return False, (

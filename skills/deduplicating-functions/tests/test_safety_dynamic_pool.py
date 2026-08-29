@@ -94,6 +94,41 @@ def test_dynamic_pool_growth_credit_capped_at_absolute_line():
     assert "capped" in reason
 
 
+def test_pool_free_space_cannot_extend_past_absolute_line():
+    """2026-08-29 falsifier: pool free space is itself part of the room to
+    the absolute line (consuming it advances used), so it must not be
+    counted ON TOP of the allowance. used=12100 leaves 188 MiB of allowance
+    regardless of the 600 MiB pool-free and huge growth capacity."""
+    status = _dynamic_status(
+        swap_used_mb=12100.0, swap_total_mb=12700.0,
+        swap_used_pct=95.3, swap_headroom_mb=600.0,
+        swap_growth_headroom_mb=70000.0)
+    with _window(status):
+        ok, reason = safety.check_preflight()
+    assert ok is False, "188 MiB below the incident line must refuse"
+    assert "effective headroom" in reason
+    assert "188" in reason
+
+
+def test_infinite_headroom_operand_refuses():
+    status = _dynamic_status(swap_headroom_mb=float("inf"),
+                             swap_used_mb=7600.0, swap_used_pct=92.8)
+    with _window(status):
+        ok, reason = safety.check_preflight()
+    assert ok is False
+    assert "invalid swap headroom" in reason
+
+
+def test_infinite_growth_headroom_refuses():
+    status = _dynamic_status(swap_growth_headroom_mb=float("inf"),
+                             swap_used_mb=7600.0, swap_used_pct=92.8,
+                             swap_headroom_mb=592.0)
+    with _window(status):
+        ok, reason = safety.check_preflight()
+    assert ok is False
+    assert "invalid swap growth headroom" in reason
+
+
 def test_dynamic_pool_no_growth_capacity_uses_raw_headroom():
     """With no disk room to grow the pool, only real pool headroom counts."""
     status = _dynamic_status(
