@@ -10,6 +10,7 @@ See the 2026-04-11 VM-compressor panic incident for context.
 from __future__ import annotations
 
 import fcntl  # used only by acquire_pipeline_lock
+import math
 import os
 import platform
 import re
@@ -352,7 +353,7 @@ def check_preflight(
         # line so the incident gate stays binding.
         growth_mb = status["swap_growth_headroom_mb"]
         if not isinstance(growth_mb, (int, float)) or isinstance(growth_mb, bool) \
-                or growth_mb < 0:
+                or math.isnan(growth_mb) or growth_mb < 0:
             return False, (
                 f"refused: invalid swap growth headroom ({growth_mb!r})")
         growth_credit = min(

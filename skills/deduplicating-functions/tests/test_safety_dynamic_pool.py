@@ -147,6 +147,19 @@ def test_negative_growth_headroom_refuses():
     assert "invalid swap growth headroom" in reason
 
 
+def test_nan_growth_headroom_refuses():
+    """NaN compares False against every bound, so an explicit guard must
+    catch it before it poisons the effective-headroom comparison into a
+    silent pass."""
+    status = _dynamic_status(swap_growth_headroom_mb=float("nan"),
+                             swap_used_mb=7600.0, swap_used_pct=92.8,
+                             swap_headroom_mb=592.0)
+    with _window(status):
+        ok, reason = safety.check_preflight()
+    assert ok is False
+    assert "invalid swap growth headroom" in reason
+
+
 # ── Collector contract ──────────────────────────────────────────────
 
 _FAKE_VM_STAT = (
