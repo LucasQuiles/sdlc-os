@@ -147,6 +147,49 @@ def test_negative_growth_headroom_refuses():
     assert "invalid swap growth headroom" in reason
 
 
+def test_non_bool_pool_dynamic_flag_refuses():
+    """The branch selector is the most consequential bit in the schema: a
+    truthy non-bool ('false', 1) must not fail OPEN into the dynamic branch."""
+    for bad in ("false", "static", 1, 1.0):
+        status = _dynamic_status(swap_pool_dynamic=bad,
+                                 swap_used_mb=7600.0, swap_used_pct=92.8,
+                                 swap_headroom_mb=592.0)
+        with _window(status):
+            ok, reason = safety.check_preflight()
+        assert ok is False, f"flag {bad!r} must refuse, got ok"
+        assert "invalid swap pool dynamic flag" in reason
+
+
+def test_nan_swap_headroom_refuses_on_dynamic_path():
+    """NaN in the headroom OPERAND (not just the credit) must refuse: it
+    poisons effective = headroom + credit into a silent pass."""
+    status = _dynamic_status(swap_headroom_mb=float("nan"),
+                             swap_used_mb=7600.0, swap_used_pct=92.8)
+    with _window(status):
+        ok, reason = safety.check_preflight()
+    assert ok is False
+    assert "invalid swap headroom" in reason
+
+
+def test_negative_swap_headroom_refuses_on_dynamic_path():
+    status = _dynamic_status(swap_headroom_mb=-64.0,
+                             swap_used_mb=7600.0, swap_used_pct=92.8)
+    with _window(status):
+        ok, reason = safety.check_preflight()
+    assert ok is False
+    assert "invalid swap headroom" in reason
+
+
+def test_bool_growth_headroom_refuses():
+    """Pin the isinstance(growth, bool) refusal so a mutant dropping the
+    bool check cannot survive the suite (review NIT-2)."""
+    status = _dynamic_status(swap_growth_headroom_mb=True)
+    with _window(status):
+        ok, reason = safety.check_preflight()
+    assert ok is False
+    assert "invalid swap growth headroom" in reason
+
+
 def test_nan_growth_headroom_refuses():
     """NaN compares False against every bound, so an explicit guard must
     catch it before it poisons the effective-headroom comparison into a

@@ -27,9 +27,15 @@ DEFAULT_LOCK_PATH = os.path.expanduser("~/.cache/sdlc-os/run_pipeline.lock")
 DEFAULT_MIN_FREE_RAM_GB = 4.0
 DEFAULT_MAX_SWAPFILES = 5
 # 2026-08-22 incident: the pipeline launched with 12.67 GB swap already used
-# (645 MB headroom) and drove the box to a 2h18m crisis. The swapfile-count
-# probe reads /private/var/vm, which exposes ZERO swapfile* entries on modern
-# macOS, so it can never trip there — swap BYTES are the effective gate.
+# (645 MB headroom) and drove the box to a 2h18m crisis. NOTE (2026-08-29
+# review): the swapfile-count probe reads /private/var/vm, which on modern
+# macOS is an empty stub directory — live swapfiles sit at the path named by
+# `sysctl vm.swapfileprefix` (e.g. /System/Volumes/VM/swapfile). The count
+# axis is therefore inert on macOS because of the PATH, not OS behavior, and
+# swap BYTES are the effective gate today. Deriving the probe directory from
+# vm.swapfileprefix is a registered follow-up: it must come with a threshold
+# recalibration (modern pools legitimately hold ~1 swapfile per GiB, so the
+# 2026-04-11-era max of 5 would false-refuse healthy hosts).
 DEFAULT_MAX_SWAP_USED_MB = 12288.0
 # The pct/headroom axes below are meaningful only for a STATICALLY sized swap
 # pool (Linux partition/swapfile). macOS sizes its pool on demand in ~1 GiB
@@ -344,7 +350,12 @@ def check_preflight(
             "launched at 12.67GB swap used; refusing to add multi-GB detector "
             "load to a box already deep in swap)"
         )
-    pool_dynamic = bool(status["swap_pool_dynamic"])
+    pool_dynamic = status["swap_pool_dynamic"]
+    if not isinstance(pool_dynamic, bool):
+        # The branch selector decides which swap axes apply; a truthy
+        # non-bool must not fail OPEN into the more permissive branch.
+        return False, (
+            f"refused: invalid swap pool dynamic flag ({pool_dynamic!r})")
     if pool_dynamic:
         # A dynamically sized pool (macOS): utilization of the CURRENT
         # allocation is pool-sizing behavior, not memory pressure — the
@@ -356,10 +367,17 @@ def check_preflight(
                 or math.isnan(growth_mb) or growth_mb < 0:
             return False, (
                 f"refused: invalid swap growth headroom ({growth_mb!r})")
+        head_mb = status["swap_headroom_mb"]
+        if not isinstance(head_mb, (int, float)) or isinstance(head_mb, bool) \
+                or math.isnan(head_mb) or head_mb < 0:
+            # NaN in either operand of headroom + credit poisons the
+            # comparison below into a silent pass; negative means the
+            # collector's used<=total invariant was violated upstream.
+            return False, f"refused: invalid swap headroom ({head_mb!r})"
         growth_credit = min(
             float(growth_mb),
             max(0.0, max_swap_used_mb - status["swap_used_mb"]))
-        effective_headroom = status["swap_headroom_mb"] + growth_credit
+        effective_headroom = head_mb + growth_credit
         if effective_headroom < DEFAULT_MIN_SWAP_HEADROOM_MB:
             return False, (
                 f"swap effective headroom {effective_headroom:.0f}MB "
