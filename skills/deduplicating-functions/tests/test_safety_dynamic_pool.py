@@ -129,6 +129,20 @@ def test_infinite_growth_headroom_refuses():
     assert "invalid swap growth headroom" in reason
 
 
+def test_non_finite_used_refuses_on_dynamic_path():
+    """Round-3 residual: -inf used passed the absolute gate (comparison
+    False) and inflated the allowance to +inf, admitting unconditionally.
+    The dynamic path validates the whole operand set."""
+    # (+inf used is already refused by the absolute-bytes gate upstream;
+    # only values that pass that comparison reach the dynamic branch.)
+    for bad in (float("-inf"), float("nan"), True):
+        status = _dynamic_status(swap_used_mb=bad)
+        with _window(status):
+            ok, reason = safety.check_preflight()
+        assert ok is False, f"used {bad!r} must refuse, got ok"
+        assert "invalid swap used" in reason
+
+
 def test_dynamic_pool_no_growth_capacity_uses_raw_headroom():
     """With no disk room to grow the pool, only real pool headroom counts."""
     status = _dynamic_status(

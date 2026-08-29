@@ -47,6 +47,14 @@ DEFAULT_MAX_SWAP_USED_MB = 12288.0
 # with the growth credit capped at the absolute line so the incident gate
 # stays binding.
 DEFAULT_MAX_SWAP_USED_PCT = 90.0
+# NOTE: on a dynamic pool the effective-headroom axis takes
+# min(physical capacity, allowance-to-the-absolute-line), which implies a
+# hard admission ceiling of MAX_SWAP_USED - MIN_SWAP_HEADROOM used MiB
+# (12288 - 768 = 11520 at defaults): above it, the guaranteed 768 MiB
+# headroom quantum cannot be spent without crossing the incident line.
+# The static (Linux) path keeps the original pct/headroom composition and
+# so still admits up to the absolute line itself with a large pool — a
+# recorded asymmetry to revisit whenever the static path is next changed.
 DEFAULT_MIN_SWAP_HEADROOM_MB = 768.0
 # Disk kept out of the growth-credit calculation: the pool must never be
 # allowed to grow into the last 10 GiB of the VM volume (the 2026-04-11
@@ -381,8 +389,14 @@ def check_preflight(
         # be counted ON TOP of the allowance: the additive form
         # head + min(growth, allowance) double-counted it and admitted at
         # 188 MiB below the incident line (2026-08-29 falsifier).
+        used_mb = status["swap_used_mb"]
+        if not isinstance(used_mb, (int, float)) or isinstance(used_mb, bool) \
+                or not math.isfinite(used_mb) or used_mb < 0:
+            # -inf slips past the absolute gate (comparison False) and
+            # inflates the allowance to +inf, admitting unconditionally.
+            return False, f"refused: invalid swap used ({used_mb!r})"
         usable_capacity_mb = head_mb + float(growth_mb)
-        allowance_mb = max(0.0, max_swap_used_mb - status["swap_used_mb"])
+        allowance_mb = max(0.0, max_swap_used_mb - used_mb)
         effective_headroom = min(usable_capacity_mb, allowance_mb)
         if effective_headroom < DEFAULT_MIN_SWAP_HEADROOM_MB:
             return False, (
