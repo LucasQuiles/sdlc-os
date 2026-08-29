@@ -30,14 +30,27 @@ DEFAULT_MAX_SWAPFILES = 5
 # probe reads /private/var/vm, which exposes ZERO swapfile* entries on modern
 # macOS, so it can never trip there — swap BYTES are the effective gate.
 DEFAULT_MAX_SWAP_USED_MB = 12288.0
+# The pct/headroom axes below are meaningful only for a STATICALLY sized swap
+# pool (Linux partition/swapfile). macOS sizes its pool on demand in ~1 GiB
+# steps, so used/total hovers near 90% at ANY absolute usage — on 2026-08-28
+# an admission was refused at 90.02% (7374.62 MiB used of an auto-grown
+# 8192 MiB pool) while the absolute gate above still had ~5 GiB of headroom.
+# On a dynamic pool the pct axis therefore defers to the absolute-bytes gate,
+# and the headroom axis counts pool headroom PLUS disk-backed growth capacity,
+# with the growth credit capped at the absolute line so the incident gate
+# stays binding.
 DEFAULT_MAX_SWAP_USED_PCT = 90.0
 DEFAULT_MIN_SWAP_HEADROOM_MB = 768.0
+# Disk kept out of the growth-credit calculation: the pool must never be
+# allowed to grow into the last 10 GiB of the VM volume (the 2026-04-11
+# panic box had 0 GB free). Mirrors DEFAULT_MIN_OUTPUT_FREE_BYTES.
+DEFAULT_SWAP_GROWTH_DISK_RESERVE_MB = 10 * 1024.0
 DEFAULT_MAX_SWAPOUT_DELTA = 256
 DEFAULT_MAX_COMPRESSOR_OCCUPIED_MB = 24 * 1024.0
 DEFAULT_MAX_COMPRESSOR_POOL_USED_PCT = 80.0
 DEFAULT_MAX_COMPRESSOR_SEGMENT_GROWTH = 256
 DEFAULT_MIN_MEMORY_PRESSURE_FREE_PCT = 20.0
-PREFLIGHT_POLICY_VERSION = "dedup-composite-admission-v1"
+PREFLIGHT_POLICY_VERSION = "dedup-composite-admission-v2"
 PREFLIGHT_WINDOW_SECONDS = 1.0
 DEFAULT_MIN_OUTPUT_FREE_BYTES = 10 * 1024 ** 3
 
@@ -164,12 +177,25 @@ def darwin_pressure_status() -> dict:
         1 for name in ls_out.splitlines() if name.startswith("swapfile")
     )
 
+    # macOS grows the swap pool on demand; report how far it could still
+    # grow (free space on the VM volume minus a hard disk reserve) so the
+    # preflight can judge headroom on the pool the OS WILL provide, not
+    # just the pool it has provided so far.
+    try:
+        vm_fs = os.statvfs("/private/var/vm")
+    except OSError as exc:
+        raise ProbeError("unable to statvfs /private/var/vm") from exc
+    vm_free_mb = vm_fs.f_bavail * vm_fs.f_frsize / (1024 ** 2)
+    growth_headroom_mb = max(0.0, vm_free_mb - DEFAULT_SWAP_GROWTH_DISK_RESERVE_MB)
+
     return {
         "free_gb": free_gb,
         "swap_total_mb": swap_total_mb,
         "swap_used_mb": swap_used_mb,
         "swap_used_pct": 100.0 * swap_used_mb / swap_total_mb,
         "swap_headroom_mb": swap_total_mb - swap_used_mb,
+        "swap_pool_dynamic": True,
+        "swap_growth_headroom_mb": growth_headroom_mb,
         "swapfile_count": swapfile_count,
         "swapins": pages["Swapins"],
         "swapouts": pages["Swapouts"],
@@ -231,6 +257,10 @@ def linux_pressure_status() -> dict:
         "swap_used_mb": swap_used_mb,
         "swap_used_pct": used_pct,
         "swap_headroom_mb": total_mb - swap_used_mb,
+        # Linux swap capacity is fixed at configuration time; the static
+        # pct/headroom axes apply as-is and there is no growth credit.
+        "swap_pool_dynamic": False,
+        "swap_growth_headroom_mb": 0.0,
         "swapfile_count": swapfile_count,
         "swapins": vmstat["pswpin"],
         "swapouts": vmstat["pswpout"],
@@ -286,7 +316,8 @@ def check_preflight(
     first, status = window
     required = {
         "free_gb", "swap_used_mb", "swap_total_mb", "swap_used_pct",
-        "swap_headroom_mb", "swapfile_count", "swapins", "swapouts",
+        "swap_headroom_mb", "swap_pool_dynamic", "swap_growth_headroom_mb",
+        "swapfile_count", "swapins", "swapouts",
         "compressor_occupied_mb", "compressor_pool_used_pct", "memory_pressure",
         "compressor_segments", "compressor_segment_limit",
     }
@@ -312,14 +343,37 @@ def check_preflight(
             "launched at 12.67GB swap used; refusing to add multi-GB detector "
             "load to a box already deep in swap)"
         )
-    if status["swap_used_pct"] >= DEFAULT_MAX_SWAP_USED_PCT:
-        return False, (
-            f"swap utilization {status['swap_used_pct']:.1f}% >= "
-            f"{DEFAULT_MAX_SWAP_USED_PCT:.1f}% threshold")
-    if status["swap_headroom_mb"] < DEFAULT_MIN_SWAP_HEADROOM_MB:
-        return False, (
-            f"swap headroom {status['swap_headroom_mb']:.0f}MB < "
-            f"{DEFAULT_MIN_SWAP_HEADROOM_MB:.0f}MB threshold")
+    pool_dynamic = bool(status["swap_pool_dynamic"])
+    if pool_dynamic:
+        # A dynamically sized pool (macOS): utilization of the CURRENT
+        # allocation is pool-sizing behavior, not memory pressure — the
+        # absolute-bytes gate above owns that axis. Headroom counts the
+        # pool the OS can still provide, credited only up to the absolute
+        # line so the incident gate stays binding.
+        growth_mb = status["swap_growth_headroom_mb"]
+        if not isinstance(growth_mb, (int, float)) or isinstance(growth_mb, bool) \
+                or growth_mb < 0:
+            return False, (
+                f"refused: invalid swap growth headroom ({growth_mb!r})")
+        growth_credit = min(
+            float(growth_mb),
+            max(0.0, max_swap_used_mb - status["swap_used_mb"]))
+        effective_headroom = status["swap_headroom_mb"] + growth_credit
+        if effective_headroom < DEFAULT_MIN_SWAP_HEADROOM_MB:
+            return False, (
+                f"swap effective headroom {effective_headroom:.0f}MB "
+                f"(pool {status['swap_headroom_mb']:.0f}MB + growth credit "
+                f"{growth_credit:.0f}MB, capped at the {max_swap_used_mb:.0f}MB "
+                f"absolute line) < {DEFAULT_MIN_SWAP_HEADROOM_MB:.0f}MB threshold")
+    else:
+        if status["swap_used_pct"] >= DEFAULT_MAX_SWAP_USED_PCT:
+            return False, (
+                f"swap utilization {status['swap_used_pct']:.1f}% >= "
+                f"{DEFAULT_MAX_SWAP_USED_PCT:.1f}% threshold")
+        if status["swap_headroom_mb"] < DEFAULT_MIN_SWAP_HEADROOM_MB:
+            return False, (
+                f"swap headroom {status['swap_headroom_mb']:.0f}MB < "
+                f"{DEFAULT_MIN_SWAP_HEADROOM_MB:.0f}MB threshold")
     swapout_delta = status["swapouts"] - first["swapouts"]
     if swapout_delta < 0:
         return False, "refused: swapout counter regressed"
@@ -346,7 +400,9 @@ def check_preflight(
         f"ok: policy={PREFLIGHT_POLICY_VERSION}, {status['free_gb']:.1f}GB free, "
         f"{status['swapfile_count']} swapfiles, "
         f"{status['swap_used_mb']:.0f}/{status['swap_total_mb']:.0f}MB swap "
-        f"({status['swap_used_pct']:.1f}%), swapout_delta={swapout_delta}, "
+        f"({status['swap_used_pct']:.1f}%), "
+        f"swap_pool={'dynamic' if pool_dynamic else 'static'}, "
+        f"swapout_delta={swapout_delta}, "
         f"compressor_pool={status['compressor_pool_used_pct']:.1f}%, "
         f"compressor_growth={compressor_growth:.0f}"
     )

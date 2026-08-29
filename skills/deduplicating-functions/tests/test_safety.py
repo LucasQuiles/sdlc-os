@@ -20,6 +20,10 @@ def _healthy_status(**overrides):
         "swap_total_mb": 8192.0,
         "swap_used_pct": 12.5,
         "swap_headroom_mb": 7168.0,
+        # Static pool by default: pins the original strict pct/headroom
+        # semantics; dynamic-pool cases live in test_safety_dynamic_pool.py.
+        "swap_pool_dynamic": False,
+        "swap_growth_headroom_mb": 0.0,
         "swapfile_count": 1,
         "swapins": 100,
         "swapouts": 100,
@@ -179,7 +183,12 @@ def test_darwin_pressure_status_parses_vm_stat_output():
             return "swapfile0\nswapfile1\nswapfile2\n"
         raise FileNotFoundError(cmd)
 
-    with mock.patch.object(safety, "_run_probe", side_effect=_fake_check_output):
+    class _FakeStatvfs:
+        f_bavail = (40 * 1024 ** 3) // 4096  # 40 GiB free on the VM volume
+        f_frsize = 4096
+
+    with mock.patch.object(safety, "_run_probe", side_effect=_fake_check_output), \
+            mock.patch.object(safety.os, "statvfs", return_value=_FakeStatvfs()):
         status = safety.darwin_pressure_status()
 
     # 524288 free + 262144 inactive = 786432 pages * 16384 bytes = 12 GiB
