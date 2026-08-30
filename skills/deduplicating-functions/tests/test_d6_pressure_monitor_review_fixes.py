@@ -6,7 +6,9 @@ Each test targets one finding and fails against 5a48b103 for that finding's reas
 
 from __future__ import annotations
 
+import signal
 import subprocess
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -226,7 +228,7 @@ def test_ownership_loss_containment_survives_real_census_contract(
     assert run_fake(["cmd"], receipt, deps) == 3
     body = read_receipt(receipt)
     assert body["code"] == "D6_OWNERSHIP_LOSS"
-    assert signals == [(4100, __import__("signal").SIGTERM)]
+    assert signals == [(4100, signal.SIGTERM)]
     assert body["cleanup"] == "complete"
 
 
@@ -265,9 +267,7 @@ def test_interrupt_during_receipt_construction_keeps_exit_contract(
         calls["n"] += 1
         if calls["n"] >= 2:
             raise KeyboardInterrupt
-        from datetime import UTC as _UTC, datetime as _dt
-
-        return _dt(2026, 8, 27, 1, 0, tzinfo=_UTC)
+        return datetime(2026, 8, 27, 1, 0, tzinfo=UTC)
 
     deps = lifecycle_deps(tmp_path)
     deps = replace_deps(deps, utcnow=utcnow_second_call_interrupts)
@@ -292,6 +292,13 @@ def test_default_dependencies_wire_probe_timeout_from_thresholds(
     with pytest.raises(monitor.MonitorError):
         deps.census(1, frozenset())  # empty pinned census raises; timeout captured
     assert seen == [2.25]
+    # Round-3 register CLEANUP: the PROBE closure must be wired to the same
+    # thresholds value, not just the census closure.
+    seen.clear()
+    with pytest.raises(monitor.MonitorError):
+        deps.probe(1, frozenset())
+    assert seen, "probe closure never reached _run_checked"
+    assert set(seen) == {2.25}
 
 
 def test_refusal_path_interrupt_is_reported_not_swallowed(tmp_path: Path) -> None:
