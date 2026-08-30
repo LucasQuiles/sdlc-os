@@ -171,6 +171,45 @@ def test_static_pool_swapfile_cap_unchanged():
     assert "35" in reason and "swapfiles" in reason
 
 
+# ── mutant-killing pins for the sprawl FORMULA (review R3) ──────────
+# The constant pin alone does not bind the formula: these shapes sit in the
+# discriminating bands so dropping the slack term, dropping the ceil, or
+# dropping the total validation each fails a named test.
+
+def test_sprawl_slack_band_passes():
+    """count inside (ceil, ceil+slack]: 13 files on an 11 GiB pool must pass
+    (a mutant without the slack term would refuse at 11)."""
+    status = _status(swapfile_count=13, swap_total_mb=11264.0,
+                     swap_used_mb=10000.0, swap_used_pct=88.8,
+                     swap_headroom_mb=1264.0)
+    with _window(status):
+        ok, reason = safety.check_preflight()
+    assert ok is True, reason
+
+
+def test_sprawl_fractional_total_uses_ceil():
+    """total=11500MB: ceil gives 12+4=16 allowed; a mutant using raw division
+    allows only 15.23 and refuses count=16."""
+    status = _status(swapfile_count=16, swap_total_mb=11500.0,
+                     swap_used_mb=10000.0, swap_used_pct=87.0,
+                     swap_headroom_mb=1500.0)
+    with _window(status):
+        ok, reason = safety.check_preflight()
+    assert ok is True, reason
+
+
+def test_malformed_swap_total_refuses_not_crashes():
+    """NaN total must refuse with the invalid-total reason on BOTH branch
+    selectors — a mutant without the validation crashes at math.ceil
+    (dynamic) or admits printing nan (static)."""
+    for dyn in (True, False):
+        status = _status(swap_pool_dynamic=dyn, swap_total_mb=float("nan"))
+        with _window(status):
+            ok, reason = safety.check_preflight()
+        assert ok is False, f"dyn={dyn} must refuse"
+        assert "invalid swap total" in reason, f"dyn={dyn}: {reason}"
+
+
 # ── R4: empty dynamic pool is healthy, invalid shapes still raise ───
 
 def test_zero_total_swap_pool_is_valid_on_darwin():

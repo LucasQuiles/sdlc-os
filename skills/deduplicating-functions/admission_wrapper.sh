@@ -19,8 +19,11 @@
 #   74  mkdir failed
 #   70  usage / cd failure
 # Otherwise: ADMISSION_DIR is created 0700, the command runs from TREE with
-# its combined stderr captured to ADMISSION_DIR/wrapped.stderr (artifact-bound
-# refusal reasons), and the wrapped command's exit code passes through.
+# its fd2 (stderr) captured to ADMISSION_DIR/wrapped.stderr while stdout
+# passes through (artifact-bound refusal reasons), and the wrapped command's
+# exit code passes through. NOTE: a wrapped command exiting 70-75 shares the
+# wrapper's refusal namespace — the "ADMISSION: launched" line disambiguates
+# a launch from a refusal.
 set -u
 
 if [ "$#" -lt 5 ] || [ "$4" != "--" ]; then
@@ -28,6 +31,10 @@ if [ "$#" -lt 5 ] || [ "$4" != "--" ]; then
   exit 70
 fi
 TREE=$1; HEAD_PIN=$2; DIR=$3; shift 4
+case "$DIR" in
+  /*) ;;
+  *) echo "ADMISSION: admission dir must be an absolute path" >&2; exit 70 ;;
+esac
 PY=${ADMISSION_PYTHON:-/opt/homebrew/bin/python3.12}
 MAX_LOAD1=${ADMISSION_MAX_LOAD1:-8.0}
 
@@ -38,11 +45,28 @@ if [ -n "$(git -C "$TREE" status --porcelain=v1)" ]; then
   echo "ADMISSION: tree not clean"; exit 72
 fi
 
-"$PY" - "$TREE" "$MAX_LOAD1" <<'PY'
-import os, sys
-tree, max_load1 = sys.argv[1], float(sys.argv[2])
+# -P: never let the caller's cwd (or the stdin-script path entry) shadow the
+# target tree's canonical safety module (review B1 — a permissive safety.py
+# in the caller's cwd gated and LAUNCHED). -B: never write bytecode into the
+# clean-checked tree. The provenance assertion is the belt to -P's braces.
+"$PY" -P -B - "$TREE" "$MAX_LOAD1" <<'PY'
+import math, os, sys
+tree = sys.argv[1]
+max_load1 = float(sys.argv[2])
+if not math.isfinite(max_load1) or max_load1 <= 0:
+    # A NaN ceiling makes every >= comparison False and silently disables
+    # the load brake (review R2); fail closed instead.
+    print(f"ADMISSION preflight: invalid load ceiling ({sys.argv[2]!r})", flush=True)
+    raise SystemExit(75)
 sys.path.insert(0, tree)
 import safety
+module_path = os.path.realpath(getattr(safety, "__file__", "") or "")
+tree_real = os.path.realpath(tree)
+if not module_path.startswith(tree_real + os.sep):
+    print(
+        f"ADMISSION preflight: safety module resolved OUTSIDE the target tree "
+        f"({module_path}); refusing", flush=True)
+    raise SystemExit(75)
 load1 = os.getloadavg()[0]
 ok, reason = safety.check_preflight()
 print(f"ADMISSION preflight: load1={load1:.2f} ceiling={max_load1}; canonical: {reason}", flush=True)

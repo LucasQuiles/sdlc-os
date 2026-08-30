@@ -717,7 +717,9 @@ def _run_monitored(
                     f"d6-monitor: receipt path failed: {error!r}",
                     file=sys.stderr,
                 )
-            except Exception:
+            except BaseException:
+                # Even an interrupt landing mid-print must not break the
+                # exit-3 contract (tranche-review NIT).
                 pass
         return 3
     if outcome == "Pass":

@@ -128,3 +128,68 @@ def test_refusal_never_creates_the_admission_dir(tree, tmp_path):
     adm = tmp_path / "adm2"
     _run(tree, _head(tree), adm, "true", ok="0")
     assert not adm.exists()
+
+
+def _run_from(cwd, tree_path, head, admission_dir, *cmd, ok="1", max_load1="100000"):
+    env = dict(os.environ)
+    env["STUB_PREFLIGHT_OK"] = ok
+    env["ADMISSION_MAX_LOAD1"] = max_load1
+    return subprocess.run(
+        ["bash", WRAPPER, str(tree_path), head, str(admission_dir), "--", *cmd],
+        capture_output=True, text=True, env=env, timeout=60, cwd=str(cwd))
+
+
+def test_cwd_safety_shadow_cannot_gate(tmp_path):
+    """Review B1 (BLOCKING): a permissive safety.py in the CALLER'S CWD must
+    never satisfy the canonical-gate requirement when the target tree has no
+    root-level safety.py — the wrapper must fail closed (75), not import the
+    shadow and launch."""
+    bare = tmp_path / "bare-tree"
+    bare.mkdir()
+    (bare / "README.md").write_text("no safety module here")
+    _git(bare, "init", "-q")
+    _git(bare, "add", "README.md")
+    subprocess.run(
+        ["git", "-C", str(bare), "-c", "user.email=t@test", "-c", "user.name=t",
+         "-c", f"core.hooksPath={tmp_path / 'nohooks'}",
+         "commit", "-q", "-m", "fixture tree"],
+        check=True, capture_output=True)
+    shadow_cwd = tmp_path / "shadow-cwd"
+    shadow_cwd.mkdir()
+    (shadow_cwd / "safety.py").write_text(
+        "def check_preflight():\n    return True, 'ok: SHADOW GATE FROM CWD'\n")
+    adm = tmp_path / "adm-shadow"
+    res = _run_from(shadow_cwd, bare, _head(bare), adm, "true")
+    assert res.returncode == 75, res.stdout + res.stderr
+    assert "SHADOW GATE" not in res.stdout
+    assert not adm.exists()
+
+
+def test_relative_admission_dir_refuses_70(tree, tmp_path):
+    """Review R1: a relative ADMISSION_DIR made the stderr redirect fail AFTER
+    cd into the tree, misreporting a never-ran command as its own failure."""
+    res = _run(tree, _head(tree), "relative-adm-dir", "true")
+    assert res.returncode == 70, res.stdout + res.stderr
+    assert not (tree / "relative-adm-dir").exists()
+
+
+def test_non_finite_load_ceiling_refuses_75(tree, tmp_path):
+    """Review R2: ADMISSION_MAX_LOAD1=nan made every >= comparison False and
+    silently disabled the load brake."""
+    for bad in ("nan", "inf", "-1"):
+        adm = tmp_path / f"adm-{bad}"
+        res = _run(tree, _head(tree), adm, "true", max_load1=bad)
+        assert res.returncode == 75, f"{bad}: {res.stdout}{res.stderr}"
+        assert not adm.exists()
+
+
+def test_wrapper_leaves_tree_clean_for_a_second_run(tree, tmp_path):
+    """Review NIT: the preflight import must not write __pycache__ into the
+    tree (a second invocation would refuse 72 on a tree that does not ignore
+    bytecode)."""
+    first = _run(tree, _head(tree), tmp_path / "adm-a", "true")
+    assert first.returncode == 0, first.stdout + first.stderr
+    second = _run(tree, _head(tree), tmp_path / "adm-b", "true")
+    assert second.returncode == 0, (
+        "second run refused — the first run dirtied the tree:\n"
+        + second.stdout + second.stderr)

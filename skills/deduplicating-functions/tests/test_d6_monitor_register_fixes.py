@@ -55,6 +55,31 @@ def test_interrupted_direct_termination_reports_cleanup_unavailable(
     )
 
 
+def test_interrupted_termination_on_ownership_refusal_reports_unavailable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Review R4 (tranche round): the OWNERSHIP-REFUSED call site needs the
+    same pessimistic pre-set as the launch-to-ownership site — a mutant
+    removing it survived the suite. A second interrupt during that
+    termination must leave cleanup='unavailable', never 'not_required'."""
+    receipt = tmp_path / "refused-term-interrupt" / "result.json"
+    child = FakeChild()
+
+    def terminate_interrupted(c: Any, thresholds: Any) -> str:
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(monitor, "_terminate_child_directly", terminate_interrupted)
+    deps = lifecycle_deps(tmp_path, child=child)
+    deps = replace_deps(deps, getpgid=lambda pid: 9999)
+
+    assert run_fake(["cmd"], receipt, deps) == 3
+    body = read_receipt(receipt)
+    assert body["cleanup"] == "unavailable", (
+        f"'not_required' is untruthful after signals may have flown "
+        f"(got {body['cleanup']!r})"
+    )
+
+
 class _Boom(BaseException):
     """A non-KeyboardInterrupt, non-SystemExit BaseException."""
 
