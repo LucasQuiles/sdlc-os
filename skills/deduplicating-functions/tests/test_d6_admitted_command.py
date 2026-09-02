@@ -1,5 +1,5 @@
 """The D6 admitted command is a REVIEWED, IN-REPO artifact (round9 events
-57/58; review rounds 1-3 closed).
+57/58; review rounds 1-4 closed).
 
 Why it exists: admission windows 4 and 5 bracketed the pipeline's own
 --jobs 4 detector fan-out (ambient ~5-7 -> breach 8.43; ambient 2.70 ->
@@ -11,11 +11,14 @@ d6_render_command.py is the only sanctioned renderer.
 Review lineage: round 1 (BLOCKING) — partial argv pins left the index-5
 window open. Round 2 (2 BLOCKING) — renderer-local record source; missing
 trailing NUL dropped --suppress at the bash reader. Round 3 (BLOCKING) — a
-symlinked record defeated the tree binding (git tracks the link, not the
-target); closed by realpath confinement of every launch input, plus the
-consolidating fix: the renderer verifies the tree's HEAD against --head-pin
-itself, and pins the rendered outer chain structurally so a record cannot
-name a wrapper or monitor outside the gated tree.
+symlinked record defeated the tree binding. Round 4 (2 BLOCKING) — the
+head-pin check bound a LABEL, not content: `assume-unchanged` suppressed
+drift from the cleanliness gate while the renderer read disk bytes, and
+GIT_DIR/GIT_WORK_TREE redirected every git oracle at once. Closed by
+reading the record from the head-pinned BLOB via GIT_*-sanitized git,
+refusing disk/blob divergence, stripping GIT_* from the exec environment,
+and pinning the reviewed templates IN CODE so a drifted record refuses
+with no external oracle at all.
 """
 from __future__ import annotations
 
@@ -80,7 +83,7 @@ def _doc():
         return json.load(f)
 
 
-# ── whole-chain equality: the only pin an insertion cannot slip past ──
+# ── triple agreement: record file == renderer templates == this file ──
 
 def test_pipeline_argv_is_byte_exact():
     assert _doc()["argv"] == EXPECTED_ARGV
@@ -91,9 +94,15 @@ def test_outer_argv_is_byte_exact():
 
 
 def test_env_pins_are_byte_exact():
-    # ADMISSION_PYTHON pins the interpreter that runs the wrapper's canonical
-    # preflight to the same python the chain uses (round 3, finding 3).
     assert _doc()["env"] == EXPECTED_ENV
+
+
+def test_renderer_enforcement_templates_agree_with_the_record():
+    # The renderer pins the chain IN CODE (no external oracle); the JSON is
+    # the grant-facing artifact. They must never diverge.
+    assert d6_render_command.EXPECTED_PIPELINE_TEMPLATE == EXPECTED_ARGV
+    assert d6_render_command.EXPECTED_OUTER_TEMPLATE == EXPECTED_OUTER
+    assert d6_render_command.EXPECTED_ENV_TEMPLATE == EXPECTED_ENV
 
 
 # ── granular pins kept for readable failures ─────────────────────────
@@ -122,6 +131,17 @@ def test_derivation_carries_lineage_and_estimate_marking():
 
 # ── renderer fixtures ────────────────────────────────────────────────
 
+def _commit(tree_path):
+    subprocess.run(["git", "-C", str(tree_path), "add", "-A"], check=True)
+    subprocess.run(
+        ["git", "-C", str(tree_path), "-c", "user.email=t@t", "-c",
+         "user.name=t", "-c", "commit.gpgsign=false", "commit", "-q", "-m",
+         "s"], check=True)
+    return subprocess.run(["git", "-C", str(tree_path), "rev-parse", "HEAD"],
+                          capture_output=True, text=True,
+                          check=True).stdout.strip()
+
+
 def _tree(tmp_path, record=None):
     """A stub skill tree that is a real git checkout carrying the record."""
     for name in d6_render_command.TREE_REQUIRED_FILES:
@@ -133,22 +153,14 @@ def _tree(tmp_path, record=None):
         (tmp_path / d6_render_command.RECORD_BASENAME).write_text(
             json.dumps(record))
     subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
-    subprocess.run(["git", "-C", str(tmp_path), "add", "-A"], check=True)
-    subprocess.run(
-        ["git", "-C", str(tmp_path), "-c", "user.email=t@t", "-c",
-         "user.name=t", "-c", "commit.gpgsign=false", "commit", "-q", "-m", "s"],
-        check=True)
-    head = subprocess.run(["git", "-C", str(tmp_path), "rev-parse", "HEAD"],
-                          capture_output=True, text=True,
-                          check=True).stdout.strip()
-    return str(tmp_path), head
+    return str(tmp_path), _commit(tmp_path)
 
 
-def _render(tree, head, admission_dir="/adm/dir", python="/opt/py"):
+def _render(tree, head, admission_dir="/adm/dir", python=PY):
     return d6_render_command.render(python, tree, admission_dir, head)
 
 
-# ── renderer: substitution, provenance, source binding ───────────────
+# ── renderer: substitution and provenance ────────────────────────────
 
 def test_render_substitutes_and_nothing_survives(tmp_path):
     tree, head = _tree(tmp_path)
@@ -157,17 +169,25 @@ def test_render_substitutes_and_nothing_survives(tmp_path):
     assert argv[0] == "/bin/bash"
     assert argv[1] == f"{tree}/admission_wrapper.sh"
     assert argv[2:6] == [tree, head, "/adm/dir", "--"]
-    assert argv[6:11] == ["/opt/py", "d6_pressure_monitor.py",
+    assert argv[6:11] == [PY, "d6_pressure_monitor.py",
                           "--receipt", "/adm/dir/monitor.json", "--"]
-    assert argv[11] == "/opt/py" and argv[12] == "run_pipeline.py"
+    assert argv[11] == PY and argv[12] == "run_pipeline.py"
     assert argv[13] == tree
     assert argv[argv.index("--jobs") + 1] == "2"
     assert not any(d6_render_command.PLACEHOLDER_ANY.search(a) for a in argv)
-    assert env == {"ADMISSION_MAX_LOAD1": "8.0", "ADMISSION_PYTHON": "/opt/py"}
+    assert env == {"ADMISSION_MAX_LOAD1": "8.0", "ADMISSION_PYTHON": PY}
     pipeline = argv[len(EXPECTED_OUTER):]
     assert digest == hashlib.sha256(
         b"\0".join(os.fsencode(a) for a in pipeline)).hexdigest()
 
+
+def test_render_accepts_a_trailing_slash_on_tree(tmp_path):
+    tree, head = _tree(tmp_path)
+    argv, _, _ = _render(tree + os.sep, head)
+    assert argv[1] == f"{tree}/admission_wrapper.sh"
+
+
+# ── content binding (round 4) ────────────────────────────────────────
 
 def test_render_verifies_the_head_pin_itself(tmp_path):
     tree, _ = _tree(tmp_path)
@@ -175,106 +195,79 @@ def test_render_verifies_the_head_pin_itself(tmp_path):
         _render(tree, "0" * 40)
 
 
-def test_render_refuses_a_symlinked_record(tmp_path):
-    # Round-3 BLOCKING: git tracks the link, not the target — a symlinked
-    # record would pass head-pin and cleanliness while the argv comes from
-    # an ungated path.
-    rogue = tmp_path / "rogue"
-    rogue.mkdir()
+def test_assume_unchanged_drift_refuses(tmp_path):
+    # Round-4 BLOCKING 1: with the drifted edit suppressed from the index,
+    # status is clean and rev-parse matches — but the disk bytes differ from
+    # the head-pinned blob, and content is what must bind.
+    tree, head = _tree(tmp_path)
+    record_path = os.path.join(tree, d6_render_command.RECORD_BASENAME)
+    subprocess.run(["git", "-C", tree, "update-index", "--assume-unchanged",
+                    d6_render_command.RECORD_BASENAME], check=True)
     doc = _doc()
     doc["argv"] = [a if a != "2" else "4" for a in doc["argv"]]
-    (rogue / "drifted.json").write_text(json.dumps(doc))
-    victim = tmp_path / "victim"
-    victim.mkdir()
-    for name in d6_render_command.TREE_REQUIRED_FILES:
-        if name != d6_render_command.RECORD_BASENAME:
-            (victim / name).write_text("")
-    (victim / d6_render_command.RECORD_BASENAME).symlink_to(
-        rogue / "drifted.json")
-    subprocess.run(["git", "init", "-q", str(victim)], check=True)
-    subprocess.run(["git", "-C", str(victim), "add", "-A"], check=True)
-    subprocess.run(
-        ["git", "-C", str(victim), "-c", "user.email=t@t", "-c", "user.name=t",
-         "-c", "commit.gpgsign=false", "commit", "-q", "-m", "s"], check=True)
-    head = subprocess.run(["git", "-C", str(victim), "rev-parse", "HEAD"],
-                          capture_output=True, text=True,
-                          check=True).stdout.strip()
-    with pytest.raises(d6_render_command.RenderError, match="symlink"):
-        _render(str(victim), head)
-
-
-def test_render_refuses_a_symlinked_required_file(tmp_path):
-    outside = tmp_path / "outside.sh"
-    outside.write_text("")
-    sub = tmp_path / "t"
-    sub.mkdir()
-    tree, head = _tree(sub)
-    os.remove(os.path.join(tree, "admission_wrapper.sh"))
-    os.symlink(outside, os.path.join(tree, "admission_wrapper.sh"))
-    with pytest.raises(d6_render_command.RenderError, match="symlink"):
+    with open(record_path, "w") as f:
+        json.dump(doc, f)
+    porcelain = subprocess.run(["git", "-C", tree, "status", "--porcelain"],
+                               capture_output=True, text=True).stdout
+    assert porcelain == "", "precondition: the drift is index-suppressed"
+    with pytest.raises(d6_render_command.RenderError,
+                       match="head-pinned blob"):
         _render(tree, head)
 
 
-def test_record_content_comes_from_the_launched_tree(tmp_path):
-    doc = _doc()
-    doc["argv"] = [a if a != "2" else "3" for a in doc["argv"]]
-    tree, head = _tree(tmp_path, record=doc)
+def test_ambient_git_dir_cannot_redirect_the_oracle(tmp_path, monkeypatch):
+    # Round-4 BLOCKING 2: GIT_DIR/GIT_WORK_TREE must not reach any git the
+    # renderer runs. With them pointing at garbage, a sanitized call still
+    # answers from the real tree.
+    tree, head = _tree(tmp_path)
+    monkeypatch.setenv("GIT_DIR", "/nonexistent/decoy")
+    monkeypatch.setenv("GIT_WORK_TREE", "/nonexistent/worktree")
     argv, _, _ = _render(tree, head)
-    assert argv[argv.index("--jobs") + 1] == "3", (
-        "render() must read the launched tree's record, not the renderer's")
+    assert argv[2] == tree
 
 
-def test_render_refuses_a_record_naming_a_foreign_wrapper(tmp_path):
-    # Round-3 finding 2: counts alone let a record point outer_argv[1] at a
-    # wrapper outside the gated tree while keeping {TREE} multiplicity legal.
-    doc = _doc()
-    doc["launch_template"]["outer_argv"][1] = "/rogue/admission_wrapper.sh"
-    doc["launch_template"]["outer_argv"][7] = "{TREE}/d6_pressure_monitor.py"
-    doc["launch_template"]["outer_argv"][2] = "{TREE}"
-    doc["argv"][2] = "{TREE}"
-    tree, head = _tree(tmp_path, record=doc)
-    with pytest.raises(d6_render_command.RenderError):
-        _render(tree, head)
-
-
-def test_render_refuses_a_tree_that_is_not_the_skill_dir(tmp_path):
-    with pytest.raises(d6_render_command.RenderError, match="missing"):
-        d6_render_command.render("/opt/py", str(tmp_path), "/adm", "pin")
-
-
-def test_render_refuses_relative_paths(tmp_path):
+def test_exec_environment_is_stripped_of_git_vars(tmp_path, monkeypatch):
     tree, head = _tree(tmp_path)
-    with pytest.raises(d6_render_command.RenderError, match="absolute"):
-        d6_render_command.render("/opt/py", tree, "adm/dir", head)
+    captured = {}
+
+    def fake_execvpe(file, args, env):
+        captured.update(file=file, args=args, env=env)
+        raise SystemExit(0)
+
+    monkeypatch.setenv("GIT_DIR", "/nonexistent/decoy")
+    monkeypatch.setenv("ADMISSION_MAX_LOAD1", "99.0")
+    monkeypatch.setenv("ADMISSION_PYTHON", "/attacker/python")
+    monkeypatch.setattr(os, "execvpe", fake_execvpe)
+    with pytest.raises(SystemExit):
+        d6_render_command.main(["--python", PY, "--tree", tree,
+                                "--admission-dir", "/adm/dir",
+                                "--head-pin", head, "--exec"])
+    assert captured["file"] == "/bin/bash"
+    assert len(captured["args"]) == CHAIN_LEN
+    assert "GIT_DIR" not in captured["env"], (
+        "the wrapper's gates must not inherit a redirected git oracle")
+    assert captured["env"]["ADMISSION_MAX_LOAD1"] == "8.0"
+    assert captured["env"]["ADMISSION_PYTHON"] == PY
 
 
-def test_render_refuses_braces_in_inputs(tmp_path):
-    tree, head = _tree(tmp_path)
-    with pytest.raises(d6_render_command.RenderError, match="braces"):
-        d6_render_command.render("/opt/{p}", tree, "/adm", head)
-
-
-def test_render_refuses_admission_dir_inside_tree(tmp_path):
-    tree, head = _tree(tmp_path)
-    with pytest.raises(d6_render_command.RenderError, match="inside"):
-        _render(tree, head, admission_dir=os.path.join(tree, "adm-inside"))
-
-
-def test_render_pins_placeholder_multiplicities(tmp_path):
+@pytest.mark.parametrize("mutate", [
+    lambda d: d["argv"].__setitem__(d["argv"].index("2"), "4"),
+    lambda d: d["argv"].insert(5, "--permissive"),
+    lambda d: d["argv"].insert(5, "{TREE2}"),
+    lambda d: d["launch_template"]["outer_argv"].__setitem__(
+        1, "/rogue/admission_wrapper.sh"),
+    lambda d: d["env"].__setitem__("ADMISSION_MAX_LOAD1", "12.0"),
+    lambda d: d["env"].pop("ADMISSION_PYTHON"),
+])
+def test_a_committed_drifted_record_refuses_on_the_code_pin(tmp_path, mutate):
+    # Defense-in-depth: even COMMITTED drift (clean tree, true head pin)
+    # refuses, because the reviewed templates are pinned in renderer code —
+    # no git mechanism is load-bearing for this check.
     doc = _doc()
-    doc["launch_template"]["outer_argv"][3] = "{HEAD_PIN}{HEAD_PIN}"
-    tree, head = _tree(tmp_path, record=doc)
-    with pytest.raises(d6_render_command.RenderError, match="HEAD_PIN"):
-        _render(tree, head)
-
-
-@pytest.mark.parametrize("token", ["{EXTRA_KNOB}", "{TREE2}", "{tree}", "{X1}"])
-def test_render_refuses_unknown_or_malformed_placeholders(tmp_path, token):
-    doc = _doc()
-    doc["argv"].insert(5, token)
+    mutate(doc)
     tree, head = _tree(tmp_path, record=doc)
     with pytest.raises(d6_render_command.RenderError,
-                       match="unknown placeholder"):
+                       match="reviewed launch templates"):
         _render(tree, head)
 
 
@@ -287,9 +280,69 @@ def test_render_raises_render_error_on_missing_sections(tmp_path, missing_key):
         _render(tree, head)
 
 
+# ── input validation and confinement ─────────────────────────────────
+
+def test_render_refuses_a_symlinked_record(tmp_path):
+    rogue = tmp_path / "rogue"
+    rogue.mkdir()
+    (rogue / "drifted.json").write_text(json.dumps(_doc()))
+    victim = tmp_path / "victim"
+    victim.mkdir()
+    for name in d6_render_command.TREE_REQUIRED_FILES:
+        if name != d6_render_command.RECORD_BASENAME:
+            (victim / name).write_text("")
+    (victim / d6_render_command.RECORD_BASENAME).symlink_to(
+        rogue / "drifted.json")
+    subprocess.run(["git", "init", "-q", str(victim)], check=True)
+    head = _commit(victim)
+    with pytest.raises(d6_render_command.RenderError, match="symlink"):
+        _render(str(victim), head)
+
+
+def test_render_refuses_a_symlinked_required_file(tmp_path):
+    outside = tmp_path / "outside.sh"
+    outside.write_text("")
+    sub = tmp_path / "t"
+    sub.mkdir()
+    tree, _ = _tree(sub)
+    os.remove(os.path.join(tree, "admission_wrapper.sh"))
+    os.symlink(outside, os.path.join(tree, "admission_wrapper.sh"))
+    head = _commit(sub)
+    with pytest.raises(d6_render_command.RenderError, match="symlink"):
+        _render(tree, head)
+
+
+def test_render_refuses_a_tree_that_is_not_the_skill_dir(tmp_path):
+    with pytest.raises(d6_render_command.RenderError, match="missing"):
+        d6_render_command.render(PY, str(tmp_path), "/adm", "pin")
+
+
+def test_render_refuses_relative_paths(tmp_path):
+    tree, head = _tree(tmp_path)
+    with pytest.raises(d6_render_command.RenderError, match="absolute"):
+        d6_render_command.render(PY, tree, "adm/dir", head)
+
+
+@pytest.mark.parametrize("python", ["python3", "/nope/python"])
+def test_render_refuses_a_non_executable_python(tmp_path, python):
+    tree, head = _tree(tmp_path)
+    with pytest.raises(d6_render_command.RenderError, match="interpreter"):
+        _render(tree, head, python=python)
+
+
+def test_render_refuses_braces_in_inputs(tmp_path):
+    tree, head = _tree(tmp_path)
+    with pytest.raises(d6_render_command.RenderError, match="braces"):
+        d6_render_command.render(PY, tree, "/adm/{X}", head)
+
+
+def test_render_refuses_admission_dir_inside_tree(tmp_path):
+    tree, head = _tree(tmp_path)
+    with pytest.raises(d6_render_command.RenderError, match="inside"):
+        _render(tree, head, admission_dir=os.path.join(tree, "adm-inside"))
+
+
 def test_digest_uses_the_monitor_fsencode_formula(tmp_path):
-    # An undecodable byte in a path must still digest (os.fsencode), not
-    # crash — the monitor's command_sha256 uses fsencode (round 3, F5).
     tree, head = _tree(tmp_path)
     weird = "/adm/" + os.fsdecode(b"d\xff")
     argv, _, digest = _render(tree, head, admission_dir=weird)
@@ -305,7 +358,7 @@ def test_stream_output_is_nul_terminated_and_bash_reader_gets_all(tmp_path):
     env = {k: v for k, v in os.environ.items()
            if k not in ("ADMISSION_MAX_LOAD1", "ADMISSION_PYTHON")}
     proc = subprocess.run(
-        [PY, "-P", "-B", RENDERER, "--python", "/opt/py", "--tree", tree,
+        [PY, "-P", "-B", RENDERER, "--python", PY, "--tree", tree,
          "--admission-dir", "/adm/dir", "--head-pin", head],
         capture_output=True, env=env)
     assert proc.returncode == 0, proc.stderr
@@ -326,32 +379,10 @@ def test_stream_mode_refuses_a_conflicting_env_pin_cleanly(tmp_path):
     tree, head = _tree(tmp_path)
     env = dict(os.environ, ADMISSION_MAX_LOAD1="99.0")
     proc = subprocess.run(
-        [PY, "-P", "-B", RENDERER, "--python", "/opt/py", "--tree", tree,
+        [PY, "-P", "-B", RENDERER, "--python", PY, "--tree", tree,
          "--admission-dir", "/adm/dir", "--head-pin", head],
         capture_output=True, env=env)
     assert proc.returncode != 0
     assert b"cannot enforce the env pin" in proc.stderr
     assert b"Traceback" not in proc.stderr, (
         "refusals are operator-facing messages, not tracebacks")
-
-
-def test_exec_mode_applies_the_env_pins_over_the_caller(tmp_path, monkeypatch):
-    tree, head = _tree(tmp_path)
-    captured = {}
-
-    def fake_execvpe(file, args, env):
-        captured.update(file=file, args=args, env=env)
-        raise SystemExit(0)
-
-    monkeypatch.setenv("ADMISSION_MAX_LOAD1", "99.0")
-    monkeypatch.setenv("ADMISSION_PYTHON", "/attacker/python")
-    monkeypatch.setattr(os, "execvpe", fake_execvpe)
-    with pytest.raises(SystemExit):
-        d6_render_command.main(["--python", "/opt/py", "--tree", tree,
-                                "--admission-dir", "/adm/dir",
-                                "--head-pin", head, "--exec"])
-    assert captured["file"] == "/bin/bash"
-    assert len(captured["args"]) == CHAIN_LEN
-    assert captured["env"]["ADMISSION_MAX_LOAD1"] == "8.0"
-    assert captured["env"]["ADMISSION_PYTHON"] == "/opt/py", (
-        "the preflight interpreter pin must override the caller's export")
