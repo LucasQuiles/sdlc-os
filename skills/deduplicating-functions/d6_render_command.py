@@ -8,18 +8,24 @@ runnable command. Guarantees (review rounds 1-4):
 - CONTENT, not a label: after verifying `git rev-parse HEAD` equals
   --head-pin, EVERY launch input — the record, run_pipeline.py, safety.py,
   d6_pressure_monitor.py, admission_wrapper.sh, and this renderer itself —
-  is compared byte-for-byte to its head-pinned blob, and any divergence
-  refuses (catches update-index --assume-unchanged / --skip-worktree drift
-  on the executables as well as the record, rounds 4-5 BLOCKING). The
-  self-check catches an accidentally drifted or foreign renderer; a
-  deliberately rewritten verifier cannot bootstrap trust in itself — that
-  residual is the operator's checkout, owned by the head-pin grant.
-- Independent oracle: every git call uses the system git at the absolute
-  path /usr/bin/git (a PATH-earlier substitute cannot answer the checks,
-  round 5 finding 2) under an environment stripped of GIT_* variables, and
-  --exec strips GIT_* from the child environment too, so neither ambient
-  variables nor PATH can redirect the renderer's checks or the wrapper's
-  own head-pin and cleanliness gates.
+  is compared byte-for-byte to its head-pinned blob, and beyond those,
+  EVERY tracked file under the skill tree is verified against its ls-tree
+  oid (recomputed locally from disk bytes — enumeration is not trusted to
+  keep up with the import graph, round 6 BLOCKING 2). Any divergence
+  refuses (catches update-index --assume-unchanged / --skip-worktree
+  drift anywhere in the tree). The renderer self-check asserts the
+  EXECUTING MODULE IS BYTE-EQUAL to the tree's reviewed renderer — it is
+  content-equivalence, not path-confinement, and a deliberately rewritten
+  verifier cannot bootstrap trust in itself; that residual is the
+  operator's checkout, owned by the head-pin grant.
+- Independent oracle: every git call uses /usr/bin/git under a MINIMAL
+  ALLOWLIST environment (PATH=/usr/bin:/bin, LC_ALL=C and nothing else) —
+  not a name-by-name strip, which lost to GIT_DIR, then PATH, then
+  DEVELOPER_DIR across review rounds 4-6 (/usr/bin/git is the xcrun shim
+  on macOS and DEVELOPER_DIR redirects it). --exec additionally strips
+  GIT_* and DEVELOPER_DIR from the child environment so the wrapper's own
+  gates cannot be redirected either, and the wrapper unsets them itself
+  for hand-run invocations.
 - No-oracle structural pin: the blob's outer chain, pipeline argv, and env
   section must equal the reviewed templates in this file byte-for-byte
   BEFORE substitution — drift in the record refuses even if every git
@@ -113,17 +119,30 @@ class RenderError(ValueError):
     pass
 
 
-def _sanitized_env() -> dict[str, str]:
-    """The caller's environment minus every GIT_* variable, so no ambient
-    variable can redirect repository discovery for us or the wrapper."""
-    return {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+# The environment names that have each, in turn, redirected a git oracle
+# during review (GIT_* round 4, PATH round 5, DEVELOPER_DIR round 6). The
+# child chain strips these by name; the ORACLE goes further and runs on an
+# allowlist.
+ORACLE_HOSTILE_PREFIXES = ("GIT_",)
+ORACLE_HOSTILE_NAMES = ("DEVELOPER_DIR",)
+
+
+def _child_env() -> dict[str, str]:
+    """The caller's environment minus every variable known to redirect git
+    discovery, for the exec'd chain (the pipeline needs PATH/HOME etc., so
+    a full allowlist is impractical there)."""
+    return {k: v for k, v in os.environ.items()
+            if not k.startswith(ORACLE_HOSTILE_PREFIXES)
+            and k not in ORACLE_HOSTILE_NAMES}
 
 
 def _git(tree: str, *args: str) -> bytes:
+    # Allowlist, not a strip: the oracle's environment contains ONLY what
+    # git needs to answer read-only object-store queries.
     try:
         proc = subprocess.run([GIT_BIN, "-C", tree, *args],
-                              capture_output=True, timeout=30,
-                              env=_sanitized_env())
+                              capture_output=True, timeout=60,
+                              env={"PATH": "/usr/bin:/bin", "LC_ALL": "C"})
     except (OSError, subprocess.TimeoutExpired) as error:
         raise RenderError(f"git {' '.join(args)} failed: {error!r}")
     if proc.returncode != 0:
@@ -144,24 +163,58 @@ def _confined(tree_real: str, name: str) -> str:
 
 
 def _verify_blob_bound(tree: str, tree_real: str) -> dict[str, bytes]:
-    """Every launch input's disk bytes must equal its head-pinned blob —
-    the executables as much as the record (round 5 BLOCKING)."""
+    """EVERY tracked file under the skill tree must match its head-pinned
+    blob. The oid from ls-tree is recomputed locally from the disk bytes
+    (git hash-object formula), so enumeration cannot trail the import graph
+    (round 6 BLOCKING 2) and no per-file git call is needed."""
+    prefix = _git(tree, "rev-parse", "--show-prefix").decode().strip()
+    listing = _git(tree, "ls-tree", "-r", "-z", "HEAD")
     blobs: dict[str, bytes] = {}
-    for name in TREE_REQUIRED_FILES:
-        blob = _git(tree, "cat-file", "blob", f"HEAD:{name}")
-        with open(_confined(tree_real, name), "rb") as f:
-            disk = f.read()
-        if disk != blob:
+    seen = 0
+    for entry in listing.split(b"\0"):
+        if not entry:
+            continue
+        meta, raw_path = entry.split(b"\t", 1)
+        mode, otype, oid = meta.decode().split()
+        path = raw_path.decode()
+        if prefix and not path.startswith(prefix):
+            continue
+        rel = path[len(prefix):]
+        seen += 1
+        if otype != "blob":
+            raise RenderError(f"unsupported tree entry {path} ({otype})")
+        disk_path = os.path.join(tree_real, rel)
+        try:
+            if mode == "120000":
+                data = os.fsencode(os.readlink(disk_path))
+            else:
+                with open(disk_path, "rb") as f:
+                    data = f.read()
+        except OSError as error:
             raise RenderError(
-                f"the working-tree {name} differs from its head-pinned blob "
+                f"cannot read tracked file {rel}: {error}") from None
+        algo = "sha1" if len(oid) == 40 else "sha256"
+        h = hashlib.new(algo)
+        h.update(b"blob %d\0" % len(data))
+        h.update(data)
+        if h.hexdigest() != oid:
+            raise RenderError(
+                f"the working-tree {rel} differs from its head-pinned blob "
                 "(drifted or index-suppressed edit); refusing to render")
-        blobs[name] = blob
+        if rel in TREE_REQUIRED_FILES:
+            blobs[rel] = data
+    if seen == 0:
+        raise RenderError("ls-tree returned no entries for the skill tree")
+    missing = [n for n in TREE_REQUIRED_FILES if n not in blobs]
+    if missing:
+        raise RenderError(f"tracked tree is missing required files {missing}")
     with open(os.path.realpath(__file__), "rb") as f:
         running = f.read()
     if running != blobs[RENDERER_BASENAME]:
         raise RenderError(
             "the executing renderer differs from the launched tree's "
-            "reviewed renderer; run the tree's own d6_render_command.py")
+            "reviewed renderer (the check is byte-equality with the "
+            "head-pinned blob, not path identity)")
     return blobs
 
 
@@ -248,7 +301,7 @@ def main(argv: list[str]) -> int:
     sys.stderr.write(f"expected_command_sha256 {digest}\n")
     if args.exec_mode:
         sys.stderr.flush()
-        os.execvpe(rendered[0], rendered, {**_sanitized_env(), **env})
+        os.execvpe(rendered[0], rendered, {**_child_env(), **env})
         raise AssertionError("unreachable")  # pragma: no cover
     for key, value in env.items():
         held = os.environ.get(key)

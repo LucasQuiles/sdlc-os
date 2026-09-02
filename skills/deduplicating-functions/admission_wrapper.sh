@@ -39,7 +39,12 @@ PY=${ADMISSION_PYTHON:-/opt/homebrew/bin/python3.12}
 MAX_LOAD1=${ADMISSION_MAX_LOAD1:-8.0}
 # The gate's oracle is the system git at an absolute path — a PATH-earlier
 # substitute must not be able to answer the head-pin or cleanliness checks
-# (review round 5, finding 2).
+# (review round 5, finding 2). /usr/bin/git is the xcrun shim on macOS and
+# DEVELOPER_DIR redirects it; GIT_DIR/GIT_WORK_TREE redirect discovery —
+# unset every known redirection lever for hand-run invocations too
+# (review round 6, finding 1).
+unset DEVELOPER_DIR GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE \
+  GIT_OBJECT_DIRECTORY GIT_COMMON_DIR GIT_CEILING_DIRECTORIES 2>/dev/null || true
 GIT=/usr/bin/git
 
 if [ "$("$GIT" -C "$TREE" rev-parse HEAD)" != "$HEAD_PIN" ]; then

@@ -269,6 +269,46 @@ def test_a_drifted_renderer_in_the_tree_refuses(tmp_path):
         _render(tree, head)
 
 
+def test_developer_dir_cannot_redirect_the_oracle(tmp_path, monkeypatch):
+    # Round-6 BLOCKING 1: /usr/bin/git is the xcrun shim and DEVELOPER_DIR
+    # redirects it to an arbitrary toolchain. The oracle runs on an
+    # allowlist env, so a fake toolchain must never answer.
+    fake = tmp_path / "fakedev"
+    (fake / "usr" / "bin").mkdir(parents=True)
+    fake_git = fake / "usr" / "bin" / "git"
+    fake_git.write_text("#!/bin/sh\necho deadbeef\n")
+    fake_git.chmod(0o755)
+    sub = tmp_path / "t"
+    sub.mkdir()
+    tree, head = _tree(sub)
+    monkeypatch.setenv("DEVELOPER_DIR", str(fake))
+    argv, _, _ = _render(tree, head)
+    assert argv[3] == head, "the real HEAD must bind, not the fake toolchain's"
+    with pytest.raises(d6_render_command.RenderError, match="owner-named"):
+        _render(tree, "deadbeef" * 5)
+
+
+def test_tree_wide_drift_on_an_unenumerated_file_refuses(tmp_path):
+    # Round-6 BLOCKING 2: the verified set must be the WHOLE tracked tree,
+    # not an enumeration that trails the import graph. A drifted
+    # index-suppressed file that is not in TREE_REQUIRED_FILES refuses.
+    tree, head = _tree(tmp_path)
+    extra = os.path.join(tree, "pipeline_runtime.py")
+    with open(extra, "w") as f:
+        f.write("REVIEWED = True\n")
+    head = _commit(tmp_path)
+    subprocess.run(["git", "-C", tree, "update-index", "--assume-unchanged",
+                    "pipeline_runtime.py"], check=True)
+    with open(extra, "w") as f:
+        f.write("print('DRIFTED helper')\n")
+    porcelain = subprocess.run(["git", "-C", tree, "status", "--porcelain"],
+                               capture_output=True, text=True).stdout
+    assert porcelain == "", "precondition: the drift is index-suppressed"
+    with pytest.raises(d6_render_command.RenderError,
+                       match="pipeline_runtime.py differs"):
+        _render(tree, head)
+
+
 def test_ambient_git_dir_cannot_redirect_the_oracle(tmp_path, monkeypatch):
     # Round-4 BLOCKING 2: GIT_DIR/GIT_WORK_TREE must not reach any git the
     # renderer runs. With them pointing at garbage, a sanitized call still
@@ -289,6 +329,7 @@ def test_exec_environment_is_stripped_of_git_vars(tmp_path, monkeypatch):
         raise SystemExit(0)
 
     monkeypatch.setenv("GIT_DIR", "/nonexistent/decoy")
+    monkeypatch.setenv("DEVELOPER_DIR", "/nonexistent/toolchain")
     monkeypatch.setenv("ADMISSION_MAX_LOAD1", "99.0")
     monkeypatch.setenv("ADMISSION_PYTHON", "/attacker/python")
     monkeypatch.setattr(os, "execvpe", fake_execvpe)
@@ -300,6 +341,8 @@ def test_exec_environment_is_stripped_of_git_vars(tmp_path, monkeypatch):
     assert len(captured["args"]) == CHAIN_LEN
     assert "GIT_DIR" not in captured["env"], (
         "the wrapper's gates must not inherit a redirected git oracle")
+    assert "DEVELOPER_DIR" not in captured["env"], (
+        "the xcrun-shim redirection lever must not reach the wrapper")
     assert captured["env"]["ADMISSION_MAX_LOAD1"] == "8.0"
     assert captured["env"]["ADMISSION_PYTHON"] == PY
 
