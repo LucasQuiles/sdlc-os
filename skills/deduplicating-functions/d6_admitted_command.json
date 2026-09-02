@@ -1,0 +1,31 @@
+{
+  "record": "d6-admitted-command",
+  "revision": "2026-09-01 jobs-2 reviewed variant (round9 events 57/58)",
+  "derivation": "Windows 4 and 5 bracketed the --jobs 4 detector fan-out at ~5.5 load1 units (ambient ~5-7 -> breach 8.43, event 44; ambient 2.70 -> breach 8.19, event 57): the reviewed 8.0 monitor ceiling is unreachable at --jobs 4 on this host. This variant changes exactly one owner-named parameter, --jobs 4 -> 2. Every other flag is byte-identical to the event-28 grant. Launches substitute {PYTHON}, {TREE}, {ADMISSION_DIR} and go through admission_wrapper.sh + d6_pressure_monitor.py ('--receipt PATH -- CMD') unchanged.",
+  "argv": [
+    "{PYTHON}",
+    "run_pipeline.py",
+    "{TREE}",
+    "-o",
+    "{ADMISSION_DIR}/pipeline-output",
+    "--strict",
+    "--jobs",
+    "2",
+    "--resource-policy",
+    "refuse",
+    "--max-pairs",
+    "200000",
+    "--max-input-bytes",
+    "1073741824",
+    "--max-output-bytes",
+    "1073741824",
+    "--no-legacy-json",
+    "--max-report-rows",
+    "500",
+    "--max-wall-seconds",
+    "1800",
+    "--max-tree-rss-bytes",
+    "6442450944",
+    "--suppress"
+  ]
+}
