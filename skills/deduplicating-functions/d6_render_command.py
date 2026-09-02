@@ -5,15 +5,21 @@ The record file d6_admitted_command.json is the reviewed artifact (round9
 events 57/58) and this renderer is the only sanctioned way to turn it into a
 runnable command. Guarantees (review rounds 1-4):
 
-- CONTENT, not a label: the record is read from the head-pinned BLOB
-  (`git cat-file blob HEAD:d6_admitted_command.json`) after verifying
-  `git rev-parse HEAD` equals --head-pin. A working-tree record that
-  differs from the blob refuses (catches update-index --assume-unchanged /
-  --skip-worktree drift, round 4 BLOCKING 1).
-- Independent oracle: every git call runs under an environment stripped of
-  GIT_* variables, and --exec strips them from the child environment too,
-  so GIT_DIR/GIT_WORK_TREE cannot redirect the renderer's check or the
-  wrapper's own head-pin and cleanliness gates (round 4 BLOCKING 2).
+- CONTENT, not a label: after verifying `git rev-parse HEAD` equals
+  --head-pin, EVERY launch input — the record, run_pipeline.py, safety.py,
+  d6_pressure_monitor.py, admission_wrapper.sh, and this renderer itself —
+  is compared byte-for-byte to its head-pinned blob, and any divergence
+  refuses (catches update-index --assume-unchanged / --skip-worktree drift
+  on the executables as well as the record, rounds 4-5 BLOCKING). The
+  self-check catches an accidentally drifted or foreign renderer; a
+  deliberately rewritten verifier cannot bootstrap trust in itself — that
+  residual is the operator's checkout, owned by the head-pin grant.
+- Independent oracle: every git call uses the system git at the absolute
+  path /usr/bin/git (a PATH-earlier substitute cannot answer the checks,
+  round 5 finding 2) under an environment stripped of GIT_* variables, and
+  --exec strips GIT_* from the child environment too, so neither ambient
+  variables nor PATH can redirect the renderer's checks or the wrapper's
+  own head-pin and cleanliness gates.
 - No-oracle structural pin: the blob's outer chain, pipeline argv, and env
   section must equal the reviewed templates in this file byte-for-byte
   BEFORE substitution — drift in the record refuses even if every git
@@ -54,10 +60,12 @@ import subprocess
 import sys
 
 PLACEHOLDER_ANY = re.compile(r"\{[^{}]*\}")
+GIT_BIN = "/usr/bin/git"
 RECORD_BASENAME = "d6_admitted_command.json"
+RENDERER_BASENAME = "d6_render_command.py"
 TREE_REQUIRED_FILES = (
     "run_pipeline.py", "safety.py", "d6_pressure_monitor.py",
-    "admission_wrapper.sh", RECORD_BASENAME,
+    "admission_wrapper.sh", RECORD_BASENAME, RENDERER_BASENAME,
 )
 
 # The reviewed launch chain (round9 events 57/58). The blob record must
@@ -113,7 +121,7 @@ def _sanitized_env() -> dict[str, str]:
 
 def _git(tree: str, *args: str) -> bytes:
     try:
-        proc = subprocess.run(["git", "-C", tree, *args],
+        proc = subprocess.run([GIT_BIN, "-C", tree, *args],
                               capture_output=True, timeout=30,
                               env=_sanitized_env())
     except (OSError, subprocess.TimeoutExpired) as error:
@@ -135,16 +143,29 @@ def _confined(tree_real: str, name: str) -> str:
     return rp
 
 
-def load_record(tree: str, tree_real: str) -> dict:
-    """The record's CONTENT comes from the head-pinned blob; a working-tree
-    copy that differs refuses."""
-    blob = _git(tree, "cat-file", "blob", f"HEAD:{RECORD_BASENAME}")
-    with open(_confined(tree_real, RECORD_BASENAME), "rb") as f:
-        disk = f.read()
-    if disk != blob:
+def _verify_blob_bound(tree: str, tree_real: str) -> dict[str, bytes]:
+    """Every launch input's disk bytes must equal its head-pinned blob —
+    the executables as much as the record (round 5 BLOCKING)."""
+    blobs: dict[str, bytes] = {}
+    for name in TREE_REQUIRED_FILES:
+        blob = _git(tree, "cat-file", "blob", f"HEAD:{name}")
+        with open(_confined(tree_real, name), "rb") as f:
+            disk = f.read()
+        if disk != blob:
+            raise RenderError(
+                f"the working-tree {name} differs from its head-pinned blob "
+                "(drifted or index-suppressed edit); refusing to render")
+        blobs[name] = blob
+    with open(os.path.realpath(__file__), "rb") as f:
+        running = f.read()
+    if running != blobs[RENDERER_BASENAME]:
         raise RenderError(
-            "the working-tree record differs from the head-pinned blob "
-            "(drifted or index-suppressed edit); refusing to render")
+            "the executing renderer differs from the launched tree's "
+            "reviewed renderer; run the tree's own d6_render_command.py")
+    return blobs
+
+
+def load_record(blob: bytes) -> dict:
     try:
         doc = json.loads(blob.decode("utf-8"))
     except (UnicodeDecodeError, ValueError) as error:
@@ -192,7 +213,8 @@ def render(python: str, tree: str, admission_dir: str, head_pin: str,
             f"--head-pin {head_pin} does not match the tree's HEAD {head}; "
             "the record can only be rendered at the owner-named head")
 
-    doc = load_record(tree, real_tree)
+    blobs = _verify_blob_bound(tree, real_tree)
+    doc = load_record(blobs[RECORD_BASENAME])
     subs = {"{PYTHON}": python, "{TREE}": tree,
             "{ADMISSION_DIR}": admission_dir, "{HEAD_PIN}": head_pin}
 

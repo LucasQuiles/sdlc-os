@@ -143,10 +143,14 @@ def _commit(tree_path):
 
 
 def _tree(tmp_path, record=None):
-    """A stub skill tree that is a real git checkout carrying the record."""
+    """A stub skill tree that is a real git checkout carrying the record and
+    the REAL renderer (its self-integrity check compares the executing
+    module to the tree's blob)."""
     for name in d6_render_command.TREE_REQUIRED_FILES:
-        if name != d6_render_command.RECORD_BASENAME:
+        if name not in (d6_render_command.RECORD_BASENAME,
+                        d6_render_command.RENDERER_BASENAME):
             (tmp_path / name).write_text("")
+    shutil.copy(RENDERER, tmp_path / d6_render_command.RENDERER_BASENAME)
     if record is None:
         shutil.copy(COMMAND_FILE, tmp_path / d6_render_command.RECORD_BASENAME)
     else:
@@ -212,6 +216,56 @@ def test_assume_unchanged_drift_refuses(tmp_path):
     assert porcelain == "", "precondition: the drift is index-suppressed"
     with pytest.raises(d6_render_command.RenderError,
                        match="head-pinned blob"):
+        _render(tree, head)
+
+
+def test_assume_unchanged_drifted_executable_refuses(tmp_path):
+    # Round-5 BLOCKING: the record was blob-bound but the EXECUTABLES were
+    # not — an index-suppressed drifted run_pipeline.py sailed through every
+    # gate and ran arbitrary code. Now every launch input is blob-compared.
+    tree, head = _tree(tmp_path)
+    subprocess.run(["git", "-C", tree, "update-index", "--assume-unchanged",
+                    "run_pipeline.py"], check=True)
+    with open(os.path.join(tree, "run_pipeline.py"), "w") as f:
+        f.write("print('DRIFTED pipeline')\n")
+    porcelain = subprocess.run(["git", "-C", tree, "status", "--porcelain"],
+                               capture_output=True, text=True).stdout
+    assert porcelain == "", "precondition: the drift is index-suppressed"
+    with pytest.raises(d6_render_command.RenderError,
+                       match="run_pipeline.py differs"):
+        _render(tree, head)
+
+
+def test_a_path_earlier_fake_git_cannot_answer_the_oracle(tmp_path,
+                                                          monkeypatch):
+    # Round-5 finding 2: the oracle is /usr/bin/git by absolute path; a
+    # PATH-earlier substitute that would happily confirm any pin must never
+    # be consulted.
+    fake_bin = tmp_path / "fakebin"
+    fake_bin.mkdir()
+    fake_git = fake_bin / "git"
+    fake_git.write_text("#!/bin/sh\necho cafebabe\n")
+    fake_git.chmod(0o755)
+    sub = tmp_path / "t"
+    sub.mkdir()
+    tree, head = _tree(sub)
+    monkeypatch.setenv("PATH", f"{fake_bin}:{os.environ['PATH']}")
+    argv, _, _ = _render(tree, head)
+    assert argv[3] == head, "the real HEAD must bind, not the fake git's"
+    with pytest.raises(d6_render_command.RenderError, match="owner-named"):
+        _render(tree, "cafebabe")
+
+
+def test_a_drifted_renderer_in_the_tree_refuses(tmp_path):
+    # Round-5 finding 3: the renderer is inside its own verified set. A tree
+    # whose committed renderer differs from the executing module refuses.
+    tree, head = _tree(tmp_path)
+    with open(os.path.join(tree, d6_render_command.RENDERER_BASENAME),
+              "a") as f:
+        f.write("# drifted\n")
+    head = _commit(tmp_path)
+    with pytest.raises(d6_render_command.RenderError,
+                       match="executing renderer differs"):
         _render(tree, head)
 
 

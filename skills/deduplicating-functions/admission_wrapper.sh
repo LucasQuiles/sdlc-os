@@ -37,11 +37,15 @@ case "$DIR" in
 esac
 PY=${ADMISSION_PYTHON:-/opt/homebrew/bin/python3.12}
 MAX_LOAD1=${ADMISSION_MAX_LOAD1:-8.0}
+# The gate's oracle is the system git at an absolute path — a PATH-earlier
+# substitute must not be able to answer the head-pin or cleanliness checks
+# (review round 5, finding 2).
+GIT=/usr/bin/git
 
-if [ "$(git -C "$TREE" rev-parse HEAD)" != "$HEAD_PIN" ]; then
+if [ "$("$GIT" -C "$TREE" rev-parse HEAD)" != "$HEAD_PIN" ]; then
   echo "ADMISSION: head pin mismatch"; exit 71
 fi
-if [ -n "$(git -C "$TREE" status --porcelain=v1)" ]; then
+if [ -n "$("$GIT" -C "$TREE" status --porcelain=v1)" ]; then
   echo "ADMISSION: tree not clean"; exit 72
 fi
 
