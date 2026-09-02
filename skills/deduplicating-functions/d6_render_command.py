@@ -3,30 +3,41 @@
 own d6_admitted_command.json.
 
 The record file is the reviewed artifact (round9 events 57/58); this renderer
-is the only sanctioned way to turn it into a runnable command. The record is
-ALWAYS read from {TREE}/d6_admitted_command.json — the same tree the wrapper
-head-pins and cleanliness-checks — so record content cannot come from an
-ungated checkout (review round 2, finding 1). Placeholder multiplicities in
-the record are pinned exactly: {PYTHON} 2, {TREE} 3, {ADMISSION_DIR} 3,
-{HEAD_PIN} 1.
+is the only sanctioned way to turn it into a runnable command. Guarantees
+(review rounds 1-3):
 
-Sanctioned consumption (review round 2, findings 2-4):
+- The record and every required file are realpath-CONFINED to the launched
+  tree: a symlink pointing outside {TREE} refuses (round 3, BLOCKING).
+- The renderer itself verifies `git -C {TREE} rev-parse HEAD` equals
+  --head-pin BEFORE any chain is emitted, so record content is bound to the
+  owner-named head at render time, not just at wrapper time (round 3,
+  consolidating fix: a drifted record cannot select its own judge).
+- The rendered OUTER chain is structurally pinned in code — wrapper path,
+  tree, pin, admission dir, both '--' separators, the monitor invocation —
+  so a record cannot point at a wrapper or monitor outside the gated tree.
+- Placeholder multiplicities are pinned exactly ({PYTHON} 3 including the
+  env pin, {TREE} 3, {ADMISSION_DIR} 3, {HEAD_PIN} 1); unknown or malformed
+  {...} tokens refuse before substitution, and nothing brace-like survives
+  after it.
+- env pins: ADMISSION_MAX_LOAD1=8.0 and ADMISSION_PYTHON={PYTHON} — the
+  interpreter that runs the wrapper's canonical preflight is pinned to the
+  same python the chain uses. DEDUP_DETECTOR_TIMEOUT_S is inherited
+  (env-only knob, bounded by MAX_DETECTOR_TIMEOUT_S in run_pipeline.py).
+
+Sanctioned consumption:
   --exec        replaces this process with the rendered chain via execvpe,
-                applying the record's env pin OVER the caller's environment
-                and preserving the wrapper's exit-code contract (70-75)
-                natively. This is the recommended path.
-  (stream mode) without --exec, the chain is written to stdout as
-                NUL-TERMINATED records (every argument ends with NUL,
-                find -print0 convention) for
-                `while IFS= read -r -d '' a; do argv+=("$a"); done`.
-                Do NOT use xargs -0 (it collapses the wrapper's exit codes)
-                or $(...) (it strips NULs). Stream mode REFUSES to render if
-                the caller's environment already carries a conflicting value
-                for a pinned env var, since stdout cannot enforce the pin.
+                applying the env pins OVER the caller's environment and
+                preserving the wrapper's exit-code contract (70-75)
+                natively. Recommended.
+  (stream mode) NUL-TERMINATED records on stdout (every argument ends with
+                NUL) for `while IFS= read -r -d '' a`. Do NOT use xargs -0
+                (collapses the wrapper's exit codes) or $(...) (strips
+                NULs). Stream mode refuses if the caller's environment
+                conflicts with a pinned value it cannot enforce.
 
-Both modes print `expected_command_sha256 <hex>` to stderr — the sha256 of
-the NUL-joined pipeline argv, which must equal the monitor receipt's
-command_sha256 after the run (post-hoc provenance).
+Both modes print `expected_command_sha256 <hex>` to stderr — sha256 of the
+NUL-joined os.fsencode'd pipeline argv, the monitor receipt's exact
+command_sha256 formula (post-hoc provenance).
 
 Usage:
   d6_render_command.py --python P --tree T --admission-dir D --head-pin H [--exec]
@@ -38,11 +49,12 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 
-PLACEHOLDER_RE = re.compile(r"\{[A-Z_]+\}")
+PLACEHOLDER_ANY = re.compile(r"\{[^{}]*\}")
 EXPECTED_MULTIPLICITY = {
-    "{PYTHON}": 2, "{TREE}": 3, "{ADMISSION_DIR}": 3, "{HEAD_PIN}": 1,
+    "{PYTHON}": 3, "{TREE}": 3, "{ADMISSION_DIR}": 3, "{HEAD_PIN}": 1,
 }
 TREE_REQUIRED_FILES = (
     "run_pipeline.py", "safety.py", "d6_pressure_monitor.py",
@@ -55,9 +67,20 @@ class RenderError(ValueError):
     pass
 
 
-def load_record(tree: str) -> dict:
-    path = os.path.join(tree, RECORD_BASENAME)
-    with open(path, encoding="utf-8") as f:
+def _confined(tree_real: str, name: str) -> str:
+    """The file's realpath must live directly inside the tree's realpath."""
+    rp = os.path.realpath(os.path.join(tree_real, name))
+    if os.path.dirname(rp) != tree_real:
+        raise RenderError(
+            f"{name} resolves outside the launched tree ({rp}); "
+            "symlinked launch inputs are refused")
+    if not os.path.isfile(rp):
+        raise RenderError(f"--tree is not the skill directory; missing {name}")
+    return rp
+
+
+def load_record(tree_real: str) -> dict:
+    with open(_confined(tree_real, RECORD_BASENAME), encoding="utf-8") as f:
         doc = json.load(f)
     if doc.get("record") != "d6-admitted-command":
         raise RenderError("wrong record type")
@@ -78,36 +101,51 @@ def load_record(tree: str) -> dict:
     return doc
 
 
+def _head_of(tree: str) -> str:
+    try:
+        proc = subprocess.run(
+            ["git", "-C", tree, "rev-parse", "HEAD"],
+            capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise RenderError(f"cannot determine the tree's HEAD: {error!r}")
+    if proc.returncode != 0:
+        raise RenderError(
+            "cannot determine the tree's HEAD: " + proc.stderr.strip())
+    return proc.stdout.strip()
+
+
 def render(python: str, tree: str, admission_dir: str, head_pin: str,
            ) -> tuple[list[str], dict[str, str], str]:
-    """Return (full outer argv, env pins, expected pipeline-argv sha256).
-
-    The record is read from tree/d6_admitted_command.json, binding record
-    content to the same tree the wrapper gates.
-    """
+    """Return (full outer argv, rendered env pins, expected pipeline sha256)."""
     for name, value in (("--python", python), ("--tree", tree),
                         ("--admission-dir", admission_dir),
                         ("--head-pin", head_pin)):
-        if not value or "\0" in value:
-            raise RenderError(f"{name} must be a non-empty NUL-free string")
+        if not value or any(c in value for c in "\0{}"):
+            raise RenderError(
+                f"{name} must be a non-empty string without NUL or braces")
     if not os.path.isabs(tree) or not os.path.isabs(admission_dir):
         raise RenderError("--tree and --admission-dir must be absolute paths")
-    missing = [f for f in TREE_REQUIRED_FILES
-               if not os.path.isfile(os.path.join(tree, f))]
-    if missing:
-        raise RenderError(f"--tree is not the skill directory; missing {missing}")
     real_tree = os.path.realpath(tree)
+    for required in TREE_REQUIRED_FILES:
+        _confined(real_tree, required)
     if os.path.realpath(admission_dir).startswith(real_tree + os.sep):
         raise RenderError("--admission-dir must not live inside --tree "
                           "(run artifacts would dirty the head-pinned tree)")
+    head = _head_of(tree)
+    if head != head_pin:
+        raise RenderError(
+            f"--head-pin {head_pin} does not match the tree's HEAD {head}; "
+            "the record can only be rendered at the owner-named head")
 
-    doc = load_record(tree)
+    doc = load_record(real_tree)
     chain = doc["launch_template"]["outer_argv"] + doc["argv"]
-    for arg in chain:
-        for token in PLACEHOLDER_RE.findall(arg):
+    env_items = sorted(doc["env"].items())
+    tokens_scope = chain + [v for _, v in env_items]
+    for text in tokens_scope:
+        for token in PLACEHOLDER_ANY.findall(text):
             if token not in EXPECTED_MULTIPLICITY:
-                raise RenderError(f"unknown placeholder {token} in {arg!r}")
-    joined = "\0".join(chain)
+                raise RenderError(f"unknown placeholder {token} in {text!r}")
+    joined = "\0".join(tokens_scope)
     for ph, expected in EXPECTED_MULTIPLICITY.items():
         got = joined.count(ph)
         if got != expected:
@@ -116,17 +154,32 @@ def render(python: str, tree: str, admission_dir: str, head_pin: str,
 
     subs = {"{PYTHON}": python, "{TREE}": tree,
             "{ADMISSION_DIR}": admission_dir, "{HEAD_PIN}": head_pin}
-    rendered = []
-    for arg in chain:
-        for ph, value in subs.items():
-            arg = arg.replace(ph, value)
-        rendered.append(arg)
 
-    inner_start = len(doc["launch_template"]["outer_argv"])
-    pipeline_argv = rendered[inner_start:]
+    def _sub(text: str) -> str:
+        for ph, value in subs.items():
+            text = text.replace(ph, value)
+        if PLACEHOLDER_ANY.search(text):
+            raise RenderError(f"unsubstituted placeholder survives in {text!r}")
+        return text
+
+    rendered = [_sub(a) for a in chain]
+    env = {k: _sub(v) for k, v in doc["env"].items()}
+
+    expected_outer = [
+        "/bin/bash", os.path.join(tree, "admission_wrapper.sh"), tree,
+        head_pin, admission_dir, "--", python, "d6_pressure_monitor.py",
+        "--receipt", os.path.join(admission_dir, "monitor.json"), "--",
+    ]
+    if rendered[:len(expected_outer)] != expected_outer:
+        raise RenderError(
+            "rendered outer chain deviates from the reviewed structure "
+            f"(got {rendered[:len(expected_outer)]!r}); a record cannot "
+            "select a wrapper or monitor outside the gated tree")
+
+    pipeline_argv = rendered[len(expected_outer):]
     digest = hashlib.sha256(
-        b"\0".join(a.encode() for a in pipeline_argv)).hexdigest()
-    return rendered, dict(doc["env"]), digest
+        b"\0".join(os.fsencode(a) for a in pipeline_argv)).hexdigest()
+    return rendered, env, digest
 
 
 def main(argv: list[str]) -> int:
@@ -157,4 +210,8 @@ def main(argv: list[str]) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))
+    try:
+        raise SystemExit(main(sys.argv[1:]))
+    except RenderError as error:
+        sys.stderr.write(f"d6-render: {error}\n")
+        raise SystemExit(1)
