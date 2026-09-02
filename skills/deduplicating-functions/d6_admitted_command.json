@@ -4,7 +4,8 @@
   "derivation": "Windows 4 and 5 bracketed the --jobs 4 detector fan-out (ambient ~5-7 -> breach 8.43, event 44; ambient 2.70 -> breach 8.19, event 57): the reviewed 8.0 monitor ceiling is unreachable at --jobs 4 on this host. This variant changes exactly one owner-named parameter, --jobs 4 -> 2. Every other pipeline flag is byte-identical to the event-28 grant. ESTIMATES, not measurements: the '~5.5 load1 units at jobs 4' figure is bracketed from jobs-4 runs only, and its halving at jobs 2 is an extrapolation (load1 is a runnable-task average, not linear in job count); wall-clock headroom under --max-wall-seconds 1800 at jobs 2 is UNMEASURED because no window has ever completed - a wall-clock refuse (which aborts with nothing partial and occupies the admission dir) is an expected possible outcome of the next window, not a surprise. SCOPE: this record codifies the full launch chain - outer wrapper argv, monitor argv, pipeline argv, and the env allowlist. It does NOT codify the arming conditions (owner-granted per window) or the head pin value ({HEAD_PIN} is supplied by the grant naming the reviewed head). {TREE} must be the skill directory containing run_pipeline.py, safety.py, d6_pressure_monitor.py, and admission_wrapper.sh - it is simultaneously the pipeline source, the wrapper's head-pin/cleanliness target, and the cwd the wrapper establishes (admission_wrapper.sh cds to {TREE}, which is why pipeline argv[1] is the bare run_pipeline.py). Render with d6_render_command.py; hand-assembled launches forfeit these pins (the 2026-09-01 window lost an attempt to the monitor's '--' separator, which ledger prose never showed and which launch_template.outer_argv now carries).",
   "env": {
     "ADMISSION_MAX_LOAD1": "8.0",
-    "ADMISSION_PYTHON": "{PYTHON}"
+    "ADMISSION_PYTHON": "{PYTHON}",
+    "PYTHONPYCACHEPREFIX": "{ADMISSION_DIR}/pycache"
   },
   "launch_template": {
     "outer_argv": [

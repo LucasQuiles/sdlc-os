@@ -73,7 +73,8 @@ EXPECTED_OUTER = [
     "--",
 ]
 
-EXPECTED_ENV = {"ADMISSION_MAX_LOAD1": "8.0", "ADMISSION_PYTHON": "{PYTHON}"}
+EXPECTED_ENV = {"ADMISSION_MAX_LOAD1": "8.0", "ADMISSION_PYTHON": "{PYTHON}",
+                "PYTHONPYCACHEPREFIX": "{ADMISSION_DIR}/pycache"}
 
 CHAIN_LEN = len(EXPECTED_OUTER) + len(EXPECTED_ARGV)
 
@@ -179,10 +180,34 @@ def test_render_substitutes_and_nothing_survives(tmp_path):
     assert argv[13] == tree
     assert argv[argv.index("--jobs") + 1] == "2"
     assert not any(d6_render_command.PLACEHOLDER_ANY.search(a) for a in argv)
-    assert env == {"ADMISSION_MAX_LOAD1": "8.0", "ADMISSION_PYTHON": PY}
+    assert env == {"ADMISSION_MAX_LOAD1": "8.0", "ADMISSION_PYTHON": PY,
+                   "PYTHONPYCACHEPREFIX": "/adm/dir/pycache"}
     pipeline = argv[len(EXPECTED_OUTER):]
     assert digest == hashlib.sha256(
         b"\0".join(os.fsencode(a) for a in pipeline)).hexdigest()
+
+
+def test_render_works_when_the_tree_is_a_repo_subdirectory(tmp_path):
+    # Round-7 MUST-fix 1: every earlier fixture made the tree its own repo
+    # root, so a prefix filter that skipped every ls-tree entry in the REAL
+    # topology (skill dir nested in a larger repo) went unnoticed. This is
+    # the production shape.
+    repo = tmp_path / "repo"
+    (repo / "other").mkdir(parents=True)
+    (repo / "other" / "unrelated.txt").write_text("elsewhere in the repo")
+    skill = repo / "skills" / "dedup"
+    skill.mkdir(parents=True)
+    for name in d6_render_command.TREE_REQUIRED_FILES:
+        if name not in (d6_render_command.RECORD_BASENAME,
+                        d6_render_command.RENDERER_BASENAME):
+            (skill / name).write_text("")
+    shutil.copy(RENDERER, skill / d6_render_command.RENDERER_BASENAME)
+    shutil.copy(COMMAND_FILE, skill / d6_render_command.RECORD_BASENAME)
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    head = _commit(repo)
+    argv, _, _ = _render(str(skill), head)
+    assert argv[2] == str(skill)
+    assert argv[3] == head
 
 
 def test_render_accepts_a_trailing_slash_on_tree(tmp_path):
@@ -345,6 +370,8 @@ def test_exec_environment_is_stripped_of_git_vars(tmp_path, monkeypatch):
         "the xcrun-shim redirection lever must not reach the wrapper")
     assert captured["env"]["ADMISSION_MAX_LOAD1"] == "8.0"
     assert captured["env"]["ADMISSION_PYTHON"] == PY
+    assert captured["env"]["PYTHONPYCACHEPREFIX"] == "/adm/dir/pycache", (
+        "bytecode must compile from verified sources, not tree __pycache__")
 
 
 @pytest.mark.parametrize("mutate", [
@@ -453,7 +480,8 @@ def test_digest_uses_the_monitor_fsencode_formula(tmp_path):
 def test_stream_output_is_nul_terminated_and_bash_reader_gets_all(tmp_path):
     tree, head = _tree(tmp_path)
     env = {k: v for k, v in os.environ.items()
-           if k not in ("ADMISSION_MAX_LOAD1", "ADMISSION_PYTHON")}
+           if k not in ("ADMISSION_MAX_LOAD1", "ADMISSION_PYTHON",
+                        "PYTHONPYCACHEPREFIX")}
     proc = subprocess.run(
         [PY, "-P", "-B", RENDERER, "--python", PY, "--tree", tree,
          "--admission-dir", "/adm/dir", "--head-pin", head],

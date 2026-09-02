@@ -112,6 +112,10 @@ EXPECTED_PIPELINE_TEMPLATE = [
 EXPECTED_ENV_TEMPLATE = {
     "ADMISSION_MAX_LOAD1": "8.0",
     "ADMISSION_PYTHON": "{PYTHON}",
+    # Forces bytecode compilation from the verified sources into the vacant
+    # admission dir - untracked poisoned __pycache__ entries in the tree
+    # cannot shadow them (round 7 MUST-fix 2; -B only suppresses WRITING).
+    "PYTHONPYCACHEPREFIX": "{ADMISSION_DIR}/pycache",
 }
 
 
@@ -167,7 +171,10 @@ def _verify_blob_bound(tree: str, tree_real: str) -> dict[str, bytes]:
     blob. The oid from ls-tree is recomputed locally from the disk bytes
     (git hash-object formula), so enumeration cannot trail the import graph
     (round 6 BLOCKING 2) and no per-file git call is needed."""
-    prefix = _git(tree, "rev-parse", "--show-prefix").decode().strip()
+    # `git -C <subdir> ls-tree -r HEAD` already scopes to the subdirectory
+    # AND emits subdirectory-relative paths (review round 7 MUST-fix 1: a
+    # --show-prefix filter here inverted that and skipped every entry; only
+    # the seen==0 coverage assertion kept it fail-closed).
     listing = _git(tree, "ls-tree", "-r", "-z", "HEAD")
     blobs: dict[str, bytes] = {}
     seen = 0
@@ -176,10 +183,7 @@ def _verify_blob_bound(tree: str, tree_real: str) -> dict[str, bytes]:
             continue
         meta, raw_path = entry.split(b"\t", 1)
         mode, otype, oid = meta.decode().split()
-        path = raw_path.decode()
-        if prefix and not path.startswith(prefix):
-            continue
-        rel = path[len(prefix):]
+        rel = raw_path.decode()
         seen += 1
         if otype != "blob":
             raise RenderError(f"unsupported tree entry {path} ({otype})")
@@ -193,6 +197,10 @@ def _verify_blob_bound(tree: str, tree_real: str) -> dict[str, bytes]:
         except OSError as error:
             raise RenderError(
                 f"cannot read tracked file {rel}: {error}") from None
+        # Exact only while the repo has no clean/smudge filters, eol
+        # conversion, or .gitattributes rewriting worktree bytes (none
+        # today). Introducing one makes this REFUSE (fail-closed) - a
+        # future mismatch here may be configuration, not tampering.
         algo = "sha1" if len(oid) == 40 else "sha256"
         h = hashlib.new(algo)
         h.update(b"blob %d\0" % len(data))
