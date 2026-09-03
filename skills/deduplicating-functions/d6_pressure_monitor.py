@@ -37,6 +37,13 @@ class MissingLeaderIdentity(MonitorError):
     """The pinned process-group leader is absent from a canonical census."""
 
 
+def _classify_abort(error: BaseException) -> str:
+    """Shared abort classification for monitor-side failures (register CLEANUP)."""
+    if isinstance(error, (KeyboardInterrupt, SystemExit)):
+        return "D6_INTERRUPTED"
+    return "D6_MONITOR_UNAVAILABLE"
+
+
 @dataclass(frozen=True)
 class MonitorThresholds:
     max_load1: float = 8.0
@@ -584,19 +591,19 @@ def _run_monitored(
         except BaseException as error:
             # An interrupt or probe failure between launch and ownership proof
             # must not abandon the just-launched child (round-2 finding 4).
-            code = (
-                "D6_INTERRUPTED"
-                if isinstance(error, (KeyboardInterrupt, SystemExit))
-                else "D6_MONITOR_UNAVAILABLE"
-            )
+            code = _classify_abort(error)
+            # Pessimistic pre-set: if the termination below is itself
+            # interrupted, TERM/KILL may already be in flight with the reap
+            # unconfirmed — 'not_required' would be untruthful (round-3
+            # register MEDIUM, remediation event 51).
+            cleanup = "unavailable"
             cleanup = _terminate_child_directly(child, thresholds)
             observed_pgid = None
-        if observed_pgid is None:
-            pass
-        elif observed_pgid != child.pid:
+        if observed_pgid is not None and observed_pgid != child.pid:
             code = "D6_OWNERSHIP_REFUSED"
+            cleanup = "unavailable"
             cleanup = _terminate_child_directly(child, thresholds)
-        else:
+        elif observed_pgid is not None:
             owned_pgid = child.pid
             next_sample_at = deps.monotonic()
 
@@ -667,8 +674,12 @@ def _run_monitored(
                     next_sample_at = deps.monotonic() + thresholds.sample_interval_s
                     delay = thresholds.sample_interval_s
                 deps.sleep(delay)
-    except (KeyboardInterrupt, SystemExit):
-        code = "D6_INTERRUPTED"
+    except BaseException as error:
+        # BaseException-complete (round-3 register LOW): a loop-layer
+        # BaseException that is neither an interrupt nor an Exception must
+        # not escape receiptless. Classification is shared with the
+        # launch-to-ownership handler (register CLEANUP: duplication).
+        code = _classify_abort(error)
         if owned_pgid is not None:
             try:
                 cleanup = _cleanup_group(
@@ -677,15 +688,6 @@ def _run_monitored(
             except BaseException:
                 # A second interrupt during cleanup must not escape without a
                 # receipt (review finding 2).
-                cleanup = "unavailable"
-    except Exception:
-        code = "D6_MONITOR_UNAVAILABLE"
-        if owned_pgid is not None:
-            try:
-                cleanup = _cleanup_group(
-                    child, owned_pgid, tracked_pids, thresholds, deps
-                )
-            except BaseException:
                 cleanup = "unavailable"
 
     try:
@@ -702,11 +704,23 @@ def _run_monitored(
             cleanup=cleanup,
         )
         deps.publish(receipt_path, payload)
-    except BaseException:
+    except BaseException as error:
         # Receipt construction or publication failure — interrupt included —
         # is Inconclusive (3); the exit-code contract must survive a second
         # Ctrl+C anywhere in the receipt path (review finding 2 + round-2
-        # finding 2).
+        # finding 2). The non-interrupt branch additionally emits one stderr
+        # diagnostic so persistent construction/publication bugs are not
+        # hidden as silent exit-3s (round-3 register CLEANUP).
+        if not isinstance(error, (KeyboardInterrupt, SystemExit)):
+            try:
+                print(
+                    f"d6-monitor: receipt path failed: {error!r}",
+                    file=sys.stderr,
+                )
+            except BaseException:
+                # Even an interrupt landing mid-print must not break the
+                # exit-3 contract (tranche-review NIT).
+                pass
         return 3
     if outcome == "Pass":
         return 0

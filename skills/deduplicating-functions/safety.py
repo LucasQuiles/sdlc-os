@@ -26,6 +26,13 @@ DEFAULT_LOCK_PATH = os.path.expanduser("~/.cache/sdlc-os/run_pipeline.lock")
 # 35 swapfiles) would have been refused before any detector launched.
 DEFAULT_MIN_FREE_RAM_GB = 4.0
 DEFAULT_MAX_SWAPFILES = 5
+# On a DYNAMIC pool (macOS) ~1 swapfile per GiB of pool is normal bookkeeping
+# (11 x 1.0G files backing an 11 GiB pool observed healthy on 2026-08-30), so a
+# fixed cap of 5 would false-refuse healthy hosts once the probe reads the real
+# directory. The sprawl signal there is count far BEYOND pool size (orphaned
+# files, the 2026-04-11 shape): refuse when count > ceil(pool GiB) + slack.
+# Static pools keep the fixed DEFAULT_MAX_SWAPFILES cap unchanged.
+DEFAULT_SWAPFILE_ORPHAN_SLACK = 4
 # 2026-08-22 incident: the pipeline launched with 12.67 GB swap already used
 # (645 MB headroom) and drove the box to a 2h18m crisis. NOTE (2026-08-29
 # review): the swapfile-count probe reads /private/var/vm, which on modern
@@ -170,7 +177,10 @@ def darwin_pressure_status() -> dict:
         raise ProbeError("missing vm.swapusage total/used")
     swap_total_mb = _unit_mb(float(total_match.group(1)), total_match.group(2))
     swap_used_mb = _unit_mb(float(used_match.group(1)), used_match.group(2))
-    if swap_total_mb <= 0 or swap_used_mb > swap_total_mb:
+    # total == 0 with used == 0 is a VALID fresh-boot state on a dynamic
+    # pool (macOS creates swapfiles on demand); only negative values or
+    # used > total are malformed (register R4, round9 event 51).
+    if swap_total_mb < 0 or swap_used_mb < 0 or swap_used_mb > swap_total_mb:
         raise ProbeError("invalid vm.swapusage totals")
 
     segments = _run_probe(["sysctl", "vm.compressor.segment"])
@@ -187,9 +197,23 @@ def darwin_pressure_status() -> dict:
     if pressure_free_pct > 100:
         raise ProbeError("memory pressure percentage out of range")
 
-    ls_out = _run_probe(["ls", "/private/var/vm/"])
+    # Live swapfiles sit at the path named by vm.swapfileprefix on modern
+    # macOS (e.g. /System/Volumes/VM/swapfile); /private/var/vm is an empty
+    # stub there. Fall back to the legacy directory only when the sysctl is
+    # unavailable, preserving behavior on older systems (register R3).
+    try:
+        prefix_out = _run_probe(["sysctl", "-n", "vm.swapfileprefix"]).strip()
+    except ProbeError:
+        prefix_out = ""
+    if prefix_out.startswith("/"):
+        swapfile_dir = os.path.dirname(prefix_out) + "/"
+        swapfile_name_prefix = os.path.basename(prefix_out)
+    else:
+        swapfile_dir = "/private/var/vm/"
+        swapfile_name_prefix = "swapfile"
+    ls_out = _run_probe(["ls", swapfile_dir])
     swapfile_count = sum(
-        1 for name in ls_out.splitlines() if name.startswith("swapfile")
+        1 for name in ls_out.splitlines() if name.startswith(swapfile_name_prefix)
     )
 
     # macOS grows the swap pool on demand; report how far it could still
@@ -207,7 +231,8 @@ def darwin_pressure_status() -> dict:
         "free_gb": free_gb,
         "swap_total_mb": swap_total_mb,
         "swap_used_mb": swap_used_mb,
-        "swap_used_pct": 100.0 * swap_used_mb / swap_total_mb,
+        "swap_used_pct": (0.0 if swap_total_mb == 0
+                          else 100.0 * swap_used_mb / swap_total_mb),
         "swap_headroom_mb": swap_total_mb - swap_used_mb,
         "swap_pool_dynamic": True,
         "swap_growth_headroom_mb": growth_headroom_mb,
@@ -345,7 +370,26 @@ def check_preflight(
             f"insufficient free RAM: {status['free_gb']:.1f}GB "
             f"< {min_free_gb}GB threshold"
         )
-    if status["swapfile_count"] > max_swapfiles:
+    pool_dynamic = status["swap_pool_dynamic"]
+    if not isinstance(pool_dynamic, bool):
+        # The branch selector decides which swap axes apply; a truthy
+        # non-bool must not fail OPEN into the more permissive branch.
+        return False, (
+            f"refused: invalid swap pool dynamic flag ({pool_dynamic!r})")
+    total_mb = status["swap_total_mb"]
+    if not isinstance(total_mb, (int, float)) or isinstance(total_mb, bool) \
+            or not math.isfinite(total_mb) or total_mb < 0:
+        return False, f"refused: invalid swap total ({total_mb!r})"
+    if pool_dynamic:
+        # Dynamic pool: ~1 swapfile per GiB is pool bookkeeping; the
+        # sprawl signal is count far beyond pool size (orphaned files).
+        allowed_files = math.ceil(total_mb / 1024.0) + DEFAULT_SWAPFILE_ORPHAN_SLACK
+        if status["swapfile_count"] > allowed_files:
+            return False, (
+                f"swapfile sprawl: {status['swapfile_count']} files > "
+                f"{allowed_files} allowed (pool {total_mb:.0f}MB + "
+                f"{DEFAULT_SWAPFILE_ORPHAN_SLACK} slack)")
+    elif status["swapfile_count"] > max_swapfiles:
         return False, (
             f"too many swapfiles: {status['swapfile_count']} "
             f"> {max_swapfiles} threshold "
@@ -358,12 +402,6 @@ def check_preflight(
             "launched at 12.67GB swap used; refusing to add multi-GB detector "
             "load to a box already deep in swap)"
         )
-    pool_dynamic = status["swap_pool_dynamic"]
-    if not isinstance(pool_dynamic, bool):
-        # The branch selector decides which swap axes apply; a truthy
-        # non-bool must not fail OPEN into the more permissive branch.
-        return False, (
-            f"refused: invalid swap pool dynamic flag ({pool_dynamic!r})")
     if pool_dynamic:
         # A dynamically sized pool (macOS): utilization of the CURRENT
         # allocation is pool-sizing behavior, not memory pressure — the
