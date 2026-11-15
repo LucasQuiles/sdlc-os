@@ -32,10 +32,11 @@ any unavailable or inconclusive required role.
   not satisfy the gate. `sdlc_start`, `sdlc_phase`, `sdlc_bead`,
   `sdlc_sentinel`, and `sdlc_quality` are likewise conditional on their live
   registration.
-- **Codex:** Route SDLC worker and review dispatch through tmup only. Never
-  replace an unavailable tmup lane with a direct Agent or sidecar dispatch.
-  Record the blocked or degraded state and seek direction when that lane is
-  required.
+- **Codex:** Route SDLC worker and review dispatch through tmup only, and only
+  where a tmup session is observed. tmup is retired on maclab (owner ruling
+  2026-11-11), so there this route is unavailable. Never replace an unavailable
+  tmup lane with a direct Agent or sidecar dispatch. Record the blocked or
+  degraded state and seek direction when that lane is required.
 - **Other or unknown runtimes:** Do not invent tool calls. Preserve the phase,
   bead, review, and evidence records with the locally available facilities, and
   identify every unavailable tool-backed gate.
@@ -274,7 +275,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - Dispatch `reuse-scout` (haiku) — runs the 6-layer analysis chain (episodic → Pinecone → grep → LSP symbols → LSP calls → synthesis)
    - Inject scout report into runner context as "Existing Solutions"
 1.5. **Stress sampling (FFT-15):** Before dispatching runners, evaluate FFT-15 from `references/fft-decision-trees.md` using quality-budget.yaml state, clean streak from system-stress.jsonl, bead complexity, and the deterministic seed (`sha256(task_id)`). If FFT-15 returns anything other than SKIP, create `stress-session.yaml` with `artifact_status: planned` and the selected stressors. Stressor probes are applied during AQS (Step 4) alongside domain probes.
-2. Dispatch execution units through the observed route in "Runtime Capability Routing". In Claude, use `sonnet-implementer` runners or tmup-managed lanes when appropriate; the native runner permission mode is governed by "Claude Native Agent Dispatch" below. Codex uses tmup only. Parallelize independent units.
+2. Dispatch execution units through the observed route in "Runtime Capability Routing". In Claude, use `sonnet-implementer` runners, or tmup-managed lanes only where a tmup session is observed (tmup is retired on maclab); the native runner permission mode is governed by "Claude Native Agent Dispatch" below. Codex uses tmup only where it is observed. Parallelize independent units.
 3. After each runner submits, sentinel loop runs:
    - `haiku-verifier` checks acceptance criteria
    - `drift-detector` checks DRY/SSOT/SoC/pattern/boundary violations
