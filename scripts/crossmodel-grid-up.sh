@@ -108,8 +108,8 @@ fi
 
 # --- Check for existing session ---
 
-if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
-  printf 'Session already exists: %s — kill it first with crossmodel-grid-down.sh\n' "$SESSION_NAME" >&2
+if tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
+  jq -cn --arg session "$SESSION_NAME" '{ready:false,code:"SESSION_EXISTS",session_name:$session}'
   exit 2
 fi
 
@@ -122,11 +122,21 @@ COLS=$(awk -v n="$PANE_COUNT" -v r="$ROWS" 'BEGIN { c=int(n/r); if(c*r<n) c++; p
 # --- Create tmux session (detached, no terminal) ---
 
 SESSION_CREATED=false
+OWNER_TOKEN="${RANDOM}${RANDOM}$$-$(date +%s)"
 VIEWER_PANE_ID=""
+FAILURE_CODE="GRID_UP_FAIL"
 cleanup_grid() {
   if [[ "$SESSION_CREATED" == true ]]; then
-    [[ -z "$VIEWER_PANE_ID" ]] || tmux kill-pane -t "=$VIEWER_PANE_ID" 2>/dev/null || true
-    tmux kill-session -t "=$SESSION_NAME" 2>/dev/null || true
+    local owner skipped=false
+    owner=$(bounded_capture "$VIEWER_TIMEOUT" tmux show-options -v -t "=$SESSION_NAME" @xm_owner) || owner=""
+    if [[ "$owner" == "$OWNER_TOKEN" ]]; then
+      [[ -z "$VIEWER_PANE_ID" ]] || tmux kill-pane -t "=$VIEWER_PANE_ID" 2>/dev/null || true
+      tmux kill-session -t "=$SESSION_NAME" 2>/dev/null || true
+    else
+      skipped=true
+    fi
+    jq -cn --arg session "$SESSION_NAME" --arg code "$FAILURE_CODE" --argjson skipped "$skipped" \
+      '{ready:false,code:$code,session_name:$session,cleanup_skipped_unowned:$skipped}'
   fi
 }
 trap cleanup_grid EXIT
@@ -139,6 +149,10 @@ else
   create_rc=$?
   [[ "$create_rc" == 137 ]] || SESSION_CREATED=false
   printf 'Failed to create tmux session: %s\n' "$SESSION_NAME" >&2
+  exit 2
+fi
+if ! bounded_capture "$VIEWER_TIMEOUT" tmux set-option -t "=$SESSION_NAME" @xm_owner "$OWNER_TOKEN" >/dev/null; then
+  printf 'Failed to mark tmux session ownership: %s\n' "$SESSION_NAME" >&2
   exit 2
 fi
 
@@ -207,7 +221,7 @@ VIEWER_MODE=""
 CLIENT_TTYS=""
 
 visibility_failure() {
-  jq -cn --arg session "$SESSION_NAME" '{ready:false,code:"VISIBILITY_UNAVAILABLE",session_name:$session}'
+  FAILURE_CODE="VISIBILITY_UNAVAILABLE"
   exit 2
 }
 

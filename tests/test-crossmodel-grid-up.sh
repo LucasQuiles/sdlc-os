@@ -9,8 +9,10 @@ cat >"$TMPROOT/bin/tmux" <<'STUB'
 #!/bin/bash
 printf '%s\n' "$*" >>"$LOG"
 case "$1" in
-  has-session) exit 1 ;;
-  new-session) [[ "$CLIENT" != collision ]] ;;
+  has-session) [[ "$CLIENT" == existing ]] ;;
+  new-session) if [[ "$CLIENT" == creation_timeout ]]; then kill -KILL "$$"; fi; [[ "$CLIENT" != collision ]] ;;
+  set-option) printf '%s' "$5" >"$OWNER" ;;
+  show-options) if [[ "$CLIENT" == foreign ]]; then printf 'someone-else\n'; elif [[ -f "$OWNER" ]]; then cat "$OWNER"; else exit 1; fi ;;
   list-panes) printf 'pane\n' ;;
   capture-pane) printf 'xm $ \n' ;;
   display-message) printf '%s\n' "$CALLER_STATE" ;;
@@ -51,10 +53,11 @@ run_case() {
   local rc
   : >"$TMPROOT/log"
   rm -f "$TMPROOT/launched"
+  rm -f "$TMPROOT/owner"
   set +e
   env -i PATH="$TMPROOT/bin:/usr/bin:/bin:/opt/homebrew/bin" HOME="$TMPROOT/home" TMPDIR="$TMPROOT" \
     TMUP_PLUGIN_ROOT="$TMPROOT/tmup" LOG="$TMPROOT/log" OS="$os" CLIENT="$client" OSASCRIPT_OK="$osa" \
-    TMUX="$tmux_env" TMUX_PANE="$pane" SSH_CONNECTION="$ssh" CALLER_STATE="$caller" DISPLAY="$display" LAUNCHED="$TMPROOT/launched" XM_VIEWER_TIMEOUT_SECONDS=1 \
+    TMUX="$tmux_env" TMUX_PANE="$pane" SSH_CONNECTION="$ssh" CALLER_STATE="$caller" DISPLAY="$display" LAUNCHED="$TMPROOT/launched" OWNER="$TMPROOT/owner" XM_VIEWER_TIMEOUT_SECONDS=1 \
     /bin/bash "$ROOT/scripts/crossmodel-grid-up.sh" --session-name xm-test --panes 1 >"$TMPROOT/out" 2>"$TMPROOT/err"
   rc=$?
   set -e
@@ -75,11 +78,14 @@ run_case() {
       grep -q 'attach-session -r -t =xm-test' "$TMPROOT/log"
     fi
   else
-    if [[ "$name" == collision ]]; then
+    if [[ "$name" == existing || "$name" == foreign || "$name" == collision || "$name" == creation_timeout ]]; then
       if grep -q 'kill-session' "$TMPROOT/log"; then
         printf 'FAIL: collision killed an unowned session\n' >&2
         exit 1
       fi
+      if [[ "$name" == existing ]]; then jq -e '.code == "SESSION_EXISTS"' "$TMPROOT/out" >/dev/null; fi
+      if [[ "$name" == foreign ]]; then jq -e '.cleanup_skipped_unowned == true' "$TMPROOT/out" >/dev/null; fi
+      if [[ "$name" == creation_timeout ]]; then jq -e '.cleanup_skipped_unowned == true' "$TMPROOT/out" >/dev/null; fi
     else
       jq -e '.ready == false and .code == "VISIBILITY_UNAVAILABLE"' "$TMPROOT/out" >/dev/null
       grep -q 'kill-session -t =xm-test' "$TMPROOT/log"
@@ -103,4 +109,7 @@ run_case detached 2 '' Linux yes yes /tmp/socket,1,0 %0 '' '0 1'
 run_case gnome 0 new-window Linux yes yes '' '' '' '1 1' :0
 run_case gnome_no_client 2 '' Linux no yes '' '' '' '1 1' :0
 run_case collision 2 '' Linux collision yes '' '' ''
+run_case existing 2 '' Linux existing yes '' '' ''
+run_case foreign 2 '' Linux foreign yes '' '' ''
+run_case creation_timeout 2 '' Linux creation_timeout yes '' '' ''
 printf 'CROSSMODEL_GRID_UP_TESTS_PASS\n'
