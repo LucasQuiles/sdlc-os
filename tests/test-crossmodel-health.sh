@@ -75,13 +75,16 @@ run_case() {
   local rc
 
   set +e
-  /bin/bash "$HEALTH" --session-journal "$journal" >"$stdout" 2>"$stderr"
+  /bin/bash "$HEALTH" --session-journal "$journal" --settings-file "${SETTINGS_FILE-$TMPROOT/settings.json}" >"$stdout" 2>"$stderr"
   rc=$?
   set -e
 
   if [[ "$rc" -ne "$expected_rc" ]]; then
     record_fail "$label (expected exit $expected_rc, got $rc; stdout=$(tr '\n' ' ' <"$stdout"); stderr=$(tr '\n' ' ' <"$stderr"))"
     return
+  fi
+  if [[ "$expected_rc" == 3 ]] && ! grep -qx "cross-model: skipped_by_setting (policy=$(jq -r '.policy_outcome' "$journal"))" "$stderr"; then
+    record_fail "$label (missing skip diagnostic)"
   fi
 
   if jq -e \
@@ -102,6 +105,7 @@ trap cleanup EXIT
 trap 'exit 129' HUP
 trap 'exit 130' INT
 trap 'exit 143' TERM
+printf '{}\n' >"$TMPROOT/settings.json"
 
 cat >"$TMPROOT/reference-runtime.json" <<'JSON'
 {"receipt_id":"aqs-runtime-1","selector":"native-agent","requested_model":"configured","observed_model":"claude-reference","observation_source":"runtime-status-json","fallback_used":false}
@@ -133,6 +137,7 @@ run_case "explicit policy skip is not applicable" "$TMPROOT/skip.json" 0 DISABLE
 
 cat >"$TMPROOT/ready.json" <<'JSON'
 {
+  "visibility": {"attached_clients": 1, "client_ttys": ["/dev/tty1"], "read_only": true, "observation_source": "tmux list-clients", "mode": "split-pane", "session_name": "xm-test", "observed_at": "2026-01-01T00:00:00Z"},
   "project_root": "PROJECT_ROOT",
   "cross_model_required": true,
   "policy_outcome": "TARGETED",
@@ -169,6 +174,8 @@ run_case "required role not dispatched remains running" "$TMPROOT/ready.json" 1 
 
 cat >"$TMPROOT/complete.json" <<'JSON'
 {
+  "crossmodel_setting": {"key": "crossmodel_tmup_review", "enabled": true, "source": "user_config"},
+  "visibility": {"attached_clients": 1, "client_ttys": ["/dev/tty1"], "read_only": true, "observation_source": "tmux list-clients", "mode": "split-pane", "session_name": "xm-test", "observed_at": "2026-01-01T00:00:00Z"},
   "project_root": "PROJECT_ROOT",
   "cross_model_required": true,
   "policy_outcome": "TARGETED",
@@ -311,6 +318,41 @@ jq \
   "$TMPROOT/complete.json" >"$TMPROOT/complete.tmp"
 mv "$TMPROOT/complete.tmp" "$TMPROOT/complete.json"
 run_case "accepted terminal receipt satisfies required role" "$TMPROOT/complete.json" 0 COMPLETE satisfied true
+
+jq '.crossmodel_setting.enabled = false | .worker_tasks = [] | .required_task_ids = [] | .expected_artifacts = [] | .validated_artifacts = [] | .health_state = "SKIPPED_BY_SETTING" | del(.visibility)' "$TMPROOT/complete.json" >"$TMPROOT/off.json"
+run_case "targeted review disabled by setting" "$TMPROOT/off.json" 3 SKIPPED_BY_SETTING skipped_by_setting true
+jq '.policy_outcome = "FULL" | .targeted_domain = null' "$TMPROOT/off.json" >"$TMPROOT/off-full.json"
+run_case "full review disabled by setting" "$TMPROOT/off-full.json" 3 SKIPPED_BY_SETTING skipped_by_setting true
+jq '.worker_tasks = [{"task_id":"dispatched"}]' "$TMPROOT/off.json" >"$TMPROOT/off-worker.json"
+run_case "disabled setting rejects dispatched worker" "$TMPROOT/off-worker.json" 2 UNKNOWN inconclusive false
+jq '.policy_outcome = "SKIP" | .cross_model_required = false' "$TMPROOT/off.json" >"$TMPROOT/off-policy-skip.json"
+run_case "disabled setting rejects policy skip" "$TMPROOT/off-policy-skip.json" 2 UNKNOWN inconclusive false
+jq '.crossmodel_setting.enabled = "${user_config.crossmodel_tmup_review}"' "$TMPROOT/complete.json" >"$TMPROOT/unsubstituted.json"
+run_case "unsubstituted setting is inconclusive" "$TMPROOT/unsubstituted.json" 2 UNKNOWN inconclusive false
+printf '%s\n' '{"pluginConfigs":{"sdlc-os@example":{"options":{"crossmodel_tmup_review":true}}}}' >"$TMPROOT/enabled-settings.json"
+SETTINGS_FILE="$TMPROOT/enabled-settings.json" run_case "settings conflict blocks skip" "$TMPROOT/off.json" 1 BLOCKED blocked false
+SETTINGS_FILE="" run_case "empty settings path inconclusive" "$TMPROOT/off.json" 2 UNKNOWN inconclusive false
+SETTINGS_FILE="$TMPROOT" run_case "settings directory inconclusive" "$TMPROOT/off.json" 2 UNKNOWN inconclusive false
+printf '{}\n' >"$TMPROOT/unreadable.json"
+chmod 000 "$TMPROOT/unreadable.json"
+SETTINGS_FILE="$TMPROOT/unreadable.json" run_case "unreadable settings inconclusive" "$TMPROOT/off.json" 2 UNKNOWN inconclusive false
+chmod 600 "$TMPROOT/unreadable.json"
+printf '%s\n' '{"pluginConfigs":{"sdlc-os@example":{"options":{"crossmodel_tmup_review":"false"}}}}' >"$TMPROOT/nonboolean.json"
+SETTINGS_FILE="$TMPROOT/nonboolean.json" run_case "nonboolean setting inconclusive" "$TMPROOT/off.json" 2 UNKNOWN inconclusive false
+jq 'del(.visibility.read_only)' "$TMPROOT/complete.json" >"$TMPROOT/no-readonly.json"
+run_case "missing readonly proof blocks" "$TMPROOT/no-readonly.json" 1 BLOCKED blocked false
+jq 'del(.visibility.observation_source)' "$TMPROOT/complete.json" >"$TMPROOT/no-source.json"
+run_case "missing source blocks" "$TMPROOT/no-source.json" 1 BLOCKED blocked false
+jq '.visibility.client_ttys = []' "$TMPROOT/complete.json" >"$TMPROOT/mismatched-ttys.json"
+run_case "client count mismatch blocks" "$TMPROOT/mismatched-ttys.json" 1 BLOCKED blocked false
+jq '.session_name = "different"' "$TMPROOT/complete.json" >"$TMPROOT/mismatched-session.json"
+run_case "session mismatch blocks" "$TMPROOT/mismatched-session.json" 1 BLOCKED blocked false
+jq 'del(.crossmodel_setting)' "$TMPROOT/complete.json" >"$TMPROOT/old.json"
+run_case "old required journal remains required" "$TMPROOT/old.json" 0 COMPLETE satisfied true
+jq 'del(.visibility)' "$TMPROOT/complete.json" >"$TMPROOT/no-visibility.json"
+run_case "missing visibility blocks review" "$TMPROOT/no-visibility.json" 1 BLOCKED blocked false
+jq '.visibility.attached_clients = 0' "$TMPROOT/complete.json" >"$TMPROOT/no-clients.json"
+run_case "no attached clients blocks review" "$TMPROOT/no-clients.json" 1 BLOCKED blocked false
 
 jq '
   .worker_tasks[0] as $base
@@ -470,6 +512,23 @@ run_case "required unavailable cannot satisfy completion" "$TMPROOT/required-una
 jq '.breaker_open = true | .health_state = "FALLBACK_CLAUDE_ONLY"' "$TMPROOT/complete.json" >"$TMPROOT/fallback.json"
 run_case "Claude-only fallback cannot satisfy required gate" "$TMPROOT/fallback.json" 1 BLOCKED blocked false
 
+assert_contains \
+  "supervisor journal includes read-only evidence" \
+  "$PLUGIN_ROOT/agents/crossmodel-supervisor.md" \
+  '"read_only": true'
+assert_contains \
+  "colony mode names the setting" \
+  "$PLUGIN_ROOT/skills/sdlc-orchestrate/colony-mode.md" \
+  'user_config.crossmodel_tmup_review'
+assert_contains \
+  "conductor reads recorded setting" \
+  "$PLUGIN_ROOT/colony/conductor-prompt.md" \
+  'crossmodel_setting'
+assert_absent \
+  "doctrine has no suppressed viewer or mandatory cross-model claim" \
+  'suppress GUI|[Cc]ross.model review (is |are )?mandatory' \
+  "$PLUGIN_ROOT/skills/sdlc-orchestrate/colony-mode.md" \
+  "$PLUGIN_ROOT/colony/conductor-prompt.md"
 assert_contains \
   "health gate evaluates terminal receipts" \
   "$HEALTH" \

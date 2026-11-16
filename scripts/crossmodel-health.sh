@@ -5,16 +5,27 @@
 #   0  required review satisfied, or an explicit policy decision made it inapplicable
 #   1  required review is pending or blocked; parent workflow must not advance
 #   2  journal/tooling is unavailable or malformed; result is inconclusive
+#   3  required review skipped by setting
+# Usage: crossmodel-health.sh --session-journal FILE [--settings-file FILE]
 
 set -euo pipefail
 
 SESSION_JOURNAL=""
+SETTINGS_FILE="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --session-journal)
       SESSION_JOURNAL="${2:-}"
       shift 2
+      ;;
+    --settings-file)
+      SETTINGS_FILE="${2:-}"
+      shift 2
+      ;;
+    --help|-h)
+      printf 'Usage: crossmodel-health.sh --session-journal FILE [--settings-file FILE]\nExit 3: skipped by setting\n'
+      exit 0
       ;;
     *)
       printf 'Unknown argument: %s\n' "$1" >&2
@@ -68,10 +79,20 @@ if ! jq -e '
   and (.validated_artifacts | type == "array")
   and (.breaker_open | type == "boolean")
   and ((.health_state | type) == "string")
-  and (.health_state | IN("READY", "RUNNING", "DEGRADED", "COMPLETE", "DISABLED", "REQUIRED_UNAVAILABLE", "BLOCKED", "FALLBACK_CLAUDE_ONLY"))
+  and (.health_state | IN("READY", "RUNNING", "DEGRADED", "COMPLETE", "DISABLED", "REQUIRED_UNAVAILABLE", "BLOCKED", "FALLBACK_CLAUDE_ONLY", "SKIPPED_BY_SETTING"))
+  and (if has("crossmodel_setting") then (.crossmodel_setting.enabled | type == "boolean") else true end)
   and (
-    if .cross_model_required then
+    if (if has("crossmodel_setting") then .crossmodel_setting.enabled else true end) == false then
+      .cross_model_required == true
+      and (.policy_outcome | IN("FULL", "TARGETED"))
+      and .health_state == "SKIPPED_BY_SETTING"
+      and (.worker_tasks | length == 0)
+      and (.required_task_ids | length == 0)
+      and (.expected_artifacts | length == 0)
+      and (.validated_artifacts | length == 0)
+    elif .cross_model_required then
       (.policy_outcome | IN("FULL", "TARGETED"))
+      and .health_state != "SKIPPED_BY_SETTING"
       and
       (.reference_model | known_string)
       and (.reference_model_receipt.receipt_id | known_string)
@@ -106,6 +127,7 @@ if ! jq -e '
       )
     else
       .policy_outcome == "SKIP"
+      and .health_state != "SKIPPED_BY_SETTING"
       and (.required_task_ids | length == 0)
       and (.expected_artifacts | length == 0)
       and (.validated_artifacts | length == 0)
@@ -116,8 +138,21 @@ if ! jq -e '
   emit_unknown "session journal schema is invalid or incomplete"
 fi
 
+SETTING_OFF="$(jq -r 'if has("crossmodel_setting") then (.crossmodel_setting.enabled == false) else false end' "$SESSION_JOURNAL")"
+SETTING_CONFLICT=false
+if [[ "$SETTING_OFF" == "true" ]]; then
+  [[ -n "$SETTINGS_FILE" ]] || emit_unknown "settings path is empty"
+  if [[ -e "$SETTINGS_FILE" || -L "$SETTINGS_FILE" ]]; then
+    [[ -f "$SETTINGS_FILE" && -r "$SETTINGS_FILE" ]] || emit_unknown "settings file is unreadable or not a file"
+    SETTING_CONFLICT="$(jq -er '
+      [.pluginConfigs // {} | to_entries[] | select(.key | startswith("sdlc-os@")) | .value.options // {} | select(has("crossmodel_tmup_review")) | .crossmodel_tmup_review] as $values
+      | if all($values[]; type == "boolean") then (any($values[]; . == true) | tostring) else error("nonboolean setting") end
+    ' "$SETTINGS_FILE")" || emit_unknown "settings file is invalid"
+  fi
+fi
+
 FILES_VALID=true
-if [[ "$(jq -r '.cross_model_required' "$SESSION_JOURNAL")" == "true" ]]; then
+if [[ "$(jq -r '.cross_model_required' "$SESSION_JOURNAL")" == "true" && "$SETTING_OFF" != "true" ]]; then
   PYTHON_BIN="$(command -v python3.12 || command -v python3 || true)"
   if [[ -z "$PYTHON_BIN" ]]; then
     emit_unknown "python3 is required for artifact path and checksum validation"
@@ -189,7 +224,7 @@ PY
   fi
 fi
 
-RESULT=$(jq -c --argjson files_valid "$FILES_VALID" '
+RESULT=$(jq -c --argjson files_valid "$FILES_VALID" --argjson setting_conflict "$SETTING_CONFLICT" '
   def clean: gsub("^[[:space:]]+|[[:space:]]+$"; "");
   def normalized: clean | ascii_downcase;
   def present:
@@ -264,7 +299,13 @@ RESULT=$(jq -c --argjson files_valid "$FILES_VALID" '
         and .attempt_id == $worker.receipt.attempt_id
         and .evidence_id == $worker.evidence.evidence_id)] | length) == 1;
 
-  if .cross_model_required == false then
+  if (if has("crossmodel_setting") then .crossmodel_setting.enabled else true end) == false then
+    if $setting_conflict then
+      {health: "BLOCKED", gate_status: "blocked", advance_allowed: false, reason: "settings file enables cross-model review", policy_outcome: .policy_outcome}
+    else
+      {health: "SKIPPED_BY_SETTING", gate_status: "skipped_by_setting", advance_allowed: true, policy_outcome: .policy_outcome}
+    end
+  elif .cross_model_required == false then
     {
       health: "DISABLED",
       gate_status: "not_applicable",
@@ -323,7 +364,19 @@ RESULT=$(jq -c --argjson files_valid "$FILES_VALID" '
           ($investigator_domains | length) != 1 or $investigator_domains[0] != $journal.targeted_domain
         end
       ) as $domain_shape_invalid
-    | if $journal.breaker_open
+    | if (($journal.visibility.attached_clients | type) != "number")
+        or (($journal.visibility.attached_clients // 0) < 1)
+        or ($journal.visibility.observation_source != "tmux list-clients")
+        or ($journal.visibility.read_only != true)
+        or (($journal.visibility.client_ttys | type) != "array")
+        or (if ($journal.visibility.client_ttys | type) == "array" then (($journal.visibility.client_ttys | length) != $journal.visibility.attached_clients or (all($journal.visibility.client_ttys[]; present) | not)) else true end)
+        or ($journal.visibility.mode | IN("split-pane", "new-window") | not)
+        or ($journal.visibility.session_name | present | not)
+        or ($journal.visibility.observed_at | present | not)
+        or (if $journal.session_name != null then $journal.visibility.session_name != $journal.session_name else false end)
+        or (if $journal.tmup_receipt.session_name != null then $journal.visibility.session_name != $journal.tmup_receipt.session_name else false end)
+      then {health: "BLOCKED", gate_status: "blocked", advance_allowed: false, reason: "visible review session is not proven"}
+      elif $journal.breaker_open
         or ($journal.health_state | IN("DISABLED", "DEGRADED", "FALLBACK_CLAUDE_ONLY", "REQUIRED_UNAVAILABLE", "BLOCKED"))
       then {
         health: "BLOCKED",
@@ -388,6 +441,10 @@ printf '%s\n' "$RESULT"
 case "$(printf '%s\n' "$RESULT" | jq -r '.gate_status')" in
   satisfied|not_applicable)
     exit 0
+    ;;
+  skipped_by_setting)
+    printf 'cross-model: skipped_by_setting (policy=%s)\n' "$(jq -r '.policy_outcome' "$SESSION_JOURNAL")" >&2
+    exit 3
     ;;
   running|blocked)
     exit 1

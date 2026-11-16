@@ -217,9 +217,9 @@ aqs_exit:
 
 Capture the native dispatch/result envelope or supported runtime-status JSON directly to `source_artifact.path`; do not reconstruct it from role, selector, configuration, or memory. The captured JSON must contain the same receipt, selector, requested/observed model, observation source, and fallback fields shown above. If the active runtime exposes no machine-readable identity receipt, retain `unknown` and treat a required cross-model gate as inconclusive. The gate verifies the source file's confinement, physical uniqueness, SHA-256, JSON contents, and equality to this block.
 
-This block is consumed by FFT-14 (cross-model escalation). Emitting it does not change bead status. The bead remains `proven` until policy evaluation and, when required, `crossmodel-health.sh` returns a satisfied receipt/evidence gate. An absent or unobserved AQS runtime receipt makes required cross-model execution inconclusive.
+This block is consumed by FFT-14 (cross-model escalation). Emitting it does not change bead status. `${user_config.crossmodel_tmup_review}` is off by default. When off, record FULL/TARGETED as `skipped_by_setting`, run health (exit 3), and print `cross-model: skipped_by_setting (policy=<FULL|TARGETED>)` to the user and bead file. When on, review runs only in a proven visible read-only split pane or terminal window; `VISIBILITY_UNAVAILABLE` means REQUIRED_UNAVAILABLE. An absent or unobserved AQS runtime receipt makes enabled execution inconclusive.
 
-When FFT-14 activates cross-model review, `crossmodel-supervisor` launches or resumes tmup-managed interactive process lanes using the installed selector policy and live catalog. It records requested and observed models separately and obtains a new dispatch receipt for every launch or resume; role names and prior-session settings are not runtime evidence. Supervise those lanes with `harvest -> evaluate -> reprompt`, prefer reusing trustworthy live context, and require successful terminal receipts plus approved artifact evidence before hardening.
+When enabled and FFT-14 activates cross-model review, `crossmodel-supervisor` launches or resumes tmup-managed interactive process lanes using the installed selector policy and live catalog. It records requested and observed models separately and obtains a new dispatch receipt for every launch or resume; require successful terminal receipts plus approved artifact evidence before hardening.
 
 See `references/artifact-templates.md` "AQS Structured Exit Block" for field definitions.
 
@@ -230,7 +230,7 @@ After all domains complete Phase 4 (and Phase 5 where needed):
 1. Apply all accepted/sustained code fixes to the bead
 2. Write the adversarial quality report (`{bead-id}-aqs.md`) in the required format
 3. Persist all adversarial artifacts and the AQS runtime receipt to the `adversarial/` directory while the bead remains `proven`
-4. Evaluate FFT-14. For FULL/TARGETED, run the required cross-model workflow and require `crossmodel-health.sh` exit 0 with `gate_status: satisfied` and `advance_allowed: true`. For explicit SKIP, require `gate_status: not_applicable`.
+4. Evaluate FFT-14. For enabled FULL/TARGETED require health exit 0 with `satisfied`; for setting off require exit 3 with `skipped_by_setting`; for explicit SKIP require `not_applicable`. Each must allow advancement.
 5. Only after step 4 succeeds, update the bead status once to `hardened`. Otherwise retain `proven` and escalate L3.
 
 ---

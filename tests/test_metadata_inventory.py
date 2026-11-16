@@ -100,13 +100,17 @@ class MetadataInventoryTests(unittest.TestCase):
         return root
 
     def test_current_repository_contract(self) -> None:
+        manifest = json.loads((REPOSITORY_ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        setting = manifest["userConfig"]["crossmodel_tmup_review"]
+        self.assertIs(setting["default"], False)
+        self.assertEqual(setting["type"], "boolean")
         metadata = self.run_checker(METADATA_CHECKER, REPOSITORY_ROOT)
         self.assertEqual(metadata.returncode, 0, metadata.stderr)
         self.assertEqual(
             json.loads(metadata.stdout),
             {
                 "marketplace_version_authority": "plugin_manifest",
-                "plugin_version": "10.0.2",
+                "plugin_version": "10.1.0",
             },
         )
 

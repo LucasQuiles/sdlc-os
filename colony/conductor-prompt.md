@@ -140,8 +140,8 @@ After AQS and Harden complete inline, evaluate FFT-14 and the cross-model gate b
 
 ### Cross-Model Review (FFT-14)
 After AQS completes for a bead, evaluate FFT-14 from `references/fft-decision-trees.md`:
-- Evaluate risk policy before runtime availability. If policy selects **FULL** or **TARGETED**, invoke `sdlc-os:sdlc-crossmodel` with the bead context, AQS structured exit block, and the AQS runtime's observed model. Register every worker as a required role with cross-model and evidence policy. Retain each dispatch receipt and require the matching successful terminal receipt, distinct observed model, approved evidence, and validated artifact.
-- Run `crossmodel-health.sh` before advancing. Only exit 0 with `gate_status: satisfied` and `advance_allowed: true` permits `hardened`. If a required role is unavailable, skipped, inconclusive, missing evidence, or lacks a receipt, retain the bead at `proven` and escalate L3.
+- Evaluate risk policy before runtime availability. Read the `crossmodel_tmup_review` value the Conductor recorded in the journal's `crossmodel_setting`; cross-model review is off by default. When off, record FULL/TARGETED as `skipped_by_setting`, run health (exit 3), and print `cross-model: skipped_by_setting (policy=<FULL|TARGETED>)` to the user and bead file. When on, invoke `sdlc-os:sdlc-crossmodel` only in a proven visible read-only split pane or terminal window; `VISIBILITY_UNAVAILABLE` means REQUIRED_UNAVAILABLE. Follow its journal contract and require matching receipts and approved evidence for enabled review.
+- Run `crossmodel-health.sh` before advancing. Exit 0 with `satisfied`, or exit 3 with `skipped_by_setting`, permits `hardened` when `advance_allowed: true`. If an enabled required role is unavailable, skipped, inconclusive, missing evidence, or lacks a receipt, retain the bead at `proven` and escalate L3.
 - If FFT-14 returns **SKIP**, record the explicit policy decision; `gate_status: not_applicable` may proceed. Runtime unavailability is not SKIP.
 
 ### SYNTHESIZE

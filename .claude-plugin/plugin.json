@@ -1,9 +1,17 @@
 {
   "name": "sdlc-os",
   "description": "Multi-Agent SDLC Operating System — staged delivery with orchestration, production, and verification tiers",
-  "version": "10.0.2",
+  "version": "10.1.0",
   "author": {
     "name": "OnePlatform"
   },
-  "keywords": ["sdlc", "multi-agent", "orchestration", "verification", "stage-gates"]
+  "keywords": ["sdlc", "multi-agent", "orchestration", "verification", "stage-gates"],
+  "userConfig": {
+    "crossmodel_tmup_review": {
+      "type": "boolean",
+      "title": "Cross-model review via tmup",
+      "description": "When on, FFT-14 FULL/TARGETED reviews run through tmup in a visible split pane or terminal window. When off, they are recorded as skipped_by_setting.",
+      "default": false
+    }
+  }
 }

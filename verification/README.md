@@ -170,6 +170,7 @@ bash tests/test-portable-shell-helpers.sh
 bash colony/clone-manager.test.sh
 bash tests/test-crossmodel-preflight.sh
 bash tests/test-crossmodel-health.sh
+bash tests/test-crossmodel-grid-up.sh
 bash tests/test-colony-tooling.sh
 python3.12 scripts/check-plugin-metadata.py
 python3.12 scripts/check-repository-inventory.py
@@ -201,3 +202,7 @@ Validation checks the schema version, exact candidate assertion, manifest/catalo
 ## Extending the Manifest
 
 Release 1B and 1C may append new requirement entries and rows. They must not rename or reuse an existing requirement ID, check ID, baseline stable ID, schema version, or receipt path; they must not rewrite prior receipts. A schema change requires a new version, migration/replay tests, and review. Later rows cannot promote a deferred finding by omission: update its inventory disposition only when the named closure proof exists on the exact candidate.
+
+## Cross-model setting
+
+Cross-model review is off by default. When off, FULL/TARGETED is recorded as `skipped_by_setting` with health exit 3 and the visible line `cross-model: skipped_by_setting (policy=<FULL|TARGETED>)`. When on, review runs only in a proven visible read-only split pane or terminal window; `VISIBILITY_UNAVAILABLE` means REQUIRED_UNAVAILABLE.

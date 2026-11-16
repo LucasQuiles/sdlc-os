@@ -97,6 +97,7 @@ PROHIBITED_DIRECT_SCRIPTS = {
     "tests/test-fixture-regression.sh",
     "colony/validation/run-all.sh",
     "scripts/crossmodel-grid-down.sh",
+    "scripts/crossmodel-grid-up.sh",
 }
 
 MANIFEST_TOP_KEYS = {

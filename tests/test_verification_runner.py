@@ -716,6 +716,7 @@ class ManifestContractTests(VerificationRunnerCase):
             ["bash", "tests/test-fixture-regression.sh"],
             ["bash", "colony/validation/run-all.sh"],
             ["bash", "scripts/crossmodel-grid-down.sh", "--force"],
+            ["bash", "scripts/crossmodel-grid-up.sh"],
         ]
         for command in commands:
             with self.subTest(command=command):

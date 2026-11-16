@@ -453,7 +453,12 @@ FFT-14: cross_model_escalation
 
   Default → SKIP CROSS-MODEL
 
-  Availability gate (evaluate only after policy selects FULL or TARGETED):
+  Setting gate (after policy selects FULL or TARGETED, before availability):
+    Is crossmodel_tmup_review enabled?
+    → NO  → SKIPPED_BY_SETTING (retain the selected FULL or TARGETED policy_outcome)
+    → YES → evaluate the availability gate
+
+  Availability gate (evaluate only when the setting is enabled):
     Is tmup available and fully operational, is its receipt schema present,
     is the live model catalog readable, and is the AQS reference model observed?
     → NO  → REQUIRED_UNAVAILABLE
@@ -465,6 +470,7 @@ FFT-14: cross_model_escalation
 - **FULL:** 5 Codex workers (4 domain investigators + 1 independent reviewer). Grid: 2×3 layout.
 - **TARGETED:** 2 Codex workers (1 investigator for `aqs_exit.dominant_residual_risk_domain` + 1 independent reviewer). Grid: 1×2 layout.
 - **REQUIRED_UNAVAILABLE:** The policy requires cross-model review, but execution cannot be proven. Log the unavailable or inconclusive condition, retain the bead at `proven`, and escalate L3. This is not completion.
+- **SKIPPED_BY_SETTING:** The selected FULL or TARGETED policy is recorded, but review is skipped because the setting is off.
 - **SKIP:** No cross-model review needed. Bead proceeds directly to `hardened`.
 - **ESCALATE_L3:** AQS DEFERRED — no cross-model, standard L3 escalation.
 

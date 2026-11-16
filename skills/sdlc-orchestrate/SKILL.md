@@ -12,7 +12,7 @@ description: "Use when starting any non-trivial task to run the Multi-Agent SDLC
 > requested model, observed model, fallback, attempt ID, and terminal status.
 > Missing, unavailable, skipped, failed, or inconclusive required roles do not
 > count as completed and must block or explicitly degrade the parent workflow.
-> Same-model fallback cannot satisfy a cross-model-required gate.
+> Same-model fallback cannot satisfy an enabled cross-model-required gate.
 
 ## Runtime Capability Routing
 
@@ -292,8 +292,9 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - Deploy domain-matched blue team defenders to respond to findings
    - Dispatch `arbiter` (Opus) for any disputed findings — Kahneman protocol, binding verdicts
    - Update bead with hardening changes
-   - **Cross-model escalation (FFT-14):** After same-model AQS completes, the Conductor first evaluates risk policy from `references/fft-decision-trees.md` using the AQS structured exit block (`aqs_exit`), then checks runtime availability. If policy returns FULL or TARGETED, dispatch `crossmodel-supervisor` with bead context, the policy outcome, the AQS structured exit block, and the AQS runtime's observed model. The supervisor manages the tmup lifecycle (see `sdlc-os:sdlc-crossmodel`) using receipt-aware `harvest -> evaluate -> reprompt` supervision. Stage A findings route to existing blue-team defenders; Stage B findings route to `crossmodel-triage`. Finding content is advisory, but execution of every required role is a hard gate: run `crossmodel-health.sh` and require exit 0 with `gate_status: satisfied` and `advance_allowed: true` before setting `hardened`. A missing model observation, unavailable/skipped/inconclusive role, rejected evidence, absent artifact, or missing successful terminal receipt retains the bead at `proven` and escalates L3. Only an explicit FFT-14 SKIP outcome may proceed with `gate_status: not_applicable`; runtime unavailability cannot rewrite FULL or TARGETED as SKIP.
-   - mark status `hardened` only after the immediately preceding FFT-14 gate returns `satisfied` or the policy returns explicit `not_applicable`; otherwise retain `proven`
+   - **Cross-model escalation (FFT-14):** Evaluate risk policy first. `${user_config.crossmodel_tmup_review}` is off by default. When off, record FULL/TARGETED as `skipped_by_setting`, run health (exit 3), and print `cross-model: skipped_by_setting (policy=<FULL|TARGETED>)` to the user and bead file; follow the journal contract in `sdlc-os:sdlc-crossmodel`. When on, dispatch the supervisor only in a proven visible read-only split pane or terminal window; `VISIBILITY_UNAVAILABLE` means REQUIRED_UNAVAILABLE. Require health exit 0 with `satisfied` and `advance_allowed: true` for enabled review; missing roles, receipts, model observations, or evidence retain `proven` and escalate L3. Explicit policy SKIP is `not_applicable`; runtime unavailability is not SKIP.
+   - For enabled review, pass the bead context, policy outcome, AQS structured exit block, and observed AQS model to the supervisor. Use receipt-aware `harvest -> evaluate -> reprompt` supervision; route Stage A findings to blue-team defenders and Stage B findings to `crossmodel-triage`.
+   - mark status `hardened` only after health returns `gate_status: satisfied` and `advance_allowed: true`, or permits `not_applicable` or `skipped_by_setting`; otherwise retain `proven`
    - See `sdlc-os:sdlc-adversarial` for full cycle details
    - **Skip for trivial beads.** See `skills/sdlc-adversarial/scaling-heuristics.md`
    - **Repeat-review sampling:** After AQS domain probes complete, evaluate repeat-review sampling per `references/decision-noise-rules.yaml`. For sampled beads, dispatch a second blind pass with `review_stage: repeat_blind` and `exposure_mode: blind_first`, sharing a `repeat_review_group_id` with the original `arbiter_pre_synthesis` pass. Both passes recorded via `scripts/record-review-pass.sh`.

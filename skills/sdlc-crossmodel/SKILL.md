@@ -1,11 +1,15 @@
 ---
 name: sdlc-crossmodel
-description: "Use when SDLC needs tmup/Codex cross-model adversarial review after AQS or before hardening."
+description: "Use for optional, visibly supervised tmup cross-model review after AQS or before hardening."
 ---
 
 # Cross-Model Adversarial Review
 
 Supplement to the same-model AQS pipeline. Uses tmup to dispatch Codex CLI workers as cross-model adversarial agents — blind to Claude AQS findings — to surface systematic blind spots that same-model review cannot catch.
+
+`${user_config.crossmodel_tmup_review}` is off by default. When off, record FULL/TARGETED as `skipped_by_setting`, run the health gate (exit 3), and print `cross-model: skipped_by_setting (policy=<FULL|TARGETED>)` to the user and bead file; never silently skip. Do not dispatch the supervisor. When on, review runs only in a proven visible read-only split pane or terminal window; `VISIBILITY_UNAVAILABLE` means REQUIRED_UNAVAILABLE.
+
+For an off setting, write `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-session.json` with `bead_id`, absolute `project_root`, `cross_model_required: true`, the actual `policy_outcome`, `crossmodel_setting: {"key":"crossmodel_tmup_review","enabled":false,"source":"user_config"}`, `health_state: "SKIPPED_BY_SETTING"`, `breaker_open: false`, empty `worker_tasks`, `required_task_ids`, `expected_artifacts`, and `validated_artifacts` arrays, and no `visibility`. Run `crossmodel-health.sh` before advancement.
 
 **Entry condition:** Post-AQS (bead at `proven`), FFT-14 returns FULL or TARGETED.
 **Exit condition:** Normalized findings routed to blue teams / crossmodel-triage; bead status transition to `hardened` owned by Conductor.
@@ -16,9 +20,9 @@ Supplement to the same-model AQS pipeline. Uses tmup to dispatch Codex CLI worke
 
 - **Trigger:** Same-model AQS completes → Conductor evaluates FFT-14 → outcome is FULL or TARGETED
 - **Position in pipeline:** After AQS structured exit block is emitted, before bead status → `hardened`
-- **Conductor dispatches:** `crossmodel-supervisor` agent with bead context, FFT-14 outcome, AQS structured exit block
+- **Conductor dispatches:** When enabled, `crossmodel-supervisor` agent with bead context, FFT-14 outcome, AQS structured exit block
 
-If FFT-14 returns SKIP, this skill does not run and the bead may proceed through the normal AQS path. If policy selects FULL or TARGETED but the runtime is unavailable, the outcome is `REQUIRED_UNAVAILABLE`: retain the bead at `proven`, record the failed requirement, and escalate to L3. Availability cannot rewrite a required review into SKIP.
+If FFT-14 returns SKIP, this skill does not run and the bead may proceed through the normal AQS path. If enabled policy selects FULL or TARGETED but the runtime is unavailable, the outcome is `REQUIRED_UNAVAILABLE`: retain the bead at `proven`, record the failed requirement, and escalate to L3. Availability cannot rewrite a required review into SKIP.
 
 ---
 
@@ -47,7 +51,7 @@ See `references/fft-decision-trees.md` FFT-14 for the full decision tree. See `r
 ```
 1. PREFLIGHT  — crossmodel-preflight.sh
 2. INIT       — tmup_init (session/DB only)
-3. GRID       — crossmodel-grid-up.sh (tmux panes, TMUP_NO_TERMINAL=1)
+3. GRID       — crossmodel-grid-up.sh (tmux panes and proven visible read-only viewer)
 4. BATCH      — tmup_task_batch (unique produces per worker)
 5. DISPATCH   — tmup_dispatch per worker
 6. MONITOR    — tmup_status + tmup_inbox + tmup_next_action (15s normal / 5s degraded)
@@ -137,7 +141,7 @@ Reference `agents/crossmodel-supervisor.md` for full R&R protocol. Summary:
 | Operation | Budget | On exhaustion |
 |---|---|---|
 | Preflight | 1 retry (2 attempts) | REQUIRED_UNAVAILABLE; L3 escalation |
-| Fresh session (init + grid) | 1 retry | REQUIRED_UNAVAILABLE; L3 escalation |
+| Fresh session (init + grid) | 1 retry except `VISIBILITY_UNAVAILABLE`, which has none | REQUIRED_UNAVAILABLE; L3 escalation |
 | Worker launch (in-place) | 0 | One replacement attempt; retain failed receipt |
 | Replacement worker | 1 | BLOCKED; L3 escalation |
 | Idle worker reprompt | 1 | Timeout worker |
@@ -170,7 +174,8 @@ From spec Section 6.5:
 |---|---|
 | Preflight fails | Retry once. If still unavailable → REQUIRED_UNAVAILABLE, retain bead at `proven`, escalate L3 |
 | `tmup_init` fails | Retain receipt/error, retry once, then REQUIRED_UNAVAILABLE |
-| `crossmodel-grid-up.sh` fails | `crossmodel-grid-down.sh --force` (deregisters from tmup registry + kills tmux residue) → retry `tmup_init` with `xm-{bead-id}-r1`. If retry fails → REQUIRED_UNAVAILABLE |
+| `crossmodel-grid-up.sh` fails with `VISIBILITY_UNAVAILABLE` | REQUIRED_UNAVAILABLE; no fresh-session retry |
+| `crossmodel-grid-up.sh` fails otherwise | `crossmodel-grid-down.sh --force` (deregisters from tmup registry + kills tmux residue) → retry `tmup_init` with `xm-{bead-id}-r1`. If retry fails → REQUIRED_UNAVAILABLE |
 | Worker launch fails | Mark `unavailable`, retain the attempt receipt, use the one replacement budget; exhaustion blocks the parent gate |
 | Worker idle | `tmup_harvest` → evaluate lane state → `tmup_reprompt` once, then timeout |
 | Worker timeout (>10min) | `tmup_harvest` for supervision + forensics, mark TIMED_OUT, optional resume or one replacement; exhaustion blocks |
@@ -234,7 +239,7 @@ Do not run `codex exec`, Bash commands, or any direct shell interaction in worke
 | Script | Role |
 |---|---|
 | `crossmodel-preflight.sh` | Verify environment: tmup MCP reachable, codex in PATH, tmux available, artifact path writable, no conflicting session |
-| `crossmodel-grid-up.sh` | Create tmux panes for workers; set `TMUP_NO_TERMINAL=1` to suppress GUI terminal launch; synchronize installed role definitions before declaring the grid ready (this does not authorize leaf delegation) |
+| `crossmodel-grid-up.sh` | Create worker panes and prove a visible read-only split pane or terminal window with `tmux list-clients`; synchronize installed role definitions before declaring the grid ready (this does not authorize leaf delegation) |
 | `crossmodel-grid-down.sh` | Tear down tmux grid + clean residue. `--force`: also deregisters session from tmup registry (`registry.json`) to prevent reattachment on retry |
 | `crossmodel-verify-artifact.sh` | Validate artifact: existence, path, size, required headings, findings table, checksum. `--expected-checksum` flag on re-verification |
 | `crossmodel-health.sh` | Fail-closed parent gate over policy, required tasks, terminal receipts, observed models, accepted evidence, and validated artifacts |
@@ -243,7 +248,7 @@ Do not run `codex exec`, Bash commands, or any direct shell interaction in worke
 
 ## Grid Lifecycle
 
-**On-demand:** Grid is created when FFT-14 triggers FULL or TARGETED. Torn down after findings are collected. No persistent grid.
+**On-demand:** Grid is created when enabled and FFT-14 triggers FULL or TARGETED. Torn down after findings are collected. No persistent grid.
 
 **Serialized:** One cross-model session per project at a time (tmup constraint: one grid per project). If a bead reaches FFT-14 while another bead's session is active, queue it.
 
@@ -251,7 +256,11 @@ Do not run `codex exec`, Bash commands, or any direct shell interaction in worke
 
 ## Advancement Stance
 
-Finding content remains advisory and routes through normal blue-team and triage channels. Execution of a policy-required review is a hard gate: `crossmodel-health.sh` must return `gate_status: satisfied` and `advance_allowed: true` before the Conductor transitions the bead to `hardened`. Only an explicit FFT-14 `SKIP` decision produces `not_applicable`; infrastructure failure or worker loss does not.
+Finding content remains advisory and routes through normal blue-team and triage channels. Advancement requires health exit 0 with `satisfied`, explicit policy SKIP with `not_applicable`, or exit 3 with `skipped_by_setting`; each must allow advancement. Infrastructure failure or worker loss does not produce either skip.
+
+## Known limits
+
+Grid-up does not write tmup's `grid-state.json`, which tmup dispatch requires, so real dispatch into this grid likely fails closed.
 
 ---
 
