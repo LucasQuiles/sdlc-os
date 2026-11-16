@@ -90,7 +90,7 @@ run_case() {
         printf 'FAIL: collision killed an unowned session\n' >&2
         exit 1
       fi
-      if [[ "$name" == existing ]]; then jq -e '.code == "SESSION_EXISTS"' "$TMPROOT/out" >/dev/null; fi
+      if [[ "$name" == existing ]]; then jq -e '.code == "SESSION_EXISTS" and .cleanup_complete == true' "$TMPROOT/out" >/dev/null; fi
       if [[ "$name" == foreign ]]; then jq -e '.cleanup_skipped_unowned == true' "$TMPROOT/out" >/dev/null; fi
       if [[ "$name" == creation_timeout ]]; then jq -e '.cleanup_skipped_unowned == true' "$TMPROOT/out" >/dev/null; fi
       if [[ "$name" == hung_has ]]; then jq -e '.ready == false' "$TMPROOT/out" >/dev/null; fi

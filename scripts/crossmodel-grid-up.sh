@@ -7,7 +7,7 @@
 set -euo pipefail
 
 command -v jq >/dev/null 2>&1 || { printf 'jq is required\n' >&2; exit 2; }
-fail() { jq -cn --arg code "$1" '{ready:false,code:$code}'; exit 2; }
+fail() { jq -cn --arg code "$1" '{ready:false,code:$code,cleanup_complete:true}'; exit 2; }
 
 bounded_capture() (
   local limit="$1" output pid watchdog rc
@@ -79,7 +79,7 @@ fi
 # sdlc-os opens and proves the viewer; keep tmup's launcher disabled.
 
 VIEWER_TIMEOUT="${XM_VIEWER_TIMEOUT_SECONDS:-15}"
-[[ "$VIEWER_TIMEOUT" =~ ^[1-9][0-9]*$ ]] || { jq -cn '{ready:false,code:"INVALID_TIMEOUT"}'; exit 2; }
+[[ "$VIEWER_TIMEOUT" =~ ^[1-9][0-9]*$ ]] || { jq -cn '{ready:false,code:"INVALID_TIMEOUT",cleanup_complete:true}'; exit 2; }
 export TMUP_NO_TERMINAL=1
 
 # --- Sync tmup tiered custom agents into ~/.codex/agents ---
@@ -113,12 +113,12 @@ fi
 # --- Check for existing session ---
 
 if bounded_capture "$VIEWER_TIMEOUT" tmux has-session -t "=$SESSION_NAME" >/dev/null; then
-  jq -cn --arg session "$SESSION_NAME" '{ready:false,code:"SESSION_EXISTS",session_name:$session}'
+  jq -cn --arg session "$SESSION_NAME" '{ready:false,code:"SESSION_EXISTS",session_name:$session,cleanup_complete:true}'
   exit 2
 else
   has_rc=$?
   if [[ "$has_rc" != 1 ]]; then
-    jq -cn --arg session "$SESSION_NAME" '{ready:false,code:"SESSION_CHECK_FAILED",session_name:$session}'
+    jq -cn --arg session "$SESSION_NAME" '{ready:false,code:"SESSION_CHECK_FAILED",session_name:$session,cleanup_complete:true}'
     exit 2
   fi
 fi
