@@ -159,7 +159,7 @@ Where: `sdlc-loop/SKILL.md` L1 sentinel loop, agents that define the `haiku-veri
 Concept: Karpathy has extensively documented how tokenization creates LLM blind spots -- inability to count characters, perform arithmetic, reverse strings, handle non-English text. Context windows create working memory limits.
 Gap: The runner dispatch template in `sdlc-orchestrate/SKILL.md` lines 211-240 instructs the Conductor to craft "precisely crafted context packets -- never your full session history." This is good practice but does not systematically account for *what is likely to be lost or misprocessed* due to tokenization/context limitations. Long file contents, complex nested structures, and numeric data are all prone to tokenization-related errors.
 Mechanism: Add **context budget estimation** to the Conductor's bead dispatch. Before sending a context packet to a runner, estimate the token count and flag if it exceeds a threshold (e.g., 80% of the model's effective context). For numeric or structural data, prefer to reference file paths rather than inline the content. For tasks involving counting, arithmetic, or string manipulation, add explicit instructions to use code execution rather than mental arithmetic.
-Where: `sdlc-orchestrate/SKILL.md` "How to Dispatch Runners" section, new reference `references/context-budget-heuristics.md`.
+Where: `sdlc-orchestrate/SKILL.md` "Claude Native Agent Dispatch" section, new reference `references/context-budget-heuristics.md`.
 
 ### LOW Priority
 

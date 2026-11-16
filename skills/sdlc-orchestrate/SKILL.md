@@ -33,10 +33,10 @@ any unavailable or inconclusive required role.
   `sdlc_sentinel`, and `sdlc_quality` are likewise conditional on their live
   registration.
 - **Codex:** Route SDLC worker and review dispatch through tmup only, and only
-  where a tmup session is observed. tmup is retired on maclab (owner ruling
-  2026-11-11), so there this route is unavailable. Never replace an unavailable
-  tmup lane with a direct Agent or sidecar dispatch. Record the blocked or
-  degraded state and seek direction when that lane is required.
+  where a tmup session is observed; where none is observed, this route is
+  unavailable. Never replace an unavailable tmup lane with a direct Agent or
+  sidecar dispatch. Record the blocked or degraded state and seek direction
+  when that lane is required.
 - **Other or unknown runtimes:** Do not invent tool calls. Preserve the phase,
   bead, review, and evidence records with the locally available facilities, and
   identify every unavailable tool-backed gate.
@@ -65,7 +65,7 @@ Conductor (Opus)
 **Conductor (you, Opus):**
 - Decompose ambiguous requests into crisp, atomic work units
 - Distribute work units to runners with precise context — no more, no less
-- Choose the right execution surface: disposable runners by default, tmup-managed Codex lanes when warm context or interactive supervision matters
+- Choose the right execution surface: disposable runners by default, tmup-managed Codex lanes, only where a tmup session is observed, when warm context or interactive supervision matters
 - Decide when to parallelize vs serialize (dependency analysis)
 - **Swarm guppies** for breadth-first investigation, audit, and verification (use `sdlc-os:sdlc-swarm`)
 - Synthesize runner outputs into coherent delivery
@@ -78,7 +78,7 @@ Conductor (Opus)
 - Submit output and exit. Do not accumulate context across work units.
 - Agent variants: `sonnet-investigator`, `sonnet-designer`, `sonnet-implementer`, `sonnet-reviewer`
 
-**Persistent External Lanes (tmup-managed Codex):**
+**Persistent External Lanes (tmup-managed Codex, only where a tmup session is observed):**
 - Use when repo-scale execution, warm context, or interactive supervision makes disposable runners inefficient.
 - Treat each lane as a long-lived external subagent. You own the objective, context hygiene, and lifecycle.
 - Supervise with `harvest -> evaluate -> reprompt`, not fire-and-forget polling.
@@ -275,7 +275,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - Dispatch `reuse-scout` (haiku) — runs the 6-layer analysis chain (episodic → Pinecone → grep → LSP symbols → LSP calls → synthesis)
    - Inject scout report into runner context as "Existing Solutions"
 1.5. **Stress sampling (FFT-15):** Before dispatching runners, evaluate FFT-15 from `references/fft-decision-trees.md` using quality-budget.yaml state, clean streak from system-stress.jsonl, bead complexity, and the deterministic seed (`sha256(task_id)`). If FFT-15 returns anything other than SKIP, create `stress-session.yaml` with `artifact_status: planned` and the selected stressors. Stressor probes are applied during AQS (Step 4) alongside domain probes.
-2. Dispatch execution units through the observed route in "Runtime Capability Routing". In Claude, use `sonnet-implementer` runners, or tmup-managed lanes only where a tmup session is observed (tmup is retired on maclab); the native runner permission mode is governed by "Claude Native Agent Dispatch" below. Codex uses tmup only where it is observed. Parallelize independent units.
+2. Dispatch execution units through the observed route in "Runtime Capability Routing". In Claude, use `sonnet-implementer` runners, or tmup-managed lanes only where a tmup session is observed; the native runner permission mode is governed by "Claude Native Agent Dispatch" below. Codex uses tmup only where it is observed. Parallelize independent units.
 3. After each runner submits, sentinel loop runs:
    - `haiku-verifier` checks acceptance criteria
    - `drift-detector` checks DRY/SSOT/SoC/pattern/boundary violations
@@ -555,7 +555,7 @@ When all beads are proven, hardened (or AQS-skipped), and merged:
 | Frame | sonnet-investigator | haiku-evidence | — | — | Define mission, scope, criteria |
 | Scout | sonnet-investigator + convention-scanner + gap-analyst (Finder) + standards-curator + safety-constraints-guardian | haiku-evidence | — | — | Gather context, map conventions, find gaps, discover standards |
 | Architect | sonnet-designer + safety-analyst (if STPA applies) | haiku-verifier | — | — | Choose approach, create bead manifest |
-| Execute | sonnet-implementer (parallel OK) or tmup-managed Codex lanes (when warm context / interactive supervision helps) + crossmodel-supervisor (if FFT-14) | haiku-verifier + drift-detector + convention-enforcer + simplicity-auditor + safety-constraints-guardian | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
+| Execute | sonnet-implementer (parallel OK) or tmup-managed Codex lanes (only where a tmup session is observed, when warm context / interactive supervision helps) + crossmodel-supervisor (if FFT-14) | haiku-verifier + drift-detector + convention-enforcer + simplicity-auditor + safety-constraints-guardian | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
 | Synthesize | sonnet-reviewer + gap-analyst (Finisher) + normalizer (Final Pass) + losa-observer + reliability-ledger + llm-self-security | haiku-handoff | oracle L1+L2+L3 (integration) | fitness report (full, includes Conventions) | Merge results, deliver |
 
 ## Colony Mode (tmup Multi-Agent Dispatch)

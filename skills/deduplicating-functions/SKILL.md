@@ -254,7 +254,7 @@ Every stage is now bounded by design:
 | `merge/pairs.jsonl` | one merged pair per line, ordered by composite score, strategy count, first-seen | `--max-pairs`, `--max-output-bytes` |
 | `merge/summary.json` | counts plus `complete`, `pairs_dropped`, `candidates_total`, `truncation_reason` | small |
 | `merge/run.json`, `run.json` | policy, phases, counts, peak tree RSS, outcome, artifact hashes | small |
-| `merge/merged-results.json` | legacy `{"pairs": [...], "summary": {...}}` | written only under `--max-legacy-json-bytes` (default 200 MiB); absence is recorded in `run.json` |
+| `merge/merged-results.json` | legacy `{"pairs": [...], "summary": {...}}` | not written with `--no-legacy-json`; otherwise written only under `--max-legacy-json-bytes` (default 200 MiB); absence is recorded in `run.json` |
 | `duplicates-report.md` | streamed markdown, `--max-report-rows` per section, omissions stated explicitly | rows |
 
 Ceilings (all finite positive integers; there is no unbounded setting):

@@ -85,7 +85,7 @@ Now I have a thorough understanding of the system. Let me compile the comprehens
 **Concept:** Losses loom larger than equivalent gains. People are risk-averse for gains but risk-seeking for losses.
 **Implemented as:** The premortem analysis uses loss-aversion framing explicitly ("what will we fail to harden?" rather than "what should we harden?"). Error budget policy uses loss framing -- depleted budget triggers slowdown and increased scrutiny.
 **Missing:** No systematic use of loss framing in bead specifications or runner prompts. When runners receive beads, the acceptance criteria are framed as positive targets ("implement X"). Kahneman's research suggests framing some criteria as losses ("if this bead ships without Y, users will lose Z") would increase attention to critical requirements. Loss framing is used in one place (premortem) but not propagated to the routine dispatch pattern.
-**Where it would go:** Runner dispatch template in `skills/sdlc-orchestrate/SKILL.md` (How to Dispatch Runners section), adding a "Risk of omission" field to bead specifications.
+**Where it would go:** Runner dispatch template in `skills/sdlc-orchestrate/SKILL.md` (Claude Native Agent Dispatch section), adding a "Risk of omission" field to bead specifications.
 
 ### PE-3. Structured Decision-Making / Decision Hygiene ("Noise")
 **Concept:** From "Noise": use structured protocols (checklists, independent assessments, delayed holistic judgment) to reduce noise in decisions. Decision hygiene is the set of organizational practices that reduce unwanted variability.
