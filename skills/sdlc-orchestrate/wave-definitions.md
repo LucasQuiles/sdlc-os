@@ -90,7 +90,7 @@ Phases are orientation markers, not approval gates. The Conductor flows through 
 **Purpose:** Build the thing. This is where most time is spent.
 
 **Conductor does:**
-- Dispatch `sonnet-implementer` runners — one per bead, with Agent-tool `mode: auto` (Phase 2 permissionMode; observed to inherit the parent's allow list; deny-list inheritance is untested — see "Claude Native Agent Dispatch" in SKILL.md)
+- Dispatch execution units through the observed route in "Runtime Capability Routing" (SKILL.md). In a Claude runtime: `sonnet-implementer` runners — one per bead, with Agent-tool `mode: auto` (Phase 2 permissionMode; observed to inherit the parent's allow list; deny-list inheritance is untested — see "Claude Native Agent Dispatch" in SKILL.md)
 - Parallelize independent beads, serialize dependent ones
 - Sentinel watches continuously (not after completion)
 - Re-dispatch fresh runners when sentinel flags problems (max 3 cycles per bead)
