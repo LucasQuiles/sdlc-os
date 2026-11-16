@@ -929,7 +929,8 @@ fi
 - [ ] **Step 3: Run full pipeline and verify TF-IDF appears in merge**
 
 ```bash
-rm -rf /tmp/verify-sp1 && bash scripts/orchestrate.sh /home/q/LAB/bricklab/hooks -o /tmp/verify-sp1 --skip-llm 2>&1 | grep -E "tfidf|strategies"
+sp1_verify=$(mktemp -d /tmp/verify-sp1.XXXXXX)
+bash scripts/orchestrate.sh /home/q/LAB/bricklab/hooks -o "$sp1_verify" --skip-llm 2>&1 | grep -E "tfidf|strategies"
 ```
 
 Expected: `tfidf-index: N candidate pairs` in the merge output, and `tfidf_index` in the strategies list.
@@ -937,7 +938,7 @@ Expected: `tfidf-index: N candidate pairs` in the merge output, and `tfidf_index
 - [ ] **Step 4: Compare accuracy before/after**
 
 ```bash
-jq '.summary' /tmp/verify-sp1/merge/merged-results.json
+jq '.summary' "$sp1_verify/merge/merged-results.json"
 ```
 
 Verify `tfidf_index` appears in `strategies_used` and total pairs have shifted.
@@ -959,13 +960,14 @@ git commit -m "feat: wire TF-IDF detector into orchestrator and merge pipeline"
 - [ ] **Step 1: Run full pipeline on bricklab/hooks**
 
 ```bash
-rm -rf /tmp/sp1-final && bash scripts/orchestrate.sh /home/q/LAB/bricklab/hooks -o /tmp/sp1-final --skip-llm 2>&1
+sp1_final=$(mktemp -d /tmp/sp1-final.XXXXXX)
+bash scripts/orchestrate.sh /home/q/LAB/bricklab/hooks -o "$sp1_final" --skip-llm 2>&1
 ```
 
 - [ ] **Step 2: Verify key metrics**
 
 ```bash
-jq '.summary' /tmp/sp1-final/merge/merged-results.json
+jq '.summary' "$sp1_final/merge/merged-results.json"
 ```
 
 Check:
@@ -974,7 +976,7 @@ Check:
 - Known true duplicate `generate_action_id` <-> `generate_enrichment_id` is still HIGH
 
 ```bash
-jq '[.pairs[] | select(.func_a.name == "generate_action_id" or .func_b.name == "generate_action_id")] | .[0].confidence' /tmp/sp1-final/merge/merged-results.json
+jq '[.pairs[] | select(.func_a.name == "generate_action_id" or .func_b.name == "generate_action_id")] | .[0].confidence' "$sp1_final/merge/merged-results.json"
 ```
 
 Expected: `"HIGH"`

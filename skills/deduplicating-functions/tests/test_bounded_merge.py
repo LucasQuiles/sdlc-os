@@ -13,8 +13,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 BASE = Path(__file__).parent.parent
 SCRIPTS = BASE / "scripts"
 MERGE = SCRIPTS / "merge-signals.py"
@@ -84,7 +82,7 @@ def test_writes_summary_pairs_jsonl_run_json_and_legacy(tmp_path):
     assert (out / "run.json").exists()
     assert (out / "merged-results.json").exists(), "small run must still emit the legacy file"
     summary = json.loads((out / "summary.json").read_text())
-    pairs = [json.loads(l) for l in (out / "pairs.jsonl").read_text().splitlines()]
+    pairs = [json.loads(line) for line in (out / "pairs.jsonl").read_text().splitlines()]
     legacy = json.loads((out / "merged-results.json").read_text())
     assert summary["total_pairs"] == 12 == len(pairs)
     assert legacy["pairs"] == pairs
@@ -116,7 +114,7 @@ def test_pairs_jsonl_ordering_is_score_then_strategies_then_first_seen(tmp_path)
     r = _run_merge(d, out)
     assert r.returncode == 0, r.stderr
     names = [(p["func_a"]["name"], p["func_b"]["name"]) for p in
-             (json.loads(l) for l in (out / "pairs.jsonl").read_text().splitlines())]
+             (json.loads(line) for line in (out / "pairs.jsonl").read_text().splitlines())]
     # e/f highest score; c/d has 2 strategies; a/b last (same score as c/d, fewer strategies)
     assert names == [("e", "f"), ("c", "d"), ("a", "b")]
 
@@ -238,25 +236,21 @@ def test_no_results_still_writes_complete_artifacts(tmp_path):
 # Semantic parity with the previous in-memory implementation
 # ---------------------------------------------------------------------------
 
-def test_parity_with_in_memory_merge_on_checked_in_detector_outputs(tmp_path):
-    """The checked-in output/detect/*.json is the golden corpus. The streamed
-    CLI must produce exactly the pair list the pure-Python merge_pair_signals()
-    produces (same scores, confidence, order)."""
-    detect_dir = BASE / "output" / "detect"
-    if not detect_dir.exists():
-        pytest.skip("no checked-in detector outputs")
-    all_results = {}
-    for f in sorted(detect_dir.glob("*-results.json")):
-        all_results[f.stem.replace("-results", "")] = json.loads(f.read_text())
+def test_parity_with_in_memory_merge_on_small_checked_in_fixture(tmp_path):
+    """The streamed CLI preserves merge score and ordering on the bounded fixture."""
+    fixture = BASE / "tests" / "fixtures" / "baseline-corpus"
+    detect_dir = tmp_path / "detect"
+    detect_dir.mkdir()
+    detector_rows = json.loads((fixture / "detector-output.json").read_text())
+    (detect_dir / "fuzzy-name-results.json").write_text(json.dumps(detector_rows))
+    all_results = {"fuzzy-name": detector_rows}
     catalog_index = {}
-    cat = BASE / "output" / "extract" / "catalog-unified.json"
-    if cat.exists():
-        for fn in json.loads(cat.read_text()):
-            catalog_index[(fn.get("file", ""), fn.get("line", 0), fn.get("name", ""))] = fn
-    expected = merge_mod.merge_pair_signals(all_results, catalog_index=catalog_index or None)
+    for fn in json.loads((fixture / "catalog.json").read_text()):
+        catalog_index[(fn.get("file", ""), fn.get("line", 0), fn.get("name", ""))] = fn
+    expected = merge_mod.merge_pair_signals(all_results, catalog_index=catalog_index)
     out = tmp_path / "merge"
     r = _run_merge(detect_dir, out, "--max-pairs", str(max(10, len(expected) * 2)))
     assert r.returncode == 0, r.stderr
-    got = [json.loads(l) for l in (out / "pairs.jsonl").read_text().splitlines()]
+    got = [json.loads(line) for line in (out / "pairs.jsonl").read_text().splitlines()]
     assert len(got) == len(expected)
     assert got == expected

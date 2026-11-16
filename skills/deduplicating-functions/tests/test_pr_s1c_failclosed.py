@@ -11,8 +11,11 @@ from pathlib import Path
 
 import pytest
 
+from pipeline_test_support import only_attempt
+
 BASE = Path(__file__).resolve().parents[1]
 PYTHON = sys.executable
+ADAPTER = BASE / "tests" / "fixtures" / "run_pipeline_test_adapter.py"
 
 
 def _load_script_module(name: str, script: str):
@@ -49,6 +52,7 @@ def test_detector_timeout_counts_as_strict_failure(tmp_path: Path) -> None:
     shutil.copytree(BASE / "scripts", repo / "scripts")
     shutil.copy(BASE / "run_pipeline.py", repo / "run_pipeline.py")
     shutil.copy(BASE / "safety.py", repo / "safety.py")
+    shutil.copy(BASE / "pipeline_runtime.py", repo / "pipeline_runtime.py")
 
     sleeper = repo / "scripts" / "detect-tfidf-index.py"
     sleeper.write_text(
@@ -69,14 +73,14 @@ def test_detector_timeout_counts_as_strict_failure(tmp_path: Path) -> None:
     result = subprocess.run(
         [
             PYTHON,
+            str(ADAPTER),
             str(repo / "run_pipeline.py"),
             "--from-corpus",
             str(corpus),
             "-o",
             str(out_dir),
-            "--lock-file",
+            "--test-lock-file",
             str(tmp_path / "run_pipeline.lock"),
-            "--ignore-preflight",
         ],
         capture_output=True,
         text=True,
@@ -87,7 +91,8 @@ def test_detector_timeout_counts_as_strict_failure(tmp_path: Path) -> None:
     assert result.returncode == 2
     assert "tfidf-index failed (exit 124)" in result.stdout
     assert "strict mode: 1 detector(s) failed, 0 skipped" in result.stdout
-    assert "TIMEOUT after 1s" in (out_dir / "pipeline.log").read_text(encoding="utf-8")
+    assert "TIMEOUT after 1s" in (only_attempt(out_dir) / "pipeline.log").read_text(
+        encoding="utf-8")
 
 
 def test_regex_extractor_warns_on_unreadable_path(tmp_path: Path, capsys) -> None:

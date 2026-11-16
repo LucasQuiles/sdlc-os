@@ -94,16 +94,16 @@ In the `main()` function, add after `phase_report`:
 
 ```bash
 # Test with adversarial corpus
-bash scripts/orchestrate.sh scripts/ -o /tmp/orch-eval --eval-corpus tests/fixtures/adversarial-corpus.json --skip-llm 2>&1 | tail -10
+orch_eval=$(mktemp -d /tmp/orch-eval.XXXXXX)
+bash scripts/orchestrate.sh scripts/ -o "$orch_eval" --eval-corpus tests/fixtures/adversarial-corpus.json --skip-llm 2>&1 | tail -10
 
 # Verify evaluation.json exists
-cat /tmp/orch-eval/evaluation.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['summary'])"
+python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print(d['summary'])" "$orch_eval/evaluation.json"
 
 # Test without --eval-corpus (should skip Phase 4)
-bash scripts/orchestrate.sh scripts/ -o /tmp/orch-noeval --skip-llm 2>&1 | grep -c "Phase 4"
+orch_noeval=$(mktemp -d /tmp/orch-noeval.XXXXXX)
+bash scripts/orchestrate.sh scripts/ -o "$orch_noeval" --skip-llm 2>&1 | grep -c "Phase 4"
 # Expected: 0
-
-rm -rf /tmp/orch-eval /tmp/orch-noeval
 ```
 
 - [ ] **Step 5: Commit**
@@ -531,16 +531,16 @@ Key gate points:
 
 ```bash
 # Should pass
-bash scripts/orchestrate.sh scripts/ -o /tmp/strict-ok --strict --skip-llm 2>&1 | tail -5
+strict_ok=$(mktemp -d /tmp/strict-ok.XXXXXX)
+bash scripts/orchestrate.sh scripts/ -o "$strict_ok" --strict --skip-llm 2>&1 | tail -5
 echo "exit=$?"
 
 # Should fail (missing report generator)
 mv scripts/generate-report-enhanced.sh scripts/generate-report-enhanced.sh.bak
-bash scripts/orchestrate.sh scripts/ -o /tmp/strict-fail --strict --skip-llm 2>&1 | tail -5
+strict_fail=$(mktemp -d /tmp/strict-fail.XXXXXX)
+bash scripts/orchestrate.sh scripts/ -o "$strict_fail" --strict --skip-llm 2>&1 | tail -5
 echo "exit=$?"
 mv scripts/generate-report-enhanced.sh.bak scripts/generate-report-enhanced.sh
-
-rm -rf /tmp/strict-ok /tmp/strict-fail
 ```
 
 - [ ] **Step 4: Commit**
@@ -561,14 +561,15 @@ After all tasks:
 python3 -m pytest tests/ -q --tb=line
 
 # Shell eval parity
-bash scripts/orchestrate.sh scripts/ -o /tmp/final-eval --eval-corpus tests/fixtures/adversarial-corpus.json --skip-llm 2>&1 | grep "Evaluation"
+final_eval=$(mktemp -d /tmp/final-eval.XXXXXX)
+bash scripts/orchestrate.sh scripts/ -o "$final_eval" --eval-corpus tests/fixtures/adversarial-corpus.json --skip-llm 2>&1 | grep "Evaluation"
 
 # Python report from run_pipeline.py
-python3 run_pipeline.py scripts/ -o /tmp/final-py --strict 2>&1 | grep "generate-report"
+final_py=$(mktemp -d /tmp/final-py.XXXXXX)
+python3 run_pipeline.py scripts/ -o "$final_py" --strict 2>&1 | grep "generate-report"
 
 # Decision records exist
 ls docs/decisions/
 
-# Clean up
-rm -rf /tmp/final-eval /tmp/final-py
+# Retention/cleanup of these fresh run roots is a separate owner decision.
 ```

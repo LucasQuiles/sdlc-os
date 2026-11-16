@@ -56,22 +56,48 @@ def _children_maxrss_bytes() -> int:
     return ru if sys.platform == "darwin" else ru * 1024
 
 
+# 2026-08-24 test-order-contamination fix: RUSAGE_CHILDREN.ru_maxrss is a
+# HIGH-WATER MARK over every child this test process ever spawned, so running
+# this module after tests that launched full pipelines made "peak" report the
+# fattest historical child, not the merge. The forwarder below runs the merge
+# in a fresh intermediate process whose child-rusage covers ONLY the merge.
+_RUSAGE_FORWARDER = (
+    "import json, resource, subprocess, sys\n"
+    "rc = subprocess.run(sys.argv[1:]).returncode\n"
+    "ru = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss\n"
+    "maxrss = ru if sys.platform == 'darwin' else ru * 1024\n"
+    "print(json.dumps({'rc': rc, 'child_maxrss_bytes': maxrss}))\n"
+)
+
+
+def _run_measured(cmd: list, timeout: int):
+    """Run cmd; return (returncode, child_peak_rss_bytes, stderr_tail)."""
+    r = subprocess.run(
+        [PY, "-c", _RUSAGE_FORWARDER, *cmd],
+        capture_output=True, text=True, timeout=timeout,
+    )
+    if r.returncode != 0:
+        return r.returncode, None, r.stderr[-1500:]
+    line = r.stdout.strip().splitlines()[-1]
+    payload = json.loads(line)
+    return payload["rc"], payload["child_maxrss_bytes"], r.stderr[-1500:]
+
+
 def test_merge_peak_rss_is_bounded(tmp_path):
     detect = tmp_path / "detect"
     _gen(detect, N)
     out = tmp_path / "merge"
     out.mkdir()
-    before = _children_maxrss_bytes()
+    before = _children_maxrss_bytes()  # retained in the report for provenance
     t0 = time.monotonic()
-    r = subprocess.run(
-        [PY, str(MERGE), str(detect), "-o", str(out / "merged-results.json"), "--include-summary",
+    rc, peak, err_tail = _run_measured(
+        [str(MERGE), str(detect), "-o", str(out / "merged-results.json"), "--include-summary",
          "--resource-policy", "truncate", "--max-pairs", str(N), "--max-legacy-json-bytes", "1"],
-        capture_output=True, text=True, timeout=1700,
+        timeout=1700,
     )
     elapsed = time.monotonic() - t0
-    after = _children_maxrss_bytes()
-    assert r.returncode == 0, r.stderr[-1500:]
-    peak = after  # ru_maxrss is the max over all children so far; the merge is the largest
+    assert rc == 0, err_tail
+    assert peak is not None and peak > 0, "forwarder returned no measurement"
     summary = json.loads((out / "summary.json").read_text())
     run = json.loads((out / "run.json").read_text())
     report = {"tier": TIER, "n": N, "peak_children_rss_bytes": peak, "before_rss_bytes": before,

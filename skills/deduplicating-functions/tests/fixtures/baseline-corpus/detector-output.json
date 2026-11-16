@@ -1,0 +1,9 @@
+[
+  {
+    "func_a": {"name": "alpha", "file": "fixture.py", "line": 1},
+    "func_b": {"name": "beta", "file": "fixture.py", "line": 5},
+    "final_score": 0.9,
+    "strategy": "fuzzy_name",
+    "scores": {"fixture": 0.9}
+  }
+]

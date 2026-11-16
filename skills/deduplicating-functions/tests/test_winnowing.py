@@ -127,7 +127,9 @@ class TestWinnow:
 
     def test_identical_sequences_same_fingerprint(self):
         hashes = [4, 1, 7, 3, 9, 2, 8]
-        assert winnow(hashes, 3) == winnow(hashes, 3)
+        first = winnow(hashes, 3)
+        second = winnow(list(hashes), 3)
+        assert first == second
 
     def test_very_distinct_sequences_differ(self):
         # Two hash sequences with completely different values

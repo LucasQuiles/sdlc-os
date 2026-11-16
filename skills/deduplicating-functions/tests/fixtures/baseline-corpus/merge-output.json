@@ -1,0 +1,39 @@
+{
+  "pairs": [
+    {
+      "func_a": {
+        "name": "alpha",
+        "file": "fixture.py",
+        "line": 1,
+        "qualified_name": "alpha",
+        "end_line": null
+      },
+      "func_b": {
+        "name": "beta",
+        "file": "fixture.py",
+        "line": 5,
+        "qualified_name": "beta",
+        "end_line": null
+      },
+      "composite_score": 0.9,
+      "confidence": "MEDIUM",
+      "num_strategies": 1,
+      "strategies": {"fuzzy_name": 0.9},
+      "clone_type": "Type 4 (semantic clone)",
+      "recommendation": {
+        "action": "INVESTIGATE",
+        "urgency": "normal",
+        "reason": "Likely duplicate flagged by 1 strategy(ies) — review implementations"
+      }
+    }
+  ],
+  "summary": {
+    "total_pairs": 1,
+    "by_confidence": {"MEDIUM": 1},
+    "by_clone_type": {"Type 4 (semantic clone)": 1},
+    "by_action": {"INVESTIGATE": 1},
+    "strategies_used": ["fuzzy_name"],
+    "multi_signal_pairs": 0,
+    "defense_depth_pairs": 0
+  }
+}

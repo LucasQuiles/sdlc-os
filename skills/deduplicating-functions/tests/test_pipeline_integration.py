@@ -73,8 +73,7 @@ ALL_DETECTORS = [
 def test_detector_runs_without_error(detector, catalog_file):
     """Each detector should run against the corpus without crashing."""
     script = os.path.join(SCRIPTS, detector)
-    if not os.path.exists(script):
-        pytest.skip(f"{detector} not found")
+    assert os.path.exists(script), f"required detector absent: {detector}"
 
     with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
         out_path = f.name
@@ -98,16 +97,16 @@ def test_detector_runs_without_error(detector, catalog_file):
 def test_detector_output_schema(detector, catalog_file):
     """Each detector output should follow the standard pair schema."""
     script = os.path.join(SCRIPTS, detector)
-    if not os.path.exists(script):
-        pytest.skip(f"{detector} not found")
+    assert os.path.exists(script), f"required detector absent: {detector}"
 
     with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
         out_path = f.name
     try:
-        subprocess.run(
+        result = subprocess.run(
             [PYTHON, script, catalog_file, "-o", out_path],
             capture_output=True, text=True, timeout=30,
         )
+        assert result.returncode == 0, f"{detector} failed: {result.stderr[:500]}"
         with open(out_path) as f:
             data = json.load(f)
 
@@ -130,14 +129,14 @@ def all_detector_results(catalog_file):
     results_dir = tempfile.mkdtemp()
     for detector in ALL_DETECTORS:
         script = os.path.join(SCRIPTS, detector)
-        if not os.path.exists(script):
-            continue
+        assert os.path.exists(script), f"required detector absent: {detector}"
         out_name = detector.replace("detect-", "").replace(".py", "-results.json")
         out_path = os.path.join(results_dir, out_name)
-        subprocess.run(
+        result = subprocess.run(
             [PYTHON, script, catalog_file, "-o", out_path],
             capture_output=True, text=True, timeout=30,
         )
+        assert result.returncode == 0, f"{detector} failed: {result.stderr[:500]}"
     yield results_dir
     shutil.rmtree(results_dir, ignore_errors=True)
 
@@ -170,10 +169,11 @@ def test_merge_detects_known_clones(all_detector_results, corpus):
     with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
         out_path = f.name
     try:
-        subprocess.run(
+        result = subprocess.run(
             [PYTHON, merge_script, all_detector_results, "-o", out_path, "--include-summary"],
             capture_output=True, text=True, timeout=30,
         )
+        assert result.returncode == 0, result.stderr[:500]
         with open(out_path) as f:
             data = json.load(f)
 
@@ -211,10 +211,11 @@ def test_merge_no_obvious_false_positives(all_detector_results, corpus):
     with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
         out_path = f.name
     try:
-        subprocess.run(
+        result = subprocess.run(
             [PYTHON, merge_script, all_detector_results, "-o", out_path, "--include-summary"],
             capture_output=True, text=True, timeout=30,
         )
+        assert result.returncode == 0, result.stderr[:500]
         with open(out_path) as f:
             data = json.load(f)
 

@@ -10,16 +10,19 @@ import time
 
 import pytest
 
+from pipeline_test_support import latest_run
+
 PYTHON = sys.executable
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RUNNER = os.path.join(BASE, "run_pipeline.py")
 SCRIPTS_DIR = os.path.join(BASE, "scripts")
+ADAPTER = os.path.join(BASE, "tests", "fixtures", "run_pipeline_test_adapter.py")
 
 
 @pytest.fixture
 def clean_tmpdir():
     with tempfile.TemporaryDirectory(prefix="dupdetect-safety-") as d:
-        yield d
+        yield os.path.realpath(d)
 
 
 @pytest.fixture
@@ -36,21 +39,21 @@ def test_second_run_blocks_when_lock_held(clean_tmpdir, tmp_path, isolated_lock)
 
     # Start a long-ish first run in the background
     proc1 = subprocess.Popen(
-        [PYTHON, RUNNER, SCRIPTS_DIR, "-o", out1,
-         "--lock-file", isolated_lock, "--skip-ts"],
+        [PYTHON, ADAPTER, RUNNER, SCRIPTS_DIR, "-o", out1,
+         "--test-lock-file", isolated_lock, "--skip-ts"],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
     )
     try:
         # Wait for proc1 to actually acquire the lock — poll the lock file
         deadline = time.monotonic() + 10
         while time.monotonic() < deadline and not os.path.exists(isolated_lock):
-            time.sleep(0.05)
+            threading.Event().wait(0.05)
         assert os.path.exists(isolated_lock), "First run never created lock file"
 
         # Now try a second run — should fail fast
         result2 = subprocess.run(
-            [PYTHON, RUNNER, SCRIPTS_DIR, "-o", out2,
-             "--lock-file", isolated_lock, "--skip-ts"],
+            [PYTHON, ADAPTER, RUNNER, SCRIPTS_DIR, "-o", out2,
+             "--test-lock-file", isolated_lock, "--skip-ts"],
             capture_output=True, text=True, timeout=15,
         )
         assert result2.returncode == 1, (
@@ -71,22 +74,22 @@ def test_wait_flag_blocks_until_first_run_completes(clean_tmpdir, tmp_path, isol
     out2 = str(tmp_path / "out2")
 
     proc1 = subprocess.Popen(
-        [PYTHON, RUNNER, SCRIPTS_DIR, "-o", out1,
-         "--lock-file", isolated_lock, "--skip-ts"],
+        [PYTHON, ADAPTER, RUNNER, SCRIPTS_DIR, "-o", out1,
+         "--test-lock-file", isolated_lock, "--skip-ts"],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
     )
     try:
         deadline = time.monotonic() + 10
         while time.monotonic() < deadline and not os.path.exists(isolated_lock):
-            time.sleep(0.05)
+            threading.Event().wait(0.05)
         assert os.path.exists(isolated_lock)
 
         # Start the waiter in a thread so we can observe it not exiting
         result_holder = {}
         def _runner():
             result_holder["res"] = subprocess.run(
-                [PYTHON, RUNNER, SCRIPTS_DIR, "-o", out2,
-                 "--lock-file", isolated_lock, "--skip-ts", "--wait"],
+                [PYTHON, ADAPTER, RUNNER, SCRIPTS_DIR, "-o", out2,
+                 "--test-lock-file", isolated_lock, "--skip-ts", "--wait"],
                 capture_output=True, text=True, timeout=180,
             )
         t = threading.Thread(target=_runner, daemon=True)
@@ -97,7 +100,7 @@ def test_wait_flag_blocks_until_first_run_completes(clean_tmpdir, tmp_path, isol
         # a slow Python startup under CI load could delay the subprocess
         # launch, and we want "alive after 1s" to genuinely mean "blocked
         # on the lock" rather than "hasn't started yet".
-        time.sleep(1.0)
+        threading.Event().wait(1.0)
         assert t.is_alive(), "--wait should block while first run holds the lock"
 
         # Let proc1 finish naturally — the waiter should then proceed
@@ -111,9 +114,6 @@ def test_wait_flag_blocks_until_first_run_completes(clean_tmpdir, tmp_path, isol
         if proc1.poll() is None:
             proc1.terminate()
             proc1.wait(timeout=10)
-
-
-import json
 
 
 def test_jobs_cap_limits_concurrent_detector_processes(clean_tmpdir, tmp_path):
@@ -135,15 +135,15 @@ def test_jobs_cap_limits_concurrent_detector_processes(clean_tmpdir, tmp_path):
                 samples.append(count)
             except subprocess.CalledProcessError:
                 samples.append(0)
-            time.sleep(0.05)
+            stop.wait(0.05)
 
     sampler = threading.Thread(target=_sampler, daemon=True)
     sampler.start()
     try:
         result = subprocess.run(
-            [PYTHON, RUNNER, SCRIPTS_DIR, "-o", clean_tmpdir,
+            [PYTHON, ADAPTER, RUNNER, SCRIPTS_DIR, "-o", clean_tmpdir,
              "--skip-ts", "--jobs", "2",
-             "--lock-file", str(tmp_path / "lock")],
+             "--test-lock-file", str(tmp_path / "lock")],
             capture_output=True, text=True, timeout=180,
         )
     finally:
@@ -157,16 +157,10 @@ def test_jobs_cap_limits_concurrent_detector_processes(clean_tmpdir, tmp_path):
         f"--jobs=2 should cap concurrent detectors at 2, observed peak={peak}\n"
         f"sample distribution: {sorted(set(samples))}"
     )
-    # Sanity: we should have observed at least one detector running at
-    # some point. If peak is 0, the sampler was too slow for this machine
-    # — skip rather than fail, because "too fast to observe" is not a
-    # safety failure.
-    if peak < 1:
-        pytest.skip(
-            f"Sampler never saw a detector running (peak=0). "
-            f"Environment is likely too fast for the 50ms sampling interval, "
-            f"or pgrep is unavailable. samples count={len(samples)}"
-        )
+    assert peak >= 1, (
+        "Concurrency cap was not actually observed; a zero-only sample cannot "
+        f"prove the behavioral ceiling (samples={len(samples)})"
+    )
 
 
 def test_resolve_jobs_priority_order(monkeypatch):
@@ -181,7 +175,8 @@ def test_resolve_jobs_priority_order(monkeypatch):
     assert 1 <= default <= 4, f"Default {default} should be in [1, 4]"
 
     monkeypatch.setenv("SDLC_OS_DETECTOR_JOBS", "7")
-    assert run_pipeline._resolve_jobs(None) == 7
+    with pytest.raises(ValueError, match="hard cap"):
+        run_pipeline._resolve_jobs(None)
 
     # CLI overrides env
     assert run_pipeline._resolve_jobs(2) == 2
@@ -199,6 +194,8 @@ SHIM_SAFETY_PY = (
     "DEFAULT_MAX_SWAPFILES = 5\n"
     "def check_preflight(*a, **kw):\n"
     "    return False, 'synthetic test refusal'\n"
+    "def check_output_capacity(*a, **kw):\n"
+    "    return True, 'synthetic output capacity'\n"
     "def acquire_pipeline_lock(lock_path, wait):\n"
     "    parent = os.path.dirname(lock_path) or '.'\n"
     "    os.makedirs(parent, exist_ok=True)\n"
@@ -226,7 +223,20 @@ def _make_shim_runner(tmp_path):
     runner_dir.mkdir()
     shim_runner = str(runner_dir / "run_pipeline.py")
     _shutil.copy(RUNNER, shim_runner)
-    (runner_dir / "safety.py").write_text(SHIM_SAFETY_PY)
+    # Isolate the shim's lock inside the test tree: the runner's canonical
+    # lock path comes from safety.DEFAULT_LOCK_PATH (the shim), and the CLI
+    # deliberately has no override flag.
+    shim_source = SHIM_SAFETY_PY.replace(
+        "os.path.expanduser('~/.cache/sdlc-os/run_pipeline.lock')",
+        repr(str(runner_dir / "shim.lock")),
+    )
+    # The isolation is load-bearing (run_pipeline flocks safety.DEFAULT_LOCK_PATH
+    # before preflight); a silent no-op replace would flock the user's REAL lock.
+    assert shim_source != SHIM_SAFETY_PY, (
+        "DEFAULT_LOCK_PATH literal drifted; shim lock isolation did not apply"
+    )
+    (runner_dir / "safety.py").write_text(shim_source)
+    _shutil.copy(os.path.join(BASE, "pipeline_runtime.py"), runner_dir / "pipeline_runtime.py")
     return shim_runner
 
 
@@ -234,9 +244,13 @@ def test_preflight_refusal_blocks_pipeline_launch(clean_tmpdir, tmp_path):
     """When preflight reports unsafe, the pipeline must exit 1 before launching detectors."""
     shim_runner = _make_shim_runner(tmp_path)
 
+    # Born-stale repair (2026-08-27): this direct shim invocation passed
+    # --test-lock-file, an adapter-only flag run_pipeline.py never accepted,
+    # so since 8dac624 it asserted on an argparse usage error (exit 2)
+    # instead of the preflight refusal it names. The shim's own
+    # DEFAULT_LOCK_PATH (isolated above) is the lock mechanism here.
     result = subprocess.run(
-        [PYTHON, shim_runner, SCRIPTS_DIR, "-o", clean_tmpdir,
-         "--skip-ts", "--lock-file", str(tmp_path / "lock")],
+        [PYTHON, shim_runner, SCRIPTS_DIR, "-o", clean_tmpdir, "--skip-ts"],
         capture_output=True, text=True, timeout=30,
     )
     assert result.returncode == 1, (
@@ -247,30 +261,53 @@ def test_preflight_refusal_blocks_pipeline_launch(clean_tmpdir, tmp_path):
     assert "synthetic test refusal" in result.stdout.lower()
 
 
-def test_ignore_preflight_bypasses_check(clean_tmpdir, tmp_path):
-    """--ignore-preflight should run the pipeline even when preflight would refuse.
-
-    Passes --permissive because the shim runner dir does not contain the
-    extraction scripts (it only copies run_pipeline.py), so the phase-0
-    extractors would fail under strict-by-default. This test cares only
-    that the preflight bypass log line is emitted — not that the full
-    pipeline completes successfully.
-    """
+def test_production_cli_has_no_preflight_bypass(clean_tmpdir, tmp_path):
+    """The removed production escape hatch is rejected by argparse."""
     shim_runner = _make_shim_runner(tmp_path)
 
     result = subprocess.run(
         [PYTHON, shim_runner, SCRIPTS_DIR, "-o", clean_tmpdir,
-         "--skip-ts", "--ignore-preflight", "--permissive",
-         "--lock-file", str(tmp_path / "lock")],
-        capture_output=True, text=True, timeout=180,
+         "--skip-ts", "--ignore-preflight",
+         "--test-lock-file", str(tmp_path / "lock")],
+        capture_output=True, text=True, timeout=30,
     )
-    assert result.returncode == 0, (
-        f"--ignore-preflight should bypass refusal, got {result.returncode}\n"
-        f"stdout: {result.stdout[-500:]}"
+    assert result.returncode == 2
+    assert "unrecognized arguments: --ignore-preflight" in result.stderr
+
+
+def test_production_cli_cannot_override_global_lock(clean_tmpdir, tmp_path):
+    """Only the explicit test adapter has a lock injection surface."""
+    shim_runner = _make_shim_runner(tmp_path)
+    result = subprocess.run(
+        [PYTHON, shim_runner, SCRIPTS_DIR, "-o", clean_tmpdir,
+         "--skip-ts", "--lock-file", str(tmp_path / "bypass.lock")],
+        capture_output=True, text=True, timeout=30,
     )
-    assert "bypassed via --ignore-preflight" in result.stdout.lower()
-    # Confirm preflight refusal did NOT fire (that would have exited 1)
-    assert "preflight refused launch" not in result.stdout.lower()
+    assert result.returncode == 2
+    assert "unrecognized arguments: --lock-file" in result.stderr
+
+
+def test_output_root_cannot_overlap_source_or_use_parent_traversal(tmp_path):
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "sample.py").write_text("def sample():\n    return 1\n")
+    overlap = subprocess.run(
+        [PYTHON, ADAPTER, RUNNER, str(source), "-o", str(source / "output"),
+         "--test-lock-file", str(tmp_path / "overlap.lock")],
+        capture_output=True, text=True, timeout=30,
+    )
+    assert overlap.returncode == 2
+    assert "must not overlap" in overlap.stdout
+    assert not (source / "output").exists()
+
+    traversal = subprocess.run(
+        [PYTHON, ADAPTER, RUNNER, str(source), "-o", str(tmp_path / "x" / ".." / "out"),
+         "--test-lock-file", str(tmp_path / "traversal.lock")],
+        capture_output=True, text=True, timeout=30,
+    )
+    assert traversal.returncode == 2
+    assert "parent traversal" in traversal.stdout
+    assert not (tmp_path / "out").exists()
 
 
 def test_default_run_with_all_safety_guards_engaged(clean_tmpdir, tmp_path):
@@ -281,12 +318,12 @@ def test_default_run_with_all_safety_guards_engaged(clean_tmpdir, tmp_path):
     and it must work end-to-end.
 
     --skip-ts avoids the TypeScript extractor so the test doesn't need
-    node_modules. --lock-file is overridden so the test doesn't touch
+    node_modules. The test adapter injects its own lock so the test doesn't touch
     the user's real ~/.cache/sdlc-os/run_pipeline.lock.
     """
     result = subprocess.run(
-        [PYTHON, RUNNER, SCRIPTS_DIR, "-o", clean_tmpdir,
-         "--skip-ts", "--lock-file", str(tmp_path / "lock")],
+        [PYTHON, ADAPTER, RUNNER, SCRIPTS_DIR, "-o", clean_tmpdir,
+         "--skip-ts", "--test-lock-file", str(tmp_path / "lock")],
         capture_output=True, text=True, timeout=180,
     )
     assert result.returncode == 0, (
@@ -306,6 +343,6 @@ def test_default_run_with_all_safety_guards_engaged(clean_tmpdir, tmp_path):
         f"Last 500 chars: {result.stdout[-500:]}"
     )
     # Output exists
-    assert os.path.exists(os.path.join(clean_tmpdir, "merge", "merged-results.json")), (
+    assert (latest_run(clean_tmpdir) / "merge" / "merged-results.json").exists(), (
         "Merge output file missing after successful run"
     )
