@@ -1,7 +1,7 @@
 {
   "name": "sdlc-os",
   "description": "Multi-Agent SDLC Operating System — staged delivery with orchestration, production, and verification tiers",
-  "version": "10.1.0",
+  "version": "10.1.1",
   "author": {
     "name": "OnePlatform"
   },

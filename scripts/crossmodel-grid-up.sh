@@ -140,8 +140,8 @@ cleanup_grid() {
     local owner skipped=false
     owner=$(bounded_capture "$VIEWER_TIMEOUT" tmux show-options -v -t "=$SESSION_NAME:" @xm_owner) || owner=""
     if [[ "$owner" == "$OWNER_TOKEN" ]]; then
-      [[ -z "$VIEWER_PANE_ID" ]] || tmux kill-pane -t "$VIEWER_PANE_ID" 2>/dev/null || true
-      tmux kill-session -t "=$SESSION_NAME" 2>/dev/null || true
+      [[ -z "$VIEWER_PANE_ID" ]] || bounded_capture "$VIEWER_TIMEOUT" tmux kill-pane -t "$VIEWER_PANE_ID" >/dev/null || true
+      bounded_capture "$VIEWER_TIMEOUT" tmux kill-session -t "=$SESSION_NAME" >/dev/null || true
     else
       skipped=true
     fi

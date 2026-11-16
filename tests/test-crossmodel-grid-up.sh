@@ -23,6 +23,7 @@ case "$1" in
   capture-pane) printf 'xm $ \n' ;;
   display-message) printf '%s\n' "$CALLER_STATE" ;;
   split-window) touch "$LAUNCHED"; printf '%%viewer\n' ;;
+  kill-pane|kill-session) if [[ "$CLIENT" == hung_cleanup ]]; then exec sleep 30; fi ;;
   list-clients)
     [[ "$*" == *'-t =xm-test'* ]] || { printf '/dev/other 1\n'; exit 0; }
     [[ "$CLIENT" == preexisting ]] && printf '/dev/old 0\n'
@@ -150,6 +151,26 @@ ROOT="$ROOT" TMPROOT="$TMPROOT" python3 - <<'PY'
 import json, os, pathlib, signal, subprocess, time
 root = pathlib.Path(os.environ['ROOT'])
 tmp = pathlib.Path(os.environ['TMPROOT'])
+for name in ('launched', 'owner'):
+    (tmp / name).unlink(missing_ok=True)
+(tmp / 'log').write_text('')
+env = dict(PATH=f"{tmp}/bin:/usr/bin:/bin:/opt/homebrew/bin", HOME=str(tmp / 'home'), TMPDIR=str(tmp),
+           TMUP_PLUGIN_ROOT=str(tmp / 'tmup'), LOG=str(tmp / 'log'), OS='Linux', CLIENT='hung_cleanup',
+           OSASCRIPT_OK='yes', TMUX='/tmp/socket,1,0', TMUX_PANE='%0', SSH_CONNECTION='',
+           CALLER_STATE='1 1', DISPLAY='', LAUNCHED=str(tmp / 'launched'), OWNER=str(tmp / 'owner'),
+           XM_VIEWER_TIMEOUT_SECONDS='1')
+proc = subprocess.Popen(['/bin/bash', str(root / 'scripts/crossmodel-grid-up.sh'), '--session-name', 'xm-test', '--panes', '1'], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
+try:
+    out, err = proc.communicate(timeout=8)
+    assert proc.returncode == 2 and len(out.splitlines()) == 1 and json.loads(out)['code'] == 'VISIBILITY_UNAVAILABLE', (proc.returncode, out, err)
+    log = (tmp / 'log').read_text()
+    assert 'kill-pane -t %viewer' in log and 'kill-session -t =xm-test' in log, log
+except subprocess.TimeoutExpired:
+    raise AssertionError('cleanup did not finish within the bound')
+finally:
+    if proc.poll() is None:
+        os.killpg(proc.pid, signal.SIGKILL)
+        proc.communicate()
 for sig in (signal.SIGINT, signal.SIGTERM):
     for name in ('launched', 'owner'):
         (tmp / name).unlink(missing_ok=True)

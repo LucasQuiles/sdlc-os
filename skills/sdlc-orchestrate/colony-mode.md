@@ -100,7 +100,7 @@ Update the pre-flight handoff block in `state.md` with the list of dispatched ta
 The Conductor exits. The Deacon watches for worker completions and spawns an EVALUATE session.
 
 ### Cross-Model Workers
-The `${user_config.crossmodel_tmup_review}` setting defaults to off. When enabled and policy requires review, cross-model workers are dispatched via `tmup_dispatch` with `clone_isolation: true`, under the role/model/evidence policy in `sdlc-os:sdlc-crossmodel`. Require a proven visible read-only split pane or terminal window; fail closed if visibility is unavailable. Independence is proven from the model observed at runtime, not from role labels. The Conductor retains the dispatch and terminal receipts and may advance only after the cross-model health gate accepts every required task. When disabled, record and report `skipped_by_setting` for FULL or TARGETED policy.
+The setting's live value is shown in the FFT-14 line of the `sdlc-os:sdlc-orchestrate` SKILL.md; the health gate cross-checks the recorded value against the user settings. The setting defaults to off. When enabled and policy requires review, cross-model workers are dispatched via `tmup_dispatch` with `clone_isolation: true`, under the role/model/evidence policy in `sdlc-os:sdlc-crossmodel`. Require a proven visible read-only split pane or terminal window; fail closed if visibility is unavailable. Independence is proven from the model observed at runtime, not from role labels. The Conductor retains the dispatch and terminal receipts and may advance only after the cross-model health gate accepts every required task. When disabled, record and report `skipped_by_setting` for FULL or TARGETED policy.
 
 ---
 
