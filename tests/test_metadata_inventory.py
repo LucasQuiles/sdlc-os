@@ -106,7 +106,7 @@ class MetadataInventoryTests(unittest.TestCase):
             json.loads(metadata.stdout),
             {
                 "marketplace_version_authority": "plugin_manifest",
-                "plugin_version": "10.0.2",
+                "plugin_version": "10.1.0",
             },
         )
 

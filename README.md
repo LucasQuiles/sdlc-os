@@ -10,6 +10,8 @@ A structured software development lifecycle that runs inside Claude Code. Instea
 
 The premise: independent review can surface blind spots that self-review misses. Required cross-model lanes therefore preserve the requested selector separately from the model observed at runtime and do not count a role as complete without a matching terminal dispatch receipt and accepted artifact evidence.
 
+Cross-model review is off by default. When off, FULL/TARGETED is recorded as `skipped_by_setting` with health exit 3 and the visible line `cross-model: skipped_by_setting (policy=<FULL|TARGETED>)`. When on, review runs only in a proven visible read-only split pane or terminal window; `VISIBILITY_UNAVAILABLE` means REQUIRED_UNAVAILABLE.
+
 ## Installation
 
 ```bash
@@ -125,6 +127,7 @@ These live in `docs/sdlc/` in the target repo. The plugin manages them; you read
 cd ~/.claude/plugins/sdlc-os
 bash hooks/tests/test-hooks.sh    # 62 tests
 bash tests/test-crossmodel-health.sh
+bash tests/test-crossmodel-grid-up.sh
 ```
 
 The current required-role receipt flow, tmup compatibility boundary, and

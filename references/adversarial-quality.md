@@ -27,8 +27,10 @@
 ## The Adversarial Cycle
 
 ```
-Bead proven -> Parallel Launch -> Cross-Reference -> Directed Strike -> Blue Team Response -> Arbiter -> AQS exit/runtime receipt -> FFT-14 -> required receipt/evidence gate -> Bead hardened
+Bead proven -> Parallel Launch -> Cross-Reference -> Directed Strike -> Blue Team Response -> Arbiter -> AQS exit/runtime receipt -> FFT-14 -> cross-model health gate -> Bead hardened
 ```
+
+Cross-model review is off by default. When off, record FULL/TARGETED as `skipped_by_setting`, run health (exit 3), and print `cross-model: skipped_by_setting (policy=<FULL|TARGETED>)` to the user and bead file. When on, review runs only in a proven visible read-only split pane or terminal window; `VISIBILITY_UNAVAILABLE` means REQUIRED_UNAVAILABLE.
 
 ---
 
@@ -129,7 +131,7 @@ pending -> running -> submitted -> verified -> proven -> hardened -> merged
 
 - `verified` — Sentinel confirmed acceptance criteria are met
 - `proven` — Oracle confirmed claims are VORP-compliant
-- `hardened` — AQS completed and FFT-14 is either explicitly not applicable or every required cross-model role has a successful terminal receipt with approved evidence
+- `hardened` — AQS completed and health permits explicit policy `not_applicable`, `skipped_by_setting`, or a satisfied enabled review with successful receipts and approved evidence
 - `merged` — Bead output incorporated into delivery
 
 Clear beads skip AQS entirely: `proven -> merged`

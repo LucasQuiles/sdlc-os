@@ -132,8 +132,10 @@ LOOP (budget: 2 cycles):
   5. CLEAN (no findings) + every required same-model role has an accepted terminal receipt → emit AQS exit block; bead remains proven pending FFT-14.
   6. Cycle 1 produced fixes → Cycle 2: re-attack fixed code to verify hardening
   7. Budget exhausted → document residual risk and backpressure to L3; do not convert an unsatisfied required role into hardened.
-  8. FFT-14 SKIP, or FULL/TARGETED with a satisfied cross-model receipt gate → bead status = hardened. EXIT loop.
+  8. FFT-14 SKIP, FULL/TARGETED with a satisfied receipt gate, or setting-off skip with health exit 3 → bead status = hardened. EXIT loop.
 ```
+
+`${user_config.crossmodel_tmup_review}` is off by default. When off, record FULL/TARGETED as `skipped_by_setting`, run health (exit 3), and print `cross-model: skipped_by_setting (policy=<FULL|TARGETED>)` to the user and bead file. When on, review runs only in a proven visible read-only split pane or terminal window; `VISIBILITY_UNAVAILABLE` means REQUIRED_UNAVAILABLE.
 
 **Metric:** Residual risk after adversarial engagement.
 **Budget:** 2 red/blue/arbiter cycles.

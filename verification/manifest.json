@@ -1298,7 +1298,7 @@
         "stream": "stdout",
         "value": {
           "marketplace_version_authority": "plugin_manifest",
-          "plugin_version": "10.0.2"
+          "plugin_version": "10.1.0"
         }
       },
       "negative_falsifier": "Any duplicate or divergent operational version authority fails.",
