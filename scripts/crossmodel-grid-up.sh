@@ -49,17 +49,22 @@ if ! [[ "$PANE_COUNT" =~ ^[1-9][0-9]*$ ]]; then
   exit 2
 fi
 
-# --- Suppress GUI terminal auto-launch ---
+# sdlc-os opens and proves the viewer; keep tmup's launcher disabled.
 
 export TMUP_NO_TERMINAL=1
 
 # --- Sync tmup tiered custom agents into ~/.codex/agents ---
 
 TMUP_SYNC_SCRIPT=""
-for candidate in \
+if [[ -n "${TMUP_PLUGIN_ROOT:-}" ]]; then
+  TMUP_CANDIDATES=("$TMUP_PLUGIN_ROOT/scripts/sync-codex-agents.sh")
+else
+  TMUP_CANDIDATES=(
   "$(cd "$(dirname "$0")/../.." && pwd)/tmup/scripts/sync-codex-agents.sh" \
   "${HOME}/.claude/plugins/tmup/scripts/sync-codex-agents.sh" \
-  "${HOME}/.local/share/tmup/scripts/sync-codex-agents.sh"; do
+  "${HOME}/.local/share/tmup/scripts/sync-codex-agents.sh")
+fi
+for candidate in "${TMUP_CANDIDATES[@]}"; do
   if [[ -f "$candidate" ]]; then
     TMUP_SYNC_SCRIPT="$candidate"
     break
@@ -156,10 +161,78 @@ if [[ "$ACTUAL_PANES" -ne "$PANE_COUNT" ]]; then
   exit 2
 fi
 
-# --- Success ---
+# --- Open a read-only viewer and prove that it attached ---
 
-printf '{"ready":true,"session_name":"%s","panes":%d,"rows":%d,"cols":%d,"layout":"tiled"}\n' \
-  "$SESSION_NAME" \
-  "$ACTUAL_PANES" \
-  "$ROWS" \
-  "$COLS"
+VIEWER_PANE_ID=""
+VIEWER_MODE=""
+CLIENT_TTYS=""
+VIEWER_TIMEOUT="${XM_VIEWER_TIMEOUT_SECONDS:-15}"
+
+bounded_capture() {
+  local limit="$1" output pid watchdog rc
+  shift
+  output=$(mktemp "${TMPDIR:-/tmp}/crossmodel-viewer.XXXXXX") || return 1
+  "$@" >"$output" 2>/dev/null &
+  pid=$!
+  (
+    sleep "$limit" &
+    timer=$!
+    trap 'kill "$timer" 2>/dev/null || true; wait "$timer" 2>/dev/null || true; exit 0' TERM
+    wait "$timer"
+    kill -KILL "$pid" 2>/dev/null || true
+  ) >/dev/null 2>&1 &
+  watchdog=$!
+  if wait "$pid"; then rc=0; else rc=$?; fi
+  kill "$watchdog" 2>/dev/null || true
+  wait "$watchdog" 2>/dev/null || true
+  cat "$output"
+  rm -f "$output"
+  return "$rc"
+}
+
+visibility_failure() {
+  if [[ -n "$VIEWER_PANE_ID" ]]; then
+    tmux kill-pane -t "$VIEWER_PANE_ID" 2>/dev/null || true
+  fi
+  tmux kill-session -t "$SESSION_NAME" 2>/dev/null || true
+  jq -cn --arg session "$SESSION_NAME" '{ready:false,code:"VISIBILITY_UNAVAILABLE",session_name:$session}'
+  exit 2
+}
+
+show_grid() {
+  if [[ -n "${TMUX:-}" && -n "${TMUX_PANE:-}" ]]; then
+    local socket="${TMUX%%,*}" quoted_socket
+    printf -v quoted_socket '%q' "$socket"
+    VIEWER_PANE_ID=$(bounded_capture "$VIEWER_TIMEOUT" tmux split-window -h -d -P -F '#{pane_id}' -t "$TMUX_PANE" \
+      "env -u TMUX tmux -S $quoted_socket attach-session -r -t '=$SESSION_NAME'") || return 1
+    [[ -n "$VIEWER_PANE_ID" ]] || return 1
+    VIEWER_MODE="split-pane"
+  elif [[ "$(uname -s)" == Darwin && -z "${SSH_CONNECTION:-}" ]] && command -v osascript >/dev/null 2>&1; then
+    bounded_capture "$VIEWER_TIMEOUT" osascript -e "tell application \"Terminal\" to do script \"tmux attach-session -r -t =$SESSION_NAME\"" >/dev/null || return 1
+    VIEWER_MODE="new-window"
+  elif [[ "$(uname -s)" == Linux && ( -n "${DISPLAY:-}" || -n "${WAYLAND_DISPLAY:-}" ) ]] && command -v gnome-terminal >/dev/null 2>&1; then
+    bounded_capture "$VIEWER_TIMEOUT" gnome-terminal -- tmux attach-session -r -t "=$SESSION_NAME" >/dev/null || return 1
+    VIEWER_MODE="new-window"
+  else
+    return 1
+  fi
+}
+
+[[ "$VIEWER_TIMEOUT" =~ ^[1-9][0-9]*$ ]] || visibility_failure
+show_grid || visibility_failure
+deadline=$((SECONDS + VIEWER_TIMEOUT))
+while ((SECONDS < deadline)); do
+  CLIENT_TTYS=$(bounded_capture "$((deadline - SECONDS))" tmux list-clients -t "=$SESSION_NAME" -F '#{client_tty}') || CLIENT_TTYS=""
+  [[ -n "$CLIENT_TTYS" ]] && break
+  if ((SECONDS < deadline)); then sleep 1; fi
+done
+[[ -n "$CLIENT_TTYS" ]] || visibility_failure
+CLIENTS_JSON=$(printf '%s\n' "$CLIENT_TTYS" | jq -Rsc 'split("\n") | map(select(length > 0))')
+OBSERVED_AT=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+
+jq -cn --arg session "$SESSION_NAME" --arg mode "$VIEWER_MODE" \
+  --arg viewer "$VIEWER_PANE_ID" --arg observed "$OBSERVED_AT" --argjson clients "$CLIENTS_JSON" \
+  --argjson panes "$ACTUAL_PANES" --argjson rows "$ROWS" --argjson cols "$COLS" \
+  '{ready:true,session_name:$session,panes:$panes,rows:$rows,cols:$cols,layout:"tiled",
+    visibility:{mode:$mode,session_name:$session,attached_clients:($clients|length),client_ttys:$clients,
+      viewer_pane_id:$viewer,observed_at:$observed,observation_source:"tmux list-clients"}}'
