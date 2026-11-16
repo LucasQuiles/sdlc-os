@@ -140,8 +140,15 @@ fi
 
 SETTING_OFF="$(jq -r 'if has("crossmodel_setting") then (.crossmodel_setting.enabled == false) else false end' "$SESSION_JOURNAL")"
 SETTING_CONFLICT=false
-if [[ "$SETTING_OFF" == "true" && -r "$SETTINGS_FILE" ]]; then
-  SETTING_CONFLICT="$(jq -er '[.pluginConfigs // {} | to_entries[] | select(.key | startswith("sdlc-os@")) | select(.value.options.crossmodel_tmup_review == true)] | length > 0 | tostring' "$SETTINGS_FILE")" || emit_unknown "settings file is invalid"
+if [[ "$SETTING_OFF" == "true" ]]; then
+  [[ -n "$SETTINGS_FILE" ]] || emit_unknown "settings path is empty"
+  if [[ -e "$SETTINGS_FILE" || -L "$SETTINGS_FILE" ]]; then
+    [[ -f "$SETTINGS_FILE" && -r "$SETTINGS_FILE" ]] || emit_unknown "settings file is unreadable or not a file"
+    SETTING_CONFLICT="$(jq -er '
+      [.pluginConfigs // {} | to_entries[] | select(.key | startswith("sdlc-os@")) | .value.options // {} | select(has("crossmodel_tmup_review")) | .crossmodel_tmup_review] as $values
+      | if all($values[]; type == "boolean") then (any($values[]; . == true) | tostring) else error("nonboolean setting") end
+    ' "$SETTINGS_FILE")" || emit_unknown "settings file is invalid"
+  fi
 fi
 
 FILES_VALID=true
@@ -359,9 +366,15 @@ RESULT=$(jq -c --argjson files_valid "$FILES_VALID" --argjson setting_conflict "
       ) as $domain_shape_invalid
     | if (($journal.visibility.attached_clients | type) != "number")
         or (($journal.visibility.attached_clients // 0) < 1)
+        or ($journal.visibility.observation_source != "tmux list-clients")
+        or ($journal.visibility.read_only != true)
+        or (($journal.visibility.client_ttys | type) != "array")
+        or (if ($journal.visibility.client_ttys | type) == "array" then (($journal.visibility.client_ttys | length) != $journal.visibility.attached_clients or (all($journal.visibility.client_ttys[]; present) | not)) else true end)
         or ($journal.visibility.mode | IN("split-pane", "new-window") | not)
         or ($journal.visibility.session_name | present | not)
         or ($journal.visibility.observed_at | present | not)
+        or (if $journal.session_name != null then $journal.visibility.session_name != $journal.session_name else false end)
+        or (if $journal.tmup_receipt.session_name != null then $journal.visibility.session_name != $journal.tmup_receipt.session_name else false end)
       then {health: "BLOCKED", gate_status: "blocked", advance_allowed: false, reason: "visible review session is not proven"}
       elif $journal.breaker_open
         or ($journal.health_state | IN("DISABLED", "DEGRADED", "FALLBACK_CLAUDE_ONLY", "REQUIRED_UNAVAILABLE", "BLOCKED"))
@@ -430,6 +443,7 @@ case "$(printf '%s\n' "$RESULT" | jq -r '.gate_status')" in
     exit 0
     ;;
   skipped_by_setting)
+    printf 'cross-model: skipped_by_setting (policy=%s)\n' "$(jq -r '.policy_outcome' "$SESSION_JOURNAL")" >&2
     exit 3
     ;;
   running|blocked)

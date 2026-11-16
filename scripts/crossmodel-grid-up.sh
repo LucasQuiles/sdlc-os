@@ -6,6 +6,28 @@
 
 set -euo pipefail
 
+bounded_capture() {
+  local limit="$1" output pid watchdog rc
+  shift
+  output=$(mktemp "${TMPDIR:-/tmp}/crossmodel-viewer.XXXXXX") || return 1
+  "$@" >"$output" 2>/dev/null &
+  pid=$!
+  (
+    sleep "$limit" &
+    timer=$!
+    trap 'kill "$timer" 2>/dev/null || true; wait "$timer" 2>/dev/null || true; exit 0' TERM
+    wait "$timer"
+    kill -KILL "$pid" 2>/dev/null || true
+  ) >/dev/null 2>&1 &
+  watchdog=$!
+  if wait "$pid"; then rc=0; else rc=$?; fi
+  kill "$watchdog" 2>/dev/null || true
+  wait "$watchdog" 2>/dev/null || true
+  cat "$output"
+  rm -f "$output"
+  return "$rc"
+}
+
 # --- Arg parsing ---
 
 SESSION_NAME=""
@@ -51,6 +73,9 @@ fi
 
 # sdlc-os opens and proves the viewer; keep tmup's launcher disabled.
 
+command -v jq >/dev/null 2>&1 || { printf 'jq is required\n' >&2; exit 2; }
+VIEWER_TIMEOUT="${XM_VIEWER_TIMEOUT_SECONDS:-15}"
+[[ "$VIEWER_TIMEOUT" =~ ^[1-9][0-9]*$ ]] || exit 2
 export TMUP_NO_TERMINAL=1
 
 # --- Sync tmup tiered custom agents into ~/.codex/agents ---
@@ -96,7 +121,23 @@ COLS=$(awk -v n="$PANE_COUNT" -v r="$ROWS" 'BEGIN { c=int(n/r); if(c*r<n) c++; p
 
 # --- Create tmux session (detached, no terminal) ---
 
-if ! tmux new-session -d -s "$SESSION_NAME" -x 220 -y 50 2>/dev/null; then
+SESSION_CREATED=false
+VIEWER_PANE_ID=""
+cleanup_grid() {
+  if [[ "$SESSION_CREATED" == true ]]; then
+    [[ -z "$VIEWER_PANE_ID" ]] || tmux kill-pane -t "=$VIEWER_PANE_ID" 2>/dev/null || true
+    tmux kill-session -t "=$SESSION_NAME" 2>/dev/null || true
+  fi
+}
+trap cleanup_grid EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+SESSION_CREATED=true
+if bounded_capture "$VIEWER_TIMEOUT" tmux new-session -d -s "$SESSION_NAME" -x 220 -y 50 >/dev/null; then
+  :
+else
+  create_rc=$?
+  [[ "$create_rc" == 137 ]] || SESSION_CREATED=false
   printf 'Failed to create tmux session: %s\n' "$SESSION_NAME" >&2
   exit 2
 fi
@@ -111,7 +152,6 @@ i=0
 while [[ $i -lt $NEEDED ]]; do
   if ! tmux split-window -t "${SESSION_NAME}" 2>/dev/null; then
     printf 'Failed to split pane %d in session %s\n' "$((i+2))" "$SESSION_NAME" >&2
-    tmux kill-session -t "$SESSION_NAME" 2>/dev/null || true
     exit 2
   fi
   CURRENT_PANES=$(( CURRENT_PANES + 1 ))
@@ -127,7 +167,8 @@ fi
 
 # --- Set minimal prompt in each pane ---
 
-ACTUAL_PANES=$(tmux list-panes -t "$SESSION_NAME" 2>/dev/null | wc -l | tr -d ' ')
+PANE_LIST=$(bounded_capture "$VIEWER_TIMEOUT" tmux list-panes -t "$SESSION_NAME") || exit 2
+ACTUAL_PANES=$(printf '%s\n' "$PANE_LIST" | wc -l | tr -d ' ')
 
 pane_idx=0
 while [[ $pane_idx -lt $ACTUAL_PANES ]]; do
@@ -141,7 +182,7 @@ for ((i=0; i<ACTUAL_PANES; i++)); do
   retries=10
   while ((retries > 0)); do
     # Check if pane has rendered the prompt
-    pane_content=$(tmux capture-pane -t "${SESSION_NAME}.${i}" -p 2>/dev/null | tail -1)
+    pane_content=$(bounded_capture "$VIEWER_TIMEOUT" tmux capture-pane -t "${SESSION_NAME}.${i}" -p | tail -1)
     if [[ "$pane_content" == *"xm "* ]]; then
       break
     fi
@@ -157,50 +198,25 @@ done
 
 if [[ "$ACTUAL_PANES" -ne "$PANE_COUNT" ]]; then
   printf 'Pane count mismatch: requested %d, got %d\n' "$PANE_COUNT" "$ACTUAL_PANES" >&2
-  tmux kill-session -t "$SESSION_NAME" 2>/dev/null || true
   exit 2
 fi
 
 # --- Open a read-only viewer and prove that it attached ---
 
-VIEWER_PANE_ID=""
 VIEWER_MODE=""
 CLIENT_TTYS=""
-VIEWER_TIMEOUT="${XM_VIEWER_TIMEOUT_SECONDS:-15}"
-
-bounded_capture() {
-  local limit="$1" output pid watchdog rc
-  shift
-  output=$(mktemp "${TMPDIR:-/tmp}/crossmodel-viewer.XXXXXX") || return 1
-  "$@" >"$output" 2>/dev/null &
-  pid=$!
-  (
-    sleep "$limit" &
-    timer=$!
-    trap 'kill "$timer" 2>/dev/null || true; wait "$timer" 2>/dev/null || true; exit 0' TERM
-    wait "$timer"
-    kill -KILL "$pid" 2>/dev/null || true
-  ) >/dev/null 2>&1 &
-  watchdog=$!
-  if wait "$pid"; then rc=0; else rc=$?; fi
-  kill "$watchdog" 2>/dev/null || true
-  wait "$watchdog" 2>/dev/null || true
-  cat "$output"
-  rm -f "$output"
-  return "$rc"
-}
 
 visibility_failure() {
-  if [[ -n "$VIEWER_PANE_ID" ]]; then
-    tmux kill-pane -t "$VIEWER_PANE_ID" 2>/dev/null || true
-  fi
-  tmux kill-session -t "$SESSION_NAME" 2>/dev/null || true
   jq -cn --arg session "$SESSION_NAME" '{ready:false,code:"VISIBILITY_UNAVAILABLE",session_name:$session}'
   exit 2
 }
 
 show_grid() {
+  local caller_state=""
   if [[ -n "${TMUX:-}" && -n "${TMUX_PANE:-}" ]]; then
+    caller_state=$(bounded_capture "$VIEWER_TIMEOUT" tmux display-message -p -t "$TMUX_PANE" '#{session_attached} #{window_active}') || caller_state=""
+  fi
+  if [[ "$caller_state" =~ ^[1-9][0-9]*\ 1$ ]]; then
     local socket="${TMUX%%,*}" quoted_socket
     printf -v quoted_socket '%q' "$socket"
     VIEWER_PANE_ID=$(bounded_capture "$VIEWER_TIMEOUT" tmux split-window -h -d -P -F '#{pane_id}' -t "$TMUX_PANE" \
@@ -218,11 +234,12 @@ show_grid() {
   fi
 }
 
-[[ "$VIEWER_TIMEOUT" =~ ^[1-9][0-9]*$ ]] || visibility_failure
+BEFORE_CLIENTS=$(bounded_capture "$VIEWER_TIMEOUT" tmux list-clients -t "=$SESSION_NAME" -F '#{client_tty} #{client_readonly}') || visibility_failure
 show_grid || visibility_failure
 deadline=$((SECONDS + VIEWER_TIMEOUT))
 while ((SECONDS < deadline)); do
-  CLIENT_TTYS=$(bounded_capture "$((deadline - SECONDS))" tmux list-clients -t "=$SESSION_NAME" -F '#{client_tty}') || CLIENT_TTYS=""
+  CLIENTS=$(bounded_capture "$((deadline - SECONDS))" tmux list-clients -t "=$SESSION_NAME" -F '#{client_tty} #{client_readonly}') || CLIENTS=""
+  CLIENT_TTYS=$(jq -nr --arg before "$BEFORE_CLIENTS" --arg after "$CLIENTS" '($before | split("\n") | map(split(" ")[0])) as $old | $after | split("\n")[] | split(" ") | select(length == 2 and .[0] != "" and .[1] == "1" and (.[0] as $tty | $old | index($tty) | not)) | .[0]')
   [[ -n "$CLIENT_TTYS" ]] && break
   if ((SECONDS < deadline)); then sleep 1; fi
 done
@@ -235,4 +252,5 @@ jq -cn --arg session "$SESSION_NAME" --arg mode "$VIEWER_MODE" \
   --argjson panes "$ACTUAL_PANES" --argjson rows "$ROWS" --argjson cols "$COLS" \
   '{ready:true,session_name:$session,panes:$panes,rows:$rows,cols:$cols,layout:"tiled",
     visibility:{mode:$mode,session_name:$session,attached_clients:($clients|length),client_ttys:$clients,
-      viewer_pane_id:$viewer,observed_at:$observed,observation_source:"tmux list-clients"}}'
+      viewer_pane_id:$viewer,observed_at:$observed,observation_source:"tmux list-clients",read_only:true}}'
+SESSION_CREATED=false

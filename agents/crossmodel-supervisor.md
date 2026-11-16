@@ -192,7 +192,7 @@ Write to `docs/sdlc/active/{task-id}/crossmodel/{bead-id}-session.json` after ea
   "cross_model_required": true,
   "policy_outcome": "FULL | TARGETED",
   "crossmodel_setting": {"key": "crossmodel_tmup_review", "enabled": true, "source": "user_config"},
-  "visibility": {"mode": "split-pane | new-window", "session_name": "", "attached_clients": 1, "client_ttys": [], "viewer_pane_id": null, "observed_at": "", "observation_source": "tmux list-clients"},
+  "visibility": {"mode": "split-pane | new-window", "session_name": "", "attached_clients": 1, "client_ttys": ["<new read-only client tty>"], "read_only": true, "viewer_pane_id": null, "observed_at": "", "observation_source": "tmux list-clients"},
   "targeted_domain": "security | functionality | resilience | usability | null",
   "reference_model": "observed same-model AQS model",
   "reference_model_receipt": {

@@ -10,10 +10,19 @@ cat >"$TMPROOT/bin/tmux" <<'STUB'
 printf '%s\n' "$*" >>"$LOG"
 case "$1" in
   has-session) exit 1 ;;
+  new-session) [[ "$CLIENT" != collision ]] ;;
   list-panes) printf 'pane\n' ;;
   capture-pane) printf 'xm $ \n' ;;
-  split-window) printf '%%viewer\n' ;;
-  list-clients) [[ "$CLIENT" == yes ]] && printf '/dev/ttys001\n'; exit 0 ;;
+  display-message) printf '%s\n' "$CALLER_STATE" ;;
+  split-window) touch "$LAUNCHED"; printf '%%viewer\n' ;;
+  list-clients)
+    [[ "$*" == *'-t =xm-test'* ]] || { printf '/dev/other 1\n'; exit 0; }
+    [[ "$CLIENT" == preexisting ]] && printf '/dev/old 0\n'
+    if [[ -f "$LAUNCHED" ]]; then
+      [[ "$CLIENT" == yes ]] && printf '/dev/ttys001 1\n'
+      [[ "$CLIENT" == writable ]] && printf '/dev/ttys001 0\n'
+    fi
+    exit 0 ;;
 esac
 STUB
 cat >"$TMPROOT/bin/uname" <<'STUB'
@@ -23,22 +32,29 @@ STUB
 cat >"$TMPROOT/bin/osascript" <<'STUB'
 #!/bin/bash
 printf '%s\n' "$*" >>"$LOG"
-[[ "$OSASCRIPT_OK" == yes ]]
+[[ "$OSASCRIPT_OK" == yes ]] || exit 1
+touch "$LAUNCHED"
+STUB
+cat >"$TMPROOT/bin/gnome-terminal" <<'STUB'
+#!/bin/bash
+printf '%s\n' "$*" >>"$LOG"
+touch "$LAUNCHED"
 STUB
 cat >"$TMPROOT/tmup/scripts/sync-codex-agents.sh" <<'STUB'
 #!/bin/bash
 exit 0
 STUB
-chmod +x "$TMPROOT/bin/tmux" "$TMPROOT/bin/uname" "$TMPROOT/bin/osascript"
+chmod +x "$TMPROOT/bin/tmux" "$TMPROOT/bin/uname" "$TMPROOT/bin/osascript" "$TMPROOT/bin/gnome-terminal"
 
 run_case() {
-  local name="$1" expected="$2" mode="$3" os="$4" client="$5" osa="$6" tmux_env="$7" pane="$8" ssh="$9"
+  local name="$1" expected="$2" mode="$3" os="$4" client="$5" osa="$6" tmux_env="$7" pane="$8" ssh="$9" caller="${10:-1 1}" display="${11:-}"
   local rc
   : >"$TMPROOT/log"
+  rm -f "$TMPROOT/launched"
   set +e
   env -i PATH="$TMPROOT/bin:/usr/bin:/bin:/opt/homebrew/bin" HOME="$TMPROOT/home" TMPDIR="$TMPROOT" \
     TMUP_PLUGIN_ROOT="$TMPROOT/tmup" LOG="$TMPROOT/log" OS="$os" CLIENT="$client" OSASCRIPT_OK="$osa" \
-    TMUX="$tmux_env" TMUX_PANE="$pane" SSH_CONNECTION="$ssh" XM_VIEWER_TIMEOUT_SECONDS=1 \
+    TMUX="$tmux_env" TMUX_PANE="$pane" SSH_CONNECTION="$ssh" CALLER_STATE="$caller" DISPLAY="$display" LAUNCHED="$TMPROOT/launched" XM_VIEWER_TIMEOUT_SECONDS=1 \
     /bin/bash "$ROOT/scripts/crossmodel-grid-up.sh" --session-name xm-test --panes 1 >"$TMPROOT/out" 2>"$TMPROOT/err"
   rc=$?
   set -e
@@ -47,7 +63,7 @@ run_case() {
     exit 1
   fi
   if [[ "$expected" == 0 ]]; then
-    if ! jq -e --arg mode "$mode" '.ready == true and .visibility.mode == $mode and .visibility.attached_clients == 1 and .visibility.client_ttys == ["/dev/ttys001"] and .visibility.session_name == "xm-test"' "$TMPROOT/out" >/dev/null; then
+    if ! jq -e --arg mode "$mode" '.ready == true and .visibility.read_only == true and .visibility.mode == $mode and .visibility.attached_clients == 1 and .visibility.client_ttys == ["/dev/ttys001"] and .visibility.session_name == "xm-test"' "$TMPROOT/out" >/dev/null; then
       printf 'FAIL: %s missing verified viewer\n' "$name" >&2
       exit 1
     fi
@@ -59,10 +75,17 @@ run_case() {
       grep -q 'attach-session -r -t =xm-test' "$TMPROOT/log"
     fi
   else
-    jq -e '.ready == false and .code == "VISIBILITY_UNAVAILABLE"' "$TMPROOT/out" >/dev/null
-    grep -q 'kill-session -t xm-test' "$TMPROOT/log"
+    if [[ "$name" == collision ]]; then
+      if grep -q 'kill-session' "$TMPROOT/log"; then
+        printf 'FAIL: collision killed an unowned session\n' >&2
+        exit 1
+      fi
+    else
+      jq -e '.ready == false and .code == "VISIBILITY_UNAVAILABLE"' "$TMPROOT/out" >/dev/null
+      grep -q 'kill-session -t =xm-test' "$TMPROOT/log"
+    fi
     if [[ "$name" == split_timeout ]]; then
-      grep -q 'kill-pane -t %viewer' "$TMPROOT/log"
+      grep -q 'kill-pane -t =%viewer' "$TMPROOT/log"
     fi
   fi
 }
@@ -74,4 +97,10 @@ run_case timeout 2 '' Darwin no yes '' '' ''
 run_case split_timeout 2 '' Linux no yes /tmp/socket,1,0 %0 ''
 run_case launch_failure 2 '' Darwin yes no '' '' ''
 run_case ssh 2 '' Darwin yes yes '' '' remote
+run_case preexisting 2 '' Darwin preexisting yes '' '' ''
+run_case writable 2 '' Darwin writable yes '' '' ''
+run_case detached 2 '' Linux yes yes /tmp/socket,1,0 %0 '' '0 1'
+run_case gnome 0 new-window Linux yes yes '' '' '' '1 1' :0
+run_case gnome_no_client 2 '' Linux no yes '' '' '' '1 1' :0
+run_case collision 2 '' Linux collision yes '' '' ''
 printf 'CROSSMODEL_GRID_UP_TESTS_PASS\n'
