@@ -6,7 +6,7 @@
 > with no valid receipt remains unavailable or inconclusive and blocks or
 > explicitly degrades the parent workflow.
 
-This document defines the colony dispatch protocol used when a tmup session is active. It is an additive extension to the sync mode defined in SKILL.md. All sync behavior is preserved when tmup is unavailable.
+This document defines the colony dispatch protocol used when a tmup session is active. It is an additive extension to the sync mode defined in SKILL.md. When tmup is unavailable, dispatch follows "Runtime Capability Routing" in SKILL.md: Claude uses its native Agent dispatch, Codex is blocked or degraded, and OpenCode uses only its registered sdlc_* tools.
 
 ---
 
@@ -16,7 +16,7 @@ After Phase 3 (Architect) produces a bead manifest, the Conductor checks for col
 
 1. Call `tmup_status`.
 2. If it returns a valid session: **colony mode**. Use the dispatch sequence below.
-3. If no session exists (or tmup plugin not loaded): **sync mode**. Use the existing Agent tool dispatch from SKILL.md. No changes.
+3. If no session exists (or tmup plugin not loaded): **sync mode**, by runtime as in "Runtime Capability Routing" in SKILL.md. In Claude, use the native Agent dispatch ("Claude Native Agent Dispatch"). In Codex, the required dispatch is blocked: record it and do not fall back to Agent or sidecar workers. In OpenCode, use only its registered sdlc_* tools.
 
 Colony mode is detected, not configured. There is no `COLONY_MODE` flag.
 
@@ -179,13 +179,13 @@ Write a fresh `bead-context.md` before EVERY dispatch, including retries. The fi
 
 ---
 
-## Sync Mode (Unchanged)
+## Sync Mode (Claude runtime)
 
-When `tmup_status` returns no valid session, the Conductor uses the existing Agent tool dispatch from SKILL.md:
+When `tmup_status` returns no valid session in a Claude runtime, the Conductor uses the native Agent dispatch from SKILL.md ("Claude Native Agent Dispatch"):
 
 - Dispatch `sonnet-implementer` runners via the Agent tool.
 - Runners execute synchronously within the Conductor's session.
 - No clones, no tmup tasks, no bead-context.md files.
 - All correction loops run inline.
 
-This behavior is fully preserved. Colony mode is purely additive.
+Codex and OpenCode follow "Runtime Capability Routing" in SKILL.md instead; Codex never falls back to this mode.

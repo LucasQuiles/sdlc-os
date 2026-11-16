@@ -74,9 +74,9 @@ DECLARED_COMPAT = {
 
 # Skill-heading references that must exist verbatim (heading, target file,
 # referencing surfaces). Source: wave-6 review — wave-definitions.md and
-# .claude/CLAUDE.md point at SKILL.md's "How to Dispatch Runners".
+# .claude/CLAUDE.md point at SKILL.md's "Claude Native Agent Dispatch".
 HEADING_REFS = [
-    ("How to Dispatch Runners", "sdlc-orchestrate/SKILL.md",
+    ("Claude Native Agent Dispatch", "sdlc-orchestrate/SKILL.md",
      ["sdlc-orchestrate/wave-definitions.md"]),
 ]
 

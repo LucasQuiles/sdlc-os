@@ -69,7 +69,7 @@ Key constraints:
 - Write-capable agents get worktree isolation and local memory
 - Phase 2 (executed 2026-07-05, no file promotion needed): permissionMode =
   dispatch-time Agent-tool `mode` param — authority is sdlc-orchestrate SKILL.md
-  "How to Dispatch Runners" (`mode: auto`); mcpServers = session-global plugin MCP
+  "Claude Native Agent Dispatch" (`mode: auto`); mcpServers = session-global plugin MCP
   named in agent `tools:`; hooks = no consumer (promote to `~/.claude/agents/`
   only if one appears)
 

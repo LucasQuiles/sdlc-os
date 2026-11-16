@@ -14,6 +14,33 @@ description: "Use when starting any non-trivial task to run the Multi-Agent SDLC
 > count as completed and must block or explicitly degrade the parent workflow.
 > Same-model fallback cannot satisfy a cross-model-required gate.
 
+## Runtime Capability Routing
+
+Before dispatching a role, inspect the live runtime and tool catalog. A role
+name, phase, or another runtime's configuration does not establish that a tool
+is available here. Record the runtime, observed capability, selected route, and
+any unavailable or inconclusive required role.
+
+- **Claude:** Use the native Agent packets below only when the Claude Agent
+  interface is actually present and permitted. The `mode: auto` guidance applies
+  only to that native interface.
+- **OpenCode with the SDLC-OS plugin:** Use only its registered `sdlc_*` tools.
+  The review path is `sdlc_review_dispatch(beadId, perspective, required?)`,
+  followed by `sdlc_review_result(receiptId, dispatchNonce, terminalStatus,
+  findings)` from the dispatched review session. There is no `sdlc_review`
+  tool. Retain the receipt; a required unavailable or inconclusive review does
+  not satisfy the gate. `sdlc_start`, `sdlc_phase`, `sdlc_bead`,
+  `sdlc_sentinel`, and `sdlc_quality` are likewise conditional on their live
+  registration.
+- **Codex:** Route SDLC worker and review dispatch through tmup only, and only
+  where a tmup session is observed; where none is observed, this route is
+  unavailable. Never replace an unavailable tmup lane with a direct Agent or
+  sidecar dispatch. Record the blocked or degraded state and seek direction
+  when that lane is required.
+- **Other or unknown runtimes:** Do not invent tool calls. Preserve the phase,
+  bead, review, and evidence records with the locally available facilities, and
+  identify every unavailable tool-backed gate.
+
 You are the **Conductor**. You decompose work into atomic units, distribute them to disposable runners, and synthesize results — while a sentinel watches for problems continuously.
 
 **This is NOT a waterfall. This is NOT a pipeline.** The system is loops all the way down. Every role loops against its own metric. Failures self-correct at the lowest possible level. Only budget-exhausted failures escalate upward. See `sdlc-os:sdlc-loop` for the full loop mechanics.
@@ -38,7 +65,7 @@ Conductor (Opus)
 **Conductor (you, Opus):**
 - Decompose ambiguous requests into crisp, atomic work units
 - Distribute work units to runners with precise context — no more, no less
-- Choose the right execution surface: disposable runners by default, tmup-managed Codex lanes when warm context or interactive supervision matters
+- Choose the right execution surface: disposable runners by default, tmup-managed Codex lanes, only where a tmup session is observed, when warm context or interactive supervision matters
 - Decide when to parallelize vs serialize (dependency analysis)
 - **Swarm guppies** for breadth-first investigation, audit, and verification (use `sdlc-os:sdlc-swarm`)
 - Synthesize runner outputs into coherent delivery
@@ -51,7 +78,7 @@ Conductor (Opus)
 - Submit output and exit. Do not accumulate context across work units.
 - Agent variants: `sonnet-investigator`, `sonnet-designer`, `sonnet-implementer`, `sonnet-reviewer`
 
-**Persistent External Lanes (tmup-managed Codex):**
+**Persistent External Lanes (tmup-managed Codex, only where a tmup session is observed):**
 - Use when repo-scale execution, warm context, or interactive supervision makes disposable runners inefficient.
 - Treat each lane as a long-lived external subagent. You own the objective, context hygiene, and lifecycle.
 - Supervise with `harvest -> evaluate -> reprompt`, not fire-and-forget polling.
@@ -248,7 +275,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - Dispatch `reuse-scout` (haiku) — runs the 6-layer analysis chain (episodic → Pinecone → grep → LSP symbols → LSP calls → synthesis)
    - Inject scout report into runner context as "Existing Solutions"
 1.5. **Stress sampling (FFT-15):** Before dispatching runners, evaluate FFT-15 from `references/fft-decision-trees.md` using quality-budget.yaml state, clean streak from system-stress.jsonl, bead complexity, and the deterministic seed (`sha256(task_id)`). If FFT-15 returns anything other than SKIP, create `stress-session.yaml` with `artifact_status: planned` and the selected stressors. Stressor probes are applied during AQS (Step 4) alongside domain probes.
-2. Dispatch execution units — `sonnet-implementer` runners by default, or tmup-managed Codex lanes when warm context, repo-scale coordination, or interactive reprompting justifies a persistent lane. Parallel when independent. Dispatch mode for every runner is governed by "How to Dispatch Runners" below (`mode: auto` — Phase 2 permissionMode, enforced at dispatch time).
+2. Dispatch execution units through the observed route in "Runtime Capability Routing". In Claude, use `sonnet-implementer` runners, or tmup-managed lanes only where a tmup session is observed; the native runner permission mode is governed by "Claude Native Agent Dispatch" below. Codex uses tmup only where it is observed. Parallelize independent units.
 3. After each runner submits, sentinel loop runs:
    - `haiku-verifier` checks acceptance criteria
    - `drift-detector` checks DRY/SSOT/SoC/pattern/boundary violations
@@ -328,9 +355,12 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
 
 **Output:** Delivery summary with fitness report, evidence, uncertainty, next actions, and Feature Matrix triage updates.
 
-## How to Dispatch Runners
+## Claude Native Agent Dispatch
 
-Each runner gets a precisely crafted context packet — never your full session history.
+Use these packets only in a Claude runtime where the native Agent interface was
+observed and is permitted. They are not fallback instructions for Codex or
+OpenCode. Each runner gets a precisely crafted context packet — never your full
+session history.
 
 ```
 Agent tool:
@@ -361,7 +391,7 @@ Agent tool:
 
 **IMPORTANT: Always set `mode: auto`** for runners and sentinels. Observed behavior (2026-07-05, harness v2.1.201, wave-7 experiments E1–E3): `mode: auto` inherits the parent's allow list — Write/Edit/Bash all ran with zero permission prompts; an omitted `mode` also resolved to `auto` in an auto-mode parent, and a narrower request (`acceptEdits`) was CLAMPED back to `auto`. Set `auto` explicitly anyway: the default and the clamp were observed only from an auto-mode parent, and a stricter parent session may behave differently. Deny-list inheritance was not probed and must not be assumed proven. Do NOT use `bypassPermissions` — it skips deny lists and may skip hooks. Do NOT use `acceptEdits` for this plugin's runners: from an auto parent it is clamped anyway (observed), and in stricter parents it auto-accepts only edit tools while every write-capable runner here also needs Bash (tests, git).
 
-tmup-managed lanes are the deliberate exception to the disposable-runner pattern — including permission mode: the `mode: auto` rule above governs Agent-tool dispatch only. Colony workers that run the Claude CLI (`worker_type: claude_code`) launch with `--permission-mode bypassPermissions` per the V-02 finding (`auto` is broken in non-interactive `-p` mode; see colony/conductor-prompt.md); Codex lanes (`worker_type: codex`) use Codex's own approval/sandbox contract and take no `--permission-mode` flag at all. When you choose tmup, do not copy this packet verbatim into a pane. tmup already injects the baseline runtime contract, lane discipline, tmux input model, process context, quality posture, internal team rules, and `tmup-cli` reference. Add only the mission-specific delta, then supervise the lane with `harvest -> evaluate -> reprompt`. If the lane still has the right context, reuse it instead of spawning a replacement.
+tmup-managed lanes are the deliberate exception to the disposable-runner pattern — including permission mode: the `mode: auto` rule above governs Claude Agent-tool dispatch only. Colony workers that run the Claude CLI (`worker_type: claude_code`) launch with `--permission-mode bypassPermissions` per the V-02 finding (`auto` is broken in non-interactive `-p` mode; see colony/conductor-prompt.md); Codex lanes (`worker_type: codex`) use Codex's own approval/sandbox contract and take no `--permission-mode` flag at all. When you choose tmup, do not copy this packet verbatim into a pane. tmup already injects the baseline runtime contract, lane discipline, tmux input model, process context, quality posture, internal team rules, and `tmup-cli` reference. Add only the mission-specific delta, then supervise the lane with `harvest -> evaluate -> reprompt`. If the lane still has the right context, reuse it instead of spawning a replacement.
 
 For Sentinel dispatch:
 ```
@@ -525,15 +555,24 @@ When all beads are proven, hardened (or AQS-skipped), and merged:
 | Frame | sonnet-investigator | haiku-evidence | — | — | Define mission, scope, criteria |
 | Scout | sonnet-investigator + convention-scanner + gap-analyst (Finder) + standards-curator + safety-constraints-guardian | haiku-evidence | — | — | Gather context, map conventions, find gaps, discover standards |
 | Architect | sonnet-designer + safety-analyst (if STPA applies) | haiku-verifier | — | — | Choose approach, create bead manifest |
-| Execute | sonnet-implementer (parallel OK) or tmup-managed Codex lanes (when warm context / interactive supervision helps) + crossmodel-supervisor (if FFT-14) | haiku-verifier + drift-detector + convention-enforcer + simplicity-auditor + safety-constraints-guardian | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
+| Execute | sonnet-implementer (parallel OK) or tmup-managed Codex lanes (only where a tmup session is observed, when warm context / interactive supervision helps) + crossmodel-supervisor (if FFT-14) | haiku-verifier + drift-detector + convention-enforcer + simplicity-auditor + safety-constraints-guardian | oracle L1+L2 (per bead) | reuse-scout (pre-dispatch) | Distribute beads, recover failures |
 | Synthesize | sonnet-reviewer + gap-analyst (Finisher) + normalizer (Final Pass) + losa-observer + reliability-ledger + llm-self-security | haiku-handoff | oracle L1+L2+L3 (integration) | fitness report (full, includes Conventions) | Merge results, deliver |
 
 ## Colony Mode (tmup Multi-Agent Dispatch)
 
-If tmup is available, the Conductor uses colony dispatch for parallel worker execution in isolated git clones. Detection happens after Phase 3 (Architect) produces the bead manifest.
+When tmup is available, the Conductor may use colony dispatch for parallel worker
+execution in isolated git clones after Phase 3 (Architect) produces the bead
+manifest.
 
-**Detection:** Call `tmup_status`. If it returns a valid session, use colony dispatch per `colony-mode.md`. If no session exists (or tmup plugin is not loaded), use sync Agent tool dispatch as described above.
+**Detection:** Call `tmup_status`. If it returns a valid session, use colony
+dispatch per `colony-mode.md`. In a Codex runtime, a missing session or tmup
+plugin blocks the required SDLC dispatch; do not fall back to direct Agent or
+sidecar workers. Claude and OpenCode may continue only through their observed,
+native routes described in Runtime Capability Routing.
 
-**Backward compatible.** All sync behavior is preserved. Colony mode is purely additive — it changes how beads are dispatched and evaluated, not the bead structure, loop mechanics, or quality system. The same phases, roles, and correction loops apply in both modes.
+**Runtime-specific behavior.** Colony dispatch changes how beads are dispatched
+and evaluated, not the bead structure, loop mechanics, or quality system. Native
+Claude and OpenCode behavior remains available only where the corresponding
+runtime capability was observed.
 
 See `colony-mode.md` for the full colony dispatch sequence, `colony/conductor-prompt.md` for Conductor session protocol.

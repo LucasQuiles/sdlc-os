@@ -34,8 +34,10 @@ Python AST extraction requires Python 3.10+. TypeScript AST extraction requires 
 ### Python Pipeline Runner (Recommended)
 
 ```bash
-python3 run_pipeline.py src/ -o ./dupcheck
+python3 run_pipeline.py src/ -o ./dupcheck --no-legacy-json
 ```
+
+For new analyses, keep `pairs.jsonl`, `summary.json`, the run receipts, and the Markdown report. Use `--no-legacy-json` to avoid writing a second representation of the same pairs. The built-in report and evaluation stages read the JSONL layout. If an identified external consumer requires `merged-results.json`, omit that flag and retain the finite legacy size limit. This guidance does not authorize deleting existing evidence or changing a consumer's input path.
 
 The Python runner includes the cross-process lock, memory preflight, and detector concurrency cap. Strict mode (exit non-zero on any phase failure) is the **default** — use `--permissive` only when you explicitly want old tolerant behavior (e.g. scripted sweeps over many trees where one broken tree should not halt the batch). `--strict` is still accepted as a no-op for backward compatibility. Does not require `jq` or `bash` for Phases 0-2. Use `--from-corpus` for evaluation against ground truth.
 
@@ -195,9 +197,9 @@ This keeps the automated pipeline deterministic while still supporting deeper se
 ### Phase 2: Merge and Score
 
 ```bash
-python3 ./scripts/merge-signals.py ./detect/ -o ./merge/merged-results.json --include-summary
+python3 ./scripts/merge-signals.py ./detect/ -o ./merge/merged-results.json --include-summary --no-legacy-json
 # writes ./merge/pairs.jsonl + ./merge/summary.json + ./merge/run.json;
-# merged-results.json only when it stays under --max-legacy-json-bytes (default 200 MiB)
+# --no-legacy-json suppresses merged-results.json; -o still selects the merge directory
 ```
 
 Multi-signal confidence rules:
@@ -227,6 +229,7 @@ python3 ./scripts/generate-corpus.py -o /tmp/eval-corpus.json --num-per-type 10 
 python3 run_pipeline.py \
     --from-corpus /tmp/eval-corpus.json \
     --eval-corpus /tmp/eval-corpus.json \
+    --no-legacy-json \
     -o /tmp/eval
 ```
 
@@ -251,7 +254,7 @@ Every stage is now bounded by design:
 | `merge/pairs.jsonl` | one merged pair per line, ordered by composite score, strategy count, first-seen | `--max-pairs`, `--max-output-bytes` |
 | `merge/summary.json` | counts plus `complete`, `pairs_dropped`, `candidates_total`, `truncation_reason` | small |
 | `merge/run.json`, `run.json` | policy, phases, counts, peak tree RSS, outcome, artifact hashes | small |
-| `merge/merged-results.json` | legacy `{"pairs": [...], "summary": {...}}` | written only under `--max-legacy-json-bytes` (default 200 MiB); absence is recorded in `run.json` |
+| `merge/merged-results.json` | legacy `{"pairs": [...], "summary": {...}}` | not written with `--no-legacy-json`; otherwise written only under `--max-legacy-json-bytes` (default 200 MiB); absence is recorded in `run.json` |
 | `duplicates-report.md` | streamed markdown, `--max-report-rows` per section, omissions stated explicitly | rows |
 
 Ceilings (all finite positive integers; there is no unbounded setting):

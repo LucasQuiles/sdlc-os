@@ -1,6 +1,6 @@
 {
   "name": "sdlc-os-dev",
-  "description": "Local marketplace for SDLC-OS plugin development",
+  "description": "Local development marketplace for the SDLC-OS high-assurance software delivery plugin",
   "owner": {
     "name": "q"
   },

@@ -32,7 +32,7 @@ Check whether processed content could inject instructions into agent prompts.
 - Could malicious content in source code files (comments, strings, docstrings) alter agent behavior when those files are read as context?
 - Are there agents that process user-provided content (bead specs from user, file contents from the target project) in a way that could override system instructions?
 
-**Detection:** Read agent markdown files in `agents/`. Check whether the dispatch templates in `skills/sdlc-orchestrate/SKILL.md` (the "How to Dispatch Runners" section) separate system instructions from external content using role boundaries. Read bead `Input` fields from bead files in `docs/sdlc/active/{task-id}/beads/` — check if raw file content is delimited from instructions. This is a structural audit of the prompt templates, not a runtime trace check.
+**Detection:** Read agent markdown files in `agents/`. Check whether the dispatch templates in `skills/sdlc-orchestrate/SKILL.md` (the "Claude Native Agent Dispatch" section) separate system instructions from external content using role boundaries. Read bead `Input` fields from bead files in `docs/sdlc/active/{task-id}/beads/` — check if raw file content is delimited from instructions. This is a structural audit of the prompt templates, not a runtime trace check.
 
 ### LLM05: Improper Output Handling
 
