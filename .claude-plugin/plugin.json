@@ -5,5 +5,13 @@
   "author": {
     "name": "OnePlatform"
   },
-  "keywords": ["sdlc", "multi-agent", "orchestration", "verification", "stage-gates"]
+  "keywords": ["sdlc", "multi-agent", "orchestration", "verification", "stage-gates"],
+  "userConfig": {
+    "crossmodel_tmup_review": {
+      "type": "boolean",
+      "title": "Cross-model review via tmup",
+      "description": "When on, FFT-14 FULL/TARGETED reviews run through tmup in a visible split pane or terminal window. When off, they are recorded as skipped_by_setting.",
+      "default": false
+    }
+  }
 }
