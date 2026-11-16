@@ -101,6 +101,7 @@ run_case() {
     fi
     if [[ "$name" == split_timeout ]]; then
       grep -q 'kill-pane -t %viewer' "$TMPROOT/log"
+      jq -e '.cleanup_complete == true' "$TMPROOT/out" >/dev/null
     fi
   fi
 }
@@ -163,6 +164,7 @@ proc = subprocess.Popen(['/bin/bash', str(root / 'scripts/crossmodel-grid-up.sh'
 try:
     out, err = proc.communicate(timeout=8)
     assert proc.returncode == 2 and len(out.splitlines()) == 1 and json.loads(out)['code'] == 'VISIBILITY_UNAVAILABLE', (proc.returncode, out, err)
+    assert json.loads(out).get('cleanup_complete') is False, out
     log = (tmp / 'log').read_text()
     assert 'kill-pane -t %viewer' in log and 'kill-session -t =xm-test' in log, log
 except subprocess.TimeoutExpired:

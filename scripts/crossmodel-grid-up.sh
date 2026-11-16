@@ -137,18 +137,19 @@ VIEWER_PANE_ID=""
 FAILURE_CODE="GRID_UP_FAIL"
 cleanup_grid() {
   if [[ "$SESSION_CREATED" == true ]]; then
-    local owner skipped=false
+    local owner skipped=false complete=true
     owner=$(bounded_capture "$VIEWER_TIMEOUT" tmux show-options -v -t "=$SESSION_NAME:" @xm_owner) || owner=""
     if [[ "$owner" == "$OWNER_TOKEN" ]]; then
-      [[ -z "$VIEWER_PANE_ID" ]] || bounded_capture "$VIEWER_TIMEOUT" tmux kill-pane -t "$VIEWER_PANE_ID" >/dev/null || true
-      bounded_capture "$VIEWER_TIMEOUT" tmux kill-session -t "=$SESSION_NAME" >/dev/null || true
+      [[ -z "$VIEWER_PANE_ID" ]] || bounded_capture "$VIEWER_TIMEOUT" tmux kill-pane -t "$VIEWER_PANE_ID" >/dev/null || complete=false
+      bounded_capture "$VIEWER_TIMEOUT" tmux kill-session -t "=$SESSION_NAME" >/dev/null || complete=false
     else
       skipped=true
+      complete=false
     fi
-    jq -cn --arg session "$SESSION_NAME" --arg code "$FAILURE_CODE" --argjson skipped "$skipped" \
-      '{ready:false,code:$code,session_name:$session,cleanup_skipped_unowned:$skipped}'
+    jq -cn --arg session "$SESSION_NAME" --arg code "$FAILURE_CODE" --argjson skipped "$skipped" --argjson complete "$complete" \
+      '{ready:false,code:$code,session_name:$session,cleanup_skipped_unowned:$skipped,cleanup_complete:$complete}'
   else
-    jq -cn --arg session "$SESSION_NAME" --arg code "$FAILURE_CODE" '{ready:false,code:$code,session_name:$session}'
+    jq -cn --arg session "$SESSION_NAME" --arg code "$FAILURE_CODE" '{ready:false,code:$code,session_name:$session,cleanup_complete:true}'
   fi
 }
 trap cleanup_grid EXIT
