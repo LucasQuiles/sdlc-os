@@ -264,7 +264,7 @@ The Conductor is an Opus-tier Claude Code session launched by the Deacon. Its sy
 3. `tmup_status` -- read session state
 4. `tmup_inbox` -- read unread messages
 
-**Colony mode detection:** Defined in `skills/sdlc-orchestrate/colony-mode.md`. After Phase 3 (Architect) produces a bead manifest, the Conductor calls `tmup_status`. If it returns a valid session, colony mode is active. Otherwise, sync mode (Agent tool dispatch) is used. Colony mode is detected, not configured -- there is no flag.
+**Colony mode detection:** Defined only in `skills/sdlc-orchestrate/colony-mode.md` (Detection). After Phase 3 (Architect) produces a bead manifest, the Conductor follows those steps: the runtime must permit a tmup lane and `tmup_status` must return a valid session; otherwise sync mode is used through the runtime's own routes. Colony mode is detected, not configured -- there is no flag.
 
 **Cost controls:**
 
@@ -353,7 +353,7 @@ After codex launch, the script captures the Codex session ID from `~/.codex/hist
    systemctl --user start sdlc-colony-deacon
    ```
 
-4. Start an SDLC workflow via the Conductor (e.g., `/sdlc` skill). After Phase 3 (Architect) produces beads, the Conductor detects colony mode via `tmup_status` and dispatches beads as tmup tasks.
+4. Start an SDLC workflow via the Conductor (e.g., `/sdlc` skill). After Phase 3 (Architect) produces beads, the Conductor runs the Detection steps in `skills/sdlc-orchestrate/colony-mode.md` and, where they select colony mode, dispatches beads as tmup tasks.
 5. The Deacon watches the DB and spawns Conductor sessions as work progresses through loop levels.
 
 Alternatively, run the Deacon manually for development:
