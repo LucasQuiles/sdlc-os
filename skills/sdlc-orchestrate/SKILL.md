@@ -23,7 +23,9 @@ any unavailable or inconclusive required role.
 
 - **Claude:** Use the native Agent packets below only when the Claude Agent
   interface is actually present and permitted. The `mode: auto` guidance applies
-  only to that native interface.
+  only to that native interface. Claude may also use tmup-managed lanes,
+  including colony dispatch; such a lane is available only where `tmup_status`
+  returns a valid session.
 - **OpenCode with the SDLC-OS plugin:** Use only its registered `sdlc_*` tools.
   The review path is `sdlc_review_dispatch(beadId, perspective, required?)`,
   followed by `sdlc_review_result(receiptId, dispatchNonce, terminalStatus,
@@ -32,11 +34,13 @@ any unavailable or inconclusive required role.
   not satisfy the gate. `sdlc_start`, `sdlc_phase`, `sdlc_bead`,
   `sdlc_sentinel`, and `sdlc_quality` are likewise conditional on their live
   registration.
-- **Codex:** Route SDLC worker and review dispatch through tmup only, and only
-  where a tmup session is observed; where none is observed, this route is
-  unavailable. Never replace an unavailable tmup lane with a direct Agent or
-  sidecar dispatch. Record the blocked or degraded state and seek direction
-  when that lane is required.
+- **Codex:** For SDLC worker and review dispatch, the Delegation section of the
+  global Codex instructions (the user-level `AGENTS.md` that Codex loads) is the
+  sole authority. Use a route only when that section permits it for the task and
+  the live runtime shows it is available; this skill grants no route of its own.
+  If those instructions carry no Delegation section, or no route qualifies,
+  record the required lane as unavailable, invent no dispatch tool or route, and
+  stop that dispatch or seek direction.
 - **Other or unknown runtimes:** Do not invent tool calls. Preserve the phase,
   bead, review, and evidence records with the locally available facilities, and
   identify every unavailable tool-backed gate.
@@ -275,7 +279,7 @@ For beads where the STPA skip rule applies (COMPLEX or security_sensitive), disp
    - Dispatch `reuse-scout` (haiku) — runs the 6-layer analysis chain (episodic → Pinecone → grep → LSP symbols → LSP calls → synthesis)
    - Inject scout report into runner context as "Existing Solutions"
 1.5. **Stress sampling (FFT-15):** Before dispatching runners, evaluate FFT-15 from `references/fft-decision-trees.md` using quality-budget.yaml state, clean streak from system-stress.jsonl, bead complexity, and the deterministic seed (`sha256(task_id)`). If FFT-15 returns anything other than SKIP, create `stress-session.yaml` with `artifact_status: planned` and the selected stressors. Stressor probes are applied during AQS (Step 4) alongside domain probes.
-2. Dispatch execution units through the observed route in "Runtime Capability Routing". In Claude, use `sonnet-implementer` runners, or tmup-managed lanes only where a tmup session is observed; the native runner permission mode is governed by "Claude Native Agent Dispatch" below. Codex uses tmup only where it is observed. Parallelize independent units.
+2. Dispatch execution units through the observed route in "Runtime Capability Routing". In Claude, use `sonnet-implementer` runners, or tmup-managed lanes only where a tmup session is observed; the native runner permission mode is governed by "Claude Native Agent Dispatch" below. Codex uses only a route that the Delegation section of its global instructions permits and the live runtime shows (see "Runtime Capability Routing"). Parallelize independent units.
 3. After each runner submits, sentinel loop runs:
    - `haiku-verifier` checks acceptance criteria
    - `drift-detector` checks DRY/SSOT/SoC/pattern/boundary violations
@@ -565,11 +569,14 @@ When tmup is available, the Conductor may use colony dispatch for parallel worke
 execution in isolated git clones after Phase 3 (Architect) produces the bead
 manifest.
 
-**Detection:** Call `tmup_status`. If it returns a valid session, use colony
-dispatch per `colony-mode.md`. In a Codex runtime, a missing session or tmup
-plugin blocks the required SDLC dispatch; do not fall back to direct Agent or
-sidecar workers. Claude and OpenCode may continue only through their observed,
-native routes described in Runtime Capability Routing.
+**Detection:** First confirm that the active runtime's entry in Runtime
+Capability Routing permits a tmup lane (in Codex, that entry defers to the
+Delegation section of the global Codex instructions). Only then call
+`tmup_status`; if it returns a valid session, use colony dispatch per
+`colony-mode.md`. Without that permission or a valid session, colony dispatch
+is unavailable, and every runtime continues only through the routes its entry
+permits and the live runtime shows. A missing session never licenses an
+unlisted fallback, and a visible session never grants permission by itself.
 
 **Runtime-specific behavior.** Colony dispatch changes how beads are dispatched
 and evaluated, not the bead structure, loop mechanics, or quality system. Native

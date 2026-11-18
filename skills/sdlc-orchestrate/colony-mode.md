@@ -6,7 +6,7 @@
 > with no valid receipt remains unavailable or inconclusive and blocks or
 > explicitly degrades the parent workflow.
 
-This document defines the colony dispatch protocol used when a tmup session is active. It is an additive extension to the sync mode defined in SKILL.md. When tmup is unavailable, dispatch follows "Runtime Capability Routing" in SKILL.md: Claude uses its native Agent dispatch, Codex is blocked or degraded, and OpenCode uses only its registered sdlc_* tools.
+This document defines the colony dispatch protocol used when a tmup session is active. It is an additive extension to the sync mode defined in SKILL.md. When colony dispatch is unavailable or not permitted, dispatch follows "Runtime Capability Routing" in SKILL.md, the one authority for each runtime's routes.
 
 ---
 
@@ -14,9 +14,10 @@ This document defines the colony dispatch protocol used when a tmup session is a
 
 After Phase 3 (Architect) produces a bead manifest, the Conductor checks for colony mode:
 
-1. Call `tmup_status`.
-2. If it returns a valid session: **colony mode**. Use the dispatch sequence below.
-3. If no session exists (or tmup plugin not loaded): **sync mode**, by runtime as in "Runtime Capability Routing" in SKILL.md. In Claude, use the native Agent dispatch ("Claude Native Agent Dispatch"). In Codex, the required dispatch is blocked: record it and do not fall back to Agent or sidecar workers. In OpenCode, use only its registered sdlc_* tools.
+1. Confirm that the active runtime's entry in "Runtime Capability Routing" in SKILL.md permits a tmup lane. In Codex, that entry defers to the Delegation section of the global Codex instructions. If it does not, colony mode does not apply: do not call `tmup_status`; use sync mode as in item 4 of this list.
+2. Call `tmup_status`.
+3. If it returns a valid session: **colony mode**. Use the dispatch sequence below.
+4. Otherwise (not permitted, no session, or tmup plugin not loaded): **sync mode**, through the routes the runtime's entry in "Runtime Capability Routing" permits and the live runtime shows. Where none qualifies, the required dispatch is blocked: record it and invent no fallback.
 
 Colony mode is detected, not configured. There is no `COLONY_MODE` flag.
 
@@ -100,7 +101,7 @@ Update the pre-flight handoff block in `state.md` with the list of dispatched ta
 The Conductor exits. The Deacon watches for worker completions and spawns an EVALUATE session.
 
 ### Cross-Model Workers
-The setting's live value is shown in the FFT-14 line of the `sdlc-os:sdlc-orchestrate` SKILL.md; the health gate rejects a recorded off value that the user settings contradict. The setting defaults to off. When enabled and policy requires review, cross-model workers are dispatched via `tmup_dispatch` with `clone_isolation: true`, under the role/model/evidence policy in `sdlc-os:sdlc-crossmodel`. Require a proven visible read-only split pane or terminal window; fail closed if visibility is unavailable. Independence is proven from the model observed at runtime, not from role labels. The Conductor retains the dispatch and terminal receipts and may advance only after the cross-model health gate accepts every required task. When disabled, record and report `skipped_by_setting` for FULL or TARGETED policy.
+The setting `user_config.crossmodel_tmup_review` is not substituted in this file; its live value is shown in the FFT-14 line of the `sdlc-os:sdlc-orchestrate` SKILL.md, and the health gate rejects a recorded off value that the user settings contradict. The setting defaults to off. When enabled and policy requires review, cross-model workers are dispatched via `tmup_dispatch` with `clone_isolation: true`, under the role/model/evidence policy in `sdlc-os:sdlc-crossmodel`. Require a proven visible read-only split pane or terminal window; fail closed if visibility is unavailable. Independence is proven from the model observed at runtime, not from role labels. The Conductor retains the dispatch and terminal receipts and may advance only after the cross-model health gate accepts every required task. When disabled, record and report `skipped_by_setting` for FULL or TARGETED policy.
 
 ---
 
@@ -181,11 +182,11 @@ Write a fresh `bead-context.md` before EVERY dispatch, including retries. The fi
 
 ## Sync Mode (Claude runtime)
 
-When `tmup_status` returns no valid session in a Claude runtime, the Conductor uses the native Agent dispatch from SKILL.md ("Claude Native Agent Dispatch"):
+When colony mode does not apply in a Claude runtime (see Detection), the Conductor uses the native Agent dispatch from SKILL.md ("Claude Native Agent Dispatch"):
 
 - Dispatch `sonnet-implementer` runners via the Agent tool.
 - Runners execute synchronously within the Conductor's session.
 - No clones, no tmup tasks, no bead-context.md files.
 - All correction loops run inline.
 
-Codex and OpenCode follow "Runtime Capability Routing" in SKILL.md instead; Codex never falls back to this mode.
+Codex and OpenCode follow "Runtime Capability Routing" in SKILL.md instead; neither uses the Claude Agent dispatch above.
